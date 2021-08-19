@@ -10,15 +10,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - java: 8
-            scala: 3
-          - java: 11
-            scala: 3
-          - java: 14
-            scala: 3
-          - java: 16
-            scala: 3
+        scala:
+          - 2
+          - 3
+        java:
+          - 8
+          - 11
+          - 14
+          - 16
     name: Scala v${{ matrix.scala }} / Java v${{ matrix.java }}
     steps:
 

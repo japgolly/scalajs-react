@@ -1,18 +1,19 @@
-package issue972
+package issues.`972`
 
+import japgolly.scalajs.react.ReactMonocle._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.test.TestUtil._
-import japgolly.scalajs.react.test._
-import japgolly.scalajs.react.ReactMonocle._
 import japgolly.scalajs.react.vdom.html_<^._
 import monocle._
-import scala.language.`3.0`
+import scala.annotation.nowarn
 import scala.scalajs.js.annotation._
 import utest._
 
 case class InnerStatus(cantRelyOn: Int, intsTheseDays: Int)
-given Reusability[InnerStatus] = Reusability.never[InnerStatus]
+object InnerStatus {
+  implicit val reusability: Reusability[InnerStatus] = Reusability.never
+}
 
 object Outer {
   case class Status(innerStatus: InnerStatus)
@@ -24,6 +25,7 @@ object Outer {
   class Backend(scope: BackendScope[Unit, Status]) {
     val innerStatusStatusSnapshot =
       StateSnapshot.withReuse.zoomL(Status.innerStatus).prepareVia(scope)
+    @nowarn("cat=unused")
     def render(u: Unit, status: Status) =
       Inner(innerStatusStatusSnapshot(status))
   }
@@ -39,15 +41,14 @@ object Outer {
 
 object Inner {
   case class Props(ss: StateSnapshot[InnerStatus])
+  @nowarn("cat=unused")
   class Backend(scope: BackendScope[Props, Unit]) {
     def render(p: Props) =
       <.input(
         ^.onInput ==> { (e: ReactEventFromInput) =>
           p.ss.modState{ s =>
             val result = {
-              if
-                e.target.valueAsNumber >= 21
-              then
+              if (e.target.valueAsNumber >= 21)
                 s.intsTheseDays
               else
                 e.target.valueAsNumber
