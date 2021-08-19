@@ -299,6 +299,27 @@ object AsyncCallback {
     }
   }
 
+  /** Creates an debounce boundary.
+    *
+    * Save it as a `val` somewhere because it relies on internal state that must be reused.
+    */
+  @inline def debounce(delay: Duration): AsyncCallback[Unit] =
+    unit.debounce(delay)
+
+  /** Creates an debounce boundary.
+    *
+    * Save it as a `val` somewhere because it relies on internal state that must be reused.
+    */
+  @inline def debounce(delay: FiniteDuration): AsyncCallback[Unit] =
+    unit.debounce(delay)
+
+  /** Creates an debounce boundary.
+    *
+    * Save it as a `val` somewhere because it relies on internal state that must be reused.
+    */
+  @inline def debounceMs(delayMs: Long): AsyncCallback[Unit] =
+    unit.debounceMs(delayMs)
+
   def awaitAll(as: AsyncCallback[Any]*): AsyncCallback[Unit] =
     if (as.isEmpty)
       unit
@@ -864,12 +885,24 @@ final class AsyncCallback[+A] private[AsyncCallback] (val underlyingRepr: AsyncC
       }
     }
 
+  /** Creates an debounce boundary over the underlying computation.
+    *
+    * Save the result of this as a `val` somewhere because it relies on internal state that must be reused.
+    */
   def debounce(delay: Duration): AsyncCallback[A] =
     debounceMs(delay.toMillis)
 
+  /** Creates an debounce boundary over the underlying computation.
+    *
+    * Save the result of this as a `val` somewhere because it relies on internal state that must be reused.
+    */
   def debounce(delay: FiniteDuration): AsyncCallback[A] =
     debounceMs(delay.toMillis)
 
+  /** Creates an debounce boundary over the underlying computation.
+    *
+    * Save the result of this as a `val` somewhere because it relies on internal state that must be reused.
+    */
   def debounceMs(delayMs: Long): AsyncCallback[A] =
     AsyncCallback.debounce(delayMs, this)
 

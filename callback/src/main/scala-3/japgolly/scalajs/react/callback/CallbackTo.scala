@@ -524,12 +524,24 @@ final class CallbackTo[+A] /*private[react]*/ (private[CallbackTo] val trampolin
         windowMs = windowMs,
       ))
 
+  /** Creates an debounce boundary over the underlying computation.
+    *
+    * Save the result of this as a `val` somewhere because it relies on internal state that must be reused.
+    */
   inline def debounce(inline delay: Duration): Callback =
     __debounceMs(delay.toMillis)
 
+  /** Creates an debounce boundary over the underlying computation.
+    *
+    * Save the result of this as a `val` somewhere because it relies on internal state that must be reused.
+    */
   inline def debounce(inline delay: FiniteDuration): Callback =
     __debounceMs(delay.toMillis)
 
+  /** Creates an debounce boundary over the underlying computation.
+    *
+    * Save the result of this as a `val` somewhere because it relies on internal state that must be reused.
+    */
   inline def debounceMs(inline delayMs: Long): Callback =
     __debounceMs(delayMs)
 
