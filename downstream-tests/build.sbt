@@ -79,10 +79,12 @@ lazy val root = Project("root", file("."))
           jvm           / clean,
           js            / clean,
           jsCE          / clean,
+          jsCBIO        / clean,
                    Test / compile,
           jvm    / Test / test,
           js     / Test / test,
           jsCE   / Test / test,
+          jsCBIO / Test / test
         ).value
       else
         Def.sequential(
