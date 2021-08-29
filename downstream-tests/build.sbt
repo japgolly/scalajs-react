@@ -173,6 +173,26 @@ lazy val jsCE = project
     },
   )
 
+lazy val jsCBIO = project
+  .in(file("js-cbio"))
+  .enablePlugins(ScalaJSPlugin)
+  .dependsOn(macros)
+  .configure(commonSettings, utestSettings, addReactJsDependencies(Test))
+  .settings(
+    scalaJSStage := jsStage,
+    libraryDependencies ++= {
+      val ver = version.value.stripSuffix("-SNAPSHOT") + "-SNAPSHOT"
+      Seq(
+        "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io" % ver,
+        "com.github.japgolly.scalajs-react" %%% "extra" % ver,
+        "com.github.japgolly.scalajs-react" %%% "test" % ver % Test,
+        Dep.microlibsCompileTime.value % Test,
+        Dep.microlibsTestUtil.value % Test,
+        Dep.scalaJsJavaTime.value % Test,
+      )
+    },
+  )
+
 lazy val generic = project
   .enablePlugins(ScalaJSPlugin)
   .configure(commonSettings)

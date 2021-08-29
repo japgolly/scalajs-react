@@ -26,7 +26,7 @@ object Exports {
   )
 
   private def modStateFnPure: ModStateFnPure[Int] =
-    ModStateFn((mod, cb) => Callback.log(mod(1).isDefined) >> cb)
+    ModStateFn((mod, cb) => Callback.log(mod(1).isDefined) >> Callback(cb()))
 
   private def pxToCallback: CallbackTo[Int] = {
     val x = Px.constByNeed(123).toCallback
