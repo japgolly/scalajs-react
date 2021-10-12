@@ -153,21 +153,23 @@ object ScalaComponentPTest extends TestSuite {
         assertMountCount(0)
 
         var mounted = Comp(Props(1, 2, 3)).renderIntoDOM(mountNode)
+        def el() = mounted.getDOMNode.asMounted().asElement()
+
         assertMountCount(1)
-        assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>1 2 3</div>")
+        assertOuterHTML(el(), "<div>1 2 3</div>")
         assertUpdates()
 
         mounted = Comp(Props(1, 2, 8)).renderIntoDOM(mountNode)
-        assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>1 2 3</div>")
+        assertOuterHTML(el(), "<div>1 2 3</div>")
         assertUpdates()
 
         mounted = Comp(Props(1, 5, 8)).renderIntoDOM(mountNode)
-        assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>1 5 8</div>")
+        assertOuterHTML(el(), "<div>1 5 8</div>")
         assertUpdates(Props(0, 3, 0))
 
         assertEq("willUnmountCount", willUnmountCount, 0)
         mounted = Comp(null).renderIntoDOM(mountNode)
-        assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>Error: Cannot read property of null</div>")
+        assertOuterHTMLMatches(el(), "<div>Error: Cannot read propert(y|ies) of null.*</div>")
         assertEq("willUnmountCount", willUnmountCount, 1)
         mounted.withEffectsPure.getDOMNode
       }

@@ -3,6 +3,7 @@ package japgolly.scalajs.react.test
 import cats.Eq
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.router
+import java.util.regex.Pattern
 import scala.annotation.nowarn
 import scala.reflect.ClassTag
 import scala.scalajs.js
@@ -50,6 +51,25 @@ trait TestUtil
       assertContains(actual, substr)
     else
       assertNotContains(actual, substr)
+
+  def assertOuterHTMLMatches(node: TopNode, expectRegex: String)(implicit l: Line): Unit =
+    assertOuterHTMLMatches(null, node, Pattern.compile(expectRegex))
+
+  def assertOuterHTMLMatches(name: => String, node: TopNode, expectRegex: String)(implicit l: Line): Unit =
+    assertOuterHTMLMatches(name, node, Pattern.compile(expectRegex))
+
+  def assertOuterHTMLMatches(node: TopNode, expectPattern: Pattern)(implicit l: Line): Unit =
+    assertOuterHTMLMatches(null, node, expectPattern)
+
+  def assertOuterHTMLMatches(name: => String, node: TopNode, expectPattern: Pattern)(implicit l: Line): Unit = {
+    import japgolly.microlibs.testutil.TestUtilInternals._
+    val actual = scrubReactHtml(node.outerHTML)
+    if (!expectPattern.matcher(actual).matches()) {
+      val desc = Option(name)
+      printFail2(desc)("regexp", BOLD_BRIGHT_CYAN, expectPattern.pattern)("actual", BOLD_BRIGHT_RED, actual)
+      failMethod("assertOuterHTMLMatches", desc)
+    }
+  }
 
   def assertOuterHTML(node: TopNode, expect: String)(implicit l: Line): Unit =
     assertOuterHTML(null, node, expect)
