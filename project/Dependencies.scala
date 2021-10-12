@@ -10,7 +10,7 @@ object Dependencies {
 
     // Externally observable
     val cats                  = "2.6.1"
-    val catsEffect            = "3.2.3"
+    val catsEffect            = "3.2.9"
     val microlibs             = "3.0.1"
     val monocle2              = "2.1.0"
     val monocle3              = "3.1.0"
@@ -27,7 +27,7 @@ object Dependencies {
     val nyaya                 = "0.11.0"
     val reactJs               = "17.0.2"
     val scalaJsJavaTime       = "1.0.0"
-    val scalaTest             = "3.2.9"
+    val scalaTest             = "3.2.10"
     val sizzleJs              = "2.3.0"
     val univEq                = "1.6.0"
     val utest                 = "0.7.10"
