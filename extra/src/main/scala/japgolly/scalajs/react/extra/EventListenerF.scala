@@ -2,8 +2,7 @@ package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.util.Effect.Dispatch
-import org.scalajs.dom.Event
-import org.scalajs.dom.raw.EventTarget
+import org.scalajs.dom.{Event, EventTarget}
 import scala.scalajs.js
 
 class EventListenerF[F[_]] {

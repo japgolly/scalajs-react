@@ -5,8 +5,7 @@ import japgolly.scalajs.react.facade.SyntheticEvent
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom
-import org.scalajs.dom.document
-import org.scalajs.dom.raw.{HTMLElement, HTMLInputElement}
+import org.scalajs.dom.{HTMLElement, HTMLInputElement, document}
 import scala.annotation.nowarn
 import scala.concurrent.Promise
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue

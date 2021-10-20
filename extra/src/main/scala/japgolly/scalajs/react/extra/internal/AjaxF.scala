@@ -1,7 +1,6 @@
 package japgolly.scalajs.react.extra.internal
 
 import japgolly.scalajs.react.util.Effect
-import org.scalajs.dom.ext.AjaxException
 import org.scalajs.dom.{ProgressEvent, XMLHttpRequest}
 import scala.scalajs.js
 import scala.util.{Failure, Success}
@@ -205,4 +204,8 @@ class AjaxF[F[_], Async[_]](implicit F: Effect.Sync[F], Async: Effect.Async[Asyn
   }
 
   private val newXHR = F.delay(new XMLHttpRequest())
+}
+
+final case class AjaxException(xhr: XMLHttpRequest) extends Exception {
+  def isTimeout = xhr.status == 0 && xhr.readyState == 4
 }

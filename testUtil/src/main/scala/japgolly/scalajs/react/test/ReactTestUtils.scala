@@ -405,7 +405,7 @@ trait ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtilE
       (c: GenericComponent[P, CtorType.Props, U], m: M)(f: P => P): M = {
     val container = m.getDOMNode.asMounted().node.parentNode
     val p2 = f(m.props)
-    act(c(p2).renderIntoDOM(container.domCast[org.scalajs.dom.raw.Element]))
+    act(c(p2).renderIntoDOM(container.domCast[org.scalajs.dom.Element]))
   }
 
   def replaceProps[P, U <: GenericComponent.Unmounted[P, M], M <: GenericComponent.MountedImpure[P, _]]
