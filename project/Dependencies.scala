@@ -11,7 +11,7 @@ object Dependencies {
     // Externally observable
     val cats                  = "2.6.1"
     val catsEffect            = "3.2.9"
-    val microlibs             = "3.0.1"
+    val microlibs             = "4.0.0-RC1"
     val monocle2              = "2.1.0"
     val monocle3              = "3.1.0"
     val scala2                = "2.13.6"
@@ -78,6 +78,7 @@ object Dependencies {
   }
 
   def globalDependencyOverrides = Def.setting(Seq(
+    Dep.scalaJsDom.value,
     Dep.univEq.value,
     Dep.univEqCats.value,
   ))
