@@ -35,6 +35,7 @@ object ScalaJsReact {
       ghpagesMacros,
       scalafixRules,
       tests,
+      testUtilMacros,
       testUtil,
       util,
       utilCatsEffect,
@@ -222,10 +223,17 @@ object ScalaJsReact {
     )
 
   lazy val testUtil = project
-    .dependsOn(coreGeneric, extra, facadeTest)
+    .dependsOn(facadeTest, testUtilMacros, extra)
     .configure(commonSettings, publicationSettings, hasNoTests, effectGenericModule)
     .settings(
       moduleName := "test",
+    )
+
+  lazy val testUtilMacros = project
+    .dependsOn(coreGeneric)
+    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, effectGenericModule)
+    .settings(
+      moduleName := "test-macros",
     )
 
   lazy val util = project

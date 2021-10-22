@@ -12,7 +12,7 @@ final class ConsoleHijack(val config: ConsoleHijack.Config) {
   /** Install these hijacks into `console`, execute the given procedure,
     * then restore `console` to the state that it was before this is called.
     */
-  def use[A](a: => A): A = {
+  def apply[A](a: => A): A = {
     val undo = new js.Array[() => Unit]
     try {
       _install(undo)
@@ -47,6 +47,14 @@ final class ConsoleHijack(val config: ConsoleHijack.Config) {
 }
 
 object ConsoleHijack {
+
+  lazy val fatalReactWarnings: ConsoleHijack =
+    Error.handleWith { i =>
+      if (i.msg.startsWith("Warning: "))
+        i.throwException()
+      else
+        i.fallthrough()
+    }
 
   def apply(cfg: (Method, Handler)*): ConsoleHijack =
     apply(cfg.toMap)
