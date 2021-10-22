@@ -24,12 +24,12 @@ object Dependencies {
     val catsTestkitScalaTest  = "2.1.5"
     val disciplineScalaTest   = "2.1.5"
     val kindProjector         = "0.13.2"
-    val nyaya                 = "0.11.0"
+    val nyaya                 = "1.0.0"
     val reactJs               = "17.0.2"
     val scalaJsJavaTime       = "1.0.0"
     val scalaTest             = "3.2.10"
     val sizzleJs              = "2.3.0"
-    val univEq                = "2.0.0-RC1"
+    val univEq                = "2.0.0"
     val utest                 = "0.7.10"
   }
 
