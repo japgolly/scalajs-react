@@ -18,7 +18,7 @@ all_tests_values=(
   "-Ddownstream_tests.fullOptJS -Ddownstream_tests.reusability.dev=overlay"
 )
 all_tests_keys=()
-declare -a all_tests
+declare -A all_tests
 i=0
 for t in "${all_tests_values[@]}"; do
   i=$((i+1))

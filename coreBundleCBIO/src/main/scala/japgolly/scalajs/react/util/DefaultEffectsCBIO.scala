@@ -7,7 +7,6 @@ import japgolly.scalajs.react.callback._
 
 sealed trait DefaultEffectsLowPri extends DefaultEffectsApiLowPri {
   override final type Async[A] = IO[A]
-  
   @inline override final implicit lazy val Async: EffectCatsEffect.io.type = EffectCatsEffect.io
 }
 
@@ -19,6 +18,6 @@ object DefaultEffects extends DefaultEffectsLowPri with DefaultEffectsApi {
 // Effect highest-priority
 
 abstract class EffectFallbacks extends EffectFallbacks1 {
-  override implicit def callback : Effect.Sync [CallbackTo] = EffectCallback.callback
-  override implicit def io       : Effect.Async[IO        ] = EffectCatsEffect.io
+  override implicit def callback: Effect.Sync [CallbackTo] = EffectCallback.callback
+  override implicit def io      : Effect.Async[IO        ] = EffectCatsEffect.io
 }

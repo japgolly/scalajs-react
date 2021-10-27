@@ -3,9 +3,8 @@ package japgolly.scalajs.react.component
 import japgolly.scalajs.react.hooks.HookComponentBuilder
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.vdom.VdomNode
-import japgolly.scalajs.react.{Children, CtorType, PropsChildren, facade}
+import japgolly.scalajs.react.{Children, CtorType, PropsChildren, Reusability, facade}
 import scala.scalajs.js
-import japgolly.scalajs.react.Reusability
 
 object ScalaFn {
 

@@ -111,8 +111,7 @@ object ScalaJsReact {
     )
 
   lazy val coreBundleCBIO = project
-    .dependsOn(callback) // High priority
-    .dependsOn(coreExtCatsEffect) // High priority
+    .dependsOn(callback, coreExtCatsEffect) // High priority
     .dependsOn(utilFallbacks) // Low priority
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
     .settings(
