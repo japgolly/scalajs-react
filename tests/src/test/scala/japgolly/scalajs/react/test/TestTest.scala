@@ -252,7 +252,7 @@ object TestTest extends TestSuite {
       assert(body1 == body2)
     }
 
-    "withRenderedIntoDocumentAsync" - {
+    "withRenderedIntoDocumentFuture" - {
       var m: ScalaComponent.MountedImpure[Unit, Boolean, Unit] = null
       val promise: Promise[Unit] = Promise[Unit]()
       ReactTestUtils.withRenderedIntoDocumentFuture(IC()) { mm =>

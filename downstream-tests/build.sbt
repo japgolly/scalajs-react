@@ -80,10 +80,12 @@ lazy val root = Project("root", file("."))
           jvm           / clean,
           js            / clean,
           jsCE          / clean,
+          jsCBIO        / clean,
                    Test / compile,
           jvm    / Test / test,
           js     / Test / test,
           jsCE   / Test / test,
+          jsCBIO / Test / test
         ).value
       else
         Def.sequential(
@@ -165,6 +167,26 @@ lazy val jsCE = project
       val ver = version.value.stripSuffix("-SNAPSHOT") + "-SNAPSHOT"
       Seq(
         "com.github.japgolly.scalajs-react" %%% "core-bundle-cats_effect" % ver,
+        "com.github.japgolly.scalajs-react" %%% "extra" % ver,
+        "com.github.japgolly.scalajs-react" %%% "test" % ver % Test,
+        Dep.microlibsCompileTime.value % Test,
+        Dep.microlibsTestUtil.value % Test,
+        Dep.scalaJsJavaTime.value % Test,
+      )
+    },
+  )
+
+lazy val jsCBIO = project
+  .in(file("js-cbio"))
+  .enablePlugins(ScalaJSPlugin)
+  .dependsOn(macros)
+  .configure(commonSettings, utestSettings, addReactJsDependencies(Test))
+  .settings(
+    scalaJSStage := jsStage,
+    libraryDependencies ++= {
+      val ver = version.value.stripSuffix("-SNAPSHOT") + "-SNAPSHOT"
+      Seq(
+        "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io" % ver,
         "com.github.japgolly.scalajs-react" %%% "extra" % ver,
         "com.github.japgolly.scalajs-react" %%% "test" % ver % Test,
         Dep.microlibsCompileTime.value % Test,
