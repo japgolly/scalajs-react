@@ -55,13 +55,14 @@ def scalac3Flags = Seq(
 def commonSettings: Project => Project = _
   .configure(preventPublication)
   .settings(
-    scalaVersion       := Ver.scala3,
-    crossScalaVersions := Seq(Ver.scala2, Ver.scala3),
-    scalacOptions     ++= scalacCommonFlags,
-    scalacOptions     ++= byScalaVersion {
-                            case (2, _) => scalac2Flags
-                            case (3, _) => scalac3Flags
-                          }.value,
+    scalaVersion         := Ver.scala3,
+    crossScalaVersions   := Seq(Ver.scala2, Ver.scala3),
+    scalacOptions       ++= scalacCommonFlags,
+    scalacOptions       ++= byScalaVersion {
+                              case (2, _) => scalac2Flags
+                              case (3, _) => scalac3Flags
+                            }.value,
+    dependencyOverrides ++= globalDependencyOverrides.value,
   )
 
 lazy val cleanTestAll = taskKey[Unit]("cleanTestAll")

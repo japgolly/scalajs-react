@@ -6,9 +6,9 @@ import org.scalajs.dom.html
 object DomUtil {
 
   /** Extensions to plain old DOM. */
-  @inline implicit final class ReactExt_DomNode(private val n: dom.raw.Node) extends AnyVal {
+  @inline implicit final class ReactExt_DomNode(private val n: dom.Node) extends AnyVal {
 
-    @inline def domCast[N <: dom.raw.Node]: N =
+    @inline def domCast[N <: dom.Node]: N =
       n.asInstanceOf[N]
 
     @inline def domAsHtml: html.Element =
@@ -26,6 +26,6 @@ object DomUtil {
 trait DomUtil {
   import DomUtil._
 
-  @inline final implicit def ReactExt_DomNode(n: dom.raw.Node): ReactExt_DomNode =
+  @inline final implicit def ReactExt_DomNode(n: dom.Node): ReactExt_DomNode =
     new ReactExt_DomNode(n)
 }

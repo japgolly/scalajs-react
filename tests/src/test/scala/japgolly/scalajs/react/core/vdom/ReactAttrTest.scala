@@ -3,25 +3,57 @@ package japgolly.scalajs.react.core.vdom
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import scala.scalajs.js
+
+object ReactAttrTestSep {
+  import utest.compileError
+
+  val anything = VdomAttr[Any]("")
+  val intOnly = ^.colSpan
+  val stringOnly = ^.href
+  val style = ^.style
+  val mouse = ^.onMouseDown
+  val focus = ^.onFocus
+
+  def jsObj: js.Object = new js.Object()
+  def jsDict: js.Dictionary[String] = js.Dictionary.empty
+  val unit = ()
+  def callback = Callback.empty
+  def anyEH: ReactEvent => Callback = _ => callback
+  def mouseEH: ReactMouseEvent => Callback = _ => callback
+  def focusEH: ReactFocusEvent => Callback = _ => callback
+  def mouseInputEH: ReactMouseEventFromInput => Callback = _ => callback
+
+  def mouseEvent(): Unit = {
+    mouse --> callback
+    mouse ==> anyEH
+    mouse ==> mouseEH
+    mouse ==> mouseInputEH
+    compileError("mouse ==> focusEH")
+    compileError("mouse := \"\"")
+    compileError("mouse := 5")
+    compileError("mouse := jsObj")
+    compileError("mouse := jsDict")
+    compileError("mouse := unit").msg
+  }
+
+  def focusEvent(): Unit = {
+    focus --> callback
+    focus ==> anyEH
+    focus ==> focusEH
+    compileError("focus ==> mouseEH")
+    compileError("focus ==> mouseInputEH")
+    compileError("focus := \"\"")
+    compileError("focus := 5")
+    compileError("focus := jsObj")
+    compileError("focus := jsDict")
+    compileError("focus := unit").msg
+  }
+}
+
 import utest._
 
 object ReactAttrTest extends TestSuite {
-
-  private val anything = VdomAttr[Any]("")
-  private val intOnly = ^.colSpan
-  private val stringOnly = ^.href
-  private val style = ^.style
-  private val mouse = ^.onMouseDown
-  private val focus = ^.onFocus
-
-  private def jsObj: js.Object = new js.Object()
-  private def jsDict: js.Dictionary[String] = js.Dictionary.empty
-  private val unit = ()
-  private def callback = Callback.empty
-  private def anyEH: ReactEvent => Callback = _ => callback
-  private def mouseEH: ReactMouseEvent => Callback = _ => callback
-  private def focusEH: ReactFocusEvent => Callback = _ => callback
-  private def mouseInputEH: ReactMouseEventFromInput => Callback = _ => callback
+  import ReactAttrTestSep._
 
   override def tests = Tests {
 
@@ -58,34 +90,10 @@ object ReactAttrTest extends TestSuite {
         compileError("style := \"\"")
         compileError("style := unit").msg
       }
-
-      "mouseEvent" - {
-        mouse --> callback
-        mouse ==> anyEH
-        mouse ==> mouseEH
-        mouse ==> mouseInputEH
-        compileError("mouse ==> focusEH")
-        compileError("mouse := \"\"")
-        compileError("mouse := 5")
-        compileError("mouse := jsObj")
-        compileError("mouse := jsDict")
-        compileError("mouse := unit").msg
-      }
-
-      "focusEvent" - {
-        focus --> callback
-        focus ==> anyEH
-        focus ==> focusEH
-        compileError("focus ==> mouseEH")
-        compileError("focus ==> mouseInputEH")
-        compileError("focus := \"\"")
-        compileError("focus := 5")
-        compileError("focus := jsObj")
-        compileError("focus := jsDict")
-        compileError("focus := unit").msg
-      }
-
     }
+
+    "mouseEvent" - mouseEvent()
+    "focusEvent" - focusEvent()
 
   }
 }

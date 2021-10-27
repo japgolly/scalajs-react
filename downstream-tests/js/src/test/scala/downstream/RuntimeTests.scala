@@ -4,18 +4,22 @@ import cats.effect.IO
 import japgolly.microlibs.compiletime.CompileTimeInfo
 import japgolly.microlibs.testutil.TestUtil._
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.test.ReactTestUtils._
 import japgolly.scalajs.react.util.JsUtil
+import org.scalajs.dom.console
 import scala.scalajs.js
 import scala.scalajs.LinkingInfo.developmentMode
 import scala.util.Try
 import utest._
+import japgolly.scalajs.react.test.ReactTestUtils
 
 object RuntimeTests extends TestSuite {
 
-  val compNameAuto = CompileTimeInfo.sysProp("japgolly.scalajs.react.component.names.implicit")
-  val compNameAll  = CompileTimeInfo.sysProp("japgolly.scalajs.react.component.names.all")
-  val configClass  = CompileTimeInfo.sysProp("japgolly.scalajs.react.config.class")
+  val compNameAuto      = CompileTimeInfo.sysProp("japgolly.scalajs.react.component.names.implicit")
+  val compNameAll       = CompileTimeInfo.sysProp("japgolly.scalajs.react.component.names.all")
+  val configClass       = CompileTimeInfo.sysProp("japgolly.scalajs.react.config.class")
+  val testWarningsReact = CompileTimeInfo.sysProp("japgolly.scalajs.react.test.warnings.react")
 
   val dsCfg1 = configClass.contains("downstream.DownstreamConfig1")
   val dsCfg2 = configClass.contains("downstream.DownstreamConfig2")
@@ -81,6 +85,26 @@ object RuntimeTests extends TestSuite {
         .timeoutMs(3000)
         .map(_.get)
         .unsafeToFuture()
+    }
+
+    "testWarnings" - {
+
+      "react" - {
+        val c = ScalaFnComponent[Int](i => <.p(<.td(s"i = $i")))
+        val t = Try(ReactTestUtils.withRenderedIntoBody(c(123))(_ => ()))
+        assertEq(t.isFailure, testWarningsReact.contains("react"))
+      }
+
+      "unlreated" - {
+        val c = ScalaFnComponent[Int](i => <.p(s"i = $i"))
+        val t = Try(ReactTestUtils.withRenderedIntoBody(c(123)) { _ =>
+          console.info(".")
+          console.log(".")
+          console.warn(".")
+          console.error(".")
+        })
+        assertEq(t.isFailure, false)
+      }
     }
   }
 }

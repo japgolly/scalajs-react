@@ -38,10 +38,7 @@ object TouchExample {
       )
 
     private def formatTouches(touches: dom.TouchList) =
-      toSeq(touches).map(formatCoordinates).mkString(" | ")
-
-    private def toSeq[A](list: dom.DOMList[A]) =
-      for(i <- 0 to list.length - 1) yield list.item(i)
+      touches.iterator.map(formatCoordinates).mkString(" | ")
 
     private def formatCoordinates(touch: dom.Touch) =
       s"${touch.screenX}x${touch.screenY}: ${touch.radiusX}x${touch.radiusY}"

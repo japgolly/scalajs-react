@@ -12,7 +12,7 @@ import scala.annotation.nowarn
 import scala.scalajs.LinkingInfo.developmentMode
 import utest._
 
-object RouterP2Test extends TestSuite {
+object RouterP2TestRoutes {
   class Ctx(val int: Int) extends AnyVal
 
   sealed trait Module
@@ -146,8 +146,12 @@ object RouterP2Test extends TestSuite {
         .logToConsole
     }
   }
+}
 
-  // -------------------------------------------------------------------------------------------------------------------
+// ===================================================================================================================
+
+object RouterP2Test extends TestSuite {
+  import RouterP2TestRoutes._
 
   implicit def str2path(s: String): Path = Path(s)
 

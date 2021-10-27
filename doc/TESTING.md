@@ -16,6 +16,7 @@ for how to write tests for real-world scalajs-react applications.
 - [`Testing props changes`](#testing-props-changes)
 - [`ReactTestVar`](#reacttestvar)
 - [`Test Scripts`](#test-scripts)
+- [Fatal React warnings](#fatal-react-warnings)
 
 Setup
 =====
@@ -223,3 +224,45 @@ In case you missed the notice at the top of the file, that functionality is prov
 
 See [this example](https://github.com/japgolly/test-state/tree/master/example-react)
 for how to write tests for real-world scalajs-react applications.
+
+
+Fatal React warnings
+====================
+
+The easiest way to make `ReactTestUtils` to turn React warnings into runtime exceptions,
+is via a [config option](./CONFIG.md#testwarningsreact).
+
+Alternatively, you can do any of the following...
+
+* Wrapping a test
+
+    ```scala
+    import japgolly.scalajs.react.test.ReactTestUtilsConfig
+    ReactTestUtilsConfig.AroundReact.fatalReactWarnings {
+      // test code here
+    }
+    ```
+
+* Installing for all `ReactTestUtils` usage
+
+    ```scala
+    import japgolly.scalajs.react.test.ReactTestUtilsConfig
+    ReactTestUtilsConfig.aroundReact.set(
+      ReactTestUtilsConfig.AroundReact.fatalReactWarnings)
+    ```
+
+* Installing outside of test code
+
+    ```scala
+    import japgolly.scalajs.react.util.ConsoleHijack
+    ConsoleHijack.fatalReactWarnings.install()
+    ```
+
+* Wrapping non-test code
+
+    ```scala
+    import japgolly.scalajs.react.util.ConsoleHijack
+    ConsoleHijack.fatalReactWarnings {
+      // code here
+    }
+    ```

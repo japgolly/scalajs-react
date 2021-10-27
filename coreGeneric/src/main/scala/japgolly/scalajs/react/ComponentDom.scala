@@ -67,7 +67,7 @@ object ComponentDom {
       }
 
     /** unsafe! may throw an exception */
-    final def domCast[N <: dom.raw.Node]: N =
+    final def domCast[N <: dom.Node]: N =
       asElement().domCast[N]
 
     /** unsafe! may throw an exception */
