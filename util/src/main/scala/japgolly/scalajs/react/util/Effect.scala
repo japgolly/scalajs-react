@@ -10,6 +10,8 @@ object Effect extends EffectFallbacks {
     /** Fire and forget, could be sync or async */
     def dispatch[A](fa: F[A]): Unit
     def dispatchFn[A](fa: => F[A]): js.Function0[Unit]
+
+    def throwException[A](t: Throwable): F[A] = delay(throw t)
   }
 
   object Dispatch {
