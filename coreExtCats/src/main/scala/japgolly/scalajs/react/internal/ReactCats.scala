@@ -35,28 +35,28 @@ object ReactCats {
       override def dimap[A, B, C, D](r: Ref.FullF[F, A, X, B])(f: C => A)(g: B => D) = r.contramap(f).map(g)
     }
 
-    implicit def reactCatsSyncEffectMonadThrow[F[_]](implicit F: Effect.Sync[F]): MonadThrow[F] =
-      new MonadThrow[F] {
-        override def flatMap[A, B](fa: F[A])(f: A => F[B]): F[B] = F.flatMap(fa)(f)
+  implicit def reactCatsSyncEffectMonadThrow[F[_]](implicit F: Effect.Sync[F]): MonadThrow[F] =
+    new MonadThrow[F] {
+      override def flatMap[A, B](fa: F[A])(f: A => F[B]): F[B] = F.flatMap(fa)(f)
 
-        override def tailRecM[A, B](a: A)(f: A => F[Either[A,B]]): F[B] = F.pure {
-          @tailrec
-          def go(a: A): B =
-            F.runSync(f(a)) match {
-              case Left(n)  => go(n)
-              case Right(b) => b
-            }
-          go(a)
-        }
-
-        override def pure[A](a: A): F[A] = F.pure(a)
-
-        override def raiseError[A](e: Throwable): F[A] = F.throwException(e)
-
-        override def handleErrorWith[A](fa: F[A])(f: Throwable => F[A]): F[A] =
-          F.handleError(fa)(f)
+      override def tailRecM[A, B](a: A)(f: A => F[Either[A,B]]): F[B] = F.pure {
+        @tailrec
+        def go(a: A): B =
+          F.runSync(f(a)) match {
+            case Left(n)  => go(n)
+            case Right(b) => b
+          }
+        go(a)
       }
 
-    implicit def reactCatsSyncEffectMonoid[F[_]: Effect.Sync, A: Monoid]: Monoid[F[A]] =
-      Applicative.monoid[F, A]
+      override def pure[A](a: A): F[A] = F.pure(a)
+
+      override def raiseError[A](e: Throwable): F[A] = F.throwException(e)
+
+      override def handleErrorWith[A](fa: F[A])(f: Throwable => F[A]): F[A] =
+        F.handleError(fa)(f)
+    }
+
+  implicit def reactCatsSyncEffectMonoid[F[_]: Effect.Sync, A: Monoid]: Monoid[F[A]] =
+    Applicative.monoid[F, A]
 }
