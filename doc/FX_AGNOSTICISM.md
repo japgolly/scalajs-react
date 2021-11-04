@@ -14,6 +14,7 @@ friends directly, but if you want your library to be effect-agnostic then follow
 * [Producing effects from classes](#producing-effects-from-classes)
 * [Producing effects from traits](#producing-effects-from-traits)
 * [Modifying effects](#modifying-effects)
+* [Implicit syntax/ops](#implicit-syntaxops)
 
 
 # Required sbt changes
@@ -299,8 +300,28 @@ This can be even more abstract if you want, no need to restrict it to only synch
 import japgolly.scalajs.react.util.Effect.Monad
 
 def newWay[F[_], A](f: F[A])(implicit F: Monad[F]): F[Option[A]] = {
-  // no implicit ops lol. This case is rare and I don't want to needlessly add to output JS size
+  // no implicit ops in this example so that it doesn't needlessly add to output JS size.
+  // implicit ops are exactly available though, see the it's section in this doc.
   val fo = F.map(f)(Option(_))
   F.flatmap(fo)(o => F.delay { println("Result is " + o); o })
 }
+```
+
+
+# Implicit syntax/ops
+
+Implicit ops have now been added to make working with general effects easier.
+
+```scala
+import japgolly.scalajs.react.util.Effect
+import japgolly.scalajs.react.util.syntax._
+
+def example(fi: F[Int])(implicit F: Effect.Sync[F]): F[Int] =
+  for {
+    i <- fi
+    j <- F.delay(123)
+  } yield {
+    println("Re-running fi = " + fi.runSync())
+    i + j
+  }
 ```
