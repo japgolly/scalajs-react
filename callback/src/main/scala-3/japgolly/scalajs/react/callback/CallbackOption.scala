@@ -280,7 +280,7 @@ final class CallbackOption[+A](val underlyingRepr: CallbackOption.UnderlyingRepr
    *
    * @param cond The condition required to be `true` for this callback to execute.
    */
-  def when(inline cond: Boolean): CallbackOption[A] =
+  def when(cond: Boolean): CallbackOption[A] =
     new CallbackOption[A](() => if (cond) cbfn() else None)
 
   /**
@@ -298,7 +298,7 @@ final class CallbackOption[+A](val underlyingRepr: CallbackOption.UnderlyingRepr
    * @param cond The condition required to be `false` for this callback to execute.
    * @return `Some` result of the callback executed, else `None`.
    */
-  inline def unless(inline cond: Boolean): CallbackOption[A] =
+  def unless(cond: Boolean): CallbackOption[A] =
     when(!cond)
 
   /**
