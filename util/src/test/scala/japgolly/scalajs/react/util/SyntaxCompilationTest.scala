@@ -23,4 +23,13 @@ trait SyntaxCompilationTest {
       i + j
     }
 
+  def dispatch[F[_]: Effect.Dispatch](f: F[Int]) =
+    for {
+      i <- f
+      j <- f
+    } yield {
+      val _ = f.dispatch()
+      i + j
+    }
+
 }
