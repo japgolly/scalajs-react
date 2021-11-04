@@ -32,6 +32,9 @@ object CallbackOption {
   inline def delay[A](inline a: A): CallbackOption[A] =
     option(Some(a))
 
+  def suspend[A](f: => CallbackOption[A]): CallbackOption[A] =
+    delay(f).flatMap(identityFn)
+
   inline def option[A](inline oa: Option[A]): CallbackOption[A] =
     new CallbackOption(() => oa)
 
@@ -277,8 +280,16 @@ final class CallbackOption[+A](val underlyingRepr: CallbackOption.UnderlyingRepr
    *
    * @param cond The condition required to be `true` for this callback to execute.
    */
-  inline def when(inline cond: Boolean): CallbackOption[A] =
+  def when(cond: Boolean): CallbackOption[A] =
     new CallbackOption[A](() => if (cond) cbfn() else None)
+
+  /**
+   * Conditional execution of this callback.
+   *
+   * @param cond The condition required to be `true` for this callback to execute.
+   */
+  def when_(cond: => Boolean): CallbackOption[Unit] =
+    new CallbackOption[Unit](() => if (cond) cbfn().map(_ => ()) else None)
 
   /**
    * Conditional execution of this callback.
@@ -287,8 +298,18 @@ final class CallbackOption[+A](val underlyingRepr: CallbackOption.UnderlyingRepr
    * @param cond The condition required to be `false` for this callback to execute.
    * @return `Some` result of the callback executed, else `None`.
    */
-  inline def unless(inline cond: Boolean): CallbackOption[A] =
+  def unless(cond: Boolean): CallbackOption[A] =
     when(!cond)
+
+  /**
+   * Conditional execution of this callback.
+   * Reverse of [[when_()]].
+   *
+   * @param cond The condition required to be `false` for this callback to execute.
+   * @return `Some` result of the callback executed, else `None`.
+   */
+  inline def unless_(cond: => Boolean): CallbackOption[Unit] =
+    when_(!cond)
 
   def orElse[AA >: A](tryNext: CallbackOption[AA]): CallbackOption[AA] =
     new CallbackOption(() => cbfn().orElse(tryNext.underlyingRepr()))
@@ -307,4 +328,10 @@ final class CallbackOption[+A](val underlyingRepr: CallbackOption.UnderlyingRepr
 
   def handleError[AA >: A](f: Throwable => CallbackOption[AA]): CallbackOption[AA] =
     asCallback.handleError(f(_).asCallback).asCBO
+
+  /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
+    * current callback completes, be it in error or success.
+    */
+  def finallyRun[B](runFinally: CallbackOption[B]): CallbackOption[A] =
+    asCallback.finallyRun(runFinally.asCallback).asCBO
 }
