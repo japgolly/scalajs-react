@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Setup Scala
-        uses: japgolly/setup-everything-scala@v2.0
+        uses: japgolly/setup-everything-scala@v3.0
         with:
           java-version: adopt@1.${{ matrix.java }}
 
