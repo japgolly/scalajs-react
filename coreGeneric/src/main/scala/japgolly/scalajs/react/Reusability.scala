@@ -238,6 +238,7 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
   @inline implicit def short  : Reusability[Short  ] = by_==
   @inline implicit def int    : Reusability[Int    ] = by_==
   @inline implicit def long   : Reusability[Long   ] = by_==
+  @inline implicit def double : Reusability[Double ] = by_==
   @inline implicit def string : Reusability[String ] = by_==
   @inline implicit def date   : Reusability[Date   ] = by_==
   @inline implicit def uuid   : Reusability[UUID   ] = by_==
