@@ -1224,6 +1224,35 @@ object HooksTest extends TestSuite {
     }
   }
 
+  // See https://github.com/japgolly/scalajs-react/issues/1027
+  private def testRenderWithReuseNever(): Unit = {
+    implicit val reusability: Reusability[PI] = Reusability.never
+    var renders = 0
+    val comp = ScalaFnComponent.withHooks[PI]
+      .renderWithReuse { p =>
+        renders += 1
+        <.div(s"P=$p, R=$renders")
+      }
+
+    val wrapper = ScalaComponent.builder[PI]
+      .initialStateFromProps(identity)
+      .renderS { ($, s) =>
+        <.div(
+          comp(s),
+          <.button(^.onClick --> $.modState(_ + 0)),
+          <.button(^.onClick --> $.modState(_ + 1)),
+        )
+      }
+      .build
+
+    withRenderedIntoBody(wrapper(PI(3))) { (_, root) =>
+      val t = new Tester(root)
+      t.assertText("P=PI(3), R=1")
+      t.clickButton(2); t.assertText("P=PI(4), R=2")
+      t.clickButton(1); t.assertText("P=PI(4), R=3")
+    }
+  }
+
   // ===================================================================================================================
 
   override def tests = Tests {
@@ -1289,5 +1318,6 @@ object HooksTest extends TestSuite {
     "useStateSnapshot" - testUseStateSnapshot()
     "useStateSnapshotWithReuse" - testUseStateSnapshotWithReuse()
     "renderWithReuse" - testRenderWithReuse()
+    "renderWithReuseNever" - testRenderWithReuseNever()
   }
 }
