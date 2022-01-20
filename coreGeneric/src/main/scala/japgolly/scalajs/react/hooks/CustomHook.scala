@@ -169,25 +169,38 @@ object CustomHook {
 
   // ===================================================================================================================
 
+  private final case class ReusableDepState[+A](value: A, rev: Int) {
+    var skipTest = true
+    val asTuple = (value, rev)
+  }
+
   def reusableDeps[D](implicit r: Reusability[D]): CustomHook[() => D, (D, Int)] =
     CustomHook[() => D]
-      .useState(Option.empty[(D, Int)])
+      .useState[Option[ReusableDepState[D]]](None)
       .buildReturning { (getDeps, depsState) =>
         val next = getDeps()
-        depsState.value match {
+        val nextDepState =
+          depsState.value match {
 
-          // Previous result can be reused
-          case Some(prevState @ (prev, _)) if r.test(prev, next) =>
-            prevState
+            // React is calling us again after the setState below
+            // Don't re-test reusability, we could end up in an infinite-loop (see #1027)
+            case Some(s) if s.skipTest =>
+              s.skipTest = false
+              s
 
-          // Not reusable
-          case o =>
-            val nextRev     = o.fold(1)(_._2 + 1)
-            val nextState   = (next, nextRev)
-            val updateState = depsState.setState(Some(nextState))
-            DefaultEffects.Sync.runSync(updateState)
-            nextState
-        }
+            // Previous result can be reused
+            case Some(prevState) if r.test(prevState.value, next) =>
+              prevState
+
+            // Not reusable
+            case o =>
+              val nextRev     = o.fold(1)(_.rev + 1)
+              val nextState   = ReusableDepState(next, nextRev)
+              val updateState = depsState.setState(Some(nextState)) // this causes a hook re-eval
+              DefaultEffects.Sync.runSync(updateState)
+              nextState
+          }
+        nextDepState.asTuple
       }
 
   def reusableByDeps[D, A](create: (D, Int) => A)(implicit r: Reusability[D]): CustomHook[() => D, Reusable[A]] =
