@@ -1,5 +1,6 @@
 #!/bin/bash
 set -euo pipefail
+set -x
 cd "$(dirname "$0")" || exit 1
 
 skip2=skip2
