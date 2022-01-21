@@ -6,6 +6,7 @@ import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.util.{DefaultEffects, OptionLike}
 import java.time._
 import java.util.{Date, UUID}
+import java.{math => jm}
 import org.scalajs.dom.console
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
@@ -13,6 +14,7 @@ import scala.concurrent.{duration => scd}
 import scala.reflect.ClassTag
 import scala.scalajs.js.timers.{SetIntervalHandle, SetTimeoutHandle}
 import scala.scalajs.js.{Date => JsDate}
+import scala.{math => sm}
 
 /**
  * Tests whether one instance can be used in place of another.
@@ -140,6 +142,15 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
 
   def float(tolerance: Float): Reusability[Float] =
     apply((x, y) => (x - y).abs <= tolerance)
+
+  def javaBigDecimal(tolerance: Double): Reusability[jm.BigDecimal] =
+    javaBigDecimal(new jm.BigDecimal(tolerance))
+
+  def javaBigDecimal(tolerance: jm.BigDecimal): Reusability[jm.BigDecimal] =
+    apply((x, y) => x.subtract(y).abs.compareTo(tolerance) <= 0)
+
+  def scalaBigDecimal(tolerance: sm.BigDecimal): Reusability[sm.BigDecimal] =
+    apply((x, y) => (x - y).abs.compareTo(tolerance) <= 0)
 
   def byJavaDuration[A](dur: (A, A) => Duration, tolerance: Duration): Reusability[A] =
     apply { (x, y) =>
@@ -284,6 +295,12 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
   implicit lazy val setTimeoutHandle: Reusability[SetTimeoutHandle] =
     by_==
 
+  @inline implicit def bigInteger: Reusability[jm.BigInteger] =
+    byRefOr_==
+
+  @inline implicit def bigInt: Reusability[sm.BigInt] =
+    byRefOr_==
+
   // java.time._
 
   implicit def clock: Reusability[Clock] =
@@ -388,8 +405,10 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
   }
 
   object DecimalImplicitsWithoutTolerance {
-    @inline implicit def reusabilityDouble: Reusability[Double] = by_==
-    @inline implicit def reusabilityFloat : Reusability[Float ] = by_==
+    @inline implicit def reusabilityJavaBigDecimal : Reusability[jm.BigDecimal] = byRefOr_==
+    @inline implicit def reusabilityScalaBigDecimal: Reusability[sm.BigDecimal] = byRefOr_==
+    @inline implicit def reusabilityDouble         : Reusability[Double       ] = by_==
+    @inline implicit def reusabilityFloat          : Reusability[Float        ] = by_==
   }
 
   object TemporalImplicitsWithoutTolerance {
