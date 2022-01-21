@@ -449,5 +449,33 @@ object ReusabilityTest extends TestSuite {
       assert(9.seconds ~/~ 7.seconds)
       assert(7.seconds ~/~ 9.seconds)
     }
+
+    "javaBigDecimal" - {
+      import java.math.BigDecimal
+      implicit val r = Reusability.javaBigDecimal(0.5)
+      assert(new BigDecimal(10.6) ~=~ new BigDecimal(10.6))
+      assert(new BigDecimal(10.6) ~=~ new BigDecimal(10.1))
+      assert(new BigDecimal(10.6) ~/~ new BigDecimal(10.0))
+    }
+
+    "scalaBigDecimal" - {
+      import scala.math.BigDecimal
+      implicit val r: Reusability[BigDecimal] = Reusability.scalaBigDecimal(0.5)
+      assert(BigDecimal(10.6) ~=~ BigDecimal(10.6))
+      assert(BigDecimal(10.6) ~=~ BigDecimal(10.1))
+      assert(BigDecimal(10.6) ~/~ BigDecimal(10.0))
+    }
+
+    "bigInteger" - {
+      import java.math.BigInteger
+      assert(new BigInteger("10") ~=~ new BigInteger("10"))
+      assert(new BigInteger("10") ~/~ new BigInteger("11"))
+    }
+
+    "bigInt" - {
+      import scala.math.BigInt
+      assert(BigInt("10") ~=~ BigInt("10"))
+      assert(BigInt("10") ~/~ BigInt("11"))
+    }
   }
 }
