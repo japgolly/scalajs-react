@@ -387,6 +387,11 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
       Reusability.byRef || Reusability.map
   }
 
+  object DecimalImplicitsWithoutTolerance {
+    @inline implicit def reusabilityDouble: Reusability[Double] = by_==
+    @inline implicit def reusabilityFloat : Reusability[Float ] = by_==
+  }
+
   object TemporalImplicitsWithoutTolerance {
 
     implicit lazy val reusabilityJavaDuration: Reusability[Duration] =
