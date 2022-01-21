@@ -99,7 +99,7 @@ object EffectCatsEffect {
       f => () => fa.unsafeRunAsync(ea => f(ea.toTry)())(runtime())
 
     override def dispatch[A](fa: IO[A]): Unit =
-      fa.unsafeRunAndForget()(runtime())
+      fa.syncStep.unsafeRunSync().fold(_.unsafeRunAndForget()(runtime()), _ => ())
   }
 
   private lazy val tryUnit: Try[Unit] =
