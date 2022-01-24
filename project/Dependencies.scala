@@ -17,7 +17,7 @@ object Dependencies {
     val scala2                = "2.13.6"
     val scala3                = "3.0.2"
     val scalaJsDom            = "2.0.0"
-    val sourcecode            = "0.2.7"
+    val sourcecode            = "0.2.8"
 
     // Internal
     val betterMonadicFor      = "0.3.1"
