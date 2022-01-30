@@ -1,14 +1,16 @@
-ThisBuild / organization := "com.github.japgolly.scalajs-react"
-ThisBuild / homepage     := Some(url("https://github.com/japgolly/scalajs-react"))
-ThisBuild / licenses     := ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")) :: Nil
-ThisBuild / shellPrompt  := ((s: State) => Project.extract(s).currentRef.project + "> ")
-sonatypeProfileName      :=  "com.github.japgolly"
+ThisBuild / organization  := "com.github.japgolly.scalajs-react"
+ThisBuild / homepage      := Some(url("https://github.com/japgolly/scalajs-react"))
+ThisBuild / licenses      := ("Apache-2.0", url("http://opensource.org/licenses/Apache-2.0")) :: Nil
+ThisBuild / shellPrompt   := ((s: State) => Project.extract(s).currentRef.project + "> ")
+ThisBuild / versionScheme := Some("early-semver")
+sonatypeProfileName       := "com.github.japgolly"
 
 val callback              = ScalaJsReact.callback
 val callbackExtCats       = ScalaJsReact.callbackExtCats
 val callbackExtCatsEffect = ScalaJsReact.callbackExtCatsEffect
 val coreBundleCallback    = ScalaJsReact.coreBundleCallback
 val coreBundleCatsEffect  = ScalaJsReact.coreBundleCatsEffect
+val coreBundleCBIO        = ScalaJsReact.coreBundleCBIO
 val coreExtCats           = ScalaJsReact.coreExtCats
 val coreExtCatsEffect     = ScalaJsReact.coreExtCatsEffect
 val coreGeneric           = ScalaJsReact.coreGeneric
@@ -22,6 +24,7 @@ val ghpagesMacros         = ScalaJsReact.ghpagesMacros
 val root                  = ScalaJsReact.root
 val scalafixRules         = ScalaJsReact.scalafixRules
 val tests                 = ScalaJsReact.tests
+val testUtilMacros        = ScalaJsReact.testUtilMacros
 val testUtil              = ScalaJsReact.testUtil
 val util                  = ScalaJsReact.util
 val utilCatsEffect        = ScalaJsReact.utilCatsEffect

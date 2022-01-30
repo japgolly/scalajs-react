@@ -126,8 +126,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usecallback
       */
-    final def useCallbackWithDeps[A, D](callback: => A, deps: => D)(implicit a: UseCallbackArg[A], r: Reusability[D], step: Step): step.Next[Reusable[A]] =
-      useCallbackWithDepsBy(_ => callback, _ => deps)
+    final def useCallbackWithDeps[D, A](deps: => D)(callback: D => A)(implicit a: UseCallbackArg[A], r: Reusability[D], step: Step): step.Next[Reusable[A]] =
+      useCallbackWithDepsBy(_ => deps)(_ => callback)
 
     /** Returns a memoized callback.
       *
@@ -137,8 +137,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usecallback
       */
-    final def useCallbackWithDepsBy[A, D](callback: Ctx => A, deps: Ctx => D)(implicit a: UseCallbackArg[A], r: Reusability[D], step: Step): step.Next[Reusable[A]] =
-      customBy(ctx => UseCallback(callback(ctx), deps(ctx)))
+    final def useCallbackWithDepsBy[D, A](deps: Ctx => D)(callback: Ctx => D => A)(implicit a: UseCallbackArg[A], r: Reusability[D], step: Step): step.Next[Reusable[A]] =
+      customBy(ctx => UseCallback.withDeps(deps(ctx))(callback(ctx)))
 
     /** Accepts a context object and returns the current context value for that context. The current context value is
       * determined by the value prop of the nearest `<MyContext.Provider>` above the calling component in the tree.
@@ -243,8 +243,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
-    final def useEffectWithDeps[A, D](effect: A, deps: => D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
-      custom(ReusableEffect.useEffect(effect, deps))
+    final def useEffectWithDeps[D, A](deps: => D)(effect: D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
+      custom(ReusableEffect.useEffect(deps)(effect))
 
     /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
       * escape hatch from React’s purely functional world into the imperative world.
@@ -253,8 +253,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
-    final def useEffectWithDepsBy[A, D](effect: Ctx => A, deps: Ctx => D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
-      customBy(ctx => ReusableEffect.useEffect(effect(ctx), deps(ctx)))
+    final def useEffectWithDepsBy[D, A](deps: Ctx => D)(effect: Ctx => D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
+      customBy(ctx => ReusableEffect.useEffect(deps(ctx))(effect(ctx)))
 
     /** When invoked, forces a re-render of your component. */
     final def useForceUpdate(implicit step: Step): step.Next[Reusable[DefaultEffects.Sync[Unit]]] =
@@ -326,8 +326,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
-    final def useLayoutEffectWithDeps[A, D](effect: A, deps: => D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
-      custom(ReusableEffect.useLayoutEffect(effect, deps))
+    final def useLayoutEffectWithDeps[D, A](deps: => D)(effect: D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
+      custom(ReusableEffect.useLayoutEffect(deps)(effect))
 
     /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
       * read layout from the DOM and synchronously re-render. Updates scheduled inside useLayoutEffect will be flushed
@@ -339,8 +339,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
-    final def useLayoutEffectWithDepsBy[A, D](effect: Ctx => A, deps: Ctx => D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
-      customBy(ctx => ReusableEffect.useLayoutEffect(effect(ctx), deps(ctx)))
+    final def useLayoutEffectWithDepsBy[D, A](deps: Ctx => D)(effect: Ctx => D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
+      customBy(ctx => ReusableEffect.useLayoutEffect(deps(ctx))(effect(ctx)))
 
     /** Returns a memoized value.
       *
@@ -352,8 +352,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usememo
       */
-    final def useMemo[A, D](create: => A, deps: => D)(implicit r: Reusability[D], step: Step): step.Next[Reusable[A]] =
-      useMemoBy(_ => create, _ => deps)
+    final def useMemo[D, A](deps: => D)(create: D => A)(implicit r: Reusability[D], step: Step): step.Next[Reusable[A]] =
+      useMemoBy(_ => deps)(_ => create)
 
     /** Returns a memoized value.
       *
@@ -365,8 +365,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usememo
       */
-    final def useMemoBy[A, D](create: Ctx => A, deps: Ctx => D)(implicit r: Reusability[D], step: Step): step.Next[Reusable[A]] =
-      customBy(ctx => UseMemo(create(ctx), deps(ctx)))
+    final def useMemoBy[D, A](deps: Ctx => D)(create: Ctx => D => A)(implicit r: Reusability[D], step: Step): step.Next[Reusable[A]] =
+      customBy(ctx => UseMemo(deps(ctx))(create(ctx)))
 
     /** An alternative to [[useState]]. Accepts a reducer of type `(state, action) => newState`, and returns the
       * current state paired with a dispatch method.
@@ -521,8 +521,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usecallback
       */
-    final def useCallbackWithDepsBy[A, D](callback: CtxFn[A], deps: CtxFn[D])(implicit a: UseCallbackArg[A], r: Reusability[D], step: Step): step.Next[Reusable[A]] =
-      useCallbackWithDepsBy(step.squash(callback)(_), step.squash(deps)(_))
+    final def useCallbackWithDepsBy[D, A](deps: CtxFn[D])(callback: CtxFn[D => A])(implicit a: UseCallbackArg[A], r: Reusability[D], step: Step): step.Next[Reusable[A]] =
+      useCallbackWithDepsBy(step.squash(deps)(_))(step.squash(callback)(_))
 
     /** Accepts a context object and returns the current context value for that context. The current context value is
       * determined by the value prop of the nearest `<MyContext.Provider>` above the calling component in the tree.
@@ -569,8 +569,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
-    final def useEffectWithDepsBy[A, D](effect: CtxFn[A], deps: CtxFn[D])(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
-      useEffectWithDepsBy(step.squash(effect)(_), step.squash(deps)(_))
+    final def useEffectWithDepsBy[D, A](deps: CtxFn[D])(effect: CtxFn[D => A])(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
+      useEffectWithDepsBy(step.squash(deps)(_))(step.squash(effect)(_))
 
     /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
       * escape hatch from React’s purely functional world into the imperative world.
@@ -607,8 +607,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
-    final def useLayoutEffectWithDepsBy[A, D](effect: CtxFn[A], deps: CtxFn[D])(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
-      useLayoutEffectWithDepsBy(step.squash(effect)(_), step.squash(deps)(_))
+    final def useLayoutEffectWithDepsBy[D, A](deps: CtxFn[D])(effect: CtxFn[D => A])(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
+      useLayoutEffectWithDepsBy(step.squash(deps)(_))(step.squash(effect)(_))
 
     /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
       * read layout from the DOM and synchronously re-render. Updates scheduled inside useLayoutEffect will be flushed
@@ -633,8 +633,8 @@ object Api {
       *
       * @see https://reactjs.org/docs/hooks-reference.html#usememo
       */
-    final def useMemoBy[A, D](create: CtxFn[A], deps: CtxFn[D])(implicit r: Reusability[D], step: Step): step.Next[Reusable[A]] =
-      useMemoBy(step.squash(create)(_), step.squash(deps)(_))
+    final def useMemoBy[D, A](deps: CtxFn[D])(create: CtxFn[D => A])(implicit r: Reusability[D], step: Step): step.Next[Reusable[A]] =
+      useMemoBy(step.squash(deps)(_))(step.squash(create)(_))
 
     /** An alternative to [[useState]]. Accepts a reducer of type `(state, action) => newState`, and returns the
       * current state paired with a dispatch method.

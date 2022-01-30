@@ -7,8 +7,7 @@ import japgolly.scalajs.react.util.DomUtil._
 import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.html.Element
-import org.scalajs.dom.raw.{CSSStyleDeclaration, Node}
-import org.scalajs.dom.{console, document, window}
+import org.scalajs.dom.{CSSStyleDeclaration, Node, console, document, window}
 import scala.concurrent.duration._
 
 object DefaultReusabilityOverlay {

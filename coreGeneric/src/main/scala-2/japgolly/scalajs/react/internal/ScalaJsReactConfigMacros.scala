@@ -1,6 +1,5 @@
 package japgolly.scalajs.react.internal
 
-import japgolly.microlibs.compiletime._
 import scala.reflect.macros.blackbox.Context
 
 object ScalaJsReactConfigMacros {
@@ -8,25 +7,9 @@ object ScalaJsReactConfigMacros {
   final val KeyCompNameAuto = "japgolly.scalajs.react.component.names.implicit"
 }
 
-class ScalaJsReactConfigMacros(val c: Context) extends MacroUtils {
+class ScalaJsReactConfigMacros(override val c: Context) extends ConfigMacros(c) {
   import ScalaJsReactConfigMacros._
   import c.universe._
-
-  private def readConfig(key: String): Option[String] =
-    (Option(System.getProperty(key, null)) orElse Option(System.getenv(key)))
-      .map(_.trim.toLowerCase)
-      .filter(_.nonEmpty)
-
-  private def modStr(expr: c.Expr[String])(f: String => c.Expr[String]): c.Expr[String] =
-    expr match {
-      case Expr(Literal(Constant(s: String))) => f(s)
-      case _ =>
-        // warn(s"Unable to transform component name:\n  $expr\n  ${showRaw(expr)}")
-        expr
-    }
-
-  private implicit def lit(s: String): c.Expr[String] =
-    c.Expr(Literal(Constant(s)))
 
   def automaticComponentName(displayName: c.Expr[String]): c.Expr[String] =
     modStr(displayName)(_automaticComponentName(_))

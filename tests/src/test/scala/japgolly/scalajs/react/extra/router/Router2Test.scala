@@ -12,8 +12,7 @@ import scala.annotation.nowarn
 import scala.scalajs.LinkingInfo.developmentMode
 import utest._
 
-object Router2Test extends TestSuite {
-
+object Router2TestRoutes {
   sealed trait Module
   case object ModuleRoot extends Module
   case object Module1 extends Module
@@ -143,8 +142,12 @@ object Router2Test extends TestSuite {
         .logToConsole
     }
   }
+}
 
-  // -------------------------------------------------------------------------------------------------------------------
+// ===================================================================================================================
+
+object Router2Test extends TestSuite {
+  import Router2TestRoutes._
 
   implicit def str2path(s: String): Path = Path(s)
   def htmlFor(r: Resolution[_]) = ReactDOMServer.renderToStaticMarkup(r.render())

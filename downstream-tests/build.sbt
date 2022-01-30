@@ -55,13 +55,14 @@ def scalac3Flags = Seq(
 def commonSettings: Project => Project = _
   .configure(preventPublication)
   .settings(
-    scalaVersion       := Ver.scala3,
-    crossScalaVersions := Seq(Ver.scala2, Ver.scala3),
-    scalacOptions     ++= scalacCommonFlags,
-    scalacOptions     ++= byScalaVersion {
-                            case (2, _) => scalac2Flags
-                            case (3, _) => scalac3Flags
-                          }.value,
+    scalaVersion         := Ver.scala3,
+    crossScalaVersions   := Seq(Ver.scala2, Ver.scala3),
+    scalacOptions       ++= scalacCommonFlags,
+    scalacOptions       ++= byScalaVersion {
+                              case (2, _) => scalac2Flags
+                              case (3, _) => scalac3Flags
+                            }.value,
+    dependencyOverrides ++= globalDependencyOverrides.value,
   )
 
 lazy val cleanTestAll = taskKey[Unit]("cleanTestAll")
@@ -79,10 +80,12 @@ lazy val root = Project("root", file("."))
           jvm           / clean,
           js            / clean,
           jsCE          / clean,
+          jsCBIO        / clean,
                    Test / compile,
           jvm    / Test / test,
           js     / Test / test,
           jsCE   / Test / test,
+          jsCBIO / Test / test
         ).value
       else
         Def.sequential(
@@ -146,7 +149,6 @@ lazy val js = project
         Dep.scalaJsJavaTime.value % Test,
       )
     },
-    jsDependencies += (ProvidedJS / "polyfill.js") % Test,
     scalaJSLinkerConfig ~= { _
       .withSemantics(_
         .withRuntimeClassNameMapper(Semantics.RuntimeClassNameMapper.discardAll())
@@ -172,5 +174,38 @@ lazy val jsCE = project
         Dep.scalaJsJavaTime.value % Test,
       )
     },
-    jsDependencies += (ProvidedJS / "polyfill.js") % Test,
+  )
+
+lazy val jsCBIO = project
+  .in(file("js-cbio"))
+  .enablePlugins(ScalaJSPlugin)
+  .dependsOn(macros)
+  .configure(commonSettings, utestSettings, addReactJsDependencies(Test))
+  .settings(
+    scalaJSStage := jsStage,
+    libraryDependencies ++= {
+      val ver = version.value.stripSuffix("-SNAPSHOT") + "-SNAPSHOT"
+      Seq(
+        "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io" % ver,
+        "com.github.japgolly.scalajs-react" %%% "extra" % ver,
+        "com.github.japgolly.scalajs-react" %%% "test" % ver % Test,
+        Dep.microlibsCompileTime.value % Test,
+        Dep.microlibsTestUtil.value % Test,
+        Dep.scalaJsJavaTime.value % Test,
+      )
+    },
+  )
+
+lazy val generic = project
+  .enablePlugins(ScalaJSPlugin)
+  .configure(commonSettings)
+  .settings(
+    scalaJSStage := jsStage,
+    libraryDependencies ++= {
+      val ver = version.value.stripSuffix("-SNAPSHOT") + "-SNAPSHOT"
+      Seq(
+        "com.github.japgolly.scalajs-react" %%% "core-generic" % ver,
+        "com.github.japgolly.scalajs-react" %%% "util-dummy-defaults" % ver % Provided,
+      )
+    },
   )

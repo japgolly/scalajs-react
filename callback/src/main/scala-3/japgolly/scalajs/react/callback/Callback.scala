@@ -1,8 +1,10 @@
 package japgolly.scalajs.react.callback
 
 import japgolly.scalajs.react.util.Util.identityFn
+import java.time.Duration
 import org.scalajs.dom.{console, window}
 import scala.annotation.implicitNotFound
+import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
 import scala.language.`3.0`
 import scala.scalajs.js
@@ -124,6 +126,27 @@ object Callback {
 
   inline def sequenceOption[A](inline oca: Option[CallbackTo[A]]): Callback =
     traverseOption(oca)(identityFn)
+
+  /** Creates an debounce boundary.
+    *
+    * Save it as a `val` somewhere because it relies on internal state that must be reused.
+    */
+  inline def debounce(delay: Duration): Callback =
+    empty.debounce(delay)
+
+  /** Creates an debounce boundary.
+    *
+    * Save it as a `val` somewhere because it relies on internal state that must be reused.
+    */
+  inline def debounce(delay: FiniteDuration): Callback =
+    empty.debounce(delay)
+
+  /** Creates an debounce boundary.
+    *
+    * Save it as a `val` somewhere because it relies on internal state that must be reused.
+    */
+  inline def debounceMs(delayMs: Long): Callback =
+    empty.debounceMs(delayMs)
 
   /** Run all given callbacks.
     *

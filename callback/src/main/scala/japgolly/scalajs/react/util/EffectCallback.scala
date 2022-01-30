@@ -4,15 +4,15 @@ import japgolly.scalajs.react.callback._
 import scala.scalajs.js
 
 abstract class EffectFallbacks1 extends EffectFallbacks2 {
-  implicit def callback     : Effect.Sync [CallbackTo   ] = EffectCallback.callback
-  implicit def asyncCallback: Effect.Async[AsyncCallback] = EffectCallback.asyncCallback
+  implicit def callback      : Effect.Sync    [CallbackTo    ] = EffectCallback.callback
+  implicit def callbackOption: Effect.Dispatch[CallbackOption] = EffectCallback.callbackOption
+  implicit def asyncCallback : Effect.Async   [AsyncCallback ] = EffectCallback.asyncCallback
 }
 
 object EffectCallback {
   import Effect._
 
   object callback extends Sync.WithDefaultDispatch[CallbackTo] {
-
     override val empty =
       Callback.empty
 
@@ -49,8 +49,8 @@ object EffectCallback {
     @inline override def runSync[A](f: => CallbackTo[A]) =
       f.runNow()
 
-    @inline override def finallyRun[A, B](fa: CallbackTo[A], fb: CallbackTo[B]) =
-      fa.finallyRun(fb)
+    @inline override def finallyRun[A, B](fa: => CallbackTo[A], runFinally: => CallbackTo[B]) =
+      fa.finallyRun(runFinally)
 
     @inline override def toJsFn[A](f: => CallbackTo[A]): js.Function0[A] =
       f.toJsFn
@@ -70,7 +70,7 @@ object EffectCallback {
     @inline override def sequenceList[A](fas: => List[CallbackTo[A]]) =
       CallbackTo.sequence(fas)
 
-    @inline override def handleError[A, AA >: A](fa: CallbackTo[A])(f: Throwable => CallbackTo[AA]) =
+    @inline override def handleError[A, AA >: A](fa: => CallbackTo[A])(f: Throwable => CallbackTo[AA]) =
       fa.handleError(f)
 
     @inline override def sequence_[A](fas: => Iterable[CallbackTo[A]]) =
@@ -78,11 +78,50 @@ object EffectCallback {
 
     @inline override def when_[A](cond: => Boolean)(fa: => CallbackTo[A]) =
       fa.when_(cond)
+
+    @inline override def tailrec[A, B](a: A)(f: A => CallbackTo[Either[A,B]]): CallbackTo[B] =
+      CallbackTo.tailrec(a)(f)
+  }
+
+  // ===================================================================================================================
+
+  object callbackOption extends Dispatch[CallbackOption] {
+
+    @inline override def delay[A](a: => A): CallbackOption[A] =
+      CallbackOption.delay(a)
+
+    @inline override def pure[A](a: A): CallbackOption[A] =
+      CallbackOption.pure(a)
+
+    @inline override def map[A, B](fa: CallbackOption[A])(f: A => B): CallbackOption[B] =
+      fa map f
+
+    @inline override def flatMap[A, B](fa: CallbackOption[A])(f: A => CallbackOption[B]): CallbackOption[B] =
+      fa flatMap f
+
+    @inline override def tailrec[A, B](a: A)(f: A => CallbackOption[Either[A,B]]) =
+      CallbackOption.tailrec(a)(f)
+
+    override def handleError[A, AA >: A](fa: => CallbackOption[A])(f: Throwable => CallbackOption[AA]) =
+      fa.handleError(f)
+
+    @inline override def finallyRun[A, B](fa: => CallbackOption[A], runFinally: => CallbackOption[B]) =
+      fa.finallyRun(runFinally)
+
+    override def dispatch[A](fa: CallbackOption[A]): Unit =
+      fa.asCallback.void
+
+    override def dispatchFn[A](fa: => CallbackOption[A]): js.Function0[Unit] =
+      () => {fa.underlyingRepr(); ()}
+
+    @inline override def suspend[A](fa: => CallbackOption[A]) =
+      CallbackOption.suspend(fa)
   }
 
   // ===================================================================================================================
 
   object asyncCallback extends Async[AsyncCallback] with Dispatch.WithDefaults[AsyncCallback] {
+
     @inline override def delay[A](a: => A) =
       AsyncCallback.delay(a)
 
@@ -95,8 +134,11 @@ object EffectCallback {
     @inline override def flatMap[A, B](fa: AsyncCallback[A])(f: A => AsyncCallback[B]) =
       fa.flatMap(f)
 
-    @inline override def finallyRun[A, B](fa: AsyncCallback[A], fb: AsyncCallback[B]) =
-      fa.finallyRun(fb)
+    @inline override def finallyRun[A, B](fa: => AsyncCallback[A], runFinally: => AsyncCallback[B]) =
+      fa.finallyRun(runFinally)
+
+    override def tailrec[A, B](a: A)(f: A => AsyncCallback[Either[A,B]]): AsyncCallback[B] =
+      AsyncCallback.tailrec(a)(f)
 
     override def async[A](fa: Async.Untyped[A]): AsyncCallback[A] =
       AsyncCallback[A](f => CallbackTo.fromJsFn(fa(f(_).toJsFn)))
@@ -118,5 +160,11 @@ object EffectCallback {
 
     @inline override def dispatch[A](fa: AsyncCallback[A]): Unit =
       fa.runNow()
+
+    @inline override def handleError[A, AA >: A](fa: => AsyncCallback[A])(f: Throwable => AsyncCallback[AA]) =
+      fa.handleError(f)
+
+    @inline override def suspend[A](fa: => AsyncCallback[A]) =
+      AsyncCallback.suspend(fa)
   }
 }

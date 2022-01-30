@@ -6,7 +6,7 @@ skip2=skip2
 
 # Tests
 all_tests_values=(
-  "-Ddownstream_tests.enableJSCE"
+  "-Ddownstream_tests.enableJSCE -Djapgolly.scalajs.react.test.warnings.react=fatal"
   "-Djapgolly.scalajs.react.config.class=downstream.DownstreamConfig1 -Ddownstream_tests.reusability.dev=disable $skip2"
   "-Djapgolly.scalajs.react.component.names.implicit=blank -Djapgolly.scalajs.react.component.names.all=allow"
   "-Djapgolly.scalajs.react.component.names.implicit=short -Ddownstream_tests.reusability.dev=disable"

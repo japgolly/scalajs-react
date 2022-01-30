@@ -4,6 +4,7 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
+import sourcecode.Line
 import utest._
 
 object ScalaFnComponentTest extends TestSuite {
@@ -54,5 +55,50 @@ object ScalaFnComponentTest extends TestSuite {
         assert(rendered == 3)
       }
     }
+
+    "reuse" - {
+      var renders = 0
+      val F = ScalaFnComponent.withReuse[Int] { p =>
+        renders += 1
+        <.span(p)
+      }
+      val C = ScalaComponent.builder[Int].render_P(F(_)).build
+      ReactTestUtils.withRenderedIntoBody(C(7)) { (m, p) =>
+        def test(expectedRenders: Int, expectedHtml: Int)(implicit q: Line): Unit = {
+          val a = (renders, p.innerHTML.trim)
+          val e = (expectedRenders, s"<span>$expectedHtml</span>")
+          assertEq(a, e)
+        }
+        test(1, 7)
+        ReactTestUtils.replaceProps(C, m)(7)
+        test(1, 7)
+        ReactTestUtils.replaceProps(C, m)(6)
+        test(2, 6)
+      }
+    }
+
+    // See https://github.com/japgolly/scalajs-react/issues/1027
+    "reuseNever" - {
+      implicit def reusability: Reusability[Int] = Reusability.never
+      var renders = 0
+      val F = ScalaFnComponent.withReuse[Int] { p =>
+        renders += 1
+        <.span(p)
+      }
+      val C = ScalaComponent.builder[Int].render_P(F(_)).build
+      ReactTestUtils.withRenderedIntoBody(C(7)) { (m, p) =>
+        def test(expectedRenders: Int, expectedHtml: Int)(implicit q: Line): Unit = {
+          val a = (renders, p.innerHTML.trim)
+          val e = (expectedRenders, s"<span>$expectedHtml</span>")
+          assertEq(a, e)
+        }
+        test(1, 7)
+        ReactTestUtils.replaceProps(C, m)(7)
+        test(2, 7)
+        ReactTestUtils.replaceProps(C, m)(6)
+        test(3, 6)
+      }
+    }
+
   }
 }

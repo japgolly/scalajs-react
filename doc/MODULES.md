@@ -15,7 +15,7 @@ with the opt-in optional features shown for you to accept or remove.
 Add to sbt:
 
 ```scala
-val ScalaJsReactVer = "2.0.0-RC1"
+val ScalaJsReactVer = "<latest>"
 
 libraryDependencies ++= Seq(
 
@@ -70,7 +70,7 @@ No additional imports required.
 Add to sbt:
 
 ```scala
-val ScalaJsReactVer = "2.0.0-RC1"
+val ScalaJsReactVer = "2.0.1"
 
 libraryDependencies ++= Seq(
 
@@ -118,6 +118,7 @@ These are all the modules meant for end-user selection.
 | `callback-ext-cats_effect` | For classes in the `callback` module: <ul><li>`cats.effect.{Sync,Async}` instances</li><li>Conversions from/to `cats.effect.{SyncIO,IO}`</li></ul>  |
 | `core`                     | Core scalajs-react functionality with `{Callback,AsyncCallback}` as the default effects |
 | `core-bundle-cats_effect`  | Core scalajs-react functionality with `cats.effect.{SyncIO,IO}` as the default effects<br>*(Note: `callback` module not included. Add as a separate dependency if required.)* |
+| `core-bundle-cb_io`        | Core scalajs-react functionality with `Callback` as the default sync effect and `cats.effect.IO` as the default async effect.<br>*(Note: both `callback` and `core-ext-cats_effect` modules are included.)* |
 | `core-ext-cats`            | Extensions to the `core` module for Cats |
 | `core-ext-cats_effect`     | Extensions to the `core` module for Cats Effect |
 | `extra`                    | Optional utils exclusive to scalajs-react. ([details](./EXTRA.md)) |
@@ -132,4 +133,4 @@ These are all the modules meant for end-user selection.
 There are also other modules that are for internal/technical purposes and are transitive (indirect) dependencies.
 This is the full module diagram:
 
-![all modules](https://rawgit.com/japgolly/scalajs-react/master/doc/modules.gv.0629700f42933998a3f995fc28018bb3.svg)
+![all modules](https://rawgit.com/japgolly/scalajs-react/master/doc/modules.gv.89d12e3a880d53fc8545744266e9aeb7.svg)

@@ -17,22 +17,6 @@ import scala.util.matching.Regex
  */
 object StaticDsl {
 
-  private val regexEscape1 = """([-()\[\]{}+?*.$\^|,:#<!\\])""".r
-  private val regexEscape2 = """\x08""".r
-
-  // TODO: Replace with Pattern.quote after Scala.JS 1.6.x
-  /**
-   * Pattern.quote doesn't work in Scala.JS.
-   *
-   * http://stackoverflow.com/questions/2593637/how-to-escape-regular-expression-in-javascript
-   */
-  def regexEscape(s: String): String = {
-    var r = s
-    r = regexEscape1.replaceAllIn(r, """\\$1""")
-    r = regexEscape2.replaceAllIn(r, """\\x08""")
-    r
-  }
-
   /**
    * Route builder. Allows you to specify routes like `"user" / int / "display"`.
    * Once complete, [[RouteB]] will become a [[Route]].
@@ -98,7 +82,7 @@ object StaticDsl {
     private val someUnit = Some(())
 
     def literal(s: String): RouteB[Unit] =
-      new RouteB(regexEscape(s), 0, _ => someUnit, _ => s)
+      new RouteB(Pattern.quote(s), 0, _ => someUnit, _ => s)
 
     val / = literal("/")
   }

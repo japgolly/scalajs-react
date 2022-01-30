@@ -79,22 +79,24 @@ object Attr {
       O.foreach(callback)(prepare(_)())
   }
 
-  trait EventCallback0 {
-    implicit def sync[F[_]](implicit F: Dispatch[F]): EventCallback[F[Unit]] =
-      new EventCallback(fa => F.dispatchFn(fa))
-
-    implicit def reusableSync[F[_]](implicit F: Dispatch[F]): EventCallback[Reusable[F[Unit]]] =
+  trait EventCallback1 {
+    implicit def reusableDispatch[F[_]](implicit F: Dispatch[F]): EventCallback[Reusable[F[Unit]]] =
       new EventCallback(fa => F.dispatchFn(fa))
   }
 
-  object EventCallback extends EventCallback0 {
-    import DefaultEffects.{Sync => D}
+  trait EventCallback2 extends EventCallback1 {
+    implicit def dispatch[F[_]](implicit F: Dispatch[F]): EventCallback[F[Unit]] =
+      new EventCallback(fa => F.dispatchFn(fa))
+  }
 
-    implicit val defaultSync: EventCallback[D[Unit]] =
-      sync(D)
+  trait EventCallback3 extends EventCallback2 {
+    implicit lazy val reusableDefaultSync: EventCallback[Reusable[DefaultEffects.Sync[Unit]]] =
+      reusableDispatch(DefaultEffects.Sync)
+  }
 
-    implicit lazy val reusableDefaultSync: EventCallback[Reusable[D[Unit]]] =
-      reusableSync(D)
+  object EventCallback extends EventCallback3 {
+    implicit val defaultSync: EventCallback[DefaultEffects.Sync[Unit]] =
+      dispatch(DefaultEffects.Sync)
   }
 
   type EventHandler[E[+x <: dom.Node] <: facade.SyntheticEvent[x]] =

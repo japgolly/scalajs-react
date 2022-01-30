@@ -1,11 +1,12 @@
 package japgolly.scalajs.react.test
 
+import cats.Eq
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.router
+import java.util.regex.Pattern
 import scala.annotation.nowarn
 import scala.reflect.ClassTag
 import scala.scalajs.js
-import scalaz.{Equal, Maybe}
 import sourcecode.Line
 import utest.CompileError
 
@@ -13,9 +14,9 @@ object TestUtil extends TestUtil
 
 trait TestUtil
   extends japgolly.microlibs.testutil.TestUtil
-     with scalaz.std.ListInstances
-     with scalaz.std.OptionInstances
-     with scalaz.std.VectorInstances {
+     with cats.instances.ListInstances
+     with cats.instances.OptionInstances
+     with cats.instances.VectorInstances {
 
   implicit final def equalKey          : UnivEq[Key]            = UnivEq.force
   implicit final def routerEqualBaseUrl: UnivEq[router.BaseUrl] = UnivEq.force
@@ -23,9 +24,9 @@ trait TestUtil
   implicit final def routerEqualAbsUrl : UnivEq[router.AbsUrl]  = UnivEq.force
 
   // TODO erm... not really. Only allow in raw testing
-  implicit val equalRawRef: Equal[japgolly.scalajs.react.facade.React.Ref] = Equal.equalRef
-  implicit def equalRawRefHandle[A]: Equal[japgolly.scalajs.react.facade.React.RefHandle[A]] = Equal.equalRef
-  implicit def equalRefSimple[A]: Equal[Ref.Simple[A]] = Equal.equalRef
+  implicit val equalRawRef: Eq[japgolly.scalajs.react.facade.React.Ref] = _ eq _
+  implicit def equalRawRefHandle[A]: Eq[japgolly.scalajs.react.facade.React.RefHandle[A]] = _ eq _
+  implicit def equalRefSimple[A]: Eq[Ref.Simple[A]] = _ eq _
 
   implicit class AnyTestExt[A](a: A) {
 
@@ -34,9 +35,6 @@ trait TestUtil
 
     def jsdef: js.UndefOr[A] = a
     def undef: js.UndefOr[A] = js.undefined
-
-    def just    : Maybe[A] = Maybe.just(a)
-    def maybeNot: Maybe[A] = Maybe.empty
 
     def matchesBy[B <: A : ClassTag](f: B => Boolean) = a match {
       case b: B => f(b)
@@ -53,6 +51,25 @@ trait TestUtil
       assertContains(actual, substr)
     else
       assertNotContains(actual, substr)
+
+  def assertOuterHTMLMatches(node: TopNode, expectRegex: String)(implicit l: Line): Unit =
+    assertOuterHTMLMatches(null, node, Pattern.compile(expectRegex))
+
+  def assertOuterHTMLMatches(name: => String, node: TopNode, expectRegex: String)(implicit l: Line): Unit =
+    assertOuterHTMLMatches(name, node, Pattern.compile(expectRegex))
+
+  def assertOuterHTMLMatches(node: TopNode, expectPattern: Pattern)(implicit l: Line): Unit =
+    assertOuterHTMLMatches(null, node, expectPattern)
+
+  def assertOuterHTMLMatches(name: => String, node: TopNode, expectPattern: Pattern)(implicit l: Line): Unit = {
+    import japgolly.microlibs.testutil.TestUtilInternals._
+    val actual = scrubReactHtml(node.outerHTML)
+    if (!expectPattern.matcher(actual).matches()) {
+      val desc = Option(name)
+      printFail2(desc)("regexp", BOLD_BRIGHT_CYAN, expectPattern.pattern)("actual", BOLD_BRIGHT_RED, actual)
+      failMethod("assertOuterHTMLMatches", desc)
+    }
+  }
 
   def assertOuterHTML(node: TopNode, expect: String)(implicit l: Line): Unit =
     assertOuterHTML(null, node, expect)

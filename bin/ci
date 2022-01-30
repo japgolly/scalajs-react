@@ -2,34 +2,32 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-if [ -z "${TRAVIS_SCALA_VERSION:-}" ]; then
-  # Running locally instead of on Travis
-  if [ $# -gt 1 ]; then
-    echo "Usage: $0 [<scala ver>]"
-    echo ""
-    echo "Where"
-    echo "  <scala ver> = 2 or 3"
-    echo
-    exit 1
-  fi
-  case "${1:-}" in
-    "")
-      "$0" 2
-      echo
-      echo
-      "$0" 3
-      exit 0
-      ;;
-    2|3)
-      TRAVIS_SCALA_VERSION="$(bin/get_scala_version $1)"
-      echo "Scala version: $TRAVIS_SCALA_VERSION"
-      ;;
-    *)
-      echo "Unrecognised version: $1" >&2
-      exit 2
-      ;;
-  esac
+if [ $# -gt 1 ]; then
+  echo "Usage: $0 [<scala ver>]"
+  echo ""
+  echo "Where"
+  echo "  <scala ver> = 2 or 3"
+  echo
+  exit 1
 fi
+
+case "${1:-}" in
+  "")
+    "$0" 2
+    echo
+    echo
+    "$0" 3
+    exit 0
+    ;;
+  2|3)
+    SCALA_VER="$(bin/get_scala_version $1)"
+    echo "Scala version: $SCALA_VER"
+    ;;
+  *)
+    echo "Unrecognised version: $1" >&2
+    exit 2
+    ;;
+esac
 
 dryrun=
 # dryrun=-n
@@ -44,9 +42,10 @@ cmd=(
   sbt
     -J-Xmx3G
     -J-XX:+UseG1GC
-    ++$TRAVIS_SCALA_VERSION
+    ++$SCALA_VER
     'set ThisBuild / parallelExecution := false'
     'set Global / concurrentRestrictions += Tags.limit(ScalaJSTags.Link, 1)'
+    clean
     test                                                # Test development-mode
     'set ThisBuild / scalaJSStage := FullOptStage' test # Test production-mode
     publishLocal                                        # For downstream tests
@@ -55,5 +54,5 @@ echo "> $(printf "%s\n    " "${cmd[@]}")"
 [[ $dryrun == "-n" ]] || "${cmd[@]}"
 
 # Test downstream
-SCALA_MAJOR_VER="${TRAVIS_SCALA_VERSION:0:1}"
+SCALA_MAJOR_VER="${SCALA_VER:0:1}"
 downstream-tests/run -$SCALA_MAJOR_VER $dryrun

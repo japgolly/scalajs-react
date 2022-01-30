@@ -1,11 +1,11 @@
 package japgolly.scalajs.react.extra.router
 
+import cats.Eq
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom._
-import scalaz._
 import sizzle.Sizzle
 import utest._
 
@@ -152,7 +152,7 @@ object RouterTest extends TestSuite {
           (s, a)
         }
 
-        def testh[P: Equal](r: RouterLogic[P, Unit], start: AbsUrl)(expectPrevHistory: AbsUrl => List[AbsUrl], expectPage: P, expectPath: String): Unit = {
+        def testh[P: Eq](r: RouterLogic[P, Unit], start: AbsUrl)(expectPrevHistory: AbsUrl => List[AbsUrl], expectPage: P, expectPath: String): Unit = {
           val (s, res) = runh(r, start)
           assertEq(s.history, Path(expectPath).abs :: expectPrevHistory(start))
           assertEq(res.page, expectPage)

@@ -1,19 +1,37 @@
 package japgolly.scalajs.react.util
 
 import japgolly.scalajs.react.util.Util.identityFn
+import scala.annotation.tailrec
 import scala.scalajs.js
 import scala.util.Try
 
+trait Effect[F[_]] extends Monad[F] {
+  def delay      [A]         (a: => A)                           : F[A]
+  def handleError[A, AA >: A](fa: => F[A])(f: Throwable => F[AA]): F[AA]
+  def suspend    [A]         (fa: => F[A])                       : F[A]
+
+  /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
+    * current callback completes, be it in error or success.
+    */
+  def finallyRun[A, B](fa: => F[A], runFinally: => F[B]): F[A]
+
+  @inline final def throwException[A](t: Throwable): F[A] =
+    delay(throw t)
+}
+
 object Effect extends EffectFallbacks {
 
-  trait Dispatch[F[_]] extends Monad[F] {
+  trait WithDefaults[F[_]] extends Effect[F] {
+  }
+
+  trait Dispatch[F[_]] extends Effect[F] {
     /** Fire and forget, could be sync or async */
     def dispatch[A](fa: F[A]): Unit
     def dispatchFn[A](fa: => F[A]): js.Function0[Unit]
   }
 
   object Dispatch {
-    trait WithDefaults[F[_]] extends Dispatch[F] {
+    trait WithDefaults[F[_]] extends Dispatch[F] with Effect.WithDefaults[F] {
       override def dispatchFn[A](fa: => F[A]): js.Function0[Unit] =
         () => dispatch(fa)
     }
@@ -24,10 +42,16 @@ object Effect extends EffectFallbacks {
   type Id[A] = A
 
   trait UnsafeSync[F[_]] extends Dispatch[F] {
+    def runSync     [A]   (fa: => F[A])                     : A
+    def sequence_   [A]   (fas: => Iterable[F[A]])          : F[Unit]
+    def sequenceList[A]   (fas: => List[F[A]])              : F[List[A]]
+    def toJsFn      [A]   (fa: => F[A])                     : js.Function0[A]
+    def traverse_   [A, B](as: => Iterable[A])(f: A => F[B]): F[Unit]
+    def traverseList[A, B](as: => List[A])(f: A => F[B])    : F[List[B]]
+    def when_       [A]   (cond: => Boolean)(fa: => F[A])   : F[Unit]
 
-    def runSync[A](fa: => F[A]) : A
-    def suspend[A](fa: => F[A]) : F[A]
-    def toJsFn [A](fa: => F[A]) : js.Function0[A]
+    @inline final def unless_[A](cond: => Boolean)(fa: => F[A]): F[Unit] =
+      when_(!cond)(fa)
 
     final def subst[G[_], X[_[_]]](xg: X[G])(xf: => X[F])(implicit g: UnsafeSync[G]): X[F] =
       if (this eq g) xg.asInstanceOf[X[F]] else xf
@@ -49,6 +73,12 @@ object Effect extends EffectFallbacks {
         f.asInstanceOf[(A, B) => F[C]]
       else
         (a, b) => delay(g.runSync(f(a, b)))
+
+    final def transSyncFn2C[G[_], A, B, C](f: (A, G[B]) => G[C])(implicit g: UnsafeSync[G]): (A, F[B]) => F[C] =
+      if (this eq g)
+        f.asInstanceOf[(A, F[B]) => F[C]]
+      else
+        (a, gb) => delay(g.runSync(f(a, g.transSync(gb)(this))))
 
     final def transDispatch[G[_]](f: => G[Unit])(implicit g: Dispatch[G]): F[Unit] =
       if (this eq g)
@@ -80,12 +110,37 @@ object Effect extends EffectFallbacks {
     }
 
     implicit lazy val id: UnsafeSync[Id] = new WithDefaults[Id] {
-      override def dispatch[A]   (a: A)            = ()
-      override def delay   [A]   (a: => A)         = a
-      override def pure    [A]   (a: A)            = a
-      override def map     [A, B](a: A)(f: A => B) = f(a)
-      override def flatMap [A, B](a: A)(f: A => B) = f(a)
-      override def runSync [A]   (a: => A)         = a
+
+      override def delay       [A]   (a: => A)                       = a
+      override def dispatch    [A]   (a: A)                          = ()
+      override def finallyRun  [A, B](a: => A, runFinally: => B)     = try a finally runFinally
+      override def flatMap     [A, B](a: A)(f: A => B)               = f(a)
+      override def map         [A, B](a: A)(f: A => B)               = f(a)
+      override def pure        [A]   (a: A)                          = a
+      override def runSync     [A]   (a: => A)                       = a
+      override def sequenceList[A]   (as: => List[A])                = as
+      override def traverse_   [A, B](as: => Iterable[A])(f: A => B) = as.foreach(f)
+      override def traverseList[A, B](as: => List[A])(f: A => B)     = as.map(f)
+      override def when_       [A]   (cond: => Boolean)(a: => A)     = if (cond) a
+
+      override def tailrec[A, B](a: A)(f: A => Either[A, B]): B = {
+        @tailrec
+        def go(a: A): B =
+          f(a) match {
+            case Left(n)  => go(n)
+            case Right(b) => b
+          }
+        go(a)
+      }
+
+      override def handleError[A, AA >: A](a: => A)(f: Throwable => AA): AA =
+        try a catch { case t: Throwable => f(t) }
+
+      override def sequence_[A](as: => Iterable[A]): Unit = {
+        val i = as.iterator
+        while (i.hasNext)
+          i.next()
+      }
     }
   }
 
@@ -97,24 +152,10 @@ object Effect extends EffectFallbacks {
     val semigroupSyncOr: Semigroup[F[Boolean]]
     implicit val semigroupSyncUnit: Semigroup[F[Unit]]
 
-    def fromJsFn0   [A]         (f: js.Function0[A])              : F[A]
-    def handleError [A, AA >: A](fa: F[A])(f: Throwable => F[AA]) : F[AA]
-    def isEmpty     [A]         (f: F[A])                         : Boolean
-    def reset       [A]         (fa: F[A])                        : F[Unit]
-    def runAll      [A]         (callbacks: F[A]*)                : F[Unit]
-    def sequence_   [A]         (fas: => Iterable[F[A]])          : F[Unit]
-    def sequenceList[A]         (fas: => List[F[A]])              : F[List[A]]
-    def traverse_   [A, B]      (as: => Iterable[A])(f: A => F[B]): F[Unit]
-    def traverseList[A, B]      (as: => List[A])(f: A => F[B])    : F[List[B]]
-    def when_       [A]         (cond: => Boolean)(fa: => F[A])   : F[Unit]
-
-    /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
-      * current callback completes, be it in error or success.
-      */
-    def finallyRun[A, B](fa: F[A], runFinally: F[B]): F[A]
-
-    @inline final def unless_[A](cond: => Boolean)(fa: => F[A]): F[Unit] =
-      when_(!cond)(fa)
+    def fromJsFn0[A](f: js.Function0[A]): F[A]
+    def isEmpty  [A](f: F[A])           : Boolean
+    def reset    [A](fa: F[A])          : F[Unit]
+    def runAll   [A](callbacks: F[A]*)  : F[Unit]
   }
 
   object Sync {
@@ -131,10 +172,13 @@ object Effect extends EffectFallbacks {
       override def fromJsFn0[A](f: js.Function0[A]) =
         delay(f())
 
+      override def runAll[A](callbacks: F[A]*): F[Unit] =
+        callbacks.foldLeft(empty)((x, y) => chain(x, reset(y)))
+
       /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
         * current callback completes, be it in error or success.
         */
-      override def finallyRun[A, B](fa: F[A], runFinally: F[B]): F[A] =
+      override def finallyRun[A, B](fa: => F[A], runFinally: => F[B]): F[A] =
         delay { try runSync(fa) finally runSync(runFinally) }
 
       override def reset[A](fa: F[A]): F[Unit] =
@@ -146,9 +190,6 @@ object Effect extends EffectFallbacks {
               t.printStackTrace()
           }
         )
-
-      override def runAll[A](callbacks: F[A]*): F[Unit] =
-        callbacks.foldLeft(empty)((x, y) => chain(x, reset(y)))
 
       override def traverse_[A, B](as: => Iterable[A])(f: A => F[B]): F[Unit] =
         delay {
@@ -184,7 +225,7 @@ object Effect extends EffectFallbacks {
             runSync(fa)
         }
 
-      override def handleError[A, AA >: A](fa: F[A])(f: Throwable => F[AA]): F[AA] =
+      override def handleError[A, AA >: A](fa: => F[A])(f: Throwable => F[AA]): F[AA] =
         delay[AA](
           try
             runSync(fa)
@@ -205,11 +246,6 @@ object Effect extends EffectFallbacks {
     def fromJsPromise[A](pa: => js.Thenable[A]): F[A]
 
     def async_(onCompletion: Sync.Untyped[Unit] => Sync.Untyped[Unit]): F[Unit]
-
-    /** Wraps this callback in a `try-finally` block and runs the given callback in the `finally` clause, after the
-      * current callback completes, be it in error or success.
-      */
-    def finallyRun[A, B](fa: F[A], runFinally: F[B]): F[A]
 
     final def subst[G[_], X[_[_]]](xg: X[G])(xf: => X[F])(implicit g: Async[G]): X[F] =
       if (this eq g) xg.asInstanceOf[X[F]] else xf
@@ -244,7 +280,6 @@ object Effect extends EffectFallbacks {
 
       override def fromJsPromise[A](pa: => js.Thenable[A]): F[A] =
         async(f => () => JsUtil.runPromiseAsync(pa)(f))
-
     }
   }
 

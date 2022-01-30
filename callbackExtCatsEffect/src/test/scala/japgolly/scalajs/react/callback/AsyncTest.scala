@@ -66,6 +66,9 @@ final class AsyncTest extends CatsSuite with TestInstances {
       Prop(x.fold(false, _ => false, _.getOrElse(false)))
     }
 
+  implicit def cogenAsyncCallback[A: Cogen](implicit t: Ticker): Cogen[AsyncCallback[A]] =
+    Cogen[Outcome[Option, Throwable, A]].contramap(acb => unsafeRun2(asyncCallbackToIO(acb)))
+
   locally {
     implicit val ticker = Ticker()
     implicit val instance = new AsyncAsyncCallback(asyncCallbackToIO, ioToAsyncCallback)

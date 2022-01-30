@@ -50,7 +50,6 @@ object AsyncCallback {
   private[AsyncCallback] val defaultCompleteWith: Try[Any] => Callback =
     _ => Callback.empty
 
-  // TODO: Revise AsyncCallback.{apply,delay} ?
   def apply[A](f: (Try[A] => Callback) => Callback): AsyncCallback[A] =
     new AsyncCallback(_ => f)
 
@@ -300,6 +299,28 @@ object AsyncCallback {
       promise
     }
   }
+
+
+  /** Creates an debounce boundary.
+    *
+    * Save it as a `val` somewhere because it relies on internal state that must be reused.
+    */
+  inline def debounce(delay: Duration): AsyncCallback[Unit] =
+    unit.debounce(delay)
+
+  /** Creates an debounce boundary.
+    *
+    * Save it as a `val` somewhere because it relies on internal state that must be reused.
+    */
+  inline def debounce(delay: FiniteDuration): AsyncCallback[Unit] =
+    unit.debounce(delay)
+
+  /** Creates an debounce boundary.
+    *
+    * Save it as a `val` somewhere because it relies on internal state that must be reused.
+    */
+  inline def debounceMs(delayMs: Long): AsyncCallback[Unit] =
+    unit.debounceMs(delayMs)
 
   def awaitAll(as: AsyncCallback[Any]*): AsyncCallback[Unit] =
     if (as.isEmpty)
@@ -875,12 +896,24 @@ final class AsyncCallback[+A] private[AsyncCallback] (val underlyingRepr: AsyncC
       }
     }
 
+  /** Creates an debounce boundary over the underlying computation.
+    *
+    * Save the result of this as a `val` somewhere because it relies on internal state that must be reused.
+    */
   inline def debounce(inline delay: Duration): AsyncCallback[A] =
     debounceMs(delay.toMillis)
 
+  /** Creates an debounce boundary over the underlying computation.
+    *
+    * Save the result of this as a `val` somewhere because it relies on internal state that must be reused.
+    */
   inline def debounce(inline delay: FiniteDuration): AsyncCallback[A] =
     debounceMs(delay.toMillis)
 
+  /** Creates an debounce boundary over the underlying computation.
+    *
+    * Save the result of this as a `val` somewhere because it relies on internal state that must be reused.
+    */
   def debounceMs(delayMs: Long): AsyncCallback[A] =
     AsyncCallback.debounce(delayMs, this)
 
@@ -1096,6 +1129,13 @@ final class AsyncCallback[+A] private[AsyncCallback] (val underlyingRepr: AsyncC
     */
   inline def fork_ : Callback =
     delayMs(1).toCallback
+
+  /** Runs this async computation in the background.
+    *
+    * Unlike [[fork_]] this returns an `AsyncCallback[Unit]` instead of a `Callback`.
+    */
+  def dispatch: AsyncCallback[Unit] =
+    delayMs(1).void
 
   /** Record the duration of this callback's execution. */
   def withDuration[B](f: (A, FiniteDuration) => AsyncCallback[B]): AsyncCallback[B] = {

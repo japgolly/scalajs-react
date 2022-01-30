@@ -3,7 +3,7 @@ package japgolly.scalajs.react.component
 import japgolly.scalajs.react.hooks.HookComponentBuilder
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.vdom.VdomNode
-import japgolly.scalajs.react.{Children, CtorType, PropsChildren, facade}
+import japgolly.scalajs.react.{Children, CtorType, PropsChildren, Reusability, facade}
 import scala.scalajs.js
 
 object ScalaFn {
@@ -23,6 +23,11 @@ object ScalaFn {
       .mapUnmounted(_.mapUnmountedProps(_.unbox))
   }
 
+  @inline def withHooks[P] =
+    HookComponentBuilder.apply[P]
+
+  // ===================================================================================================================
+
   def apply[P](render: P => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
     create[P, Children.None, s.CT](b => render(b.unbox))(s)
 
@@ -32,6 +37,17 @@ object ScalaFn {
   def justChildren(render: PropsChildren => VdomNode): Component[Unit, CtorType.Children] =
     create(b => render(PropsChildren(b.children)))
 
-  @inline def withHooks[P] =
-    HookComponentBuilder.apply[P]
+  // ===================================================================================================================
+
+  def withReuse[P](render: P => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None], r: Reusability[P]): Component[P, s.CT] =
+    withHooks[P].renderWithReuse(render)(s, r)
+
+  def withReuseBy[P, A](reusableInputs: P => A)(render: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None], r: Reusability[A]): Component[P, s.CT] =
+    withHooks[P].renderWithReuseBy(reusableInputs)(render)(s, r)
+
+  def withChildrenAndReuse[P](render: (P, PropsChildren) => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs], rp: Reusability[P], rc: Reusability[PropsChildren]): Component[P, s.CT] =
+    withHooks[P].withPropsChildren.renderWithReuse(i => render(i.props, i.propsChildren))
+
+  def withChildrenAndReuse[P, A](reusableInputs: (P, PropsChildren) => A)(render: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs], r: Reusability[A]): Component[P, s.CT] =
+    withHooks[P].withPropsChildren.renderWithReuseBy(i => reusableInputs(i.props, i.propsChildren))(render)
 }

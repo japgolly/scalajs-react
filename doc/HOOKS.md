@@ -172,17 +172,21 @@ object Example {
 | JavaScript | scalajs-react |
 | --------- | -------- |
 | `useCallback(c)` | `.useCallback(c)` |
-| `useCallback(c, [deps])` | `.useCallbackWithDeps(c, (deps))` |
+| `useCallback(c, [deps])` | `.useCallbackWithDeps((deps))(_ => c)` |
+| `useCallback(f([deps]), [deps])` | `.useCallbackWithDeps((deps))(f)` |
 | `useContext(c)` | `.useContext(c)` |
 | `useDebugValue(desc)` | `.useDebugValue(desc)` |
 | `useDebugValue(a, f)` | `.useDebugValue(f(a))` |
 | `useEffect(e)` | `.useEffect(e)` |
 | `useEffect(e, [])` | `.useEffectOnMount(e)` |
-| `useEffect(e, [deps])` | `.useEffectWithDeps(e, (deps))` |
+| `useEffect(e, [deps])` | `.useEffectWithDeps((deps))(_ => e)` |
+| `useEffect(f([deps]), [deps])` | `.useEffectWithDeps((deps))(f)` |
 | `useLayoutEffect(e)` | `.useLayoutEffect(e)` |
 | `useLayoutEffect(e, [])` | `.useLayoutEffectOnMount(e)` |
-| `useLayoutEffect(e, [deps])` | `.useLayoutEffectWithDeps(e, (deps))` |
-| `useMemo(() => a, [deps])` | `.useMemo(a, (deps))` |
+| `useLayoutEffect(e, [deps])` | `.useLayoutEffectWithDeps((deps))(_ => e)` |
+| `useLayoutEffect(f([deps]), [deps])` | `.useLayoutEffectWithDeps((deps))(f)` |
+| `useMemo(() => a, [deps])` | `.useMemo((deps))(_ => a) |
+| `useMemo(() => f([deps]), [deps])` | `.useMemo((deps))(f) |
 | `useReducer(f, s)` | `.useReducer(f, s)` |
 | `useReducer(f, a, i)` | `.useReducer(f, i(a))`<br>*(Note: `i(a)` is actually `(=> i(a))` and isn't evaluated immediately)* |
 | `useRef()` | `.useRefToAnyVdom` <br> `.useRefToVdom[DomType]` <br> `.useRefToScalaComponent(component)` <br> `.useRefToScalaComponent[P, S, B]` <br> `.useRefToJsComponent(component)` <br> `.useRefToJsComponent[P, S]` <br> `.useRefToJsComponentWithMountedFacade[P, S, F]` |

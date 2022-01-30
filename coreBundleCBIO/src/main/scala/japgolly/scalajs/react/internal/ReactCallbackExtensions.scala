@@ -1,0 +1,1 @@
+../../../../../../../../coreBundleCallback/src/main/scala/japgolly/scalajs/react/internal/ReactCallbackExtensions.scala

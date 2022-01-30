@@ -4,6 +4,7 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.facade.{React => RawReact, ReactDOM => RawReactDOM}
 import japgolly.scalajs.react.hooks.Hooks
 import japgolly.scalajs.react.internal.CoreGeneral._
+import japgolly.scalajs.react.test.ReactTestUtilsConfig.aroundReact
 import japgolly.scalajs.react.util.DefaultEffects.{Async => DA, Sync => DS}
 import japgolly.scalajs.react.util.Effect._
 import japgolly.scalajs.react.util.JsUtil
@@ -14,23 +15,131 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
 import scala.scalajs.js.|
 
-object ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtilExtensions {
-
+object ReactTestUtils extends ReactTestUtils {
   @inline def raw = japgolly.scalajs.react.test.facade.ReactTestUtils
+
+  @deprecated("Use .withNewDocumentElementAsync", "2.0.0")
+  def withNewDocumentElementAsyncCallback[F[_], A](use: Element => F[A])(implicit F: Async[F]): F[A] =
+    withNewDocumentElementAsync(use)
+
+  @deprecated("Use .withRenderedIntoDocumentAsync", "2.0.0")
+  def withRenderedIntoDocumentAsyncCallback[M](u: Unmounted[M]): WithRenderedDslF[DA, M, Element] =
+    withRenderedIntoDocumentAsync(u)
+
+  @deprecated("Use .withNewBodyElementAsync", "2.0.0")
+  def withNewBodyElementAsyncCallback[F[_], A](use: Element => F[A])(implicit F: Async[F]): F[A] =
+    withNewBodyElementAsync(use)
+
+  @deprecated("Use .withRenderedIntoBodyAsync", "2.0.0")
+  def withRenderedIntoBodyAsyncCallback[M](u: Unmounted[M]): WithRenderedDslF[DA, M, Element] =
+    withRenderedIntoBodyAsync(u)
+
+  @deprecated("Use .withRenderedAsync", "2.0.0")
+  def withRenderedAsyncCallback[M](u: Unmounted[M], intoBody: Boolean): WithRenderedDslF[DA, M, Element] =
+    withRenderedAsync(u, intoBody)
+
+  trait WithRenderedDsl[M, R] {
+    def apply     [A](f: (M, R) => A): A
+    def apply     [A](f: M      => A): A = apply((m, _) => f(m))
+    def withParent[A](f: R      => A): A = apply((_, r) => f(r))
+  }
+
+  trait WithRenderedDslF[F[_], M, R] {
+    def apply     [A](f: (M, R) => F[A]): F[A]
+    def apply     [A](f: M      => F[A]): F[A] = apply((m, _) => f(m))
+    def withParent[A](f: R      => F[A]): F[A] = apply((_, r) => f(r))
+  }
+
+  private[ReactTestUtils] object Internals {
+
+    val reactDataAttrRegex = """\s+data-react\S*?\s*?=\s*?".*?"""".r
+    val reactTextCommentRegex = """<!-- /?react-text[: ].*?-->""".r
+
+    type RawM = japgolly.scalajs.react.facade.React.ComponentUntyped
+
+    def wrapMO(r: RawM | Null): MountedOutput =
+      if (r == null)
+        null
+      else {
+        val r2 = JsUtil.notNull[RawM](r) // TODO: https://github.com/lampepfl/dotty/issues/12739
+        val x = JsComponent.mounted(r2)
+        x.asInstanceOf[MountedOutput]
+      }
+
+    def mountedElement(c: RawReact.ComponentUntyped | Null) =
+      if (c == null) null else ReactDOM.findDOMNode(c).get.asElement()
+
+    def parentNode(c: RawReact.ComponentUntyped | Null) = {
+      val m = mountedElement(c)
+      if (m == null) null else m.parentNode
+    }
+
+    def parentElement(c: RawReact.ComponentUntyped | Null) = {
+      val p = parentNode(c)
+      if (p == null) null else p.domCast[Element]
+    }
+
+    def attemptFuture[A](f: => Future[A]): Future[A] =
+      try f catch { case err: Exception => Future.failed(err) }
+
+    def warnOnError(prefix: String)(a: => Any): Unit =
+      try {
+        a
+        ()
+      } catch {
+        case t: Throwable =>
+          console.warn(s"$prefix: $t")
+      }
+
+    def unmount(container: dom.Node): Unit =
+      warnOnError("Failed to unmount component") {
+        ReactDOM.unmountComponentAtNode(container)
+      }
+
+    def _withNewElementAsync[F[_], A](create: => Element,
+                                      use   : Element => F[A],
+                                      remove: Element => Unit,
+                                    )(implicit F: Async[F]): F[A] =
+      F.flatMap(F.delay(create))(e =>
+        F.finallyRun(use(e), F.delay(act(remove(e)))))
+
+    def _withRenderedAsync[F[_], M, A](u: Unmounted[M], parent: Element, f: (M, Element) => F[A])
+                                      (implicit F: Async[F]): F[A] =
+      aroundReactAsync {
+        F.flatMap(F.delay(act(RawReactDOM.render(u.raw, parent)))) { c =>
+          val m = u.mountRawOrNull(c)
+          F.finallyRun(f(m, parent), F.delay(act(unmountRawComponent(c))))
+        }
+      }
+
+    def aroundReactAsync[F[_], A](body: F[A])(implicit F: Async[F]): F[A] = {
+      val start = F.delay {
+        val stop = aroundReact.start()
+        F.delay(stop())
+      }
+      F.flatMap(start) { stop =>
+        F.finallyRun(body, stop)
+      }
+    }
+
+    def aroundReactFuture[A](body: => Future[A])(implicit ec: ExecutionContext): Future[A] = {
+      val stop = aroundReact.start()
+      val f    = body
+      f.onComplete { _ => stop() }
+      f
+    }
+
+  } // Internals
+}
+
+trait ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtilExtensions {
+  import ReactTestUtils._
+  import ReactTestUtils.Internals._
 
   type Unmounted[M] = GenericComponent.Unmounted[_, M]
   type Mounted      = GenericComponent.MountedRaw
 
-  private type RawM = japgolly.scalajs.react.facade.React.ComponentUntyped
   type MountedOutput = JsComponent.Mounted[js.Object, js.Object]
-  private def wrapMO(r: RawM | Null): MountedOutput =
-    if (r == null)
-      null
-    else {
-      val r2 = JsUtil.notNull[RawM](r) // TODO: https://github.com/lampepfl/dotty/issues/12739
-      val x = JsComponent.mounted(r2)
-      x.asInstanceOf[MountedOutput]
-    }
 
   type CompType = GenericComponent.ComponentRaw {type Raw <: japgolly.scalajs.react.facade.React.ComponentClassUntyped }
 
@@ -130,70 +239,11 @@ object ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtil
   def findRenderedComponentWithType(tree: Mounted, c: CompType): MountedOutput =
     wrapMO(raw.findRenderedComponentWithType(tree.raw, c.raw))
 
-  trait WithRenderedDsl[M, R] {
-    def apply     [A](f: (M, R) => A): A
-    def apply     [A](f: M      => A): A = apply((m, _) => f(m))
-    def withParent[A](f: R      => A): A = apply((_, r) => f(r))
-  }
-
-  trait WithRenderedDslF[F[_], M, R] {
-    def apply     [A](f: (M, R) => F[A]): F[A]
-    def apply     [A](f: M      => F[A]): F[A] = apply((m, _) => f(m))
-    def withParent[A](f: R      => F[A]): F[A] = apply((_, r) => f(r))
-  }
-
   def unmountRawComponent(c: RawReact.ComponentUntyped | Null): Unit = {
     val p = parentNode(c)
     if (p != null)
       unmount(p)
   }
-
-  // ===================================================================================================================
-  // Private helpers
-
-  private def mountedElement(c: RawReact.ComponentUntyped | Null) =
-    if (c == null) null else ReactDOM.findDOMNode(c).get.asElement()
-
-  private def parentNode(c: RawReact.ComponentUntyped | Null) = {
-    val m = mountedElement(c)
-    if (m == null) null else m.parentNode
-  }
-
-  private def parentElement(c: RawReact.ComponentUntyped | Null) = {
-    val p = parentNode(c)
-    if (p == null) null else p.domCast[Element]
-  }
-
-  private def attemptFuture[A](f: => Future[A]): Future[A] =
-    try f catch { case err: Exception => Future.failed(err) }
-
-  private def warnOnError(prefix: String)(a: => Any): Unit =
-    try {
-      a
-      ()
-    } catch {
-      case t: Throwable =>
-        console.warn(s"$prefix: $t")
-    }
-
-  private def unmount(container: dom.Node): Unit =
-    warnOnError("Failed to unmount component") {
-      ReactDOM.unmountComponentAtNode(container)
-    }
-
-  private def _withNewElementAsync[F[_], A](create: => Element,
-                                            use   : Element => F[A],
-                                            remove: Element => Unit,
-                                           )(implicit F: Async[F]): F[A] =
-    F.flatMap(F.delay(create))(e =>
-      F.finallyRun(use(e), F.delay(act(remove(e)))))
-
-  private def _withRenderedAsync[F[_], M, A](u: Unmounted[M], parent: Element, f: (M, Element) => F[A])
-                                            (implicit F: Async[F]): F[A] =
-    F.flatMap(F.delay(act(RawReactDOM.render(u.raw, parent)))) { c =>
-      val m = u.mountRawOrNull(c)
-      F.finallyRun(f(m, parent), F.delay(act(unmountRawComponent(c))))
-    }
 
   // ===================================================================================================================
   // Render into body
@@ -227,11 +277,13 @@ object ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtil
     new WithRenderedDsl[M, Element] {
       override def apply[A](f: (M, Element) => A): A =
         withNewBodyElement { parent =>
-          val c = act(RawReactDOM.render(u.raw, parent))
-          try
-            f(u.mountRawOrNull(c), parent)
-          finally
-            unmountRawComponent(c)
+          aroundReact {
+            val c = act(RawReactDOM.render(u.raw, parent))
+            try
+              f(u.mountRawOrNull(c), parent)
+            finally
+              unmountRawComponent(c)
+          }
         }
     }
 
@@ -254,9 +306,11 @@ object ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtil
     */
   def withRenderedIntoBodyFuture[M, A](u: Unmounted[M])(f: M => Future[A])(implicit ec: ExecutionContext): Future[A] =
     withNewBodyElementFuture { parent =>
-      val c = act(RawReactDOM.render(u.raw, parent))
-      val m = u.mountRawOrNull(c)
-      attemptFuture(f(m)).andThen { case _ => act(unmountRawComponent(c)) }
+      aroundReactFuture {
+        val c = act(RawReactDOM.render(u.raw, parent))
+        val m = u.mountRawOrNull(c)
+        attemptFuture(f(m)).andThen { case _ => act(unmountRawComponent(c)) }
+      }
     }
 
   def withNewBodyElementAsync[F[_], A](use: Element => F[A])(implicit F: Async[F]): F[A] =
@@ -270,14 +324,6 @@ object ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtil
       override def apply[A](f: (M, Element) => DA[A]) =
         withNewBodyElementAsync(_withRenderedAsync(u, _, f))
     }
-
-  @deprecated("Use .withNewBodyElementAsync", "2.0.0")
-  def withNewBodyElementAsyncCallback[F[_], A](use: Element => F[A])(implicit F: Async[F]): F[A] =
-    withNewBodyElementAsync(use)
-
-  @deprecated("Use .withRenderedIntoBodyAsync", "2.0.0")
-  def withRenderedIntoBodyAsyncCallback[M](u: Unmounted[M]): WithRenderedDslF[DA, M, Element] =
-    withRenderedIntoBodyAsync(u)
 
   // ===================================================================================================================
   // Render into document
@@ -308,15 +354,16 @@ object ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtil
     */
   def withRenderedIntoDocument[M](u: Unmounted[M]): WithRenderedDsl[M, Element] =
     new WithRenderedDsl[M, Element] {
-      override def apply[A](f: (M, Element) => A): A = {
-        val c = act(raw.renderIntoDocument(u.raw))
-        try {
-          val p = parentElement(c)
-          val m = u.mountRawOrNull(c)
-          f(m, p)
-        } finally
-          act(unmountRawComponent(c))
-      }
+      override def apply[A](f: (M, Element) => A): A =
+        aroundReact {
+          val c = act(raw.renderIntoDocument(u.raw))
+          try {
+            val p = parentElement(c)
+            val m = u.mountRawOrNull(c)
+            f(m, p)
+          } finally
+            act(unmountRawComponent(c))
+        }
   }
 
   def withNewDocumentElementFuture[A](use: Element => Future[A])(implicit ec: ExecutionContext): Future[A] = {
@@ -327,11 +374,12 @@ object ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtil
   /** Renders a component into detached DOM via [[ReactTestUtils.renderIntoDocument()]],
     * and asynchronously waits for the Future to complete before unmounting.
     */
-  def withRenderedIntoDocumentFuture[M, A](u: Unmounted[M])(f: M => Future[A])(implicit ec: ExecutionContext): Future[A] = {
-    val c = act(raw.renderIntoDocument(u.raw))
-    val m = u.mountRawOrNull(c)
-    attemptFuture(f(m)).andThen { case _ => act(unmountRawComponent(c)) }
-  }
+  def withRenderedIntoDocumentFuture[M, A](u: Unmounted[M])(f: M => Future[A])(implicit ec: ExecutionContext): Future[A] =
+    aroundReactFuture {
+      val c = act(raw.renderIntoDocument(u.raw))
+      val m = u.mountRawOrNull(c)
+      attemptFuture(f(m)).andThen { case _ => act(unmountRawComponent(c)) }
+    }
 
   def withNewDocumentElementAsync[F[_], A](use: Element => F[A])(implicit F: Async[F]): F[A] =
     _withNewElementAsync(newDocumentElement(), use, removeNewDocumentElement)
@@ -344,14 +392,6 @@ object ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtil
       override def apply[A](f: (M, Element) => DA[A]) =
         withNewDocumentElementAsync(_withRenderedAsync(u, _, f))
   }
-
-  @deprecated("Use .withNewDocumentElementAsync", "2.0.0")
-  def withNewDocumentElementAsyncCallback[F[_], A](use: Element => F[A])(implicit F: Async[F]): F[A] =
-    withNewDocumentElementAsync(use)
-
-  @deprecated("Use .withRenderedIntoDocumentAsync", "2.0.0")
-  def withRenderedIntoDocumentAsyncCallback[M](u: Unmounted[M]): WithRenderedDslF[DA, M, Element] =
-    withRenderedIntoDocumentAsync(u)
 
   // ===================================================================================================================
   // Render into body/document
@@ -386,25 +426,18 @@ object ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtil
     else
       withRenderedIntoDocumentAsync(u)
 
-  @deprecated("Use .withRenderedAsync", "2.0.0")
-  def withRenderedAsyncCallback[M](u: Unmounted[M], intoBody: Boolean): WithRenderedDslF[DA, M, Element] =
-    withRenderedAsync(u, intoBody)
-
   // ===================================================================================================================
 
   def modifyProps[P, U <: GenericComponent.Unmounted[P, M], M <: GenericComponent.MountedImpure[P, _]]
       (c: GenericComponent[P, CtorType.Props, U], m: M)(f: P => P): M = {
     val container = m.getDOMNode.asMounted().node.parentNode
     val p2 = f(m.props)
-    act(c(p2).renderIntoDOM(container.domCast[org.scalajs.dom.raw.Element]))
+    act(c(p2).renderIntoDOM(container.domCast[org.scalajs.dom.Element]))
   }
 
   def replaceProps[P, U <: GenericComponent.Unmounted[P, M], M <: GenericComponent.MountedImpure[P, _]]
       (c: GenericComponent[P, CtorType.Props, U], m: M)(p: P): M =
     modifyProps(c, m)(_ => p)
-
-  private val reactDataAttrRegex = """\s+data-react\S*?\s*?=\s*?".*?"""".r
-  private val reactTextCommentRegex = """<!-- /?react-text[: ].*?-->""".r
 
   /**
     * Turn `&lt;div data-reactroot=""&gt;hello&lt/div&gt;`
@@ -413,5 +446,7 @@ object ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtil
   def removeReactInternals(html: String): String =
     reactDataAttrRegex.replaceAllIn(
       reactTextCommentRegex.replaceAllIn(
-        html, ""), "")
+        html,
+      ""),
+    "")
 }

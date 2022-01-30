@@ -43,10 +43,10 @@ object Hooks {
     def apply[A](callback: => A)(implicit a: UseCallbackArg[A]): CustomHook[Unit, Reusable[A]] =
       CustomHook.delay(create(callback, new js.Array[Any]))
 
-    def apply[A, D](callback: => A, deps: => D)(implicit a: UseCallbackArg[A], r: Reusability[D]): CustomHook[Unit, Reusable[A]] =
+    def withDeps[D, A](deps: => D)(callback: D => A)(implicit a: UseCallbackArg[A], r: Reusability[D]): CustomHook[Unit, Reusable[A]] =
       CustomHook.reusableDeps[D]
         .apply(() => deps)
-        .map(rev => create(callback, js.Array[Any](rev)))
+        .map { case (d, rev) => create(callback(d), js.Array[Int](rev)) }
   }
 
   // ===================================================================================================================
@@ -102,22 +102,22 @@ object Hooks {
 
   object ReusableEffect {
 
-    def useEffect[A, D](effect: => A, deps: => D)(implicit a: UseEffectArg[A], r: Reusability[D]): CustomHook[Unit, Unit] =
+    def useEffect[D, A](deps: => D)(effect: D => A)(implicit a: UseEffectArg[A], r: Reusability[D]): CustomHook[Unit, Unit] =
       CustomHook.reusableDeps[D]
         .apply(() => deps)
-        .map(rev => facade.React.useEffect(a.toJs(effect), js.Array[Any](rev)))
+        .map { case (d, rev) => facade.React.useEffect(a.toJs(effect(d)), js.Array[Int](rev)) }
 
-    def useLayoutEffect[A, D](effect: => A, deps: => D)(implicit a: UseEffectArg[A], r: Reusability[D]): CustomHook[Unit, Unit] =
+    def useLayoutEffect[D, A](deps: => D)(effect: D => A)(implicit a: UseEffectArg[A], r: Reusability[D]): CustomHook[Unit, Unit] =
       CustomHook.reusableDeps[D]
         .apply(() => deps)
-        .map(rev => facade.React.useLayoutEffect(a.toJs(effect), js.Array[Any](rev)))
+        .map { case (d, rev) => facade.React.useLayoutEffect(a.toJs(effect(d)), js.Array[Int](rev)) }
   }
 
   // ===================================================================================================================
 
   object UseMemo {
-    def apply[A, D](create: => A, deps: => D)(implicit r: Reusability[D]): CustomHook[Unit, Reusable[A]] =
-      CustomHook.reusableByDeps[A, D] { case (_, rev) => facade.React.useMemo(() => create, js.Array[Any](rev: Int)) }
+    def apply[D, A](deps: => D)(create: D => A)(implicit r: Reusability[D]): CustomHook[Unit, Reusable[A]] =
+      CustomHook.reusableByDeps[D, A] { case (d, rev) => facade.React.useMemo(() => create(d), js.Array[Int](rev)) }
         .apply(() => deps)
   }
 

@@ -23,6 +23,7 @@ object ScalaJsReact {
       callbackExtCatsEffect,
       coreBundleCallback,
       coreBundleCatsEffect,
+      coreBundleCBIO,
       coreExtCats,
       coreExtCatsEffect,
       coreGeneric,
@@ -35,6 +36,7 @@ object ScalaJsReact {
       ghpagesMacros,
       scalafixRules,
       tests,
+      testUtilMacros,
       testUtil,
       util,
       utilCatsEffect,
@@ -59,15 +61,6 @@ object ScalaJsReact {
   lazy val genHooks = TaskKey[Unit]("genHooks")
 
   // ==============================================================================================
-
-  lazy val scalafixRules = project
-    .disablePlugins(ScalafixPlugin)
-    .configure(commonSettingsWithoutPlugins, preventPublication)
-    .settings(
-      libraryDependencies += "ch.epfl.scala" %% "scalafix-core" % ScalafixVer,
-      disable := scalaVersion.value.startsWith("3"),
-    )
-    .configure(conditionallyDisable) // keep this last
 
   lazy val callback = project
     .dependsOn(util, utilFallbacks % Provided)
@@ -115,6 +108,14 @@ object ScalaJsReact {
     .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
     .settings(
       moduleName := "core-bundle-cats_effect",
+    )
+
+  lazy val coreBundleCBIO = project
+    .dependsOn(callback, coreExtCatsEffect) // High priority
+    .dependsOn(utilFallbacks) // Low priority
+    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, disableScalaDoc3)
+    .settings(
+      moduleName := "core-bundle-cb_io",
     )
 
   lazy val coreExtCats = project
@@ -180,6 +181,7 @@ object ScalaJsReact {
     )
 
   lazy val ghpages = project
+    .dependsOn(coreExtCatsEffect) // must come before bundle
     .dependsOn(coreBundleCallback, extra, extraExtMonocle3, ghpagesMacros)
     .configure(commonSettings, addReactJsDependencies(Compile), preventPublication, hasNoTests)
     .settings(
@@ -194,6 +196,17 @@ object ScalaJsReact {
     .settings(
       libraryDependencies += Dep.sourcecode.value,
     )
+
+  lazy val scalafixRules = project
+    .disablePlugins(ScalafixPlugin)
+    .configure(commonSettingsWithoutPlugins, publicationSettings)
+    .settings(
+      moduleName := "scalafix",
+      libraryDependencies += "ch.epfl.scala" %% "scalafix-core" % ScalafixVer,
+      scalacOptions ~= { _.filterNot(_.contains("mapSourceURI")) },
+      disable := scalaVersion.value.startsWith("3"),
+    )
+    .configure(conditionallyDisable) // keep this last
 
   lazy val tests = project
     .dependsOn(testUtil, coreExtCatsEffect, extraExtMonocle3)
@@ -220,10 +233,17 @@ object ScalaJsReact {
     )
 
   lazy val testUtil = project
-    .dependsOn(coreGeneric, extra, facadeTest)
+    .dependsOn(facadeTest, testUtilMacros, extra)
     .configure(commonSettings, publicationSettings, hasNoTests, effectGenericModule)
     .settings(
       moduleName := "test",
+    )
+
+  lazy val testUtilMacros = project
+    .dependsOn(coreGeneric)
+    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, effectGenericModule)
+    .settings(
+      moduleName := "test-macros",
     )
 
   lazy val util = project
@@ -243,7 +263,10 @@ object ScalaJsReact {
 
   lazy val utilDummyDefaults = project
     .dependsOn(util, utilFallbacks)
-    .configure(commonSettings, preventPublication, hasNoTests)
+    .configure(commonSettings, publicationSettings, hasNoTests)
+    .settings(
+      moduleName := "util-dummy-defaults",
+    )
 
   lazy val utilFallbacks = project
     .configure(commonSettings, publicationSettings, hasNoTests, prohibitDefaultEffects)

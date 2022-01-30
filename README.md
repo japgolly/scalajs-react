@@ -25,17 +25,18 @@ Includes a router, testing utils, performance utils, more.
   - [The `Callback` class](doc/CALLBACK.md)
   - [React Context](doc/CONTEXT.md)
 - Delving deeper
+  - [Global Config](doc/CONFIG.md)
   - [Types](doc/TYPES.md)
   - [Interoperability](doc/INTEROP.md)
+  - [Creating an Effect-Agnostic Library](doc/FX_AGNOSTICISM.md)
   - [Functional programming](doc/FP.md)
-  - [Global Config](doc/CONFIG.md)
 - Scala-only Utilities
   - [Router](doc/ROUTER.md)
   - [Performance Management](doc/PERFORMANCE.md)
   - [Other](doc/EXTRA.md)
 - [Testing](doc/TESTING.md)
 - [Live Examples & Demos](https://japgolly.github.io/scalajs-react/)
-- [Changelogs](doc/changelog) — [**v2.0.0-RC1** (Latest)](doc/changelog/2.0.0.md)
+- [Changelogs](doc/changelog) — [**v2.0.1** (Latest)](doc/changelog/2.0.1.md)
 
 
 ##### External Resources
@@ -71,7 +72,7 @@ Includes a router, testing utils, performance utils, more.
 ##### Requirements:
 * React ≥ 17
 * Scala ≥ 2.13
-* Scala.JS ≥ 1.6
+* Scala.JS ≥ 1.7
 
 ##### Support:
 If you like what I do

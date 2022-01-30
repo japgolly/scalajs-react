@@ -16,7 +16,7 @@ trait ReactDOM extends js.Object {
 
   val version: String = js.native
 
-  final type Container = dom.Element | dom.raw.Document
+  final type Container = dom.Element | dom.Document
 
   final def render(element  : React.Node,
                    container: Container,

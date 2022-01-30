@@ -5,7 +5,7 @@ import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.util.JsUtil
 import japgolly.scalajs.react.util.Util.{catchAll, identityFn}
 import java.time.{Duration, Instant}
-import org.scalajs.dom.raw.Window
+import org.scalajs.dom.Window
 import org.scalajs.dom.window
 import scala.annotation.tailrec
 import scala.collection.BuildFrom
@@ -524,12 +524,24 @@ final class CallbackTo[+A] /*private[react]*/ (private[CallbackTo] val trampolin
         windowMs = windowMs,
       ))
 
+  /** Creates an debounce boundary over the underlying computation.
+    *
+    * Save the result of this as a `val` somewhere because it relies on internal state that must be reused.
+    */
   inline def debounce(inline delay: Duration): Callback =
     __debounceMs(delay.toMillis)
 
+  /** Creates an debounce boundary over the underlying computation.
+    *
+    * Save the result of this as a `val` somewhere because it relies on internal state that must be reused.
+    */
   inline def debounce(inline delay: FiniteDuration): Callback =
     __debounceMs(delay.toMillis)
 
+  /** Creates an debounce boundary over the underlying computation.
+    *
+    * Save the result of this as a `val` somewhere because it relies on internal state that must be reused.
+    */
   inline def debounceMs(inline delayMs: Long): Callback =
     __debounceMs(delayMs)
 
@@ -721,6 +733,10 @@ final class CallbackTo[+A] /*private[react]*/ (private[CallbackTo] val trampolin
       new Callback.SetTimeoutResult(handle)
     }
   }
+
+  /** Runs this computation in the background. */
+  def dispatch: Callback =
+    asAsyncCallback.fork_
 
   def withFilter(f: A => Boolean): CallbackTo[A] =
     map[A](a => if f(a) then a else

@@ -424,8 +424,8 @@ object HooksTest extends TestSuite {
     val depB    = new Counter
     val counter = new Counter
     val comp = ScalaFnComponent.withHooks[Unit]
-      .useCallbackWithDeps(counter.incCB(depA.value), depA.value)
-      .useCallbackWithDeps((i: Int) => counter.incCB(depB.value + i - 1), depB.value)
+      .useCallbackWithDeps(depA.value)(_ => counter.incCB(depA.value))
+      .useCallbackWithDeps(depB.value)(_ => (i: Int) => counter.incCB(depB.value + i - 1))
       .useState(0)
       .render((_, c1, c2, s) =>
         <.div(
@@ -460,11 +460,11 @@ object HooksTest extends TestSuite {
   private def testUseCallbackWithDepsBy(): Unit = {
     val counter = new Counter
     val comp = ScalaFnComponent.withHooks[PI]
-      .useCallbackWithDepsBy(p => counter.incCB(p.pi), _.pi) // hook1
+      .useCallbackWithDepsBy(_.pi)(p => _ => counter.incCB(p.pi)) // hook1
       .useState(10) // hook2: dep1
       .useState(20) // hook3: dep2
-      .useCallbackWithDepsBy((_, _, d1, _) => counter.incCB(d1.value), (_, _, d1, _) => d1.value) // hook4
-      .useCallbackWithDepsBy($ => (i: Int) => counter.incCB($.hook3.value + i - 1), _.hook3.value) // hook5
+      .useCallbackWithDepsBy((_, _, d1, _) => d1.value)((_, _, _, _) => counter.incCB) // hook4
+      .useCallbackWithDepsBy(_.hook3.value)($ => _ => (i: Int) => counter.incCB($.hook3.value + i - 1)) // hook5
       .render((_, c0, d1, d2, c1, c2) =>
         <.div(
           "S=", counter.value,
@@ -541,13 +541,13 @@ object HooksTest extends TestSuite {
     def X_useEffectBy[A](init: Ctx => A)(implicit a: UseEffectArg[A], step: Step): step.Self
     def X_useEffectOnMount[A](effect: A)(implicit a: UseEffectArg[A], step: Step): step.Self
     def X_useEffectOnMountBy[A](effect: Ctx => A)(implicit a: UseEffectArg[A], step: Step): step.Self
-    def X_useEffectWithDeps[A, D](effect: A, deps: => D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self
-    def X_useEffectWithDepsBy[A, D](effect: Ctx => A, deps: Ctx => D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self
+    def X_useEffectWithDeps[D, A](deps: => D)(effect: D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self
+    def X_useEffectWithDepsBy[D, A](deps: Ctx => D)(effect: Ctx => D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self
   }
   trait X_UseEffect_Secondary[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]] extends X_UseEffect_Primary[Ctx, Step] {
     def X_useEffectBy[A](init: CtxFn[A])(implicit a: UseEffectArg[A], step: Step): step.Self
     def X_useEffectOnMountBy[A](effect: CtxFn[A])(implicit a: UseEffectArg[A], step: Step): step.Self
-    def X_useEffectWithDepsBy[A, D](effect: CtxFn[A], deps: CtxFn[D])(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self
+    def X_useEffectWithDepsBy[D, A](deps: CtxFn[D])(effect: CtxFn[D => A])(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self
   }
 
   private object UseEffect extends UseEffectTests {
@@ -564,18 +564,18 @@ object HooksTest extends TestSuite {
           api.useEffectOnMount(effect)
         override def X_useEffectOnMountBy[A](effect: Ctx => A)(implicit a: UseEffectArg[A], step: Step) =
           api.useEffectOnMountBy(effect)
-        override def X_useEffectWithDeps[A, D](effect: A, deps: => D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step) =
-          api.useEffectWithDeps(effect, deps)
-        override def X_useEffectWithDepsBy[A, D](effect: Ctx => A, deps: Ctx => D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step) =
-          api.useEffectWithDepsBy(effect, deps)
+        override def X_useEffectWithDeps[D, A](deps: => D)(effect: D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step) =
+          api.useEffectWithDeps(deps)(effect)
+        override def X_useEffectWithDepsBy[D, A](deps: Ctx => D)(effect: Ctx => D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step) =
+          api.useEffectWithDepsBy(deps)(effect)
     }
     protected class Secondary[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]) extends Primary(api) with X_UseEffect_Secondary[Ctx, CtxFn, Step] {
         override def X_useEffectBy[A](init: CtxFn[A])(implicit a: UseEffectArg[A], step: Step): step.Self =
           api.useEffectBy(init)
         override def X_useEffectOnMountBy[A](effect: CtxFn[A])(implicit a: UseEffectArg[A], step: Step): step.Self =
           api.useEffectOnMountBy(effect)
-        override def X_useEffectWithDepsBy[A, D](effect: CtxFn[A], deps: CtxFn[D])(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
-          api.useEffectWithDepsBy(effect, deps)
+        override def X_useEffectWithDepsBy[D, A](deps: CtxFn[D])(effect: CtxFn[D => A])(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
+          api.useEffectWithDepsBy(deps)(effect)
     }
   }
 
@@ -593,18 +593,18 @@ object HooksTest extends TestSuite {
           api.useLayoutEffectOnMount(effect)
         override def X_useEffectOnMountBy[A](effect: Ctx => A)(implicit a: UseEffectArg[A], step: Step) =
           api.useLayoutEffectOnMountBy(effect)
-        override def X_useEffectWithDeps[A, D](effect: A, deps: => D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step) =
-          api.useLayoutEffectWithDeps(effect, deps)
-        override def X_useEffectWithDepsBy[A, D](effect: Ctx => A, deps: Ctx => D)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step) =
-          api.useLayoutEffectWithDepsBy(effect, deps)
+        override def X_useEffectWithDeps[D, A](deps: => D)(effect: D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step) =
+          api.useLayoutEffectWithDeps(deps)(effect)
+        override def X_useEffectWithDepsBy[D, A](deps: Ctx => D)(effect: Ctx => D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step) =
+          api.useLayoutEffectWithDepsBy(deps)(effect)
     }
     protected class Secondary[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]) extends Primary(api) with X_UseEffect_Secondary[Ctx, CtxFn, Step] {
         override def X_useEffectBy[A](init: CtxFn[A])(implicit a: UseEffectArg[A], step: Step): step.Self =
           api.useLayoutEffectBy(init)
         override def X_useEffectOnMountBy[A](effect: CtxFn[A])(implicit a: UseEffectArg[A], step: Step): step.Self =
           api.useLayoutEffectOnMountBy(effect)
-        override def X_useEffectWithDepsBy[A, D](effect: CtxFn[A], deps: CtxFn[D])(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
-          api.useLayoutEffectWithDepsBy(effect, deps)
+        override def X_useEffectWithDepsBy[D, A](deps: CtxFn[D])(effect: CtxFn[D => A])(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
+          api.useLayoutEffectWithDepsBy(deps)(effect)
     }
   }
 
@@ -691,9 +691,9 @@ object HooksTest extends TestSuite {
       val counter2 = new Counter
       def state() = s"${counter1.value}:${counter2.value}"
       val comp = ScalaFnComponent.withHooks[Unit]
-        .X_useEffectWithDeps(counter1.incCB.ret(counter2.incCB), dep1.value)
-        .X_useEffectWithDeps(counter1.incCB(100), dep2.value)
-        .X_useEffectWithDeps(counter1.incCB(10).ret(counter2.incCB(10)), dep3.value)
+        .X_useEffectWithDeps(dep1.value)(_ => counter1.incCB.ret(counter2.incCB))
+        .X_useEffectWithDeps(dep2.value)(_ => counter1.incCB(100))
+        .X_useEffectWithDeps(dep3.value)(_ => counter1.incCB(10).ret(counter2.incCB(10)))
         .useState(321)
         .render((_, s) => <.button(^.onClick --> s.modState(_ + 1)))
 
@@ -718,10 +718,10 @@ object HooksTest extends TestSuite {
       def state() = s"${_state})${counter1.value}:${counter2.value}"
 
       val comp = ScalaFnComponent.withHooks[PI]
-        .X_useEffectWithDepsBy(p => counter1.incCB(p.pi).ret(counter2.incCB(p.pi)), _ => dep1.value)
+        .X_useEffectWithDepsBy(_ => dep1.value)(p => _ => counter1.incCB(p.pi).ret(counter2.incCB(p.pi)))
         .useState(100)
-        .X_useEffectWithDepsBy((_, s) => counter1.incCB(s.value), (_, _) => dep2.value)
-        .X_useEffectWithDepsBy($ => counter1.incCB($.hook1.value / 10).ret(counter2.incCB($.hook1.value / 10)), _ => dep3.value)
+        .X_useEffectWithDepsBy((_, _) => dep2.value)((_, s) => _ => counter1.incCB(s.value))
+        .X_useEffectWithDepsBy(_ => dep3.value)($ => _ => counter1.incCB($.hook1.value / 10).ret(counter2.incCB($.hook1.value / 10)))
         .render((_, s) => {
           _state = s.value
           <.button(^.onClick --> s.modState(_ + 100))
@@ -765,8 +765,8 @@ object HooksTest extends TestSuite {
     val counter = new Counter
 
     val comp = ScalaFnComponent.withHooks[Unit]
-      .useMemo(counter.incCB(dep1.value), dep1.value)
-      .useMemo(counter.incCB(dep2.value), dep2.value)
+      .useMemo(dep1.value)(counter.incCB)
+      .useMemo(dep2.value)(counter.incCB)
       .useState(0)
       .render((_, c1, c2, s) =>
         <.div(
@@ -804,11 +804,11 @@ object HooksTest extends TestSuite {
   private def testUseMemoBy(): Unit = {
     val counter = new Counter
     val comp = ScalaFnComponent.withHooks[PI]
-      .useMemoBy(p => counter.incCB(p.pi), _.pi)
+      .useMemoBy(_.pi)(p => _ => counter.incCB(p.pi))
       .useState(1)
-      .useMemoBy((_, _, s) => counter.incCB(s.value), (_, _, s) => s.value)
+      .useMemoBy((_, _, s) => s.value)((_, _, s) => _ => counter.incCB(s.value))
       .useState(5)
-      .useMemoBy($ => counter.incCB($.props.pi + $.hook4.value), $ => $.props.pi + $.hook4.value)
+      .useMemoBy($ => $.props.pi + $.hook4.value)(_ => counter.incCB)
       .render((_, c1, s2, c2, s3, c3) =>
         <.div(
           "S2=", s2.value,
@@ -1224,6 +1224,35 @@ object HooksTest extends TestSuite {
     }
   }
 
+  // See https://github.com/japgolly/scalajs-react/issues/1027
+  private def testRenderWithReuseNever(): Unit = {
+    implicit val reusability: Reusability[PI] = Reusability.never
+    var renders = 0
+    val comp = ScalaFnComponent.withHooks[PI]
+      .renderWithReuse { p =>
+        renders += 1
+        <.div(s"P=$p, R=$renders")
+      }
+
+    val wrapper = ScalaComponent.builder[PI]
+      .initialStateFromProps(identity)
+      .renderS { ($, s) =>
+        <.div(
+          comp(s),
+          <.button(^.onClick --> $.modState(_ + 0)),
+          <.button(^.onClick --> $.modState(_ + 1)),
+        )
+      }
+      .build
+
+    withRenderedIntoBody(wrapper(PI(3))) { (_, root) =>
+      val t = new Tester(root)
+      t.assertText("P=PI(3), R=1")
+      t.clickButton(2); t.assertText("P=PI(4), R=2")
+      t.clickButton(1); t.assertText("P=PI(4), R=3")
+    }
+  }
+
   // ===================================================================================================================
 
   override def tests = Tests {
@@ -1289,5 +1318,6 @@ object HooksTest extends TestSuite {
     "useStateSnapshot" - testUseStateSnapshot()
     "useStateSnapshotWithReuse" - testUseStateSnapshotWithReuse()
     "renderWithReuse" - testRenderWithReuse()
+    "renderWithReuseNever" - testRenderWithReuseNever()
   }
 }
