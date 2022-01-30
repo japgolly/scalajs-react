@@ -57,6 +57,7 @@ object ExamplesScala extends ExampleCollection {
   case object Ajax1          extends Example("AJAX (1)",           "ajax-1",            AjaxExample1           .content)
   case object Ajax2          extends Example("AJAX (2)",           "ajax-2",            AjaxExample2           .content)
   case object Suspense       extends Example("Suspense",           "suspense",          SuspenseExample        .content)
+  case object CatsEffect     extends Example("Cats Effect",        "cats-effect",       CatsEffectExample      .content)
 
   override val values = Vector[Example](
     EventListen,
@@ -69,6 +70,7 @@ object ExamplesScala extends ExampleCollection {
     Checkbox3,
     Ajax1,
     Ajax2,
-    Suspense
+    Suspense,
+    CatsEffect,
   ).sortBy(_.title)
 }

@@ -181,6 +181,7 @@ object ScalaJsReact {
     )
 
   lazy val ghpages = project
+    .dependsOn(coreExtCatsEffect) // must come before bundle
     .dependsOn(coreBundleCallback, extra, extraExtMonocle3, ghpagesMacros)
     .configure(commonSettings, addReactJsDependencies(Compile), preventPublication, hasNoTests)
     .settings(
