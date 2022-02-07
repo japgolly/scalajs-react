@@ -29,6 +29,7 @@ Includes a router, testing utils, performance utils, more.
   - [Types](doc/TYPES.md)
   - [Interoperability](doc/INTEROP.md)
   - [Creating an Effect-Agnostic Library](doc/FX_AGNOSTICISM.md)
+  - [React SSR (Server-Side Rendering) on the JVM](https://blog.shipreq.com/post/scala_react_and_ssr_part_1)
   - [Functional programming](doc/FP.md)
 - Scala-only Utilities
   - [Router](doc/ROUTER.md)
