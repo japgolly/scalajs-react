@@ -17,7 +17,7 @@ object Dependencies {
     val scala2                = "2.13.6"
     val scala3                = "3.0.2"
     val scalaJsDom            = "2.0.0"
-    val sourcecode            = "0.2.7"
+    val sourcecode            = "0.2.8"
 
     // Internal
     val betterMonadicFor      = "0.3.1"
@@ -27,10 +27,10 @@ object Dependencies {
     val nyaya                 = "1.0.0"
     val reactJs               = "17.0.2"
     val scalaJsJavaTime       = "1.0.0"
-    val scalaTest             = "3.2.10"
+    val scalaTest             = "3.2.11"
     val sizzleJs              = "2.3.0"
     val univEq                = "2.0.0"
-    val utest                 = "0.7.10"
+    val utest                 = "0.7.11"
   }
 
   object Dep {
