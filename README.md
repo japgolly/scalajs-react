@@ -1,7 +1,7 @@
 scalajs-react
 =============
 
-[![Build Status](https://github.com/japgolly/scalajs-react/actions/workflows/ci.yml/badge.svg)
+[![Build Status](https://github.com/japgolly/scalajs-react/actions/workflows/ci.yml/badge.svg)](https://github.com/japgolly/scalajs-react/actions/workflows/ci.yml)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/japgolly/scalajs-react?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Lifts Facebook's [React](https://facebook.github.io/react/) library into [Scala.js](http://www.scala-js.org/) and endeavours to make it as type-safe and Scala-friendly as possible.
