@@ -8,7 +8,7 @@ import org.scalajs.dom.html.{Button, Element, Input}
 import sourcecode.Line
 
 object DomTester {
-  val tagRegex = "</?[a-z]+>".r
+  val tagRegex = "<[a-zA-Z].*?>|</[a-zA-Z]+?>".r
 
   def getText(e: Element): String =
     tagRegex.replaceAllIn(e.innerHTML, "").trim
