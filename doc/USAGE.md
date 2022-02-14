@@ -44,7 +44,7 @@ Setup
 
       libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "2.0.1"
 
-      npmDependencies in Compile ++= Seq(
+      Compile / npmDependencies ++= Seq(
         "react" -> "17.0.2",
         "react-dom" -> "17.0.2")
     ```
