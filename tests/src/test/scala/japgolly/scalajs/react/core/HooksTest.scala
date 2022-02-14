@@ -5,56 +5,16 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.test.ReactTestUtils._
 import japgolly.scalajs.react.test.TestUtil._
-import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.vdom.html_<^._
-import org.scalajs.dom.html.{Button, Element, Input}
-import sourcecode.Line
+import org.scalajs.dom.html.Input
 import utest._
 
 object HooksTest extends TestSuite {
 
-  private val tagRegex = "</?[a-z]+>".r
-
-  private def getText(e: Element): String =
-    tagRegex.replaceAllIn(e.innerHTML, "").trim
-
-  private def assertText(e: Element, expect: String)(implicit l: Line): Unit =
-    assertEq(getText(e), expect)
-
   // TODO: https://github.com/lampepfl/dotty/issues/12663
   // Should be private ↓
-  def test[M, A](u: Unmounted[M])(f: Tester => A): A =
-    withRenderedIntoBody(u).withParent(root => f(new Tester(root)))
-
-  // TODO: https://github.com/lampepfl/dotty/issues/12663
-  // Should be private
-  class Tester(root: Element) {
-
-    def assertText(expect: String)(implicit l: Line): Unit =
-      HooksTest.assertText(root, expect)
-
-    def clickButton(n: Int = 1): Unit = {
-      val bs = root.querySelectorAll("button")
-      Predef.assert(n > 0 && n <= bs.length, s"${bs.length} buttons found (n=$n)")
-      val b = bs(n - 1).asInstanceOf[Button]
-      act(Simulate.click(b))
-    }
-
-    def assertInputText(expect: String)(implicit l: Line): Unit =
-      assertEq(getInputText().value, expect)
-
-    def setInputText(t: String): Unit = {
-      val i = getInputText()
-      act(SimEvent.Change(t).simulate(i))
-    }
-
-    private def getInputText(): Input = {
-      val is = root.querySelectorAll("input[type=text]")
-      val len = is.length
-      assert(len == 1)
-      is(0).domCast[Input]
-    }
-  }
+  def test[M, A](u: Unmounted[M])(f: DomTester => A): A =
+    withRenderedIntoBody(u).withParent(root => f(new DomTester(root)))
 
   private val incBy1 = Reusable.byRef((_: Int) + 1)
   private val incBy5 = Reusable.byRef((_: Int) + 5)
@@ -1212,7 +1172,7 @@ object HooksTest extends TestSuite {
     val wrapper = ScalaComponent.builder[PI].render_P(comp(_)).build
 
     withRenderedIntoBody(wrapper(PI(3))) { (m, root) =>
-      val t = new Tester(root)
+      val t = new DomTester(root)
       t.assertText("P=PI(3), S=20, ES=5, R=1")
       replaceProps(wrapper, m)(PI(2)); t.assertText("P=PI(3), S=20, ES=5, R=1")
       t.clickButton(1); t.assertText("P=PI(2), S=21, ES=5, R=2")
@@ -1246,7 +1206,7 @@ object HooksTest extends TestSuite {
       .build
 
     withRenderedIntoBody(wrapper(PI(3))) { (_, root) =>
-      val t = new Tester(root)
+      val t = new DomTester(root)
       t.assertText("P=PI(3), R=1")
       t.clickButton(2); t.assertText("P=PI(4), R=2")
       t.clickButton(1); t.assertText("P=PI(4), R=3")
