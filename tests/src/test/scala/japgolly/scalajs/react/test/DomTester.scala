@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.core
+package japgolly.scalajs.react.test
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.ReactTestUtils._
