@@ -91,6 +91,7 @@ done
 
 # Get Scala versions
 scalaVer2="$(../bin/get_scala_version 2)"
+scalaVer3="$(../bin/get_scala_version 3)"
 
 # Declare test runner
 function run {
@@ -105,7 +106,7 @@ function run {
   local task=cleanTestAll
   local sbt_cmds=()
   if [[ "$filter-$s3" =~ [03]-1 ]]; then
-    sbt_cmds+=( $task )
+    sbt_cmds+=( ++$scalaVer3 $task )
   fi
   if [[ "$filter-$s2" =~ [02]-1 ]]; then
     sbt_cmds+=( ++$scalaVer2 $task )

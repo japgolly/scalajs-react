@@ -55,7 +55,7 @@ def scalac3Flags = Seq(
 def commonSettings: Project => Project = _
   .configure(preventPublication)
   .settings(
-    scalaVersion         := Ver.scala3,
+    scalaVersion         := Ver.scala2,
     crossScalaVersions   := Seq(Ver.scala2, Ver.scala3),
     scalacOptions       ++= scalacCommonFlags,
     scalacOptions       ++= byScalaVersion {
