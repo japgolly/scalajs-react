@@ -71,7 +71,7 @@ val enableJSCE = System.getProperty("downstream_tests.enableJSCE") != null
 
 lazy val root = Project("root", file("."))
   .configure(commonSettings)
-  .aggregate(macros, jvm, js, jsCE)
+  .aggregate(macros, jvm, js, jsCE, jsCBIO)
   .settings(
     cleanTestAll := (
       if (enableJSCE) // How to do this in a better way?
@@ -100,7 +100,6 @@ lazy val root = Project("root", file("."))
   )
 
 lazy val macros = project
-  .in(file("macros"))
   .enablePlugins(ScalaJSPlugin)
   .configure(commonSettings, definesMacros)
   .settings(
@@ -112,7 +111,6 @@ val jsStage      = if (useFullOptJS) FullOptStage else FastOptStage
 val jsOptKey     = if (useFullOptJS) fullOptJS else fastOptJS
 
 lazy val jvm = project
-  .in(file("jvm"))
   .configure(commonSettings, utestSettings)
   .settings(
     libraryDependencies ++= Seq(
@@ -131,7 +129,6 @@ lazy val jvm = project
   )
 
 lazy val js = project
-  .in(file("js"))
   .enablePlugins(ScalaJSPlugin)
   .dependsOn(macros)
   .configure(commonSettings, utestSettings, addReactJsDependencies(Test))
