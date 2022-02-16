@@ -1214,6 +1214,63 @@ object HooksTest extends TestSuite {
     }
   }
 
+  private def testRenderWithReuseAndUseRef(): Unit = {
+    val comp = ScalaFnComponent.withHooks[Unit]
+      .useRef(100)
+      .useState(0)
+      .renderWithReuse { (_, ref, s) =>
+        <.div(
+          ref.value,
+          <.button(^.onClick --> ref.mod(_ + 1)),
+          <.button(^.onClick --> s.modState(_ + 1)),
+        )
+      }
+
+    test(comp()) { t =>
+      t.assertText("100")
+      t.clickButton(1); t.assertText("100")
+      t.clickButton(2); t.assertText("101")
+      t.clickButton(1); t.assertText("101")
+      t.clickButton(2); t.assertText("102")
+    }
+  }
+
+  private def testRenderWithReuseAndUseRefToVdom(): Unit = {
+    var text = "uninitialised"
+    val comp = ScalaFnComponent.withHooks[Unit]
+      .useRefToVdom[Input]
+      .useState("x")
+      .renderWithReuse { (_, inputRef, s) =>
+
+        def onChange(e: ReactEventFromInput): Callback =
+          s.setState(e.target.value)
+
+        def btn: Callback =
+          for {
+            i <- inputRef.get.asCBO
+            // _ <- Callback.log(s"i.value = [${i.value}]")
+          } yield {
+            text = i.value
+          }
+
+        <.div(
+          <.input.text.withRef(inputRef)(^.value := s.value, ^.onChange ==> onChange),
+          <.button(^.onClick --> btn)
+        )
+      }
+
+    test(comp()) { t =>
+      t.assertInputText("x")
+      t.clickButton()
+      assertEq(text, "x")
+
+      t.setInputText("hehe")
+      t.assertInputText("hehe")
+      t.clickButton()
+      assertEq(text, "hehe")
+    }
+  }
+
   // ===================================================================================================================
 
   override def tests = Tests {
@@ -1278,7 +1335,12 @@ object HooksTest extends TestSuite {
     }
     "useStateSnapshot" - testUseStateSnapshot()
     "useStateSnapshotWithReuse" - testUseStateSnapshotWithReuse()
-    "renderWithReuse" - testRenderWithReuse()
-    "renderWithReuseNever" - testRenderWithReuseNever()
+
+    "renderWithReuse" - {
+      "main" - testRenderWithReuse()
+      "never" - testRenderWithReuseNever()
+      "useRef" - testRenderWithReuseAndUseRef()
+      "useRefToVdom" - testRenderWithReuseAndUseRefToVdom()
+    }
   }
 }
