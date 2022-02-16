@@ -41,7 +41,7 @@ final class AsyncTest extends CatsSuite with TestInstances {
           .IORuntime(ticker.ctx, ticker.ctx, scheduler, () => (), unsafe.IORuntimeConfig()))
 
       def go(i: Int): Unit = {
-        ticker.ctx.tickAll(1.second)
+        ticker.ctx.tickAll()
         if (backlog.length > 0) {
           for (f <- backlog)
             f.reset.runNow()
