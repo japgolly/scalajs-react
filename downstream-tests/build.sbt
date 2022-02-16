@@ -76,6 +76,7 @@ lazy val root = Project("root", file("."))
     cleanTestAll := (
       if (enableJSCE) // How to do this in a better way?
         Def.sequential(
+          mima200       / clean,
           macros        / clean,
           jvm           / clean,
           js            / clean,
@@ -89,6 +90,7 @@ lazy val root = Project("root", file("."))
         ).value
       else
         Def.sequential(
+          mima200       / clean,
           macros        / clean,
           jvm           / clean,
           js            / clean,
@@ -128,9 +130,20 @@ lazy val jvm = project
     },
   )
 
+lazy val mima200 = project
+  .in(file("mima-2.0.0"))
+  .enablePlugins(ScalaJSPlugin)
+  .configure(commonSettings, utestSettings(Compile))
+  .settings(
+    libraryDependencies ++= Seq(
+      "com.github.japgolly.scalajs-react" %%% "core" % "2.0.0" % Provided,
+      "com.github.japgolly.scalajs-react" %%% "test" % "2.0.0" % Provided,
+    ),
+  )
+
 lazy val js = project
   .enablePlugins(ScalaJSPlugin)
-  .dependsOn(macros)
+  .dependsOn(macros, mima200)
   .configure(commonSettings, utestSettings, addReactJsDependencies(Test))
   .settings(
     scalaJSStage := jsStage,
