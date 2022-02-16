@@ -55,7 +55,7 @@ def scalac3Flags = Seq(
 def commonSettings: Project => Project = _
   .configure(preventPublication)
   .settings(
-    scalaVersion         := Ver.scala3,
+    scalaVersion         := Ver.scala2,
     crossScalaVersions   := Seq(Ver.scala2, Ver.scala3),
     scalacOptions       ++= scalacCommonFlags,
     scalacOptions       ++= byScalaVersion {
@@ -71,11 +71,12 @@ val enableJSCE = System.getProperty("downstream_tests.enableJSCE") != null
 
 lazy val root = Project("root", file("."))
   .configure(commonSettings)
-  .aggregate(macros, jvm, js, jsCE)
+  .aggregate(macros, jvm, js, jsCE, jsCBIO)
   .settings(
     cleanTestAll := (
       if (enableJSCE) // How to do this in a better way?
         Def.sequential(
+          mima200       / clean,
           macros        / clean,
           jvm           / clean,
           js            / clean,
@@ -89,6 +90,7 @@ lazy val root = Project("root", file("."))
         ).value
       else
         Def.sequential(
+          mima200       / clean,
           macros        / clean,
           jvm           / clean,
           js            / clean,
@@ -100,7 +102,6 @@ lazy val root = Project("root", file("."))
   )
 
 lazy val macros = project
-  .in(file("macros"))
   .enablePlugins(ScalaJSPlugin)
   .configure(commonSettings, definesMacros)
   .settings(
@@ -112,7 +113,6 @@ val jsStage      = if (useFullOptJS) FullOptStage else FastOptStage
 val jsOptKey     = if (useFullOptJS) fullOptJS else fastOptJS
 
 lazy val jvm = project
-  .in(file("jvm"))
   .configure(commonSettings, utestSettings)
   .settings(
     libraryDependencies ++= Seq(
@@ -130,10 +130,20 @@ lazy val jvm = project
     },
   )
 
-lazy val js = project
-  .in(file("js"))
+lazy val mima200 = project
+  .in(file("mima-2.0.0"))
   .enablePlugins(ScalaJSPlugin)
-  .dependsOn(macros)
+  .configure(commonSettings, utestSettings(Compile))
+  .settings(
+    libraryDependencies ++= Seq(
+      "com.github.japgolly.scalajs-react" %%% "core" % "2.0.0" % Provided,
+      "com.github.japgolly.scalajs-react" %%% "test" % "2.0.0" % Provided,
+    ),
+  )
+
+lazy val js = project
+  .enablePlugins(ScalaJSPlugin)
+  .dependsOn(macros, mima200)
   .configure(commonSettings, utestSettings, addReactJsDependencies(Test))
   .settings(
     scalaJSStage := jsStage,

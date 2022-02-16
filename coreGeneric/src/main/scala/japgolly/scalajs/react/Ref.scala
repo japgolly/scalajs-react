@@ -9,6 +9,14 @@ import scala.reflect.ClassTag
 import scala.scalajs.js
 import scala.scalajs.js.|
 
+/** Types:
+  *
+  *   - `Handle` - `raw: facade.React.RefHandle[A | Null]`
+  *   - `Get`    - `get: F[Option[A]]`
+  *   - `Set`    - `set: Option[A] => F[Unit]`
+  *   - `Full`   - `Handle & Set & Get`
+  *   - `Simple` - Monomorphic version of `Full`
+  */
 object Ref {
   import japgolly.scalajs.react.component.{Js => JsComponent, Scala => ScalaComponent}
 
@@ -21,12 +29,12 @@ object Ref {
   def forwardedFromJs[A](f: facade.React.ForwardedRef[A]): Option[Simple[A]] =
     jsNullToOption(f).map(fromJs)
 
-  type Full   [I, A, O] = FullF[DefaultEffects.Sync, I, A, O]
-  type Get    [A]       = GetF[DefaultEffects.Sync, A]
+  type Full   [I, A, O] = FullF  [DefaultEffects.Sync, I, A, O]
+  type Get    [A]       = GetF   [DefaultEffects.Sync, A]
   type Handle [A]       = HandleF[DefaultEffects.Sync, A]
-  type Set    [A]       = SetF[DefaultEffects.Sync, A]
+  type Set    [A]       = SetF   [DefaultEffects.Sync, A]
   type Simple [A]       = SimpleF[DefaultEffects.Sync, A]
-  type SimpleF[F[_], A] = FullF[F, A, A, A]
+  type SimpleF[F[_], A] = FullF  [F, A, A, A]
 
   trait HandleF[F[_], A] {
     val raw: facade.React.RefHandle[A | Null]
@@ -73,6 +81,7 @@ object Ref {
     protected[Ref] def F: Sync[F]
     def withEffect[G[_]](implicit G: Sync[G]): SetF[G, A]
 
+    /** NOTE: This doesn't force an update-to/redraw-of your component. */
     def set(newValue: Option[A]): F[Unit]
 
     final lazy val rawSetFn: facade.React.RefFn[A] =
@@ -93,6 +102,10 @@ object Ref {
 
     final override def narrowOption[B <: O](implicit ct: ClassTag[B]): FullF[F, I, A, B] =
       mapOption(ct.unapply)
+
+    /** NOTE: This doesn't force an update-to/redraw-of your component. */
+    final def mod(f: Option[O] => Option[I]): F[Unit] =
+      F.flatMap(get)(o => set(f(o)))
   }
 
   def Full[I, A, O](raw: facade.React.RefHandle[A | Null], l: I => A, r: A => Option[O]): Full[I, A, O] =
@@ -176,44 +189,6 @@ object Ref {
     def inject[F[_], I, R, O, CT[-p, +u] <: CtorType[p, u], P, U](c: CT[P, U], ref: FullF[F, I, R, O]): ToComponentF[F, I, R, O, CT[P, U]] =
       apply(ref, CtorType.hackBackToSelf[CT, P, U](c)(c.withRawProp("ref", ref.rawSetFn)))
   }
-
-  // ===================================================================================================================
-
-  // /** @since 2.0.0 */
-  // trait NonEmpty[I, R, O] { self =>
-  //   val raw: facade.React.RefHandle[R]
-  //   def get: CallbackTo[O]
-  //   def set(i: I): Callback
-  //   def mod(f: O => I): Callback
-
-  //   def contramap[A](f: A => I): NonEmpty[A, R, O] =
-  //     new NonEmpty[A, R, O] {
-  //       override val raw   = self.raw
-  //       def get            = self.get
-  //       def set(a: A)      = self.set(f(a))
-  //       def mod(g: O => A) = self.mod(f compose g)
-  //     }
-
-  //   def map[A](f: O => A): NonEmpty[I, R, A] =
-  //     new NonEmpty[I, R, A] {
-  //       override val raw   = self.raw
-  //       def get            = self.get.map(f)
-  //       def set(i: I)      = self.set(i)
-  //       def mod(g: A => I) = self.mod(g compose f)
-  //     }
-  // }
-
-  // object NonEmpty {
-  //   type Simple[A] = NonEmpty[A, A, A]
-
-  //   def Simple[A](r: facade.React.RefHandle[A]): Simple[A] =
-  //     new NonEmpty[A, A, A] {
-  //       override val raw   = r
-  //       def get            = CallbackTo(raw.current)
-  //       def set(a: A)      = Callback { raw.current = a }
-  //       def mod(f: A => A) = Callback { raw.current = f(raw.current) }
-  //     }
-  // }
 
   // ===================================================================================================================
 
