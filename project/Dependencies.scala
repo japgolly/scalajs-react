@@ -46,7 +46,7 @@ object Dependencies {
     val microlibsCompileTime = Def.setting("com.github.japgolly.microlibs" %%% "compile-time"                % Ver.microlibs)
     val microlibsTestUtil    = Def.setting("com.github.japgolly.microlibs" %%% "test-util"                   % Ver.microlibs)
     val microlibsTypes       = Def.setting("com.github.japgolly.microlibs" %%% "types"                       % Ver.microlibs)
-    val monocle2             = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"                % Ver.monocle2 cross CrossVersion.for3Use2_13)
+    val monocle2             = Def.setting("com.github.julien-truffaut"    %%% "monocle-core"                % Ver.monocle2 cross CrossVersion.for3Use2_13 excludeAll(ExclusionRule(organization = "org.typelevel")))
     val monocle3             = Def.setting("dev.optics"                    %%% "monocle-core"                % Ver.monocle3)
     val nyayaGen             = Def.setting("com.github.japgolly.nyaya"     %%% "nyaya-gen"                   % Ver.nyaya)
     val nyayaProp            = Def.setting("com.github.japgolly.nyaya"     %%% "nyaya-prop"                  % Ver.nyaya)
