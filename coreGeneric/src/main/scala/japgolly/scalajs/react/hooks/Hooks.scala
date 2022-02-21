@@ -4,9 +4,10 @@ import japgolly.scalajs.react.component.{Js => JsComponent, Scala => ScalaCompon
 import japgolly.scalajs.react.feature.Context
 import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.util.Effect._
+import japgolly.scalajs.react.util.Util.identityFn
 import japgolly.scalajs.react.util.{DefaultEffects => D, NotAllowed, OptionLike}
 import japgolly.scalajs.react.vdom.TopNode
-import japgolly.scalajs.react.{CtorType, Ref, Reusability, Reusable, facade}
+import japgolly.scalajs.react.{CtorType, NonEmptyRef, Ref, Reusability, Reusable, facade}
 import scala.annotation.implicitNotFound
 import scala.reflect.ClassTag
 import scala.scalajs.js
@@ -168,9 +169,10 @@ object Hooks {
 
   // ===================================================================================================================
 
-  final case class UseRefF[F[_], A](raw: facade.React.RefHandle[A])(implicit F: Sync[F]) {
+  final case class UseRefF[F[_], A](raw: facade.React.RefHandle[A])(implicit FF: Sync[F]) extends NonEmptyRef.SimpleF[F, A] {
+    protected def F = FF
 
-    def withEffect[G[_]](implicit G: Sync[G]): UseRefF[G, A] =
+    override def withEffect[G[_]](implicit G: Sync[G]): UseRefF[G, A] =
       G.subst[F, ({type L[E[_]] = UseRefF[E, A]})#L](this)(
         new UseRefF(raw))
 
@@ -182,12 +184,23 @@ object Hooks {
       raw.current = a
 
     /** NOTE: This doesn't force an update-to/redraw-of your component. */
-    def set(a: A): F[Unit] =
+    override def set(a: A): F[Unit] =
       F.delay { value = a }
 
-    /** NOTE: This doesn't force an update-to/redraw-of your component. */
-    def mod(f: A => A): F[Unit] =
-      F.delay { value = f(value) }
+    override def get: F[A] =
+      F.delay(value)
+
+    override def contramap[X](f: X => A): NonEmptyRef.FullF[F, X, A, A] =
+      NonEmptyRef.FullF(raw, f, identityFn)
+
+    override def map[X](f: A => X): NonEmptyRef.FullF[F, A, A, X] =
+      NonEmptyRef.FullF(raw, identityFn, f)
+
+    override def narrow[X <: A]: NonEmptyRef.FullF[F, X, A, A] =
+      NonEmptyRef.FullF(raw, identityFn, identityFn)
+
+    override def widen[X >: A]: NonEmptyRef.FullF[F, A, A, X] =
+      NonEmptyRef.FullF(raw, identityFn, identityFn)
   }
 
   type UseRef[A] = UseRefF[D.Sync, A]

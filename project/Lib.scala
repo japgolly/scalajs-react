@@ -126,14 +126,17 @@ object Lib {
   def preventPublication: PE =
     _.settings(publish / skip := true)
 
-  def utestSettings: PE =
+  def utestSettings(scope: Configuration): PE =
     _.configure(InBrowserTesting.js)
       .settings(
         jsEnv                := new JSDOMNodeJSEnv,
         Test / scalacOptions += "-language:reflectiveCalls",
-        libraryDependencies  += Dep.utest.value % Test,
-        libraryDependencies  += Dep.microlibsTestUtil.value % Test,
+        libraryDependencies  += Dep.utest.value % scope,
+        libraryDependencies  += Dep.microlibsTestUtil.value % scope,
         testFrameworks       += new TestFramework("utest.runner.Framework"))
+
+  def utestSettings: PE =
+    utestSettings(Test)
 
   def definesMacros: Project => Project =
     _.settings(

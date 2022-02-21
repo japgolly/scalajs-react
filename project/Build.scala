@@ -185,6 +185,7 @@ object ScalaJsReact {
     .dependsOn(coreBundleCallback, extra, extraExtMonocle3, ghpagesMacros)
     .configure(commonSettings, addReactJsDependencies(Compile), preventPublication, hasNoTests)
     .settings(
+      libraryDependencies += Dep.macrotaskExecutor.value,
       scalaJSUseMainModuleInitializer := true,
       Compile / mainClass := Some("ghpages.GhPages"),
       Compile / fullOptJS / artifactPath := file("ghpages/res/ghpages.js"),

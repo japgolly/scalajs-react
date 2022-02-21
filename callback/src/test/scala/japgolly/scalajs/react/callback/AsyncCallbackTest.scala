@@ -2,8 +2,8 @@ package japgolly.scalajs.react.callback
 
 import cats.Monad
 import japgolly.microlibs.testutil.TestUtil._
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.scalajs.concurrent.JSExecutionContext.Implicits._
 import scala.util.Success
 import sourcecode.Line
 import utest._

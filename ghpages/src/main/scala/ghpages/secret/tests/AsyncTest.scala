@@ -155,7 +155,7 @@ object AsyncTest {
       })
 
       .add("future")(testCmp {
-        import scala.concurrent.ExecutionContext.Implicits.global
+        import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits._
         val a = AsyncCallback.pure(123).delayMs(20)
         val t = AsyncCallback.fromFuture(a.unsafeToFuture())
         t -> 123
