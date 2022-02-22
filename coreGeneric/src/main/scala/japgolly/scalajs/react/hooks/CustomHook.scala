@@ -5,6 +5,7 @@ import japgolly.scalajs.react.internal.ShouldComponentUpdateComponent
 import japgolly.scalajs.react.util.DefaultEffects
 import japgolly.scalajs.react.vdom.VdomNode
 import japgolly.scalajs.react.{PropsChildren, Reusability, Reusable}
+import scalajs.js
 
 final class CustomHook[I, O] private[CustomHook] (val unsafeInit: I => O) extends AnyVal {
 
@@ -73,12 +74,12 @@ object CustomHook {
 
   object Builder {
 
-    final class First[I](init: I => Unit) extends Api.Primary[I, FirstStep[I]] {
+    final class First[I](init: js.Function1[I, Unit]) extends Api.Primary[I, FirstStep[I]] {
 
-      override protected def self(f: I => Any)(implicit step: Step): step.Self =
+      override protected def self(f: js.Function1[I, Any])(implicit step: Step): step.Self =
         step.self(init, f)
 
-      override protected def next[H](f: I => H)(implicit step: Step): step.Next[H] =
+      override protected def next[H](f: js.Function1[I, H])(implicit step: Step): step.Next[H] =
         step.next(init, f)
 
       def build: CustomHook[I, Unit] =
@@ -92,15 +93,15 @@ object CustomHook {
     }
 
     trait BuildFn[I, +Ctx] {
-      def apply[O](f: Ctx => O): CustomHook[I, O]
+      def apply[O](f: js.Function1[Ctx, O]): CustomHook[I, O]
     }
 
     final class Subsequent[I, Ctx, CtxFn[_]](buildFn: BuildFn[I, Ctx]) extends Api.Secondary[Ctx, CtxFn, SubsequentStep[I, Ctx, CtxFn]] {
 
-      override protected def self(f: Ctx => Any)(implicit step: Step): step.Self =
+      override protected def self(f: js.Function1[Ctx, Any])(implicit step: Step): step.Self =
         step.self(buildFn, f)
 
-      override protected def next[H](f: Ctx => H)(implicit step: Step): step.Next[H] =
+      override protected def next[H](f: js.Function1[Ctx, H])(implicit step: Step): step.Next[H] =
         step.next[H](buildFn, f)
 
       def build: CustomHook[I, Unit] =
@@ -117,19 +118,19 @@ object CustomHook {
 
     final class FirstStep[I] extends Api.AbstractStep {
       override type Self     = First[I]
-      override type Next[H1] = Subsequent[I, HookCtx.I1[I, H1], ({ type F[A] = (I, H1) => A})#F]
+      override type Next[H1] = Subsequent[I, HookCtx.I1[I, H1], ({ type F[A] = js.Function2[I, H1, A] })#F]
 
-      def self(initFirst: I => Unit, f: I => Any): Self =
+      def self(initFirst: js.Function1[I, Unit], f: js.Function1[I, Any]): Self =
         new First[I](i => {
           initFirst(i)
           f(i)
         })
 
-      def next[H1](initFirst: I => Unit, hook1: I => H1): Next[H1] = {
+      def next[H1](initFirst: js.Function1[I, Unit], hook1: js.Function1[I, H1]): Next[H1] = {
         type Ctx = HookCtx.I1[I, H1]
         val build: BuildFn[I, Ctx] =
           new BuildFn[I, Ctx] {
-            override def apply[O](f: Ctx => O) =
+            override def apply[O](f: js.Function1[Ctx, O]) =
               CustomHook.unchecked[I, O] { i =>
                 initFirst(i)
                 val h1 = hook1(i)
@@ -137,7 +138,7 @@ object CustomHook {
                 f(ctx)
               }
           }
-        new Subsequent[I, HookCtx.I1[I, H1], ({ type F[A] = (I, H1) => A})#F](build)
+        new Subsequent[I, HookCtx.I1[I, H1], ({ type F[A] = js.Function2[I, H1, A] })#F](build)
       }
     }
 
@@ -150,7 +151,7 @@ object CustomHook {
         (buildPrev, initNextHook) => {
           val buildNext: BuildFn[I, Ctx] =
             new BuildFn[I, Ctx] {
-              override def apply[O](f: Ctx => O) = {
+              override def apply[O](f: js.Function1[Ctx, O]) = {
                 buildPrev { ctx =>
                   initNextHook(ctx)
                   f(ctx)
