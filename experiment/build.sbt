@@ -51,7 +51,7 @@ lazy val root = Project("root", file("."))
     libraryDependencies += Dep.scalaJsReact.value,
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
     scalaJSLinkerConfig ~= { _.withModuleSplitStyle(ModuleSplitStyle.SmallestModules) },
-    scalaJSLinkerConfig ~= { _.withSourceMap(false) },
+    scalaJSLinkerConfig ~= { _.withSourceMap(true) },
     Compile / scalaJSModuleInitializers += {
       ModuleInitializer.mainMethod("demo.Main", "main") //.withModuleID("main")
     }

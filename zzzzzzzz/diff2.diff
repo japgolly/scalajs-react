@@ -1,0 +1,25 @@
+--- after-1.js	2022-02-18 09:53:40.278741756 +1100
++++ after-2.js	2022-02-18 09:56:52.507218790 +1100
+@@ -1,3 +1,5 @@
++import RefreshRuntime from "/@react-refresh";let prevRefreshReg;let prevRefreshSig;if (import.meta.hot) {  if (!window.__vite_plugin_react_preamble_installed__) {    throw new Error(      "@vitejs/plugin-react can't detect preamble. Something is wrong. " +      "See https://github.com/vitejs/vite-plugin-react/pull/11#discussion_r430879201"    );  }  prevRefreshReg = window.$RefreshReg$;  prevRefreshSig = window.$RefreshSig$;  window.$RefreshReg$ = (type, id) => {    RefreshRuntime.register(type, "/home/golly/projects/public/scalajs-react/zzzzzzzz/src/App.js" + " " + id)  };  window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;}
++
+ var _s = $RefreshSig$();
+ 
+ import React, { useState } from 'react'
+@@ -20,3 +22,16 @@
+ 
+ $RefreshReg$(_c, "App");
+ 
++if (import.meta.hot) {
++  window.$RefreshReg$ = prevRefreshReg;
++  window.$RefreshSig$ = prevRefreshSig;
++
++  import.meta.hot.accept();
++  if (!window.__vite_plugin_react_timeout) {
++    window.__vite_plugin_react_timeout = setTimeout(() => {
++      window.__vite_plugin_react_timeout = 0;
++      RefreshRuntime.performReactRefresh();
++    }, 30);
++  }
++}
++

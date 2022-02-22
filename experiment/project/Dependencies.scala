@@ -8,7 +8,8 @@ object Dependencies {
 
     // Externally observable
     val scala                 = "2.13.8"
-    val scalaJsReact          = "2.0.1"
+    // val scalaJsReact          = "2.0.1"
+    val scalaJsReact          = "2.1.0-SNAPSHOT"
 
     // Internal
     val betterMonadicFor      = "0.3.1"

@@ -1,0 +1,25 @@
+--- before.js	2022-02-18 09:53:47.888681502 +1100
++++ after-1.js	2022-02-18 09:53:40.278741756 +1100
+@@ -1,6 +1,9 @@
++var _s = $RefreshSig$();
++
+ import React, { useState } from 'react'
+ 
+ function App() {
++  _s();
+   const [count, setCount] = useState(0)
+   return React.createElement("button", {
+     type: "button",
+@@ -8,5 +11,12 @@
+   }, "count xx is: ", count);
+ }
+ 
++_s(App, "oDgYfYHkD9Wkv4hrAPCkI/ev3YU=");
++
++_c = App;
+ export default App
+ 
++var _c;
++
++$RefreshReg$(_c, "App");
++

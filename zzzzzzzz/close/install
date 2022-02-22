@@ -1,0 +1,8 @@
+#!/bin/bash
+set -euo pipefail
+cd "$(dirname "$0")" || exit 1
+# cd "$(dirname "$(readlink -e "$0")")" || exit 1
+# [ $# -ne 1 ] && echo "Usage: $0 <xxx>" && exit 1
+# tmp=/tmp/$(date +%Y%m%d-%H%M%S)-$$
+cp *2* ..
+cp 'demo.Counter$.js' '/home/golly/projects/public/scalajs-react/experiment/target/scala-2.13/root-fastopt/demo.Counter$.js'
