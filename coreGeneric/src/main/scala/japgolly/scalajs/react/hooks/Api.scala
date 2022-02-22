@@ -7,7 +7,6 @@ import japgolly.scalajs.react.hooks.Hooks._
 import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.util.DefaultEffects
 import japgolly.scalajs.react.util.Util.identityFn
-import japgolly.scalajs.react.util.Util.identityFnJs
 import japgolly.scalajs.react.vdom.{TopNode, VdomNode}
 import japgolly.scalajs.react.{Children, CtorType, Ref, Reusability, Reusable}
 import scala.reflect.ClassTag
@@ -23,7 +22,7 @@ object Api {
   trait SubsequentStep[_Ctx, _CtxFn[_]] extends AbstractStep {
     final type Ctx = _Ctx
     final type CtxFn[A] = _CtxFn[A]
-    @inline def squash[A](ctxFn: CtxFn[A]): js.Function1[Ctx, A]
+    def squash[A]: CtxFn[A] => (Ctx => A)
   }
 
   trait DynamicNextStep[A] {
@@ -54,8 +53,8 @@ object Api {
   trait Primary[Ctx, _Step <: AbstractStep] {
     final type Step = _Step
 
-    protected def self(f: js.Function1[Ctx, Any])(implicit step: Step): step.Self
-    protected def next[H](f: js.Function1[Ctx, H])(implicit step: Step): step.Next[H]
+    protected def self(f: Ctx => Any)(implicit step: Step): step.Self
+    protected def next[H](f: Ctx => H)(implicit step: Step): step.Next[H]
 
     /** Use a custom hook */
     final def custom[I, O](hook: CustomHook[I, O])(implicit step: Step, a: CustomHook.Arg[Ctx, I], d: DynamicNextStep[O]): d.OneOf[step.Self, step.Next[O]] =
@@ -680,39 +679,28 @@ object Api {
   // ===================================================================================================================
 
   trait PrimaryWithRender[P, C <: Children, Ctx, _Step <: AbstractStep] extends Primary[Ctx, _Step] {
-    def render(f: js.Function1[Ctx, VdomNode])(implicit s: CtorType.Summoner[Box[P], C]): Component[P, s.CT]
-
-    @inline final def renderXXXXXX(f: js.Function1[Ctx, VdomNode])(implicit s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] = {
-      render(f)
-    }
+    def render(f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], C]): Component[P, s.CT]
 
     final def renderReusable[A](f: Ctx => Reusable[A])(implicit s: CtorType.Summoner[Box[P], C], v: A => VdomNode): Component[P, s.CT] =
       renderWithReuseBy(f(_).map(v))(_.value)
 
-    @inline final def renderWithReuse(f: js.Function1[Ctx, VdomNode])(implicit s: CtorType.Summoner[Box[P], C], r: Reusability[Ctx]): Component[P, s.CT] =
-      renderWithReuseBy(identityFnJs[Ctx])(f)
+    final def renderWithReuse(f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], C], r: Reusability[Ctx]): Component[P, s.CT] =
+      renderWithReuseBy(identityFn[Ctx])(f)
 
     def renderWithReuseBy[A](reusableInputs: Ctx => A)(f: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], C], r: Reusability[A]): Component[P, s.CT]
   }
 
   trait SecondaryWithRender[P, C <: Children, Ctx, CtxFn[_], _Step <: SubsequentStep[Ctx, CtxFn]] extends PrimaryWithRender[P, C, Ctx, _Step] with Secondary[Ctx, CtxFn, _Step] {
-    @inline final def render(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] = {
-      org.scalajs.dom.console.log("**************************************************************************************************************")
-      org.scalajs.dom.console.log("SQUASHING: ", f)
-      val f2 = step.squash(f)
-      org.scalajs.dom.console.log(" SQUASHED: ", f2)
-      renderXXXXXX(f2)
-    }
+    final def render(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
+      render(step.squash(f)(_))
 
-    @inline final def renderReusable[A](f: CtxFn[Reusable[A]])(implicit step: Step, s: CtorType.Summoner[Box[P], C], v: A => VdomNode): Component[P, s.CT] =
-      renderReusable(step.squash(f))
+    final def renderReusable[A](f: CtxFn[Reusable[A]])(implicit step: Step, s: CtorType.Summoner[Box[P], C], v: A => VdomNode): Component[P, s.CT] =
+      renderReusable(step.squash(f)(_))
 
-    @inline final def renderWithReuse(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C], r: Reusability[Ctx]): Component[P, s.CT] = {
-      val g: js.Function1[Ctx, VdomNode] = step.squash(f)
-      renderWithReuse(g(_)) // TODO weird. Keeps resolving to this method instead of the one in PrimaryWithRender
-    }
+    final def renderWithReuse(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C], r: Reusability[Ctx]): Component[P, s.CT] =
+      renderWithReuse(step.squash(f)(_))
 
-    @inline final def renderWithReuseBy[A](reusableInputs: CtxFn[A])(f: A => VdomNode)(implicit step: Step, s: CtorType.Summoner[Box[P], C], r: Reusability[A]): Component[P, s.CT] =
+    final def renderWithReuseBy[A](reusableInputs: CtxFn[A])(f: A => VdomNode)(implicit step: Step, s: CtorType.Summoner[Box[P], C], r: Reusability[A]): Component[P, s.CT] =
       renderWithReuseBy(step.squash(reusableInputs)(_))(f)
   }
 }

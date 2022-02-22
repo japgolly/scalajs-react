@@ -4,7 +4,6 @@ import org.scalajs.dom
 import scala.collection.Factory
 import scala.collection.mutable.Builder
 import scala.scalajs.LinkingInfo.developmentMode
-import scala.scalajs.js
 import scala.util.{Failure, Success, Try}
 
 object Util {
@@ -31,14 +30,6 @@ object Util {
 
   @inline def identityFn[A]: A => A =
     identity
-
-  val identityJs: js.Function1[Any, Nothing] = {
-    val f: js.Function1[Any, Any] = a => a
-    f.asInstanceOf[js.Function1[Any, Nothing]]
-  }
-
-  @inline def identityFnJs[A]: js.Function1[A, A] =
-    identityJs
 
   def intercalateTo[F[_], A](as: Iterator[A], sep: A)(implicit cbf: Factory[A, F[A]]): F[A] = {
     val b = cbf.newBuilder

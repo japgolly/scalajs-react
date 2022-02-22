@@ -23,22 +23,21 @@ object GenHooks {
     val stepMultisPC    = List.newBuilder[String]
     val useCallbackArgs = List.newBuilder[String]
 
-    def hookCtxFn(n: Int, p: String, pCount: Int) = {
+    def hookCtxFn(n: Int, p: String) = {
       val Hns = (1 to n).map("H" + _).mkString(", ")
-      // s"({ type F[A] = ($p, $Hns) => A})#F"
-      s"({ type F[A] = js.Function${pCount + n}[$p, $Hns, A] })#F"
+      s"({ type F[A] = ($p, $Hns) => A})#F"
     }
 
-    def hookCtxFnI(n: Int) = hookCtxFn(n, "I", 1)
-    def hookCtxFnP(n: Int) = hookCtxFn(n, "P", 1)
-    def hookCtxFnPC(n: Int) = hookCtxFn(n, "P, PropsChildren", 2)
+    def hookCtxFnI(n: Int) = hookCtxFn(n, "I")
+    def hookCtxFnP(n: Int) = hookCtxFn(n, "P")
+    def hookCtxFnPC(n: Int) = hookCtxFn(n, "P, PropsChildren")
 
     // val i12663_pre = s"({ type F[A] = $s[A]})#F" // TODO: https://github.com/lampepfl/dotty/issues/12663
-    // val i12663_a = "({ type F[A] = "
-    // val i12663_c = "})#F"
-    // val i12663_bc = "[A]" + i12663_c
+    val i12663_a = "({ type F[A] = "
+    val i12663_c = "})#F"
+    val i12663_bc = "[A]" + i12663_c
 
-    for (n <- 1 to 5) {
+    for (n <- 1 to 22) {
       val As           = (1 to n).map('A' + _ - 1).map(_.toChar).mkString(", ")
       val as           = (1 to n).map('a' + _ - 1).map(_.toChar).mkString(", ")
       val _s           = (1 to n).map(_ => '_').mkString(", ")
@@ -78,7 +77,7 @@ object GenHooks {
         hookCtxsP +=
           s"""  class P$n[+P, $coHns](props: P, $ctxParams) extends P${n-1}(props$ctxSuperArgs) {
              |    override def toString = s"HookCtx(\\n  props = !props$ctxToStr)"
-             |    @inline final def apply$n[A](f: js.Function${n + 1}[P, $Hns, A]): A = f(props, $hookArgs)
+             |    def apply$n[A](f: (P, $Hns) => A): A = f(props, $hookArgs)
              |  }
              |
              |  implicit def reusabilityP$n[P, $Hns](implicit P: Reusability[P], $RHns): Reusability[P$n[P, $Hns]] =
@@ -120,7 +119,7 @@ object GenHooks {
              |        (buildPrev, initNextHook) => {
              |          val buildNext: Custom.BuildFn[I, HookCtx.I$n[I, $Hns]] =
              |            new Custom.BuildFn[I, HookCtx.I$n[I, $Hns]] {
-             |              override def apply[O](f: js.Function1[HookCtx.I$n[I, $Hns], O]) = {
+             |              override def apply[O](f: HookCtx.I$n[I, $Hns] => O) = {
              |                buildPrev { ctx$s =>
              |                  val h$n = initNextHook(ctx$s)
              |                  val ctx$n = HookCtx.withInput(ctx$s.input, $preCtxArgs, h$n)
@@ -130,7 +129,7 @@ object GenHooks {
              |            }
              |          new Custom.Subsequent[I, HookCtx.I$n[I, $Hns], ${hookCtxFnI(n)}](buildNext)
              |        }
-             |      @inline override def squash[A] = f => _.apply$s(f)
+             |      override def squash[A] = f => _.apply$s(f)
              |    }
              |""".stripMargin
 
@@ -211,7 +210,6 @@ object GenHooks {
       s"""$header
          |
          |import japgolly.scalajs.react.{PropsChildren, Reusability}
-         |import scala.scalajs.js
          |
          |object HookCtx {
          |
@@ -266,7 +264,6 @@ object GenHooks {
          |import japgolly.scalajs.react.PropsChildren
          |import japgolly.scalajs.react.hooks.CustomHook.{Builder => Custom}
          |import japgolly.scalajs.react.hooks.HookComponentBuilder._
-         |import scala.scalajs.js
          |
          |trait ComponentP_SubsequentDsl { self: ComponentP.Subsequent.type =>
          |${dslAtStepsP.result().mkString("\n")}

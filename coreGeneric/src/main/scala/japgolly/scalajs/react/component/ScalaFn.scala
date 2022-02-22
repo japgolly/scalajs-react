@@ -12,15 +12,11 @@ object ScalaFn {
   type Unmounted[P]                               = JsFn.UnmountedWithRoot[P, Mounted, Box[P]]
   type Mounted                                    = JsFn.Mounted
 
-  @inline private def create[P, C <: Children, CT[-p, +u] <: CtorType[p, u]]
-      (render: => (js.Function1[Box[P] with facade.PropsWithChildren, VdomNode]))
+  private def create[P, C <: Children, CT[-p, +u] <: CtorType[p, u]]
+      (render: Box[P] with facade.PropsWithChildren => VdomNode)
       (implicit s: CtorType.Summoner.Aux[Box[P], C, CT]): Component[P, CT] = {
 
-    // val jsRender = render.andThen(_.rawNode): js.Function1[Box[P] with facade.PropsWithChildren, facade.React.Node]
-    val jsRender: js.Function1[Box[P] with facade.PropsWithChildren, facade.React.Node] = { p =>
-      render(p).rawNode
-    }
-
+    val jsRender = render.andThen(_.rawNode): js.Function1[Box[P] with facade.PropsWithChildren, facade.React.Node]
     val rawComponent = jsRender.asInstanceOf[facade.React.StatelessFunctionalComponent[Box[P]]]
     JsFn.force[Box[P], C](rawComponent)(s)
       .cmapCtorProps[P](Box(_))
@@ -32,23 +28,8 @@ object ScalaFn {
 
   // ===================================================================================================================
 
-  @inline def apply[P](render: js.Function1[P, VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] = {
-
-    val jsRender: js.Function1[Box[P] with facade.PropsWithChildren, facade.React.Node] = { p =>
-      render(p.unbox).rawNode
-    }
-
-    org.scalajs.dom.console.log("render = ", render)
-    org.scalajs.dom.console.log("jsRender = ", jsRender)
-
-    val rawComponent = jsRender.asInstanceOf[facade.React.StatelessFunctionalComponent[Box[P]]]
-
-    JsFn.force[Box[P], Children.None](rawComponent)(s)
-      .cmapCtorProps[P](Box(_))
-      .mapUnmounted(_.mapUnmountedProps(_.unbox))
-
-    // create[P, Children.None, s.CT](b => render(b.unbox))(s)
-  }
+  def apply[P](render: P => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
+    create[P, Children.None, s.CT](b => render(b.unbox))(s)
 
   def withChildren[P](render: (P, PropsChildren) => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
     create[P, Children.Varargs, s.CT](b => render(b.unbox, PropsChildren(b.children)))(s)

@@ -1,11 +1,11 @@
 package japgolly.scalajs.react.internal
 
 import scala.scalajs.js
-// import scala.scalajs.js.annotation._
+import scala.scalajs.js.annotation._
 
 @js.native
 trait Box[+A] extends js.Object {
-  // @JSName("a") val unbox: A = js.native
+  @JSName("a") val unbox: A = js.native
 }
 
 object Box {
@@ -14,8 +14,4 @@ object Box {
 
   val Unit: Box[Unit] =
     Box(())
-
-  @inline implicit final class Ops[A](private val box: Box[A]) extends AnyVal {
-    @inline def unbox: A = box.asInstanceOf[js.Dynamic].a.asInstanceOf[A]
-  }
 }
