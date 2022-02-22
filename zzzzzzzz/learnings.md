@@ -35,5 +35,11 @@ Next: Render `main.js` onto screen and see if a hot-update of App causes re-eval
 * Got it working!!
   * Object's class needs to be in its own module
   * Object class module needs eager eval (eg. storing in a global var), Object's get method just needs to return the global var
-  * scalajs-react can insert the RR code. It should work with anything, not just vite.
-  * The babel plugin cannot insert the RR code on the fly.
+  * On an update, only the object class's module must be updated, and not the object loader's
+  * The babel plugin cannot insert the RR code on the fly. scalajs-react can insert the RR code, and it should work with anything, not just vite.
+
+Solution:
+  1. Object eval changes
+    1. Make change to Scala.js
+    2. ~~maybe a babel plugin~~ This wont work. Babel can't split and create new files.
+  2. Modify scalajs-react to emit RR code (controllable by flag, on by default when dev-mode & module mode, and tolerant to RR not being present)
