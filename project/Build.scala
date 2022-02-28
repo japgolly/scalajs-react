@@ -274,18 +274,4 @@ object ScalaJsReact {
     .settings(
       moduleName := "util-fallbacks",
     )
-
-/*
-  lazy val testModule = project.in(file("test-module"))
-    .configure(commonSettings, useScalaJsBundler, preventPublication, utestSettings)
-    .dependsOn(core, extra, test)
-    .settings(
-      name := "test-module",
-      npmDependencies in Test ++= Seq(
-        "react"                             -> Ver.reactJs,
-        "react-dom"                         -> Ver.reactJs,
-        "react-addons-perf"                 -> "15.5.0-rc.2",
-        "react-addons-css-transition-group" -> "16.7.0"))
-*/
-
 }
