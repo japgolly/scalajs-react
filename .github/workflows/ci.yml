@@ -18,7 +18,7 @@ jobs:
     steps:
 
       - name: Git checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Scala
         uses: japgolly/setup-everything-scala@v3.1
