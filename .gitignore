@@ -15,6 +15,4 @@
 *.tmp
 ~*
 metals.sbt
-node_modules/
-package-lock.json
 target

@@ -1,6 +1,7 @@
 import sbt._
 import sbt.Keys._
 import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin.autoImport._
+import org.scalajs.linker.interface.{ModuleInitializer, ModuleSplitStyle}
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import scalafix.sbt.BuildInfo.{scalafixVersion => ScalafixVer}
@@ -36,6 +37,8 @@ object ScalaJsReact {
       ghpagesMacros,
       scalafixRules,
       tests,
+      testReactRefreshJS,
+      testReactRefresh,
       testUtilMacros,
       testUtil,
       util,
@@ -44,10 +47,13 @@ object ScalaJsReact {
       utilFallbacks,
     )
 
-  def commonSettings: PE =
-    _.enablePlugins(ScalaJSPlugin, ScalafixPlugin)
+  def commonSettingsCross: PE =
+    _.enablePlugins(ScalafixPlugin)
       .dependsOn(scalafixRules % ScalafixConfig)
       .configure(commonSettingsWithoutPlugins)
+
+  def commonSettings: PE =
+    _.enablePlugins(ScalaJSPlugin).configure(commonSettingsCross)
 
   def shimDummyDefaults: PE =
     _.dependsOn(utilDummyDefaults % Provided)
@@ -231,6 +237,42 @@ object ScalaJsReact {
         (ProvidedJS / "forward-ref.js"   dependsOn Dep.reactDom.dev) % Test,
         (ProvidedJS / "polyfill.js"      dependsOn Dep.reactDom.dev) % Test,
       ),
+    )
+
+  lazy val testReactRefresh = project
+    .in(file("testReactRefresh/jvm"))
+    .configure(commonSettingsCross, preventPublication, utestSettingsCross)
+    .settings(
+      libraryDependencies += Dep.microlibsUtils.value,
+      Test / fork := true,
+      Test / javaOptions ++= {
+        val jsOutputDir = (testReactRefreshJS / Compile / fastLinkJS / scalaJSLinkerOutputDirectory).value
+        val tempDir     = (Test / classDirectory).value
+        val testResDir  = (Test / resourceDirectory).value
+        val testRootDir = (Test / sourceDirectory).value
+        Seq(
+          s"-DjsOutputDir=${jsOutputDir.absolutePath}",
+          s"-DtempDir=${tempDir.absolutePath}",
+          s"-DtestResDir=${testResDir.absolutePath}",
+          s"-DtestRootDir=${testRootDir.absolutePath}",
+        )
+      },
+      Test / test     := (Test / test    ).dependsOn(testReactRefreshJS / Compile / fastLinkJS).value,
+      Test / testOnly := (Test / testOnly).dependsOn(testReactRefreshJS / Compile / fastLinkJS).evaluated,
+    )
+
+  lazy val testReactRefreshJS = project
+    .in(file("testReactRefresh/js"))
+    .configure(commonSettings, preventPublication, hasNoTests)
+    .dependsOn(coreBundleCallback)
+    .settings(
+      Compile / scalaJSLinkerConfig ~= { _
+        .withModuleKind(ModuleKind.ESModule)
+        .withModuleSplitStyle(ModuleSplitStyle.SmallestModules)
+        .withSourceMap(false)
+      },
+      Compile / scalaJSModuleInitializers +=
+        ModuleInitializer.mainMethod("japgolly.scalajs.react.test.reactrefresh.Main", "main")
     )
 
   lazy val testUtil = project
