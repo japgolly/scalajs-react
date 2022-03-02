@@ -9,6 +9,7 @@ package japgolly.scalajs.react.hooks
 // DO NOT MANUALLY EDIT
 
 import japgolly.scalajs.react.{PropsChildren, Reusability}
+import scala.scalajs.js
 
 object HookCtx {
 
@@ -82,7 +83,7 @@ object HookCtx {
 
   class P1[+P, +H1](props: P, final val hook1: H1) extends P0(props) {
     override def toString = s"HookCtx(\n  props = $props,\n  hook1 = $hook1)"
-    def apply1[A](f: (P, H1) => A): A = f(props, hook1)
+    @inline final def apply1[A](f: js.Function2[P, H1, A]): A = f(props, hook1)
   }
 
   implicit def reusabilityP1[P, H1](implicit P: Reusability[P], H1: Reusability[H1]): Reusability[P1[P, H1]] =
@@ -90,7 +91,7 @@ object HookCtx {
 
   class P2[+P, +H1, +H2](props: P, hook1: H1, final val hook2: H2) extends P1(props, hook1) {
     override def toString = s"HookCtx(\n  props = $props,\n  hook1 = $hook1,\n  hook2 = $hook2)"
-    def apply2[A](f: (P, H1, H2) => A): A = f(props, hook1, hook2)
+    @inline final def apply2[A](f: js.Function3[P, H1, H2, A]): A = f(props, hook1, hook2)
   }
 
   implicit def reusabilityP2[P, H1, H2](implicit P: Reusability[P], H1: Reusability[H1], H2: Reusability[H2]): Reusability[P2[P, H1, H2]] =
@@ -98,7 +99,7 @@ object HookCtx {
 
   class P3[+P, +H1, +H2, +H3](props: P, hook1: H1, hook2: H2, final val hook3: H3) extends P2(props, hook1, hook2) {
     override def toString = s"HookCtx(\n  props = $props,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3)"
-    def apply3[A](f: (P, H1, H2, H3) => A): A = f(props, hook1, hook2, hook3)
+    @inline final def apply3[A](f: js.Function4[P, H1, H2, H3, A]): A = f(props, hook1, hook2, hook3)
   }
 
   implicit def reusabilityP3[P, H1, H2, H3](implicit P: Reusability[P], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3]): Reusability[P3[P, H1, H2, H3]] =
@@ -106,7 +107,7 @@ object HookCtx {
 
   class P4[+P, +H1, +H2, +H3, +H4](props: P, hook1: H1, hook2: H2, hook3: H3, final val hook4: H4) extends P3(props, hook1, hook2, hook3) {
     override def toString = s"HookCtx(\n  props = $props,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4)"
-    def apply4[A](f: (P, H1, H2, H3, H4) => A): A = f(props, hook1, hook2, hook3, hook4)
+    @inline final def apply4[A](f: js.Function5[P, H1, H2, H3, H4, A]): A = f(props, hook1, hook2, hook3, hook4)
   }
 
   implicit def reusabilityP4[P, H1, H2, H3, H4](implicit P: Reusability[P], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4]): Reusability[P4[P, H1, H2, H3, H4]] =
@@ -114,7 +115,7 @@ object HookCtx {
 
   class P5[+P, +H1, +H2, +H3, +H4, +H5](props: P, hook1: H1, hook2: H2, hook3: H3, hook4: H4, final val hook5: H5) extends P4(props, hook1, hook2, hook3, hook4) {
     override def toString = s"HookCtx(\n  props = $props,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5)"
-    def apply5[A](f: (P, H1, H2, H3, H4, H5) => A): A = f(props, hook1, hook2, hook3, hook4, hook5)
+    @inline final def apply5[A](f: js.Function6[P, H1, H2, H3, H4, H5, A]): A = f(props, hook1, hook2, hook3, hook4, hook5)
   }
 
   implicit def reusabilityP5[P, H1, H2, H3, H4, H5](implicit P: Reusability[P], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5]): Reusability[P5[P, H1, H2, H3, H4, H5]] =
@@ -122,7 +123,7 @@ object HookCtx {
 
   class P6[+P, +H1, +H2, +H3, +H4, +H5, +H6](props: P, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, final val hook6: H6) extends P5(props, hook1, hook2, hook3, hook4, hook5) {
     override def toString = s"HookCtx(\n  props = $props,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6)"
-    def apply6[A](f: (P, H1, H2, H3, H4, H5, H6) => A): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6)
+    @inline final def apply6[A](f: js.Function7[P, H1, H2, H3, H4, H5, H6, A]): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6)
   }
 
   implicit def reusabilityP6[P, H1, H2, H3, H4, H5, H6](implicit P: Reusability[P], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6]): Reusability[P6[P, H1, H2, H3, H4, H5, H6]] =
@@ -130,7 +131,7 @@ object HookCtx {
 
   class P7[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7](props: P, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, final val hook7: H7) extends P6(props, hook1, hook2, hook3, hook4, hook5, hook6) {
     override def toString = s"HookCtx(\n  props = $props,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7)"
-    def apply7[A](f: (P, H1, H2, H3, H4, H5, H6, H7) => A): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7)
+    @inline final def apply7[A](f: js.Function8[P, H1, H2, H3, H4, H5, H6, H7, A]): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7)
   }
 
   implicit def reusabilityP7[P, H1, H2, H3, H4, H5, H6, H7](implicit P: Reusability[P], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7]): Reusability[P7[P, H1, H2, H3, H4, H5, H6, H7]] =
@@ -138,7 +139,7 @@ object HookCtx {
 
   class P8[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8](props: P, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, final val hook8: H8) extends P7(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7) {
     override def toString = s"HookCtx(\n  props = $props,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8)"
-    def apply8[A](f: (P, H1, H2, H3, H4, H5, H6, H7, H8) => A): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8)
+    @inline final def apply8[A](f: js.Function9[P, H1, H2, H3, H4, H5, H6, H7, H8, A]): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8)
   }
 
   implicit def reusabilityP8[P, H1, H2, H3, H4, H5, H6, H7, H8](implicit P: Reusability[P], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8]): Reusability[P8[P, H1, H2, H3, H4, H5, H6, H7, H8]] =
@@ -146,7 +147,7 @@ object HookCtx {
 
   class P9[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9](props: P, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, final val hook9: H9) extends P8(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8) {
     override def toString = s"HookCtx(\n  props = $props,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9)"
-    def apply9[A](f: (P, H1, H2, H3, H4, H5, H6, H7, H8, H9) => A): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9)
+    @inline final def apply9[A](f: js.Function10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, A]): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9)
   }
 
   implicit def reusabilityP9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9](implicit P: Reusability[P], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9]): Reusability[P9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]] =
@@ -154,7 +155,7 @@ object HookCtx {
 
   class P10[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10](props: P, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, final val hook10: H10) extends P9(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9) {
     override def toString = s"HookCtx(\n  props = $props,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10)"
-    def apply10[A](f: (P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10) => A): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10)
+    @inline final def apply10[A](f: js.Function11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, A]): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10)
   }
 
   implicit def reusabilityP10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10](implicit P: Reusability[P], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10]): Reusability[P10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]] =
@@ -162,7 +163,7 @@ object HookCtx {
 
   class P11[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11](props: P, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, final val hook11: H11) extends P10(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10) {
     override def toString = s"HookCtx(\n  props = $props,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11)"
-    def apply11[A](f: (P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11) => A): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11)
+    @inline final def apply11[A](f: js.Function12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, A]): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11)
   }
 
   implicit def reusabilityP11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11](implicit P: Reusability[P], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11]): Reusability[P11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]] =
@@ -170,7 +171,7 @@ object HookCtx {
 
   class P12[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12](props: P, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, final val hook12: H12) extends P11(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11) {
     override def toString = s"HookCtx(\n  props = $props,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12)"
-    def apply12[A](f: (P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12) => A): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12)
+    @inline final def apply12[A](f: js.Function13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, A]): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12)
   }
 
   implicit def reusabilityP12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12](implicit P: Reusability[P], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12]): Reusability[P12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]] =
@@ -178,7 +179,7 @@ object HookCtx {
 
   class P13[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13](props: P, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, final val hook13: H13) extends P12(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12) {
     override def toString = s"HookCtx(\n  props = $props,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13)"
-    def apply13[A](f: (P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13) => A): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13)
+    @inline final def apply13[A](f: js.Function14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, A]): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13)
   }
 
   implicit def reusabilityP13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13](implicit P: Reusability[P], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12], H13: Reusability[H13]): Reusability[P13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]] =
@@ -186,7 +187,7 @@ object HookCtx {
 
   class P14[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14](props: P, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, final val hook14: H14) extends P13(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13) {
     override def toString = s"HookCtx(\n  props = $props,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14)"
-    def apply14[A](f: (P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14) => A): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14)
+    @inline final def apply14[A](f: js.Function15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, A]): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14)
   }
 
   implicit def reusabilityP14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14](implicit P: Reusability[P], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12], H13: Reusability[H13], H14: Reusability[H14]): Reusability[P14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]] =
@@ -194,7 +195,7 @@ object HookCtx {
 
   class P15[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15](props: P, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, final val hook15: H15) extends P14(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14) {
     override def toString = s"HookCtx(\n  props = $props,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15)"
-    def apply15[A](f: (P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15) => A): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15)
+    @inline final def apply15[A](f: js.Function16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, A]): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15)
   }
 
   implicit def reusabilityP15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15](implicit P: Reusability[P], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12], H13: Reusability[H13], H14: Reusability[H14], H15: Reusability[H15]): Reusability[P15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]] =
@@ -202,7 +203,7 @@ object HookCtx {
 
   class P16[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15, +H16](props: P, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, final val hook16: H16) extends P15(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15) {
     override def toString = s"HookCtx(\n  props = $props,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15,\n  hook16 = $hook16)"
-    def apply16[A](f: (P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16) => A): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16)
+    @inline final def apply16[A](f: js.Function17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, A]): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16)
   }
 
   implicit def reusabilityP16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16](implicit P: Reusability[P], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12], H13: Reusability[H13], H14: Reusability[H14], H15: Reusability[H15], H16: Reusability[H16]): Reusability[P16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]] =
@@ -210,7 +211,7 @@ object HookCtx {
 
   class P17[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15, +H16, +H17](props: P, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, hook16: H16, final val hook17: H17) extends P16(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16) {
     override def toString = s"HookCtx(\n  props = $props,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15,\n  hook16 = $hook16,\n  hook17 = $hook17)"
-    def apply17[A](f: (P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17) => A): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17)
+    @inline final def apply17[A](f: js.Function18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, A]): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17)
   }
 
   implicit def reusabilityP17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17](implicit P: Reusability[P], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12], H13: Reusability[H13], H14: Reusability[H14], H15: Reusability[H15], H16: Reusability[H16], H17: Reusability[H17]): Reusability[P17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]] =
@@ -218,7 +219,7 @@ object HookCtx {
 
   class P18[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15, +H16, +H17, +H18](props: P, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, hook16: H16, hook17: H17, final val hook18: H18) extends P17(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17) {
     override def toString = s"HookCtx(\n  props = $props,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15,\n  hook16 = $hook16,\n  hook17 = $hook17,\n  hook18 = $hook18)"
-    def apply18[A](f: (P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18) => A): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18)
+    @inline final def apply18[A](f: js.Function19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, A]): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18)
   }
 
   implicit def reusabilityP18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18](implicit P: Reusability[P], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12], H13: Reusability[H13], H14: Reusability[H14], H15: Reusability[H15], H16: Reusability[H16], H17: Reusability[H17], H18: Reusability[H18]): Reusability[P18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]] =
@@ -226,7 +227,7 @@ object HookCtx {
 
   class P19[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15, +H16, +H17, +H18, +H19](props: P, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, hook16: H16, hook17: H17, hook18: H18, final val hook19: H19) extends P18(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18) {
     override def toString = s"HookCtx(\n  props = $props,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15,\n  hook16 = $hook16,\n  hook17 = $hook17,\n  hook18 = $hook18,\n  hook19 = $hook19)"
-    def apply19[A](f: (P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19) => A): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19)
+    @inline final def apply19[A](f: js.Function20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, A]): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19)
   }
 
   implicit def reusabilityP19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19](implicit P: Reusability[P], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12], H13: Reusability[H13], H14: Reusability[H14], H15: Reusability[H15], H16: Reusability[H16], H17: Reusability[H17], H18: Reusability[H18], H19: Reusability[H19]): Reusability[P19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]] =
@@ -234,7 +235,7 @@ object HookCtx {
 
   class P20[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15, +H16, +H17, +H18, +H19, +H20](props: P, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, hook16: H16, hook17: H17, hook18: H18, hook19: H19, final val hook20: H20) extends P19(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19) {
     override def toString = s"HookCtx(\n  props = $props,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15,\n  hook16 = $hook16,\n  hook17 = $hook17,\n  hook18 = $hook18,\n  hook19 = $hook19,\n  hook20 = $hook20)"
-    def apply20[A](f: (P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20) => A): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19, hook20)
+    @inline final def apply20[A](f: js.Function21[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, A]): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19, hook20)
   }
 
   implicit def reusabilityP20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20](implicit P: Reusability[P], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12], H13: Reusability[H13], H14: Reusability[H14], H15: Reusability[H15], H16: Reusability[H16], H17: Reusability[H17], H18: Reusability[H18], H19: Reusability[H19], H20: Reusability[H20]): Reusability[P20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20]] =
@@ -242,7 +243,7 @@ object HookCtx {
 
   class P21[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15, +H16, +H17, +H18, +H19, +H20, +H21](props: P, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, hook16: H16, hook17: H17, hook18: H18, hook19: H19, hook20: H20, final val hook21: H21) extends P20(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19, hook20) {
     override def toString = s"HookCtx(\n  props = $props,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15,\n  hook16 = $hook16,\n  hook17 = $hook17,\n  hook18 = $hook18,\n  hook19 = $hook19,\n  hook20 = $hook20,\n  hook21 = $hook21)"
-    def apply21[A](f: (P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21) => A): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19, hook20, hook21)
+    @inline final def apply21[A](f: js.Function22[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21, A]): A = f(props, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19, hook20, hook21)
   }
 
   implicit def reusabilityP21[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21](implicit P: Reusability[P], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12], H13: Reusability[H13], H14: Reusability[H14], H15: Reusability[H15], H16: Reusability[H16], H17: Reusability[H17], H18: Reusability[H18], H19: Reusability[H19], H20: Reusability[H20], H21: Reusability[H21]): Reusability[P21[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21]] =
@@ -323,7 +324,7 @@ object HookCtx {
 
   class PC1[+P, +H1](props: P, propsChildren: PropsChildren, final val hook1: H1) extends PC0(props, propsChildren) {
     override def toString = s"HookCtx.withChildren(\n  props = $props,\n  propsChildren = $propsChildren,\n  hook1 = $hook1)"
-    def apply1[A](f: (P, PropsChildren, H1) => A): A = f(props, propsChildren, hook1)
+    @inline final def apply1[A](f: js.Function3[P, PropsChildren, H1, A]): A = f(props, propsChildren, hook1)
   }
 
   implicit def reusabilityPC1[P, H1](implicit P: Reusability[P], PC: Reusability[PropsChildren], H1: Reusability[H1]): Reusability[PC1[P, H1]] =
@@ -331,7 +332,7 @@ object HookCtx {
 
   class PC2[+P, +H1, +H2](props: P, propsChildren: PropsChildren, hook1: H1, final val hook2: H2) extends PC1(props, propsChildren, hook1) {
     override def toString = s"HookCtx.withChildren(\n  props = $props,\n  propsChildren = $propsChildren,\n  hook1 = $hook1,\n  hook2 = $hook2)"
-    def apply2[A](f: (P, PropsChildren, H1, H2) => A): A = f(props, propsChildren, hook1, hook2)
+    @inline final def apply2[A](f: js.Function4[P, PropsChildren, H1, H2, A]): A = f(props, propsChildren, hook1, hook2)
   }
 
   implicit def reusabilityPC2[P, H1, H2](implicit P: Reusability[P], PC: Reusability[PropsChildren], H1: Reusability[H1], H2: Reusability[H2]): Reusability[PC2[P, H1, H2]] =
@@ -339,7 +340,7 @@ object HookCtx {
 
   class PC3[+P, +H1, +H2, +H3](props: P, propsChildren: PropsChildren, hook1: H1, hook2: H2, final val hook3: H3) extends PC2(props, propsChildren, hook1, hook2) {
     override def toString = s"HookCtx.withChildren(\n  props = $props,\n  propsChildren = $propsChildren,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3)"
-    def apply3[A](f: (P, PropsChildren, H1, H2, H3) => A): A = f(props, propsChildren, hook1, hook2, hook3)
+    @inline final def apply3[A](f: js.Function5[P, PropsChildren, H1, H2, H3, A]): A = f(props, propsChildren, hook1, hook2, hook3)
   }
 
   implicit def reusabilityPC3[P, H1, H2, H3](implicit P: Reusability[P], PC: Reusability[PropsChildren], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3]): Reusability[PC3[P, H1, H2, H3]] =
@@ -347,7 +348,7 @@ object HookCtx {
 
   class PC4[+P, +H1, +H2, +H3, +H4](props: P, propsChildren: PropsChildren, hook1: H1, hook2: H2, hook3: H3, final val hook4: H4) extends PC3(props, propsChildren, hook1, hook2, hook3) {
     override def toString = s"HookCtx.withChildren(\n  props = $props,\n  propsChildren = $propsChildren,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4)"
-    def apply4[A](f: (P, PropsChildren, H1, H2, H3, H4) => A): A = f(props, propsChildren, hook1, hook2, hook3, hook4)
+    @inline final def apply4[A](f: js.Function6[P, PropsChildren, H1, H2, H3, H4, A]): A = f(props, propsChildren, hook1, hook2, hook3, hook4)
   }
 
   implicit def reusabilityPC4[P, H1, H2, H3, H4](implicit P: Reusability[P], PC: Reusability[PropsChildren], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4]): Reusability[PC4[P, H1, H2, H3, H4]] =
@@ -355,7 +356,7 @@ object HookCtx {
 
   class PC5[+P, +H1, +H2, +H3, +H4, +H5](props: P, propsChildren: PropsChildren, hook1: H1, hook2: H2, hook3: H3, hook4: H4, final val hook5: H5) extends PC4(props, propsChildren, hook1, hook2, hook3, hook4) {
     override def toString = s"HookCtx.withChildren(\n  props = $props,\n  propsChildren = $propsChildren,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5)"
-    def apply5[A](f: (P, PropsChildren, H1, H2, H3, H4, H5) => A): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5)
+    @inline final def apply5[A](f: js.Function7[P, PropsChildren, H1, H2, H3, H4, H5, A]): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5)
   }
 
   implicit def reusabilityPC5[P, H1, H2, H3, H4, H5](implicit P: Reusability[P], PC: Reusability[PropsChildren], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5]): Reusability[PC5[P, H1, H2, H3, H4, H5]] =
@@ -363,7 +364,7 @@ object HookCtx {
 
   class PC6[+P, +H1, +H2, +H3, +H4, +H5, +H6](props: P, propsChildren: PropsChildren, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, final val hook6: H6) extends PC5(props, propsChildren, hook1, hook2, hook3, hook4, hook5) {
     override def toString = s"HookCtx.withChildren(\n  props = $props,\n  propsChildren = $propsChildren,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6)"
-    def apply6[A](f: (P, PropsChildren, H1, H2, H3, H4, H5, H6) => A): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6)
+    @inline final def apply6[A](f: js.Function8[P, PropsChildren, H1, H2, H3, H4, H5, H6, A]): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6)
   }
 
   implicit def reusabilityPC6[P, H1, H2, H3, H4, H5, H6](implicit P: Reusability[P], PC: Reusability[PropsChildren], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6]): Reusability[PC6[P, H1, H2, H3, H4, H5, H6]] =
@@ -371,7 +372,7 @@ object HookCtx {
 
   class PC7[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7](props: P, propsChildren: PropsChildren, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, final val hook7: H7) extends PC6(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6) {
     override def toString = s"HookCtx.withChildren(\n  props = $props,\n  propsChildren = $propsChildren,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7)"
-    def apply7[A](f: (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7) => A): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7)
+    @inline final def apply7[A](f: js.Function9[P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, A]): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7)
   }
 
   implicit def reusabilityPC7[P, H1, H2, H3, H4, H5, H6, H7](implicit P: Reusability[P], PC: Reusability[PropsChildren], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7]): Reusability[PC7[P, H1, H2, H3, H4, H5, H6, H7]] =
@@ -379,7 +380,7 @@ object HookCtx {
 
   class PC8[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8](props: P, propsChildren: PropsChildren, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, final val hook8: H8) extends PC7(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7) {
     override def toString = s"HookCtx.withChildren(\n  props = $props,\n  propsChildren = $propsChildren,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8)"
-    def apply8[A](f: (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8) => A): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8)
+    @inline final def apply8[A](f: js.Function10[P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, A]): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8)
   }
 
   implicit def reusabilityPC8[P, H1, H2, H3, H4, H5, H6, H7, H8](implicit P: Reusability[P], PC: Reusability[PropsChildren], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8]): Reusability[PC8[P, H1, H2, H3, H4, H5, H6, H7, H8]] =
@@ -387,7 +388,7 @@ object HookCtx {
 
   class PC9[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9](props: P, propsChildren: PropsChildren, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, final val hook9: H9) extends PC8(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8) {
     override def toString = s"HookCtx.withChildren(\n  props = $props,\n  propsChildren = $propsChildren,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9)"
-    def apply9[A](f: (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9) => A): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9)
+    @inline final def apply9[A](f: js.Function11[P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, A]): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9)
   }
 
   implicit def reusabilityPC9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9](implicit P: Reusability[P], PC: Reusability[PropsChildren], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9]): Reusability[PC9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9]] =
@@ -395,7 +396,7 @@ object HookCtx {
 
   class PC10[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10](props: P, propsChildren: PropsChildren, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, final val hook10: H10) extends PC9(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9) {
     override def toString = s"HookCtx.withChildren(\n  props = $props,\n  propsChildren = $propsChildren,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10)"
-    def apply10[A](f: (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10) => A): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10)
+    @inline final def apply10[A](f: js.Function12[P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, A]): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10)
   }
 
   implicit def reusabilityPC10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10](implicit P: Reusability[P], PC: Reusability[PropsChildren], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10]): Reusability[PC10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]] =
@@ -403,7 +404,7 @@ object HookCtx {
 
   class PC11[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11](props: P, propsChildren: PropsChildren, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, final val hook11: H11) extends PC10(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10) {
     override def toString = s"HookCtx.withChildren(\n  props = $props,\n  propsChildren = $propsChildren,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11)"
-    def apply11[A](f: (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11) => A): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11)
+    @inline final def apply11[A](f: js.Function13[P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, A]): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11)
   }
 
   implicit def reusabilityPC11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11](implicit P: Reusability[P], PC: Reusability[PropsChildren], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11]): Reusability[PC11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]] =
@@ -411,7 +412,7 @@ object HookCtx {
 
   class PC12[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12](props: P, propsChildren: PropsChildren, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, final val hook12: H12) extends PC11(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11) {
     override def toString = s"HookCtx.withChildren(\n  props = $props,\n  propsChildren = $propsChildren,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12)"
-    def apply12[A](f: (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12) => A): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12)
+    @inline final def apply12[A](f: js.Function14[P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, A]): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12)
   }
 
   implicit def reusabilityPC12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12](implicit P: Reusability[P], PC: Reusability[PropsChildren], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12]): Reusability[PC12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]] =
@@ -419,7 +420,7 @@ object HookCtx {
 
   class PC13[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13](props: P, propsChildren: PropsChildren, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, final val hook13: H13) extends PC12(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12) {
     override def toString = s"HookCtx.withChildren(\n  props = $props,\n  propsChildren = $propsChildren,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13)"
-    def apply13[A](f: (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13) => A): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13)
+    @inline final def apply13[A](f: js.Function15[P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, A]): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13)
   }
 
   implicit def reusabilityPC13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13](implicit P: Reusability[P], PC: Reusability[PropsChildren], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12], H13: Reusability[H13]): Reusability[PC13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]] =
@@ -427,7 +428,7 @@ object HookCtx {
 
   class PC14[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14](props: P, propsChildren: PropsChildren, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, final val hook14: H14) extends PC13(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13) {
     override def toString = s"HookCtx.withChildren(\n  props = $props,\n  propsChildren = $propsChildren,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14)"
-    def apply14[A](f: (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14) => A): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14)
+    @inline final def apply14[A](f: js.Function16[P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, A]): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14)
   }
 
   implicit def reusabilityPC14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14](implicit P: Reusability[P], PC: Reusability[PropsChildren], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12], H13: Reusability[H13], H14: Reusability[H14]): Reusability[PC14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]] =
@@ -435,7 +436,7 @@ object HookCtx {
 
   class PC15[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15](props: P, propsChildren: PropsChildren, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, final val hook15: H15) extends PC14(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14) {
     override def toString = s"HookCtx.withChildren(\n  props = $props,\n  propsChildren = $propsChildren,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15)"
-    def apply15[A](f: (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15) => A): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15)
+    @inline final def apply15[A](f: js.Function17[P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, A]): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15)
   }
 
   implicit def reusabilityPC15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15](implicit P: Reusability[P], PC: Reusability[PropsChildren], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12], H13: Reusability[H13], H14: Reusability[H14], H15: Reusability[H15]): Reusability[PC15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]] =
@@ -443,7 +444,7 @@ object HookCtx {
 
   class PC16[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15, +H16](props: P, propsChildren: PropsChildren, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, final val hook16: H16) extends PC15(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15) {
     override def toString = s"HookCtx.withChildren(\n  props = $props,\n  propsChildren = $propsChildren,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15,\n  hook16 = $hook16)"
-    def apply16[A](f: (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16) => A): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16)
+    @inline final def apply16[A](f: js.Function18[P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, A]): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16)
   }
 
   implicit def reusabilityPC16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16](implicit P: Reusability[P], PC: Reusability[PropsChildren], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12], H13: Reusability[H13], H14: Reusability[H14], H15: Reusability[H15], H16: Reusability[H16]): Reusability[PC16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]] =
@@ -451,7 +452,7 @@ object HookCtx {
 
   class PC17[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15, +H16, +H17](props: P, propsChildren: PropsChildren, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, hook16: H16, final val hook17: H17) extends PC16(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16) {
     override def toString = s"HookCtx.withChildren(\n  props = $props,\n  propsChildren = $propsChildren,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15,\n  hook16 = $hook16,\n  hook17 = $hook17)"
-    def apply17[A](f: (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17) => A): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17)
+    @inline final def apply17[A](f: js.Function19[P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, A]): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17)
   }
 
   implicit def reusabilityPC17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17](implicit P: Reusability[P], PC: Reusability[PropsChildren], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12], H13: Reusability[H13], H14: Reusability[H14], H15: Reusability[H15], H16: Reusability[H16], H17: Reusability[H17]): Reusability[PC17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]] =
@@ -459,7 +460,7 @@ object HookCtx {
 
   class PC18[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15, +H16, +H17, +H18](props: P, propsChildren: PropsChildren, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, hook16: H16, hook17: H17, final val hook18: H18) extends PC17(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17) {
     override def toString = s"HookCtx.withChildren(\n  props = $props,\n  propsChildren = $propsChildren,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15,\n  hook16 = $hook16,\n  hook17 = $hook17,\n  hook18 = $hook18)"
-    def apply18[A](f: (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18) => A): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18)
+    @inline final def apply18[A](f: js.Function20[P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, A]): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18)
   }
 
   implicit def reusabilityPC18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18](implicit P: Reusability[P], PC: Reusability[PropsChildren], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12], H13: Reusability[H13], H14: Reusability[H14], H15: Reusability[H15], H16: Reusability[H16], H17: Reusability[H17], H18: Reusability[H18]): Reusability[PC18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]] =
@@ -467,7 +468,7 @@ object HookCtx {
 
   class PC19[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15, +H16, +H17, +H18, +H19](props: P, propsChildren: PropsChildren, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, hook16: H16, hook17: H17, hook18: H18, final val hook19: H19) extends PC18(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18) {
     override def toString = s"HookCtx.withChildren(\n  props = $props,\n  propsChildren = $propsChildren,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15,\n  hook16 = $hook16,\n  hook17 = $hook17,\n  hook18 = $hook18,\n  hook19 = $hook19)"
-    def apply19[A](f: (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19) => A): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19)
+    @inline final def apply19[A](f: js.Function21[P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, A]): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19)
   }
 
   implicit def reusabilityPC19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19](implicit P: Reusability[P], PC: Reusability[PropsChildren], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12], H13: Reusability[H13], H14: Reusability[H14], H15: Reusability[H15], H16: Reusability[H16], H17: Reusability[H17], H18: Reusability[H18], H19: Reusability[H19]): Reusability[PC19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]] =
@@ -475,7 +476,7 @@ object HookCtx {
 
   class PC20[+P, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15, +H16, +H17, +H18, +H19, +H20](props: P, propsChildren: PropsChildren, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, hook16: H16, hook17: H17, hook18: H18, hook19: H19, final val hook20: H20) extends PC19(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19) {
     override def toString = s"HookCtx.withChildren(\n  props = $props,\n  propsChildren = $propsChildren,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15,\n  hook16 = $hook16,\n  hook17 = $hook17,\n  hook18 = $hook18,\n  hook19 = $hook19,\n  hook20 = $hook20)"
-    def apply20[A](f: (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20) => A): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19, hook20)
+    @inline final def apply20[A](f: js.Function22[P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, A]): A = f(props, propsChildren, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19, hook20)
   }
 
   implicit def reusabilityPC20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20](implicit P: Reusability[P], PC: Reusability[PropsChildren], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12], H13: Reusability[H13], H14: Reusability[H14], H15: Reusability[H15], H16: Reusability[H16], H17: Reusability[H17], H18: Reusability[H18], H19: Reusability[H19], H20: Reusability[H20]): Reusability[PC20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20]] =
@@ -560,7 +561,7 @@ object HookCtx {
 
   class I1[+I, +H1](input: I, final val hook1: H1) extends I0(input) {
     override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1)"
-    def apply1[A](f: (I, H1) => A): A = f(input, hook1)
+    @inline final def apply1[A](f: js.Function2[I, H1, A]): A = f(input, hook1)
   }
 
   implicit def reusabilityI1[I, H1](implicit I: Reusability[I], H1: Reusability[H1]): Reusability[I1[I, H1]] =
@@ -568,7 +569,7 @@ object HookCtx {
 
   class I2[+I, +H1, +H2](input: I, hook1: H1, final val hook2: H2) extends I1(input, hook1) {
     override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2)"
-    def apply2[A](f: (I, H1, H2) => A): A = f(input, hook1, hook2)
+    @inline final def apply2[A](f: js.Function3[I, H1, H2, A]): A = f(input, hook1, hook2)
   }
 
   implicit def reusabilityI2[I, H1, H2](implicit I: Reusability[I], H1: Reusability[H1], H2: Reusability[H2]): Reusability[I2[I, H1, H2]] =
@@ -576,7 +577,7 @@ object HookCtx {
 
   class I3[+I, +H1, +H2, +H3](input: I, hook1: H1, hook2: H2, final val hook3: H3) extends I2(input, hook1, hook2) {
     override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3)"
-    def apply3[A](f: (I, H1, H2, H3) => A): A = f(input, hook1, hook2, hook3)
+    @inline final def apply3[A](f: js.Function4[I, H1, H2, H3, A]): A = f(input, hook1, hook2, hook3)
   }
 
   implicit def reusabilityI3[I, H1, H2, H3](implicit I: Reusability[I], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3]): Reusability[I3[I, H1, H2, H3]] =
@@ -584,7 +585,7 @@ object HookCtx {
 
   class I4[+I, +H1, +H2, +H3, +H4](input: I, hook1: H1, hook2: H2, hook3: H3, final val hook4: H4) extends I3(input, hook1, hook2, hook3) {
     override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4)"
-    def apply4[A](f: (I, H1, H2, H3, H4) => A): A = f(input, hook1, hook2, hook3, hook4)
+    @inline final def apply4[A](f: js.Function5[I, H1, H2, H3, H4, A]): A = f(input, hook1, hook2, hook3, hook4)
   }
 
   implicit def reusabilityI4[I, H1, H2, H3, H4](implicit I: Reusability[I], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4]): Reusability[I4[I, H1, H2, H3, H4]] =
@@ -592,7 +593,7 @@ object HookCtx {
 
   class I5[+I, +H1, +H2, +H3, +H4, +H5](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, final val hook5: H5) extends I4(input, hook1, hook2, hook3, hook4) {
     override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5)"
-    def apply5[A](f: (I, H1, H2, H3, H4, H5) => A): A = f(input, hook1, hook2, hook3, hook4, hook5)
+    @inline final def apply5[A](f: js.Function6[I, H1, H2, H3, H4, H5, A]): A = f(input, hook1, hook2, hook3, hook4, hook5)
   }
 
   implicit def reusabilityI5[I, H1, H2, H3, H4, H5](implicit I: Reusability[I], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5]): Reusability[I5[I, H1, H2, H3, H4, H5]] =
@@ -600,7 +601,7 @@ object HookCtx {
 
   class I6[+I, +H1, +H2, +H3, +H4, +H5, +H6](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, final val hook6: H6) extends I5(input, hook1, hook2, hook3, hook4, hook5) {
     override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6)"
-    def apply6[A](f: (I, H1, H2, H3, H4, H5, H6) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6)
+    @inline final def apply6[A](f: js.Function7[I, H1, H2, H3, H4, H5, H6, A]): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6)
   }
 
   implicit def reusabilityI6[I, H1, H2, H3, H4, H5, H6](implicit I: Reusability[I], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6]): Reusability[I6[I, H1, H2, H3, H4, H5, H6]] =
@@ -608,7 +609,7 @@ object HookCtx {
 
   class I7[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, final val hook7: H7) extends I6(input, hook1, hook2, hook3, hook4, hook5, hook6) {
     override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7)"
-    def apply7[A](f: (I, H1, H2, H3, H4, H5, H6, H7) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7)
+    @inline final def apply7[A](f: js.Function8[I, H1, H2, H3, H4, H5, H6, H7, A]): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7)
   }
 
   implicit def reusabilityI7[I, H1, H2, H3, H4, H5, H6, H7](implicit I: Reusability[I], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7]): Reusability[I7[I, H1, H2, H3, H4, H5, H6, H7]] =
@@ -616,7 +617,7 @@ object HookCtx {
 
   class I8[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, final val hook8: H8) extends I7(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7) {
     override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8)"
-    def apply8[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8)
+    @inline final def apply8[A](f: js.Function9[I, H1, H2, H3, H4, H5, H6, H7, H8, A]): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8)
   }
 
   implicit def reusabilityI8[I, H1, H2, H3, H4, H5, H6, H7, H8](implicit I: Reusability[I], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8]): Reusability[I8[I, H1, H2, H3, H4, H5, H6, H7, H8]] =
@@ -624,7 +625,7 @@ object HookCtx {
 
   class I9[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, final val hook9: H9) extends I8(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8) {
     override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9)"
-    def apply9[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8, H9) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9)
+    @inline final def apply9[A](f: js.Function10[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, A]): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9)
   }
 
   implicit def reusabilityI9[I, H1, H2, H3, H4, H5, H6, H7, H8, H9](implicit I: Reusability[I], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9]): Reusability[I9[I, H1, H2, H3, H4, H5, H6, H7, H8, H9]] =
@@ -632,7 +633,7 @@ object HookCtx {
 
   class I10[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, final val hook10: H10) extends I9(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9) {
     override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10)"
-    def apply10[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10)
+    @inline final def apply10[A](f: js.Function11[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, A]): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10)
   }
 
   implicit def reusabilityI10[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10](implicit I: Reusability[I], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10]): Reusability[I10[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10]] =
@@ -640,7 +641,7 @@ object HookCtx {
 
   class I11[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, final val hook11: H11) extends I10(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10) {
     override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11)"
-    def apply11[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11)
+    @inline final def apply11[A](f: js.Function12[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, A]): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11)
   }
 
   implicit def reusabilityI11[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11](implicit I: Reusability[I], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11]): Reusability[I11[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11]] =
@@ -648,7 +649,7 @@ object HookCtx {
 
   class I12[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, final val hook12: H12) extends I11(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11) {
     override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12)"
-    def apply12[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12)
+    @inline final def apply12[A](f: js.Function13[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, A]): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12)
   }
 
   implicit def reusabilityI12[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12](implicit I: Reusability[I], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12]): Reusability[I12[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12]] =
@@ -656,7 +657,7 @@ object HookCtx {
 
   class I13[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, final val hook13: H13) extends I12(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12) {
     override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13)"
-    def apply13[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13)
+    @inline final def apply13[A](f: js.Function14[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, A]): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13)
   }
 
   implicit def reusabilityI13[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13](implicit I: Reusability[I], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12], H13: Reusability[H13]): Reusability[I13[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13]] =
@@ -664,7 +665,7 @@ object HookCtx {
 
   class I14[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, final val hook14: H14) extends I13(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13) {
     override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14)"
-    def apply14[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14)
+    @inline final def apply14[A](f: js.Function15[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, A]): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14)
   }
 
   implicit def reusabilityI14[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14](implicit I: Reusability[I], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12], H13: Reusability[H13], H14: Reusability[H14]): Reusability[I14[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14]] =
@@ -672,7 +673,7 @@ object HookCtx {
 
   class I15[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, final val hook15: H15) extends I14(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14) {
     override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15)"
-    def apply15[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15)
+    @inline final def apply15[A](f: js.Function16[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, A]): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15)
   }
 
   implicit def reusabilityI15[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15](implicit I: Reusability[I], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12], H13: Reusability[H13], H14: Reusability[H14], H15: Reusability[H15]): Reusability[I15[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15]] =
@@ -680,7 +681,7 @@ object HookCtx {
 
   class I16[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15, +H16](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, final val hook16: H16) extends I15(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15) {
     override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15,\n  hook16 = $hook16)"
-    def apply16[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16)
+    @inline final def apply16[A](f: js.Function17[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, A]): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16)
   }
 
   implicit def reusabilityI16[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16](implicit I: Reusability[I], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12], H13: Reusability[H13], H14: Reusability[H14], H15: Reusability[H15], H16: Reusability[H16]): Reusability[I16[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16]] =
@@ -688,7 +689,7 @@ object HookCtx {
 
   class I17[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15, +H16, +H17](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, hook16: H16, final val hook17: H17) extends I16(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16) {
     override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15,\n  hook16 = $hook16,\n  hook17 = $hook17)"
-    def apply17[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17)
+    @inline final def apply17[A](f: js.Function18[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, A]): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17)
   }
 
   implicit def reusabilityI17[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17](implicit I: Reusability[I], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12], H13: Reusability[H13], H14: Reusability[H14], H15: Reusability[H15], H16: Reusability[H16], H17: Reusability[H17]): Reusability[I17[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17]] =
@@ -696,7 +697,7 @@ object HookCtx {
 
   class I18[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15, +H16, +H17, +H18](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, hook16: H16, hook17: H17, final val hook18: H18) extends I17(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17) {
     override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15,\n  hook16 = $hook16,\n  hook17 = $hook17,\n  hook18 = $hook18)"
-    def apply18[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18)
+    @inline final def apply18[A](f: js.Function19[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, A]): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18)
   }
 
   implicit def reusabilityI18[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18](implicit I: Reusability[I], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12], H13: Reusability[H13], H14: Reusability[H14], H15: Reusability[H15], H16: Reusability[H16], H17: Reusability[H17], H18: Reusability[H18]): Reusability[I18[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18]] =
@@ -704,7 +705,7 @@ object HookCtx {
 
   class I19[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15, +H16, +H17, +H18, +H19](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, hook16: H16, hook17: H17, hook18: H18, final val hook19: H19) extends I18(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18) {
     override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15,\n  hook16 = $hook16,\n  hook17 = $hook17,\n  hook18 = $hook18,\n  hook19 = $hook19)"
-    def apply19[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19)
+    @inline final def apply19[A](f: js.Function20[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, A]): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19)
   }
 
   implicit def reusabilityI19[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19](implicit I: Reusability[I], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12], H13: Reusability[H13], H14: Reusability[H14], H15: Reusability[H15], H16: Reusability[H16], H17: Reusability[H17], H18: Reusability[H18], H19: Reusability[H19]): Reusability[I19[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19]] =
@@ -712,7 +713,7 @@ object HookCtx {
 
   class I20[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15, +H16, +H17, +H18, +H19, +H20](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, hook16: H16, hook17: H17, hook18: H18, hook19: H19, final val hook20: H20) extends I19(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19) {
     override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15,\n  hook16 = $hook16,\n  hook17 = $hook17,\n  hook18 = $hook18,\n  hook19 = $hook19,\n  hook20 = $hook20)"
-    def apply20[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19, hook20)
+    @inline final def apply20[A](f: js.Function21[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, A]): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19, hook20)
   }
 
   implicit def reusabilityI20[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20](implicit I: Reusability[I], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12], H13: Reusability[H13], H14: Reusability[H14], H15: Reusability[H15], H16: Reusability[H16], H17: Reusability[H17], H18: Reusability[H18], H19: Reusability[H19], H20: Reusability[H20]): Reusability[I20[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20]] =
@@ -720,7 +721,7 @@ object HookCtx {
 
   class I21[+I, +H1, +H2, +H3, +H4, +H5, +H6, +H7, +H8, +H9, +H10, +H11, +H12, +H13, +H14, +H15, +H16, +H17, +H18, +H19, +H20, +H21](input: I, hook1: H1, hook2: H2, hook3: H3, hook4: H4, hook5: H5, hook6: H6, hook7: H7, hook8: H8, hook9: H9, hook10: H10, hook11: H11, hook12: H12, hook13: H13, hook14: H14, hook15: H15, hook16: H16, hook17: H17, hook18: H18, hook19: H19, hook20: H20, final val hook21: H21) extends I20(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19, hook20) {
     override def toString = s"HookCtx.withInput(\n  input = $input,\n  hook1 = $hook1,\n  hook2 = $hook2,\n  hook3 = $hook3,\n  hook4 = $hook4,\n  hook5 = $hook5,\n  hook6 = $hook6,\n  hook7 = $hook7,\n  hook8 = $hook8,\n  hook9 = $hook9,\n  hook10 = $hook10,\n  hook11 = $hook11,\n  hook12 = $hook12,\n  hook13 = $hook13,\n  hook14 = $hook14,\n  hook15 = $hook15,\n  hook16 = $hook16,\n  hook17 = $hook17,\n  hook18 = $hook18,\n  hook19 = $hook19,\n  hook20 = $hook20,\n  hook21 = $hook21)"
-    def apply21[A](f: (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21) => A): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19, hook20, hook21)
+    @inline final def apply21[A](f: js.Function22[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21, A]): A = f(input, hook1, hook2, hook3, hook4, hook5, hook6, hook7, hook8, hook9, hook10, hook11, hook12, hook13, hook14, hook15, hook16, hook17, hook18, hook19, hook20, hook21)
   }
 
   implicit def reusabilityI21[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21](implicit I: Reusability[I], H1: Reusability[H1], H2: Reusability[H2], H3: Reusability[H3], H4: Reusability[H4], H5: Reusability[H5], H6: Reusability[H6], H7: Reusability[H7], H8: Reusability[H8], H9: Reusability[H9], H10: Reusability[H10], H11: Reusability[H11], H12: Reusability[H12], H13: Reusability[H13], H14: Reusability[H14], H15: Reusability[H15], H16: Reusability[H16], H17: Reusability[H17], H18: Reusability[H18], H19: Reusability[H19], H20: Reusability[H20], H21: Reusability[H21]): Reusability[I21[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21]] =

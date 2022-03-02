@@ -11,6 +11,7 @@ package japgolly.scalajs.react.hooks
 import japgolly.scalajs.react.PropsChildren
 import japgolly.scalajs.react.hooks.CustomHook.{Builder => Custom}
 import japgolly.scalajs.react.hooks.HookComponentBuilder._
+import scala.scalajs.js
 
 trait ComponentP_SubsequentDsl { self: ComponentP.Subsequent.type =>
   sealed trait AtStep1[P, H1] { type Next[H2] = ComponentP.Subsequent[P, HookCtx.P2[P, H1, H2], ({ type F[A] = (P, H1, H2) => A})#F] }
@@ -56,7 +57,7 @@ trait ComponentP_SubsequentSteps { self: ComponentP.SubsequentStep.type =>
             }
           new ComponentP.Subsequent[P, HookCtx.P2[P, H1, H2], ({ type F[A] = (P, H1, H2) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply1(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply1(ctxFn)
     }
 
   type AtStep2[P, H1, H2] = To[
@@ -78,7 +79,7 @@ trait ComponentP_SubsequentSteps { self: ComponentP.SubsequentStep.type =>
             }
           new ComponentP.Subsequent[P, HookCtx.P3[P, H1, H2, H3], ({ type F[A] = (P, H1, H2, H3) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply2(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply2(ctxFn)
     }
 
   type AtStep3[P, H1, H2, H3] = To[
@@ -100,7 +101,7 @@ trait ComponentP_SubsequentSteps { self: ComponentP.SubsequentStep.type =>
             }
           new ComponentP.Subsequent[P, HookCtx.P4[P, H1, H2, H3, H4], ({ type F[A] = (P, H1, H2, H3, H4) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply3(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply3(ctxFn)
     }
 
   type AtStep4[P, H1, H2, H3, H4] = To[
@@ -122,7 +123,7 @@ trait ComponentP_SubsequentSteps { self: ComponentP.SubsequentStep.type =>
             }
           new ComponentP.Subsequent[P, HookCtx.P5[P, H1, H2, H3, H4, H5], ({ type F[A] = (P, H1, H2, H3, H4, H5) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply4(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply4(ctxFn)
     }
 
   type AtStep5[P, H1, H2, H3, H4, H5] = To[
@@ -144,7 +145,7 @@ trait ComponentP_SubsequentSteps { self: ComponentP.SubsequentStep.type =>
             }
           new ComponentP.Subsequent[P, HookCtx.P6[P, H1, H2, H3, H4, H5, H6], ({ type F[A] = (P, H1, H2, H3, H4, H5, H6) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply5(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply5(ctxFn)
     }
 
   type AtStep6[P, H1, H2, H3, H4, H5, H6] = To[
@@ -166,7 +167,7 @@ trait ComponentP_SubsequentSteps { self: ComponentP.SubsequentStep.type =>
             }
           new ComponentP.Subsequent[P, HookCtx.P7[P, H1, H2, H3, H4, H5, H6, H7], ({ type F[A] = (P, H1, H2, H3, H4, H5, H6, H7) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply6(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply6(ctxFn)
     }
 
   type AtStep7[P, H1, H2, H3, H4, H5, H6, H7] = To[
@@ -188,7 +189,7 @@ trait ComponentP_SubsequentSteps { self: ComponentP.SubsequentStep.type =>
             }
           new ComponentP.Subsequent[P, HookCtx.P8[P, H1, H2, H3, H4, H5, H6, H7, H8], ({ type F[A] = (P, H1, H2, H3, H4, H5, H6, H7, H8) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply7(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply7(ctxFn)
     }
 
   type AtStep8[P, H1, H2, H3, H4, H5, H6, H7, H8] = To[
@@ -210,7 +211,7 @@ trait ComponentP_SubsequentSteps { self: ComponentP.SubsequentStep.type =>
             }
           new ComponentP.Subsequent[P, HookCtx.P9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9], ({ type F[A] = (P, H1, H2, H3, H4, H5, H6, H7, H8, H9) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply8(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply8(ctxFn)
     }
 
   type AtStep9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9] = To[
@@ -232,7 +233,7 @@ trait ComponentP_SubsequentSteps { self: ComponentP.SubsequentStep.type =>
             }
           new ComponentP.Subsequent[P, HookCtx.P10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10], ({ type F[A] = (P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply9(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply9(ctxFn)
     }
 
   type AtStep10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10] = To[
@@ -254,7 +255,7 @@ trait ComponentP_SubsequentSteps { self: ComponentP.SubsequentStep.type =>
             }
           new ComponentP.Subsequent[P, HookCtx.P11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11], ({ type F[A] = (P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply10(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply10(ctxFn)
     }
 
   type AtStep11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11] = To[
@@ -276,7 +277,7 @@ trait ComponentP_SubsequentSteps { self: ComponentP.SubsequentStep.type =>
             }
           new ComponentP.Subsequent[P, HookCtx.P12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12], ({ type F[A] = (P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply11(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply11(ctxFn)
     }
 
   type AtStep12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12] = To[
@@ -298,7 +299,7 @@ trait ComponentP_SubsequentSteps { self: ComponentP.SubsequentStep.type =>
             }
           new ComponentP.Subsequent[P, HookCtx.P13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13], ({ type F[A] = (P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply12(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply12(ctxFn)
     }
 
   type AtStep13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13] = To[
@@ -320,7 +321,7 @@ trait ComponentP_SubsequentSteps { self: ComponentP.SubsequentStep.type =>
             }
           new ComponentP.Subsequent[P, HookCtx.P14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14], ({ type F[A] = (P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply13(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply13(ctxFn)
     }
 
   type AtStep14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14] = To[
@@ -342,7 +343,7 @@ trait ComponentP_SubsequentSteps { self: ComponentP.SubsequentStep.type =>
             }
           new ComponentP.Subsequent[P, HookCtx.P15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15], ({ type F[A] = (P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply14(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply14(ctxFn)
     }
 
   type AtStep15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15] = To[
@@ -364,7 +365,7 @@ trait ComponentP_SubsequentSteps { self: ComponentP.SubsequentStep.type =>
             }
           new ComponentP.Subsequent[P, HookCtx.P16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16], ({ type F[A] = (P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply15(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply15(ctxFn)
     }
 
   type AtStep16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16] = To[
@@ -386,7 +387,7 @@ trait ComponentP_SubsequentSteps { self: ComponentP.SubsequentStep.type =>
             }
           new ComponentP.Subsequent[P, HookCtx.P17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17], ({ type F[A] = (P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply16(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply16(ctxFn)
     }
 
   type AtStep17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17] = To[
@@ -408,7 +409,7 @@ trait ComponentP_SubsequentSteps { self: ComponentP.SubsequentStep.type =>
             }
           new ComponentP.Subsequent[P, HookCtx.P18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18], ({ type F[A] = (P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply17(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply17(ctxFn)
     }
 
   type AtStep18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18] = To[
@@ -430,7 +431,7 @@ trait ComponentP_SubsequentSteps { self: ComponentP.SubsequentStep.type =>
             }
           new ComponentP.Subsequent[P, HookCtx.P19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19], ({ type F[A] = (P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply18(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply18(ctxFn)
     }
 
   type AtStep19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19] = To[
@@ -452,7 +453,7 @@ trait ComponentP_SubsequentSteps { self: ComponentP.SubsequentStep.type =>
             }
           new ComponentP.Subsequent[P, HookCtx.P20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20], ({ type F[A] = (P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply19(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply19(ctxFn)
     }
 
   type AtStep20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20] = To[
@@ -474,7 +475,7 @@ trait ComponentP_SubsequentSteps { self: ComponentP.SubsequentStep.type =>
             }
           new ComponentP.Subsequent[P, HookCtx.P21[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21], ({ type F[A] = (P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply20(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply20(ctxFn)
     }
 
 }
@@ -524,7 +525,7 @@ trait ComponentPC_SubsequentSteps { self: ComponentPC.SubsequentStep.type =>
             }
           new ComponentPC.Subsequent[P, HookCtx.PC2[P, H1, H2], ({ type F[A] = (P, PropsChildren, H1, H2) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply1(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply1(ctxFn)
     }
 
   type AtStep2[P, H1, H2] = To[
@@ -546,7 +547,7 @@ trait ComponentPC_SubsequentSteps { self: ComponentPC.SubsequentStep.type =>
             }
           new ComponentPC.Subsequent[P, HookCtx.PC3[P, H1, H2, H3], ({ type F[A] = (P, PropsChildren, H1, H2, H3) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply2(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply2(ctxFn)
     }
 
   type AtStep3[P, H1, H2, H3] = To[
@@ -568,7 +569,7 @@ trait ComponentPC_SubsequentSteps { self: ComponentPC.SubsequentStep.type =>
             }
           new ComponentPC.Subsequent[P, HookCtx.PC4[P, H1, H2, H3, H4], ({ type F[A] = (P, PropsChildren, H1, H2, H3, H4) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply3(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply3(ctxFn)
     }
 
   type AtStep4[P, H1, H2, H3, H4] = To[
@@ -590,7 +591,7 @@ trait ComponentPC_SubsequentSteps { self: ComponentPC.SubsequentStep.type =>
             }
           new ComponentPC.Subsequent[P, HookCtx.PC5[P, H1, H2, H3, H4, H5], ({ type F[A] = (P, PropsChildren, H1, H2, H3, H4, H5) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply4(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply4(ctxFn)
     }
 
   type AtStep5[P, H1, H2, H3, H4, H5] = To[
@@ -612,7 +613,7 @@ trait ComponentPC_SubsequentSteps { self: ComponentPC.SubsequentStep.type =>
             }
           new ComponentPC.Subsequent[P, HookCtx.PC6[P, H1, H2, H3, H4, H5, H6], ({ type F[A] = (P, PropsChildren, H1, H2, H3, H4, H5, H6) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply5(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply5(ctxFn)
     }
 
   type AtStep6[P, H1, H2, H3, H4, H5, H6] = To[
@@ -634,7 +635,7 @@ trait ComponentPC_SubsequentSteps { self: ComponentPC.SubsequentStep.type =>
             }
           new ComponentPC.Subsequent[P, HookCtx.PC7[P, H1, H2, H3, H4, H5, H6, H7], ({ type F[A] = (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply6(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply6(ctxFn)
     }
 
   type AtStep7[P, H1, H2, H3, H4, H5, H6, H7] = To[
@@ -656,7 +657,7 @@ trait ComponentPC_SubsequentSteps { self: ComponentPC.SubsequentStep.type =>
             }
           new ComponentPC.Subsequent[P, HookCtx.PC8[P, H1, H2, H3, H4, H5, H6, H7, H8], ({ type F[A] = (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply7(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply7(ctxFn)
     }
 
   type AtStep8[P, H1, H2, H3, H4, H5, H6, H7, H8] = To[
@@ -678,7 +679,7 @@ trait ComponentPC_SubsequentSteps { self: ComponentPC.SubsequentStep.type =>
             }
           new ComponentPC.Subsequent[P, HookCtx.PC9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9], ({ type F[A] = (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply8(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply8(ctxFn)
     }
 
   type AtStep9[P, H1, H2, H3, H4, H5, H6, H7, H8, H9] = To[
@@ -700,7 +701,7 @@ trait ComponentPC_SubsequentSteps { self: ComponentPC.SubsequentStep.type =>
             }
           new ComponentPC.Subsequent[P, HookCtx.PC10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10], ({ type F[A] = (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply9(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply9(ctxFn)
     }
 
   type AtStep10[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10] = To[
@@ -722,7 +723,7 @@ trait ComponentPC_SubsequentSteps { self: ComponentPC.SubsequentStep.type =>
             }
           new ComponentPC.Subsequent[P, HookCtx.PC11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11], ({ type F[A] = (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply10(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply10(ctxFn)
     }
 
   type AtStep11[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11] = To[
@@ -744,7 +745,7 @@ trait ComponentPC_SubsequentSteps { self: ComponentPC.SubsequentStep.type =>
             }
           new ComponentPC.Subsequent[P, HookCtx.PC12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12], ({ type F[A] = (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply11(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply11(ctxFn)
     }
 
   type AtStep12[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12] = To[
@@ -766,7 +767,7 @@ trait ComponentPC_SubsequentSteps { self: ComponentPC.SubsequentStep.type =>
             }
           new ComponentPC.Subsequent[P, HookCtx.PC13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13], ({ type F[A] = (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply12(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply12(ctxFn)
     }
 
   type AtStep13[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13] = To[
@@ -788,7 +789,7 @@ trait ComponentPC_SubsequentSteps { self: ComponentPC.SubsequentStep.type =>
             }
           new ComponentPC.Subsequent[P, HookCtx.PC14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14], ({ type F[A] = (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply13(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply13(ctxFn)
     }
 
   type AtStep14[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14] = To[
@@ -810,7 +811,7 @@ trait ComponentPC_SubsequentSteps { self: ComponentPC.SubsequentStep.type =>
             }
           new ComponentPC.Subsequent[P, HookCtx.PC15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15], ({ type F[A] = (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply14(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply14(ctxFn)
     }
 
   type AtStep15[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15] = To[
@@ -832,7 +833,7 @@ trait ComponentPC_SubsequentSteps { self: ComponentPC.SubsequentStep.type =>
             }
           new ComponentPC.Subsequent[P, HookCtx.PC16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16], ({ type F[A] = (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply15(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply15(ctxFn)
     }
 
   type AtStep16[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16] = To[
@@ -854,7 +855,7 @@ trait ComponentPC_SubsequentSteps { self: ComponentPC.SubsequentStep.type =>
             }
           new ComponentPC.Subsequent[P, HookCtx.PC17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17], ({ type F[A] = (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply16(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply16(ctxFn)
     }
 
   type AtStep17[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17] = To[
@@ -876,7 +877,7 @@ trait ComponentPC_SubsequentSteps { self: ComponentPC.SubsequentStep.type =>
             }
           new ComponentPC.Subsequent[P, HookCtx.PC18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18], ({ type F[A] = (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply17(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply17(ctxFn)
     }
 
   type AtStep18[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18] = To[
@@ -898,7 +899,7 @@ trait ComponentPC_SubsequentSteps { self: ComponentPC.SubsequentStep.type =>
             }
           new ComponentPC.Subsequent[P, HookCtx.PC19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19], ({ type F[A] = (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply18(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply18(ctxFn)
     }
 
   type AtStep19[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19] = To[
@@ -920,7 +921,7 @@ trait ComponentPC_SubsequentSteps { self: ComponentPC.SubsequentStep.type =>
             }
           new ComponentPC.Subsequent[P, HookCtx.PC20[P, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20], ({ type F[A] = (P, PropsChildren, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20) => A})#F](renderNext)
         }
-      override def squash[A] = f => _.apply19(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply19(ctxFn)
     }
 
 }
@@ -975,7 +976,7 @@ trait Custom_SubsequentSteps { self: Custom.SubsequentStep.type =>
             }
           new Custom.Subsequent[I, HookCtx.I2[I, H1, H2], ({ type F[A] = (I, H1, H2) => A})#F](buildNext)
         }
-      override def squash[A] = f => _.apply1(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply1(ctxFn)
     }
 
   type AtStep2[I, H1, H2] = To[
@@ -1001,7 +1002,7 @@ trait Custom_SubsequentSteps { self: Custom.SubsequentStep.type =>
             }
           new Custom.Subsequent[I, HookCtx.I3[I, H1, H2, H3], ({ type F[A] = (I, H1, H2, H3) => A})#F](buildNext)
         }
-      override def squash[A] = f => _.apply2(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply2(ctxFn)
     }
 
   type AtStep3[I, H1, H2, H3] = To[
@@ -1027,7 +1028,7 @@ trait Custom_SubsequentSteps { self: Custom.SubsequentStep.type =>
             }
           new Custom.Subsequent[I, HookCtx.I4[I, H1, H2, H3, H4], ({ type F[A] = (I, H1, H2, H3, H4) => A})#F](buildNext)
         }
-      override def squash[A] = f => _.apply3(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply3(ctxFn)
     }
 
   type AtStep4[I, H1, H2, H3, H4] = To[
@@ -1053,7 +1054,7 @@ trait Custom_SubsequentSteps { self: Custom.SubsequentStep.type =>
             }
           new Custom.Subsequent[I, HookCtx.I5[I, H1, H2, H3, H4, H5], ({ type F[A] = (I, H1, H2, H3, H4, H5) => A})#F](buildNext)
         }
-      override def squash[A] = f => _.apply4(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply4(ctxFn)
     }
 
   type AtStep5[I, H1, H2, H3, H4, H5] = To[
@@ -1079,7 +1080,7 @@ trait Custom_SubsequentSteps { self: Custom.SubsequentStep.type =>
             }
           new Custom.Subsequent[I, HookCtx.I6[I, H1, H2, H3, H4, H5, H6], ({ type F[A] = (I, H1, H2, H3, H4, H5, H6) => A})#F](buildNext)
         }
-      override def squash[A] = f => _.apply5(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply5(ctxFn)
     }
 
   type AtStep6[I, H1, H2, H3, H4, H5, H6] = To[
@@ -1105,7 +1106,7 @@ trait Custom_SubsequentSteps { self: Custom.SubsequentStep.type =>
             }
           new Custom.Subsequent[I, HookCtx.I7[I, H1, H2, H3, H4, H5, H6, H7], ({ type F[A] = (I, H1, H2, H3, H4, H5, H6, H7) => A})#F](buildNext)
         }
-      override def squash[A] = f => _.apply6(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply6(ctxFn)
     }
 
   type AtStep7[I, H1, H2, H3, H4, H5, H6, H7] = To[
@@ -1131,7 +1132,7 @@ trait Custom_SubsequentSteps { self: Custom.SubsequentStep.type =>
             }
           new Custom.Subsequent[I, HookCtx.I8[I, H1, H2, H3, H4, H5, H6, H7, H8], ({ type F[A] = (I, H1, H2, H3, H4, H5, H6, H7, H8) => A})#F](buildNext)
         }
-      override def squash[A] = f => _.apply7(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply7(ctxFn)
     }
 
   type AtStep8[I, H1, H2, H3, H4, H5, H6, H7, H8] = To[
@@ -1157,7 +1158,7 @@ trait Custom_SubsequentSteps { self: Custom.SubsequentStep.type =>
             }
           new Custom.Subsequent[I, HookCtx.I9[I, H1, H2, H3, H4, H5, H6, H7, H8, H9], ({ type F[A] = (I, H1, H2, H3, H4, H5, H6, H7, H8, H9) => A})#F](buildNext)
         }
-      override def squash[A] = f => _.apply8(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply8(ctxFn)
     }
 
   type AtStep9[I, H1, H2, H3, H4, H5, H6, H7, H8, H9] = To[
@@ -1183,7 +1184,7 @@ trait Custom_SubsequentSteps { self: Custom.SubsequentStep.type =>
             }
           new Custom.Subsequent[I, HookCtx.I10[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10], ({ type F[A] = (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10) => A})#F](buildNext)
         }
-      override def squash[A] = f => _.apply9(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply9(ctxFn)
     }
 
   type AtStep10[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10] = To[
@@ -1209,7 +1210,7 @@ trait Custom_SubsequentSteps { self: Custom.SubsequentStep.type =>
             }
           new Custom.Subsequent[I, HookCtx.I11[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11], ({ type F[A] = (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11) => A})#F](buildNext)
         }
-      override def squash[A] = f => _.apply10(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply10(ctxFn)
     }
 
   type AtStep11[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11] = To[
@@ -1235,7 +1236,7 @@ trait Custom_SubsequentSteps { self: Custom.SubsequentStep.type =>
             }
           new Custom.Subsequent[I, HookCtx.I12[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12], ({ type F[A] = (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12) => A})#F](buildNext)
         }
-      override def squash[A] = f => _.apply11(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply11(ctxFn)
     }
 
   type AtStep12[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12] = To[
@@ -1261,7 +1262,7 @@ trait Custom_SubsequentSteps { self: Custom.SubsequentStep.type =>
             }
           new Custom.Subsequent[I, HookCtx.I13[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13], ({ type F[A] = (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13) => A})#F](buildNext)
         }
-      override def squash[A] = f => _.apply12(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply12(ctxFn)
     }
 
   type AtStep13[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13] = To[
@@ -1287,7 +1288,7 @@ trait Custom_SubsequentSteps { self: Custom.SubsequentStep.type =>
             }
           new Custom.Subsequent[I, HookCtx.I14[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14], ({ type F[A] = (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14) => A})#F](buildNext)
         }
-      override def squash[A] = f => _.apply13(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply13(ctxFn)
     }
 
   type AtStep14[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14] = To[
@@ -1313,7 +1314,7 @@ trait Custom_SubsequentSteps { self: Custom.SubsequentStep.type =>
             }
           new Custom.Subsequent[I, HookCtx.I15[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15], ({ type F[A] = (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15) => A})#F](buildNext)
         }
-      override def squash[A] = f => _.apply14(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply14(ctxFn)
     }
 
   type AtStep15[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15] = To[
@@ -1339,7 +1340,7 @@ trait Custom_SubsequentSteps { self: Custom.SubsequentStep.type =>
             }
           new Custom.Subsequent[I, HookCtx.I16[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16], ({ type F[A] = (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16) => A})#F](buildNext)
         }
-      override def squash[A] = f => _.apply15(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply15(ctxFn)
     }
 
   type AtStep16[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16] = To[
@@ -1365,7 +1366,7 @@ trait Custom_SubsequentSteps { self: Custom.SubsequentStep.type =>
             }
           new Custom.Subsequent[I, HookCtx.I17[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17], ({ type F[A] = (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17) => A})#F](buildNext)
         }
-      override def squash[A] = f => _.apply16(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply16(ctxFn)
     }
 
   type AtStep17[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17] = To[
@@ -1391,7 +1392,7 @@ trait Custom_SubsequentSteps { self: Custom.SubsequentStep.type =>
             }
           new Custom.Subsequent[I, HookCtx.I18[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18], ({ type F[A] = (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18) => A})#F](buildNext)
         }
-      override def squash[A] = f => _.apply17(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply17(ctxFn)
     }
 
   type AtStep18[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18] = To[
@@ -1417,7 +1418,7 @@ trait Custom_SubsequentSteps { self: Custom.SubsequentStep.type =>
             }
           new Custom.Subsequent[I, HookCtx.I19[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19], ({ type F[A] = (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19) => A})#F](buildNext)
         }
-      override def squash[A] = f => _.apply18(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply18(ctxFn)
     }
 
   type AtStep19[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19] = To[
@@ -1443,7 +1444,7 @@ trait Custom_SubsequentSteps { self: Custom.SubsequentStep.type =>
             }
           new Custom.Subsequent[I, HookCtx.I20[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20], ({ type F[A] = (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20) => A})#F](buildNext)
         }
-      override def squash[A] = f => _.apply19(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply19(ctxFn)
     }
 
   type AtStep20[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20] = To[
@@ -1469,7 +1470,7 @@ trait Custom_SubsequentSteps { self: Custom.SubsequentStep.type =>
             }
           new Custom.Subsequent[I, HookCtx.I21[I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21], ({ type F[A] = (I, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13, H14, H15, H16, H17, H18, H19, H20, H21) => A})#F](buildNext)
         }
-      override def squash[A] = f => _.apply20(f)
+      @inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply20(ctxFn)
     }
 
 }

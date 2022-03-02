@@ -33,9 +33,9 @@ object GenHooks {
     def hookCtxFnPC(n: Int) = hookCtxFn(n, "P, PropsChildren")
 
     // val i12663_pre = s"({ type F[A] = $s[A]})#F" // TODO: https://github.com/lampepfl/dotty/issues/12663
-    val i12663_a = "({ type F[A] = "
-    val i12663_c = "})#F"
-    val i12663_bc = "[A]" + i12663_c
+    // val i12663_a = "({ type F[A] = "
+    // val i12663_c = "})#F"
+    // val i12663_bc = "[A]" + i12663_c
 
     for (n <- 1 to 22) {
       val As           = (1 to n).map('A' + _ - 1).map(_.toChar).mkString(", ")
@@ -67,7 +67,7 @@ object GenHooks {
         hookCtxsI +=
           s"""  class I$n[+I, $coHns](input: I, $ctxParams) extends I${n-1}(input$ctxSuperArgs) {
              |    override def toString = s"HookCtx.withInput(\\n  input = !input$ctxToStr)"
-             |    def apply$n[A](f: (I, $Hns) => A): A = f(input, $hookArgs)
+             |    @inline final def apply$n[A](f: js.Function${n+1}[I, $Hns, A]): A = f(input, $hookArgs)
              |  }
              |
              |  implicit def reusabilityI$n[I, $Hns](implicit I: Reusability[I], $RHns): Reusability[I$n[I, $Hns]] =
@@ -77,7 +77,7 @@ object GenHooks {
         hookCtxsP +=
           s"""  class P$n[+P, $coHns](props: P, $ctxParams) extends P${n-1}(props$ctxSuperArgs) {
              |    override def toString = s"HookCtx(\\n  props = !props$ctxToStr)"
-             |    def apply$n[A](f: (P, $Hns) => A): A = f(props, $hookArgs)
+             |    @inline final def apply$n[A](f: js.Function${n+1}[P, $Hns, A]): A = f(props, $hookArgs)
              |  }
              |
              |  implicit def reusabilityP$n[P, $Hns](implicit P: Reusability[P], $RHns): Reusability[P$n[P, $Hns]] =
@@ -90,7 +90,7 @@ object GenHooks {
           hookCtxsPC +=
             s"""  class PC$n[+P, $coHns](props: P, propsChildren: PropsChildren, $ctxParams) extends PC${n-1}(props, propsChildren$ctxSuperArgs) {
                |    override def toString = s"HookCtx.withChildren(\\n  props = !props,\\n  propsChildren = !propsChildren$ctxToStr)"
-               |    def apply$n[A](f: (P, PropsChildren, $Hns) => A): A = f(props, propsChildren, $hookArgs)
+               |    @inline final def apply$n[A](f: js.Function${n+2}[P, PropsChildren, $Hns, A]): A = f(props, propsChildren, $hookArgs)
                |  }
                |
                |  implicit def reusabilityPC$n[P, $Hns](implicit P: Reusability[P], PC: Reusability[PropsChildren], $RHns): Reusability[PC$n[P, $Hns]] =
@@ -103,6 +103,8 @@ object GenHooks {
         val s = n - 1
 
         val preCtxArgs = (1 until n).map(i => s"ctx$s.hook$i").mkString(", ")
+
+        val defSquash = s"@inline override final def squash[A](ctxFn: CtxFn[A]) = (_: Ctx).apply$s(ctxFn)"
 
         dslAtStepsI += s"  sealed trait AtStep$s[I, $preHns] { type Next[H$n] = Custom.Subsequent[I, HookCtx.I$n[I, $Hns], ${hookCtxFnI(n)}] }"
         stepMultisI +=
@@ -129,7 +131,7 @@ object GenHooks {
              |            }
              |          new Custom.Subsequent[I, HookCtx.I$n[I, $Hns], ${hookCtxFnI(n)}](buildNext)
              |        }
-             |      override def squash[A] = f => _.apply$s(f)
+             |      $defSquash
              |    }
              |""".stripMargin
 
@@ -154,7 +156,7 @@ object GenHooks {
              |            }
              |          new ComponentP.Subsequent[P, HookCtx.P$n[P, $Hns], ${hookCtxFnP(n)}](renderNext)
              |        }
-             |      override def squash[A] = f => _.apply$s(f)
+             |      $defSquash
              |    }
              |""".stripMargin
 
@@ -180,7 +182,7 @@ object GenHooks {
                |            }
                |          new ComponentPC.Subsequent[P, HookCtx.PC$n[P, $Hns], ${hookCtxFnPC(n)}](renderNext)
                |        }
-               |      override def squash[A] = f => _.apply$s(f)
+               |      $defSquash
                |    }
                |""".stripMargin
         }
@@ -210,6 +212,7 @@ object GenHooks {
       s"""$header
          |
          |import japgolly.scalajs.react.{PropsChildren, Reusability}
+         |import scala.scalajs.js
          |
          |object HookCtx {
          |
@@ -264,6 +267,7 @@ object GenHooks {
          |import japgolly.scalajs.react.PropsChildren
          |import japgolly.scalajs.react.hooks.CustomHook.{Builder => Custom}
          |import japgolly.scalajs.react.hooks.HookComponentBuilder._
+         |import scala.scalajs.js
          |
          |trait ComponentP_SubsequentDsl { self: ComponentP.Subsequent.type =>
          |${dslAtStepsP.result().mkString("\n")}

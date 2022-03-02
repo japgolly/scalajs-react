@@ -22,7 +22,7 @@ object Api {
   trait SubsequentStep[_Ctx, _CtxFn[_]] extends AbstractStep {
     final type Ctx = _Ctx
     final type CtxFn[A] = _CtxFn[A]
-    def squash[A]: CtxFn[A] => (Ctx => A)
+    @inline def squash[A](ctxFn: CtxFn[A]): js.Function1[Ctx, A]
   }
 
   trait DynamicNextStep[A] {
