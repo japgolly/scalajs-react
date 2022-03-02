@@ -6,6 +6,7 @@ import java.nio.file.Files
 import scala.sys.process._
 import scala.util.Try
 import japgolly.microlibs.utils.FileUtils
+import scala.annotation.tailrec
 
 object Util {
 
@@ -29,12 +30,12 @@ object Util {
     try s.mkString finally s.close()
   }
 
-  def debugShowContent(path: String, content: String, colour: String): Unit = {
+  def debugShowContent(name: String, content: String, colour: String): Unit = {
     val batPath = "/usr/bin/bat"
     var useBat  = (new File(batPath)).exists()
-    val rr      = content.contains("$RefreshSig$") || content.contains("$RefreshReg$")
+    val rr      = containsRR(content)
     val rrDesc  = if (rr) "\u001b[102;30m[RR]" else "\u001b[101;97m[RR]"
-    val sep     = "=" * (path.length + 5)
+    val sep     = "=" * (name.length + 5)
 
     val content2 = {
       val sb = new java.lang.StringBuilder
@@ -59,15 +60,12 @@ object Util {
     }
 
     println(sep)
-    println(rrDesc + Console.RESET + " " + colour + path + Console.RESET)
+    println(rrDesc + Console.RESET + " " + colour + name + Console.RESET)
     println(sep)
     if (useBat) {
-      val f = Files.createTempFile("sjr-reactrefresh-", ".js")
-      val p = f.toFile().getAbsolutePath()
-      FileUtils.write(p, content2)
-      val res = Try { Seq(batPath, "-pp", "--color=always", p).! }
-      Files.deleteIfExists(f)
-      if (!res.toOption.contains(0))
+      val f = writeToTempFile(".js")(content2)
+      val t = Try { Seq(batPath, "-pp", "--color=always", f).! }
+      if (!t.toOption.contains(0))
         useBat = false
     }
     if (!useBat) {
@@ -77,4 +75,32 @@ object Util {
     println(Console.RESET + sep)
     println()
   }
+
+  def containsRR(content: String): Boolean =
+    content.contains("$RefreshSig$") || content.contains("$RefreshReg$")
+
+  def writeToTempFile(fileSuffix: String)(content: String): String = {
+    val p = Files.createTempFile("sjr-reactrefresh-", fileSuffix)
+    val f = p.toFile()
+    val d = f.getAbsolutePath()
+    FileUtils.write(d, content)
+    f.deleteOnExit()
+    d
+  }
+
+  def countSubstringOccurances(str: String, substr: String): Int = {
+    @tailrec
+    def go(s: String, n: Int): Int = {
+      val i = s.indexOf(substr)
+      if (i >= 0)
+        go(s.drop(i + substr.length), n + 1)
+      else
+        n
+    }
+    go(str, 0)
+  }
+
+  def countRR(content: String): Int =
+    countSubstringOccurances(content, "$RefreshSig$()")
+
 }

@@ -1,3 +1,6 @@
+Part 1: Hot-reloading
+=====================
+
 * This is enough to prevent vite hot loading. SJS has lots of this.
 
     ```js
@@ -43,3 +46,41 @@ Solution:
     1. Make change to Scala.js
     2. ~~maybe a babel plugin~~ This wont work. Babel can't split and create new files.
   2. Modify scalajs-react to emit RR code (controllable by flag, on by default when dev-mode & module mode, and tolerant to RR not being present)
+
+Part 2: React Refresh injection
+===============================
+
+### How does is RR state calculated?
+
+* what if the useState arg is a function?
+  `useState(initialState())` is used by RR and it doesn't realise when the contents of `initialState` change
+
+* `const [count, setCount] = useState(0)` is turned into `useState{[count, setCount](0)}`
+* `const temp = useState(0); const [count, setCount] = temp` is turned into `useState{temp(0)}`
+
+* custom hooks?
+* class components?
+
+### Can scalajs-react be modified to output code in a way that JS will inject RR?
+
+* Will have to inline all the component builder DSL
+
+* Will probably have to beta-expand the component function.
+  `val test: js.Function0[Any] = () => { console.log("OMG") }`
+  becomes
+  `$t_Ldemo_Counter$__test = ((this$2) => (() => { console.log("OMG") }))(this)`
+
+
+### Can scalajs-react be modified to inject RR itself?
+
+
+
+I guess Quill has a single `quote { .. }` method that analyses the contents. Maybe the inner dsl doesn't even do anything, it's just there for the outer quote method to interpret. hmmmm....
+
+
+Tomorrow's plan:
+  * Remove all of this Inline stuff
+  * create v2,v3 versions of Hook stuff (unmodified) and check in
+  * start working with Scala v3 version by inlining
+  * v2 version can be inlined by making so many methods macros (or not)
+  * Test RR with different useState args - should result in different checksums

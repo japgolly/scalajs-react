@@ -9,11 +9,14 @@ object ReactRefreshTest extends TestSuite {
 
   override def tests = Tests {
     "js" - {
-      "demo" - testJsExpectation()
+      // "demo" - testJsExpectation()
       // "temp" - testJsExpectation()
     }
     "scala" - {
-      "Counter" - testScala()
+      "UseState1" - testScala(true)()
+      // "UseState1" - testScala()("bRrkbXoRYte9aIrMEzyIYQSTFt4=")
+      // "UseState2" - testScala()("8pO47wStQLnq12ingXTgdp09akk=")
+      // "UseStateMulti" - testScala(true)()
     }
   }
 
@@ -53,7 +56,11 @@ object ReactRefreshTest extends TestSuite {
 
   // ===================================================================================================================
 
-  protected def testScala()(implicit tp: TestPath) = {
+  protected def testScala(show         : Boolean = false,
+                          expectRR     : Boolean = true)
+                         (expectedFrags: String*)
+                         (implicit tp  : TestPath) = {
+
     val pkg          = "japgolly.scalajs.react.test.reactrefresh"
     val name         = tp.value.last
     val origFilename = s"${Props.jsOutputDir}/$pkg.$name" + "$.js"
@@ -61,13 +68,25 @@ object ReactRefreshTest extends TestSuite {
 
     Babel.normaliseToFile(origFilename, tempFilename)
     applyTempHacks(tempFilename)
-
     val babel = Babel.dev(tempFilename)
 
     babel.assertChanged()
-    // assertMultiline(babel.before, babel.after) // TODO: temp
-    Util.debugShowContent(origFilename, babel.after, Console.RESET)
+    babel.assertRR(expectRR)
+    babel.assertOutputContains(expectedFrags: _*)
+
+    if (show)
+      Util.debugShowContent(origFilename, babel.after, "\u001b[107;30m")
+
+    if (expectRR)
+      babel.after.replace('\n', ' ') match {
+        case rrSigHashRegex(h) => h
+        case _                 => "Failed to find the RefreshSig state id"
+      }
+    else
+      "No RR"
   }
+
+  private val rrSigHashRegex = """.*, ?"([a-zA-Z0-9]{27}=)"\);.*""".r
 
   protected def applyTempHacks(filename: String): Unit = {
     val before = Util.needFileContent(filename)
