@@ -41,11 +41,16 @@ Next: Render `main.js` onto screen and see if a hot-update of App causes re-eval
   * On an update, only the object class's module must be updated, and not the object loader's
   * The babel plugin cannot insert the RR code on the fly. scalajs-react can insert the RR code, and it should work with anything, not just vite.
 
-Solution:
+* RR babel doesn't transform components wrapped in an IIFE.
+  i.e. `const App = (this$3 => p => {...})(this)` doesn't work but `const App = p => {...}` does
+
+Solutions:
   1. Object eval changes
     1. Make change to Scala.js
     2. ~~maybe a babel plugin~~ This wont work. Babel can't split and create new files.
-  2. Modify scalajs-react to emit RR code (controllable by flag, on by default when dev-mode & module mode, and tolerant to RR not being present)
+  2. Avoid IIFEs. Either a change to Scala.js or write a Babel plugin.
+  3. Modify scalajs-react to emit RR code (controllable by flag, on by default when dev-mode & module mode, and tolerant to RR not being present)
+
 
 Part 2: React Refresh injection
 ===============================
@@ -73,8 +78,6 @@ Part 2: React Refresh injection
 
 ### Can scalajs-react be modified to inject RR itself?
 
-
-
 I guess Quill has a single `quote { .. }` method that analyses the contents. Maybe the inner dsl doesn't even do anything, it's just there for the outer quote method to interpret. hmmmm....
 
 
@@ -84,3 +87,13 @@ Tomorrow's plan:
   * start working with Scala v3 version by inlining
   * v2 version can be inlined by making so many methods macros (or not)
   * Test RR with different useState args - should result in different checksums
+
+
+Potential Solutions:
+  * RR injected by Babel
+    * Macro on last builder dsl method that converts the entire expression into simple JS (Key seems to be: `(thiz: Expr[this.type]).asTerm.underlying`)
+      * Could maybe create a new class, might workaround the SJS module issue
+    * Inline enough parts of the builder dsl so that the output is enough for babel to work properly
+  * RR injected by SJR
+    * Encode RR state in a new type, and use it at compile-time in the last builder dsl method
+    * Hash RR state in to a new value, and use it at runtime

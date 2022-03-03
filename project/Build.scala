@@ -270,6 +270,12 @@ object ScalaJsReact {
         .withModuleKind(ModuleKind.ESModule)
         .withModuleSplitStyle(ModuleSplitStyle.SmallestModules)
         .withSourceMap(false)
+        .withESFeatures(_.withESVersion(ESVersion.ES2021))
+        // .withSemantics(_
+        //   .withArrayIndexOutOfBounds(CheckedBehavior.Unchecked)
+        //   .withAsInstanceOfs(CheckedBehavior.Unchecked)
+        //   .withProductionMode(true)
+        // )
       },
       Compile / scalaJSModuleInitializers +=
         ModuleInitializer.mainMethod("japgolly.scalajs.react.test.reactrefresh.Main", "main")

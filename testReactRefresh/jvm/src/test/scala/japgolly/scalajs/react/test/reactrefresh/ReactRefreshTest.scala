@@ -13,7 +13,8 @@ object ReactRefreshTest extends TestSuite {
       // "temp" - testJs()
     }
     "scala" - {
-      "UseState1" - testScala(expectRR = false, rememberOutput = true)()
+      "BlahDemo1" - testScala(show = true, showBefore = true, expectRR = true, rememberOutput = false)()
+      // "UseState1" - testScala(show = true, expectRR = false, rememberOutput = true)()
       // "UseState1" - testScala()("bRrkbXoRYte9aIrMEzyIYQSTFt4=")
       // "UseState2" - testScala()("8pO47wStQLnq12ingXTgdp09akk=")
       // "UseStateMulti" - testScala(true)()
@@ -42,6 +43,7 @@ object ReactRefreshTest extends TestSuite {
   // ===================================================================================================================
 
   protected def testScala(show          : Boolean = false,
+                          showBefore    : Boolean = false,
                           expectRR      : Boolean = true,
                           rememberOutput: Boolean = false,
                         )(expectedFrags: String*)
@@ -55,38 +57,48 @@ object ReactRefreshTest extends TestSuite {
     var testOutcome    = () : Any
 
     Babel.normaliseToFile(origFilename, tempFilename)
-    applyTempHacks(tempFilename)
+    applyTempHacks(name, tempFilename)
     val babel = Babel.dev(tempFilename)
 
-    babel.assertChanged()
-    babel.assertRR(expectRR)
-    babel.assertOutputContains(expectedFrags: _*)
+    try {
+      babel.assertChanged()
+      babel.assertRR(expectRR)
+      babel.assertOutputContains(expectedFrags: _*)
 
-    if (rememberOutput)
-      testOutcome = babel.rememberOrAssertOutput(expectFilename)
+      if (rememberOutput)
+        testOutcome = babel.rememberOrAssertOutput(expectFilename)
 
-    if (show)
-      Util.debugShowContent(origFilename, babel.after, "\u001b[107;30m")
+      if (testOutcome == () && expectRR)
+        testOutcome =
+          babel.after.replace('\n', ' ') match {
+            case rrSigHashRegex(h) => h
+            case _                 => "Failed to find the RefreshSig state id"
+          }
 
-    if (testOutcome == () && expectRR)
-      testOutcome =
-        babel.after.replace('\n', ' ') match {
-          case rrSigHashRegex(h) => h
-          case _                 => "Failed to find the RefreshSig state id"
-        }
+    } finally {
+      if (showBefore)
+        Util.debugShowContent(s"$name.scala pre-babel js", babel.before, "\u001b[107;30m")
+      if (show)
+        Util.debugShowContent(s"$name.scala post-babel js", babel.after, "\u001b[107;30m")
+    }
 
     testOutcome
   }
 
   private val rrSigHashRegex = """.*, ?"([a-zA-Z0-9]{27}=)"\);.*""".r
 
-  protected def applyTempHacks(filename: String): Unit = {
+  protected def applyTempHacks(name: String, filename: String): Unit = {
     val before = Util.needFileContent(filename)
 
-    val after = {
+    var after = before
+
+    if (name == "BlahDemo1")
+      after = after.replace("this$3 => ", "").replace("})(this);", "});")
+
+    after = {
       var allow = true
       val exportPat = """^export \{ (\S+) \};?$""".r
-      before
+      after
         .linesIterator
         .filter(_ => allow)
         .map {

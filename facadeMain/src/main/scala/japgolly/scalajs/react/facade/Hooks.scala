@@ -3,6 +3,7 @@ package japgolly.scalajs.react.facade
 import scala.annotation.nowarn
 import scala.scalajs.js
 import scala.scalajs.js.|
+import scala.scalajs.js.annotation._
 
 /** See  https://reactjs.org/docs/hooks-reference.html
   *
@@ -18,6 +19,14 @@ trait Hooks extends js.Object {
   final type UseState[S] = js.Tuple2[S, UseStateSetter[S]]
 
   final def useState[S](initial: S | js.Function0[S]): UseState[S] = js.native
+
+  /** Using this directly avoid Scala.js adding boilerplate for `|` */
+  @JSName("useState")
+  final def useStateFn[S](initial: js.Function0[S]): UseState[S] = js.native
+
+  /** Using this directly avoid Scala.js adding boilerplate for `|` */
+  @JSName("useState")
+  final def useStateValue[S](initial: S): UseState[S] = js.native
 
   final type UseEffectArg = js.Function0[js.UndefOr[js.Function0[Any]]]
   final def useEffect(effect: UseEffectArg,

@@ -8,6 +8,9 @@ import org.scalajs.dom
 object Main {
 
   def main(): Unit = {
+
+    locally(BlahDemo1.Component)
+
     val app  = Component()
     val cont = dom.document.getElementById("root")
     app.renderIntoDOM(cont)

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 
+/*
 // eval("console.log('_s = ', _s)")
 
 function App() {
@@ -18,6 +19,31 @@ function App() {
   }, "count is: ", count);
 
 }
+*/
+
+/*
+// DOESN'T WORK
+// =============
+const App = (this$3 => p => {
+  const [count, setCount] = useState(0)
+
+  return React.createElement("button", {
+    type: "button",
+    onClick: () => setCount(count => count + 1)
+  }, "count is: ", count);
+
+})(this);
+*/
+
+const App = p => {
+  const [count, setCount] = useState(0)
+
+  return React.createElement("button", {
+    type: "button",
+    onClick: () => setCount(count => count + 1)
+  }, "count is: ", count);
+
+};
 
 export default App
 
