@@ -85,7 +85,7 @@ object ReactRefreshTest extends TestSuite {
     testOutcome
   }
 
-  private val rrSigHashRegex = """.*, ?"([a-zA-Z0-9]{27}=)"\);.*""".r
+  private val rrSigHashRegex = """.*, ?"([a-zA-Z0-9+]{27}=)"\);.*""".r
 
   protected def applyTempHacks(name: String, filename: String): Unit = {
     val before = Util.needFileContent(filename)
@@ -93,7 +93,7 @@ object ReactRefreshTest extends TestSuite {
     var after = before
 
     if (name == "BlahDemo1")
-      after = after.replace("this$3 => ", "").replace("})(this);", "});")
+      after = after.replaceFirst(""" = \(this\$\d => """, " = ").replace("})(this);", "};")
 
     after = {
       var allow = true

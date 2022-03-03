@@ -10,28 +10,20 @@ import scala.annotation.tailrec
 object BlahDemo {
   // console.log("object BlahDemo")
 
-  def start = new Step1
+  inline def start = new Step1
 
-  final class Step1 {
+  @inline final class Step1 {
     def useState(i: Int): Step2 =
-      new Step2(i)
+      new Step2
   }
 
   type Props = Int
   type JsComp = js.Function1[Props, String]
   type RenderArg = (Props, Int) => String
 
-  final class Step2(val i: Int) {
+  @inline final class Step2 {
     inline def render(inline f: RenderArg): JsComp =
       ${ renderMacro('this, 'f) }
-
-    // inline def render(f: Int => String): JsComp =
-    //   () => {
-    //     console.log("DSL RENDER START")
-    //     // val x = facade.React.useStateValue(i)
-    //     // f(x._1)
-    //     f(i)
-    //   }
   }
 
   import scala.quoted.*
@@ -72,32 +64,14 @@ object BlahDemo {
 
     val ivd =
     thiz.asTerm.underlying match {
-      case Apply(Select(Select(Ident(_),"start"),method), args) =>
+      // case Apply(Select(Select(Ident(_),"start"),method), args) =>
+      //   parseDsl(method, args)
+      // case Apply(Select(Typed(Apply(Select(New(Ident(_)),_),_),_),method),args) =>
+      case Apply(Select(_, method),args) =>
         parseDsl(method, args)
+      case x =>
+        throw new RuntimeException("" + x)
     }
-
-    // uninlined render fn
-    /*
-    Block(
-      List(
-        DefDef(
-          $anonfun,
-          List(
-            List(
-              ValDef(
-                i,
-                TypeTree[TypeRef(TermRef(ThisType(TypeRef(NoPrefix,module class <root>)),object scala),Int)],
-                EmptyTree
-              )
-            )
-          ),
-          TypeTree[TypeRef(TermRef(TermRef(ThisType(TypeRef(NoPrefix,module class <root>)),object scala),Predef),String)],
-          Block(
-            List(
-              Apply(Select(Select(Select(Select(Select(Ident(org),scalajs),dom),package),console),log),List(Literal(Constant(BlahDemo1 render)), Typed(SeqLiteral(List(),TypeTree[TypeRef(TermRef(ThisType(TypeRef(NoPrefix,module class <root>)),object scala),Any)]),TypeTree[AppliedType(TypeRef(ThisType(TypeRef(NoPrefix,module class scala)),class <repeated>),List(TypeRef(TermRef(ThisType(TypeRef(NoPrefix,module class <root>)),object scala),Any)))])))),Apply(Select(Apply(Select(Literal(Constant(Hello )),+),List(Ident(i))),+),List(Literal(Constant( !!))))))),
-              Closure(List(),Ident($anonfun),EmptyTree)
-            )
-    */
 
     println()
     uninline(render).asTerm match {
