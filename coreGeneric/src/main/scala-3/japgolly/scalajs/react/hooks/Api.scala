@@ -54,7 +54,7 @@ object Api {
     final type Step = _Step
 
     protected def self(f: Ctx => Any)(implicit step: Step): step.Self
-    protected def next[H](f: Ctx => H)(implicit step: Step): step.Next[H]
+    protected def next[H](f____Api_Primary_next: Ctx => H)(implicit step: Step): step.Next[H]
 
     /** Use a custom hook */
     final def custom[I, O](hook: CustomHook[I, O])(implicit step: Step, a: CustomHook.Arg[Ctx, I], d: DynamicNextStep[O]): d.OneOf[step.Self, step.Next[O]] =
@@ -442,7 +442,7 @@ object Api {
       * During subsequent re-renders, the first value returned by useState will always be the most recent state after
       * applying updates.
       */
-    final def useState[S](initialState: => S)(implicit step: Step): step.Next[UseState[S]] =
+    inline final def useState[S](inline initialState: S)(implicit step: Step): step.Next[UseState[S]] =
       useStateBy(_ => initialState)
 
     /** Returns a stateful value, and a function to update it.
@@ -453,8 +453,14 @@ object Api {
       * During subsequent re-renders, the first value returned by useState will always be the most recent state after
       * applying updates.
       */
-    final def useStateBy[S](initialState: Ctx => S)(implicit step: Step): step.Next[UseState[S]] =
-      next(ctx => UseState.unsafeCreate(initialState(ctx)))
+    @inline final def useStateBy[S](initialState: Ctx => S)(implicit step: Step): step.Next[UseState[S]] =
+      // next(ctx => UseState.unsafeCreate(initialState(ctx)))
+      next(ctx => {
+        org.scalajs.dom.console.log("REACT USE STATE")
+        org.scalajs.dom.console.log("REACT USE STATE")
+        org.scalajs.dom.console.log("REACT USE STATE")
+        UseState.unsafeCreate(initialState(ctx))
+      })
 
     /** Returns a stateful value, and a function to update it.
       *
@@ -679,7 +685,7 @@ object Api {
   // ===================================================================================================================
 
   trait PrimaryWithRender[P, C <: Children, Ctx, _Step <: AbstractStep] extends Primary[Ctx, _Step] {
-    def render(f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], C]): Component[P, s.CT]
+    @inline def render(f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], C]): Component[P, s.CT]
 
     final def renderReusable[A](f: Ctx => Reusable[A])(implicit s: CtorType.Summoner[Box[P], C], v: A => VdomNode): Component[P, s.CT] =
       renderWithReuseBy(f(_).map(v))(_.value)
@@ -691,8 +697,12 @@ object Api {
   }
 
   trait SecondaryWithRender[P, C <: Children, Ctx, CtxFn[_], _Step <: SubsequentStep[Ctx, CtxFn]] extends PrimaryWithRender[P, C, Ctx, _Step] with Secondary[Ctx, CtxFn, _Step] {
-    final def render(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
+    @inline final def render(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] = {
+      org.scalajs.dom.console.log("SecondaryWithRender.render")
+      org.scalajs.dom.console.log("SecondaryWithRender.render")
+      org.scalajs.dom.console.log("SecondaryWithRender.render")
       render(step.squash(f)(_))
+    }
 
     final def renderReusable[A](f: CtxFn[Reusable[A]])(implicit step: Step, s: CtorType.Summoner[Box[P], C], v: A => VdomNode): Component[P, s.CT] =
       renderReusable(step.squash(f)(_))

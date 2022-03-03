@@ -5,6 +5,7 @@ import japgolly.scalajs.react.component.ScalaFn.Component
 import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.vdom.VdomNode
 import japgolly.scalajs.react.{Children, CtorType, PropsChildren, Reusability}
+import scala.scalajs.js
 
 object HookComponentBuilder {
 
@@ -21,13 +22,13 @@ object HookComponentBuilder {
       override protected def self(f: P => Any)(implicit step: Step): step.Self =
         step.self(init, f)
 
-      override protected def next[H](f: P => H)(implicit step: Step): step.Next[H] =
-        step.next(init, f)
+      override protected def next[H](f___HookCompBuilder_fst_next: P => H)(implicit step: Step): step.Next[H] =
+        step.next(init, f___HookCompBuilder_fst_next)
 
       def withPropsChildren: ComponentPC.First[P] =
         new ComponentPC.First(ctx => init(ctx.props))
 
-      override def render(f: P => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
+      @inline override def render(f: P => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
         ScalaFn(f)
 
       override def renderWithReuseBy[A](reusableInputs: P => A)(f: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None], r: Reusability[A]): Component[P, s.CT] =
@@ -45,8 +46,26 @@ object HookComponentBuilder {
       override protected def next[H](f: Ctx => H)(implicit step: Step): step.Next[H] =
         step.next[H](renderFn, f)
 
-      override def render(f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
-        ScalaFn(renderFn(f))
+      @inline override def render(f____HookCompBuilder_sub_render: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] = {
+        org.scalajs.dom.console.log("HookCompBuilder.sub.render")
+        org.scalajs.dom.console.log("HookCompBuilder.sub.render")
+        ScalaFn(renderFn(f____HookCompBuilder_sub_render))
+      }
+
+      inline def render2c(inline f____HookCompBuilder_sub_render: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] = {
+        org.scalajs.dom.console.log("HookCompBuilder.sub.render 222222222222222")
+        org.scalajs.dom.console.log("HookCompBuilder.sub.render 222222222222222")
+        ScalaFn(renderFn(f____HookCompBuilder_sub_render))
+      }
+      // inline def render2(inline f: CtxFn[VdomNode])(implicit inline step: Step, s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] = {
+      inline def render2[CT[-p, +u] <: CtorType[p, u]](inline f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner.Aux[Box[P], Children.None, CT]): Component[P, CT] = {
+        // org.scalajs.dom.console.log("SecondaryWithRender.render")
+        // org.scalajs.dom.console.log("SecondaryWithRender.render")
+        // org.scalajs.dom.console.log("SecondaryWithRender.render")
+        // render2c(step.squash(f)(_))
+        // ${ _render2c('{ render2c(step.squash(f)(_)) }) }
+        ${ _render2m[P, Ctx, CtxFn, CT]('this, 'f, 'step, 's ) }
+      }
 
       override def renderWithReuseBy[A](reusableInputs: Ctx => A)(f: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None], r: Reusability[A]): Component[P, s.CT] = {
         val hook = CustomHook.shouldComponentUpdate(f)
@@ -54,6 +73,39 @@ object HookComponentBuilder {
           hook.unsafeInit(() => reusableInputs(ctx))
         })
       }
+    }
+
+
+    import scala.quoted.*
+    def _render2m[P, Ctx, CtxFn[_], CT[-p, +u] <: CtorType[p, u]]
+          (thiz: Expr[Subsequent[P, Ctx, CtxFn]],
+              f: Expr[CtxFn[VdomNode]],
+           step: Expr[SubsequentStep[P, Ctx, CtxFn]],
+              s: Expr[CtorType.Summoner.Aux[Box[P], Children.None, CT]])
+          (using Quotes, Type[P], Type[Ctx], Type[CtxFn], Type[CT]): Expr[Component[P, CT]] = {
+      import quotes.reflect.*
+      println("="*120)
+
+      // val owner = {
+      //   var o = Symbol.spliceOwner
+      //   while (o.flags.is(Flags.Synthetic))
+      //     o = o.owner
+      //   o
+      // }
+
+
+      implicit val printer = Printer.TreeAnsiCode
+
+      // (using Printer.TreeStructure)
+      // println(owner.tree) //.asInstanceOf[ValDef].rhs)
+      // println(Position.ofMacroExpansion.sourceCode)
+      println(Symbol.spliceOwner.tree.show)
+      println(Symbol.spliceOwner.owner.tree.show)
+      println()
+      println(thiz.asTerm.underlying.show)
+
+      println("="*120)
+      '{ $thiz.render2c($step.squash($f)(_))($s) }
     }
 
     object Subsequent extends ComponentP_SubsequentDsl
@@ -116,7 +168,7 @@ object HookComponentBuilder {
       override protected def next[H](f: Ctx => H)(implicit step: Step): step.Next[H] =
         step.next(init, f)
 
-      override def render(f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
+      @inline override def render(f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
         ScalaFn.withChildren((p: P, pc: PropsChildren) => f(HookCtx.withChildren(p, pc)))
 
       def render(f: (P, PropsChildren) => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
@@ -137,7 +189,7 @@ object HookComponentBuilder {
       override protected def next[H](f: Ctx => H)(implicit step: Step): step.Next[H] =
         step.next[H](renderFn, f)
 
-      override def render(f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
+      @inline override def render(f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
         ScalaFn.withChildren(renderFn(f))
 
       override def renderWithReuseBy[A](reusableInputs: Ctx => A)(f: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs], r: Reusability[A]): Component[P, s.CT] = {

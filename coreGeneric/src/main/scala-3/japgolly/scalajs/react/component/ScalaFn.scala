@@ -12,24 +12,16 @@ object ScalaFn {
   type Unmounted[P]                               = JsFn.UnmountedWithRoot[P, Mounted, Box[P]]
   type Mounted                                    = JsFn.Mounted
 
-  private def create[P, C <: Children, CT[-p, +u] <: CtorType[p, u]]
-      (render: Box[P] with facade.PropsWithChildren => VdomNode)
-      (implicit s: CtorType.Summoner.Aux[Box[P], C, CT]): Component[P, CT] = {
-
-    val jsRender = render.andThen(_.rawNode): js.Function1[Box[P] with facade.PropsWithChildren, facade.React.Node]
-    val rawComponent = jsRender.asInstanceOf[facade.React.StatelessFunctionalComponent[Box[P]]]
-    JsFn.force[Box[P], C](rawComponent)(s)
-      .cmapCtorProps[P](Box(_))
-      .mapUnmounted(_.mapUnmountedProps(_.unbox))
-  }
-
   @inline def withHooks[P] =
     HookComponentBuilder.apply[P]
 
   // ===================================================================================================================
 
-  def apply[P](render: P => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
+  inline def apply[P](inline render: P => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] = {
+    org.scalajs.dom.console.log("ScalaFn")
+    org.scalajs.dom.console.log("ScalaFn")
     create[P, Children.None, s.CT](b => render(b.unbox))(s)
+  }
 
   def withChildren[P](render: (P, PropsChildren) => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
     create[P, Children.Varargs, s.CT](b => render(b.unbox, PropsChildren(b.children)))(s)
@@ -50,4 +42,40 @@ object ScalaFn {
 
   def withChildrenAndReuse[P, A](reusableInputs: (P, PropsChildren) => A)(render: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs], r: Reusability[A]): Component[P, s.CT] =
     withHooks[P].withPropsChildren.renderWithReuseBy(i => reusableInputs(i.props, i.propsChildren))(render)
+
+  // ===================================================================================================================
+
+  def fromRawBoxed[P, C <: Children, CT[-p, +u] <: CtorType[p, u]]
+      (raw: facade.React.StatelessFunctionalComponent[Box[P]])
+      (implicit s: CtorType.Summoner.Aux[Box[P], C, CT])
+      : Component[P, CT] =
+    JsFn.force[Box[P], C](raw)(s)
+      .cmapCtorProps[P](Box(_))
+      .mapUnmounted(_.mapUnmountedProps(_.unbox))
+
+  // @inline def createRawBoxed[P, C <: Children]
+  //     (renderBoxed: js.Function1[Box[P] with facade.PropsWithChildren, VdomNode])
+  //     : facade.React.StatelessFunctionalComponent[Box[P]] = {
+  //   val rawComponent: js.Function1[Box[P] with facade.PropsWithChildren, facade.React.Node] = { p =>
+  //     renderBoxed(p).rawNode
+  //   }
+  //   rawComponent.asInstanceOf[facade.React.StatelessFunctionalComponent[Box[P]]]
+  // }
+
+  inline private def create[P, C <: Children, CT[-p, +u] <: CtorType[p, u]]
+      // (inline renderBoxed: js.Function1[Box[P] with facade.PropsWithChildren, VdomNode])
+      (inline renderBoxed: Box[P] with facade.PropsWithChildren => VdomNode)
+      (implicit s: CtorType.Summoner.Aux[Box[P], C, CT])
+      : Component[P, CT] = {
+
+    // val rawComponent = createRawBoxed(renderBoxed)
+
+    type Comp = facade.React.StatelessFunctionalComponent[Box[P]]
+
+    val rawComponent: js.Function1[Box[P] with facade.PropsWithChildren, facade.React.Node] = { p =>
+      renderBoxed(p).rawNode
+    }
+
+    fromRawBoxed[P, C, CT](rawComponent.asInstanceOf[Comp])(s)
+  }
 }
