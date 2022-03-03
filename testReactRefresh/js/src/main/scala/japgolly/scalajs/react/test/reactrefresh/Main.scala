@@ -9,7 +9,7 @@ object Main {
 
   def main(): Unit = {
 
-    locally(BlahDemo1.Component)
+    locally(RewritePoC1.Component)
 
     val app  = Component()
     val cont = dom.document.getElementById("root")

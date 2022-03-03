@@ -7,8 +7,8 @@ import org.scalajs.dom._
 import scala.scalajs.js
 import scala.annotation.tailrec
 
-object BlahDemo {
-  // console.log("object BlahDemo")
+object RewritePoC {
+  // console.log("object RewritePoC")
 
   inline def start = new Step1
 
@@ -38,10 +38,10 @@ object BlahDemo {
     println(">"*120)
     println()
 
-    // Apply(Select(Select(Ident(BlahDemo),start),useState),List(Literal(Constant(123456))))
+    // Apply(Select(Select(Ident(RewritePoC),start),useState),List(Literal(Constant(123456))))
     println(thiz.asTerm.underlying)
 
-    // japgolly.scalajs.react.BlahDemo.start.useState(123456)
+    // japgolly.scalajs.react.RewritePoC.start.useState(123456)
     println(thiz.asTerm.underlying.show)
 
     val init = Init("hook" + _)

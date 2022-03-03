@@ -1,16 +1,16 @@
 package japgolly.scalajs.react.test.reactrefresh
 
-import japgolly.scalajs.react.BlahDemo
+import japgolly.scalajs.react.RewritePoC
 
-object BlahDemo1 {
+object RewritePoC1 {
 
   // val test: scalajs.js.Function1[String, Unit] =
   //   org.scalajs.dom.console.log(_)
 
-  val Component = BlahDemo.start
+  val Component = RewritePoC.start
     .useState(123)
     .render((p, s) => {
-      // org.scalajs.dom.console.log("BlahDemo1 render")
+      // org.scalajs.dom.console.log("RewritePoC1 render")
       s"Hello p=$p, s=$s !!"
     })
 

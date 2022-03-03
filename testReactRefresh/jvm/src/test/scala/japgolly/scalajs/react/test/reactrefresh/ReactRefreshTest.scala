@@ -13,7 +13,7 @@ object ReactRefreshTest extends TestSuite {
       // "temp" - testJs()
     }
     "scala" - {
-      "BlahDemo1" - testScala(show = true, showBefore = true, expectRR = true, rememberOutput = false)()
+      "RewritePoC1" - testScala(show = true, showBefore = true, expectRR = true, rememberOutput = false)()
       // "UseState1" - testScala(show = true, expectRR = false, rememberOutput = true)()
       // "UseState1" - testScala()("bRrkbXoRYte9aIrMEzyIYQSTFt4=")
       // "UseState2" - testScala()("8pO47wStQLnq12ingXTgdp09akk=")
@@ -92,7 +92,7 @@ object ReactRefreshTest extends TestSuite {
 
     var after = before
 
-    if (name == "BlahDemo1")
+    if (name == "RewritePoC1")
       after = after.replaceFirst(""" = \(this\$\d => """, " = ").replace("})(this);", "};")
 
     after = {
