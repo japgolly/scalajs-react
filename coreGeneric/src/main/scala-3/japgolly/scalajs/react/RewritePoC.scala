@@ -1,175 +1,131 @@
 package japgolly.scalajs.react
 
-import scala.language.`3.0`
-import japgolly.microlibs.compiletime.MacroEnv._
 import japgolly.microlibs.compiletime._
+import japgolly.microlibs.compiletime.MacroEnv._
+import japgolly.scalajs.react.hooks.Hooks._
+import japgolly.scalajs.react.internal.Box
 import org.scalajs.dom._
-import scala.scalajs.js
 import scala.annotation.tailrec
+import scala.language.`3.0`
+import scala.scalajs.js
 
 object RewritePoC {
   // console.log("object RewritePoC")
 
-  inline def start = new Step1
+  inline def start[P] = new Step0[P]
 
-  @inline final class Step1 {
-    def useState(i: Int): Step2 =
+  @inline final class Step0[P] {
+    def useState[S](i: => S): Step1[P, UseState[S]] =
+      new Step1
+  }
+
+  @inline final class Step1[P, A] {
+    def useState[S](i: => S): Step2[P, A, UseState[S]] =
       new Step2
+
+    inline def render(inline f: (P, A) => String): JsComp[P] =
+      ${ renderMacro[P]('this, 'f) }
   }
 
-  type Props = Int
-  type JsComp = js.Function1[Props, String]
-  type RenderArg = (Props, Int) => String
-
-  @inline final class Step2 {
-    inline def render(inline f: RenderArg): JsComp =
-      ${ renderMacro('this, 'f) }
+  @inline final class Step2[P, A, B] {
+    inline def render(inline f: (P, A, B) => String): JsComp[P] =
+      ${ renderMacro[P]('this, 'f) }
   }
+
+  type JsComp[P] = js.Function1[P, String]
+
+  // ===================================================================================================================
 
   import scala.quoted.*
 
-  def renderMacro(thiz: Expr[Step2], render: Expr[RenderArg])(using q1: Quotes): Expr[JsComp] = {
+  def renderMacro[P](thiz: Expr[Any], render: Expr[Any])(using qq: Quotes, P: Type[P]): Expr[JsComp[P]] = {
     import quotes.reflect.*
-    implicit def ppp: Printer[Tree] = Printer.TreeAnsiCode
 
-    def println(args: Any*) = ()
+    type InitStep = UntypedValDef.WithQuotes[qq.type]
 
-    println()
-    println(">"*120)
-    println()
+    case class DslStep(method: String, types: List[TypeTree], args: List[Term]) {
+      override def toString = args.mkString(s".$method(", ", ", ")")
+    }
 
-    // Apply(Select(Select(Ident(RewritePoC),start),useState),List(Literal(Constant(123456))))
-    println(thiz.asTerm.underlying)
+    def breakIntoSteps(term: Term): List[DslStep] = {
+      var steps = List.empty[DslStep]
+      @tailrec
+      def go(t: Term): Unit =
+        t match {
 
-    // japgolly.scalajs.react.RewritePoC.start.useState(123456)
-    println(thiz.asTerm.underlying.show)
+          // step 1+
+          case Apply(TypeApply(Select(inner, method), types), args) =>
+            steps ::= DslStep(method, types, args)
+            go(inner)
 
-    val init = Init("hook" + _)
-    // var renderArgs = List.empty[Ident]
+          // step 0
+          case Typed(Apply(TypeApply(Select(New(_), _), _), Nil), _) =>
+            ()
 
-    def parseDsl(method: String, args: List[Term]) = {
-      println()
-      println("method: " + method)
-      println("  args: " + args)
-      method match {
+          case x =>
+            throw new RuntimeException(s"Failed to parse step:\n\n$x\n")
+        }
+      go(term)
+      steps
+    }
+
+    val steps = breakIntoSteps(thiz.asTerm.underlying)
+
+    def parseStep(i: Init {val q: qq.type}, step: DslStep, stepNo: Int): InitStep = {
+      val prefix = "hook" + (stepNo + 1)
+      step.method match {
         case "useState" =>
-          val arg = args.head.asExpr.asExprOf[Int]
-          val vd  = init.valDef('{ facade.React.useStateValue($arg) })
-          ///println("vd: " + vd.)
-          vd
-
-          // renderArgs :+= .untyped.ref
+          step.types.head.asType match {
+            case '[t] =>
+              val arg = step.args.head.asExprOf[t]
+              val hook = i.valDef('{ facade.React.useStateFn(() => Box[t]($arg)) }, prefix + "js")
+              i.valDef('{ UseState.fromJsBoxed[t](${hook.ref}) }, prefix).untyped
+          }
       }
     }
 
-    val ivd =
-    thiz.asTerm.underlying match {
-      // case Apply(Select(Select(Ident(_),"start"),method), args) =>
-      //   parseDsl(method, args)
-      // case Apply(Select(Typed(Apply(Select(New(Ident(_)),_),_),_),method),args) =>
-      case Apply(Select(_, method),args) =>
-        parseDsl(method, args)
-      case x =>
-        throw new RuntimeException("" + x)
+    def withHooks[A: Type](use: List[Term] => Expr[A]): Expr[A] = {
+      val init      = Init("hook" + _)
+      val initSteps = steps.zipWithIndex.map(parseStep(init, _, _))
+      val args      = initSteps.map(_.ref: Term)
+      val innerExpr = Expr.betaReduce(use(args))
+      init.wrapExpr(innerExpr.asTerm.asExprOf[A])
     }
 
-    println()
-    uninline(render).asTerm match {
-      // TODO: Handle multiple statements
-      case Block(List(dd@ DefDef(name, _, _, _)), Closure(Ident(name2), _)) if name == name2 =>
-        println("YES "*50)
-        println()
-        println("dd.paramss: " + dd.paramss)
-        println()
-        println("dd.rhs: " + dd.rhs)
-        // println()
-        // println(Expr.betaReduce('{ ${dd.asExprOf[RenderArg] }(123456) }))
-        println()
-      // case _ =>
-      //   println("NO "*50)
-    }
-
-    // println()
-    // println(ivd.valDef)
-    // println(init.stmts)
-    // println()
-    // println(render.show)
-    // println(render.asTerm)
-    // println("-"*120)
-    // // val render1 = '{$render(1)}
-    // val render1 = simplifyExpr(uninline(render))
-    // println(render1.show)
-    // println(render1.asTerm)
-    // println("!"*120)
-    // println(ivd.use(render(_)).show)
-    // println()
-    // println(ivd.use(render(_)).asTerm)
-    // println("!"*120)
-
-    // val i = renderArgs.head.asExpr.asExprOf[Int]
-    // val inner = init.wrapExpr[String] {
-    //   '{
-    //     $render($i)
-    //     null
-    //   }
-    // }
-
-    // $render($thiz.i)
-
-    val renderApplied = (p: Expr[Props]) =>
-      ivd.use(hook => render(p, '{ $hook._1 }))
-
-    // def renderApplied(p: Quotes ?=> Expr[Props])(using Quotes): Expr[String] =
-    //   ivd.use(render(p, _))
-
-    // TODO: weird that init.wrap doesn't work
-
-    val result: Expr[JsComp] =
-
-    '{
-      val jsFunction: JsComp = (p: Props) => {
-        // console.log("DSL RENDER START")
-        // val wtf = facade.React.useStateValue(123987654)
-        ${ renderApplied('p) }
+    val renderApplied: Expr[P] => Expr[String] =
+      p => withHooks[String] { hookArgs =>
+        val args = p.asTerm :: hookArgs
+        val apply = Symbol.requiredClass("scala.Function" + args.size).declaredMethod("apply").head
+        Apply(Select(render.asTerm, apply), args).asExprOf[String]
       }
+
+    val result: Expr[JsComp[P]] = '{
+      val jsFunction: JsComp[P] = (p: P) => ${ renderApplied('p) }
       jsFunction
     }
 
-
-    println()
-    println(result.asTerm.show)
-    println()
-    println(result.asTerm.show(using Printer.TreeStructure))
-
-    println()
-    println("<"*120)
-    println()
+    // println()
+    // println(result.asTerm.show(using Printer.TreeAnsiCode))
+    // println()
 
     result
   }
 
-  // def mkResult(f: Quotes ?=> (Expr[Props]) => Expr[String])(using q2: Quotes): Expr[JsComp] = '{
-  //   val jsFunction = (p: Props) => {
-  //     // console.log("DSL RENDER START")
-  //     val wtf = facade.React.useStateValue(123987654)
-  //     ${ f('p) }
+  // ===================================================================================================================
+
+  // @tailrec
+  // def uninline[A](self: Expr[A])(using Quotes, Type[A]): Expr[A] = {
+  //   import quotes.reflect.*
+  //   self.asTerm match {
+  //     case Inlined(_, _, term) => uninline(term.asExprOf[A])
+  //     case _                   => self
   //   }
-  //   jsFunction
   // }
 
-  @tailrec
-  def uninline[A](self: Expr[A])(using Quotes, Type[A]): Expr[A] = {
-    import quotes.reflect.*
-    self.asTerm match {
-      case Inlined(_, _, term) => uninline(term.asExprOf[A])
-      case _                   => self
-    }
-  }
-
-  def simplifyExpr[A](self: Expr[A])(using Quotes, Type[A]): Expr[A] = {
-    import quotes.reflect.*
-    self.asTerm.simplify.asExprOf[A]
-    self
-  }
+  // def simplifyExpr[A](self: Expr[A])(using Quotes, Type[A]): Expr[A] = {
+  //   import quotes.reflect.*
+  //   self.asTerm.simplify.asExprOf[A]
+  //   self
+  // }
 
 }

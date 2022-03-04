@@ -10,6 +10,7 @@ object Main {
   def main(): Unit = {
 
     locally(RewritePoC1.Component)
+    locally(RewritePoC12.Component)
 
     val app  = Component()
     val cont = dom.document.getElementById("root")

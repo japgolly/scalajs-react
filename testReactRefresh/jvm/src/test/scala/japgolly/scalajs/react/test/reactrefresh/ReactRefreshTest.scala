@@ -1,9 +1,9 @@
 package japgolly.scalajs.react.test.reactrefresh
 
 import japgolly.microlibs.testutil.TestUtil._
+import japgolly.microlibs.utils.FileUtils
 import utest._
 import utest.framework.TestPath
-import japgolly.microlibs.utils.FileUtils
 
 object ReactRefreshTest extends TestSuite {
 
@@ -13,7 +13,8 @@ object ReactRefreshTest extends TestSuite {
       // "temp" - testJs()
     }
     "scala" - {
-      "RewritePoC1" - testScala(show = true, showBefore = true, expectRR = true, rememberOutput = false)()
+      "RewritePoC1" - testScala(show = true, showBefore = false, expectRR = true, rememberOutput = false)()
+      "RewritePoC12" - testScala(show = true, showBefore = false, expectRR = true, rememberOutput = false)()
       // "UseState1" - testScala(show = true, expectRR = false, rememberOutput = true)()
       // "UseState1" - testScala()("bRrkbXoRYte9aIrMEzyIYQSTFt4=")
       // "UseState2" - testScala()("8pO47wStQLnq12ingXTgdp09akk=")
@@ -92,8 +93,8 @@ object ReactRefreshTest extends TestSuite {
 
     var after = before
 
-    if (name == "RewritePoC1")
-      after = after.replaceFirst(""" = \(this\$\d => """, " = ").replace("})(this);", "};")
+    if (name startsWith "RewritePoC")
+      after = after.replaceAll("""\(this\$\d+ => """, "").replaceAll("""\)\(this(?:\$\d+)?\)""", "")
 
     after = {
       var allow = true

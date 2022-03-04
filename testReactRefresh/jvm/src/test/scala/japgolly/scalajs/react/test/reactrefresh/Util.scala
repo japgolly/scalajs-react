@@ -1,12 +1,12 @@
 package japgolly.scalajs.react.test.reactrefresh
 
+import japgolly.microlibs.utils.FileUtils
 import java.io.{File, FileNotFoundException}
-import scala.io.Source
 import java.nio.file.Files
+import scala.annotation.tailrec
+import scala.io.Source
 import scala.sys.process._
 import scala.util.Try
-import japgolly.microlibs.utils.FileUtils
-import scala.annotation.tailrec
 
 object Util {
 
