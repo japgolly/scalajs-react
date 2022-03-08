@@ -13,10 +13,10 @@ object ReactRefreshTest extends TestSuite {
       // "temp" - testJs()
     }
     "scala" - {
-      // "TEMPPPPPPP" - testScala(show = false, showBefore = true, expectRR = false, rememberOutput = false)()
-      "RewritePoC1" - testScala(show = false, showBefore = true, expectRR = false, rememberOutput = false)()
-      // "RewritePoC2" - testScala(show = false, showBefore = true, expectRR = true, rememberOutput = false)()
-      // "RewritePoC12" - testScala(show = true, showBefore = false, expectRR = true, rememberOutput = false)()
+      // "TEMPPPPPPP" - testScala(showBefore = true, show = false, expectRR = false, rememberOutput = false)()
+      "RewritePoC1"  - testScala(showBefore = false, show = true, expectRR = true, rememberOutput = false)()
+      "RewritePoC2"  - testScala(showBefore = false, show = true, expectRR = true, rememberOutput = false)()
+      "RewritePoC12" - testScala(showBefore = false, show = true, expectRR = true, rememberOutput = false)()
       // "UseState1" - testScala(show = true, expectRR = false, rememberOutput = true)()
       // "UseState1" - testScala()("bRrkbXoRYte9aIrMEzyIYQSTFt4=")
       // "UseState2" - testScala()("8pO47wStQLnq12ingXTgdp09akk=")
