@@ -121,3 +121,38 @@ Solutions:
     * Option 1: A single reflective macro at the end of component creation (PoC working, see `RewritePoC`)
     * Option 2: Capture DSL args as ASTs and fuse together at the end of component creation (might not be possible)
     * Rejected: Extremely careful inlining of the component building DSL. This is not enough. All DSL args/functions must be fused into one.
+
+===============================================================================================
+
+# What was accomplished?
+
+* Figured out everything required for scalajs-react to work with Vite & React Refresh
+  (see previously summary)
+
+* Added RR testing infrastructure to scalajs-react, and some basic tests
+
+  See https://github.com/japgolly/scalajs-react/tree/experiment/vite/testReactRefresh
+  There are two types of testing methods:
+
+  1. Compare before/after RR-transformation of JS
+     See https://github.com/japgolly/scalajs-react/tree/experiment/vite/testReactRefresh/jvm/src/test/resources/js
+     and https://github.com/japgolly/scalajs-react/blob/experiment/vite/testReactRefresh/jvm/src/test/scala/japgolly/scalajs/react/test/reactrefresh/ReactRefreshTest.scala#L11-L14
+
+  2. Provide a Scala file, and ensure RR-transformation is successful and (optionally) exactly what we'd expect.
+     See https://github.com/japgolly/scalajs-react/tree/experiment/vite/testReactRefresh/js/src/main/scala/japgolly/scalajs/react/test/reactrefresh
+     and https://github.com/japgolly/scalajs-react/blob/experiment/vite/testReactRefresh/jvm/src/test/scala/japgolly/scalajs/react/test/reactrefresh/ReactRefreshTest.scala#L15-L24
+
+* Submitted a PR to Scala.js to avoid unnecessary IIFEs
+  See https://github.com/scala-js/scala-js/pull/4647
+
+* Experimented with different ways to make scalajs-react hook components compatible with React Refresh, leading to a successful prototype
+
+# Next steps
+
+  * [1-2 weeks?] Scala.js: allow module processing plugins (like Babel for Scala.js, see #4643)
+  * [1-2 weeks?] Create a Scala.js plugin to provide output in the way that Vite and React Refresh recognise (pending #4643)
+  * [1-2 weeks?] scalajs-react: turn hook components into single JS functions
+
+and optionally...
+
+  * [1-2 weeks?] Make `ScalaComponent` and `ScalaFnComponent` compatible with React Refresh too
