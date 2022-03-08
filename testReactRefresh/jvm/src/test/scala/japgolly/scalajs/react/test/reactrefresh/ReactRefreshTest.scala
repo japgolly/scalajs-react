@@ -13,8 +13,10 @@ object ReactRefreshTest extends TestSuite {
       // "temp" - testJs()
     }
     "scala" - {
-      "RewritePoC1" - testScala(show = true, showBefore = false, expectRR = true, rememberOutput = false)()
-      "RewritePoC12" - testScala(show = true, showBefore = false, expectRR = true, rememberOutput = false)()
+      // "TEMPPPPPPP" - testScala(show = false, showBefore = true, expectRR = false, rememberOutput = false)()
+      "RewritePoC1" - testScala(show = false, showBefore = true, expectRR = false, rememberOutput = false)()
+      // "RewritePoC2" - testScala(show = false, showBefore = true, expectRR = true, rememberOutput = false)()
+      // "RewritePoC12" - testScala(show = true, showBefore = false, expectRR = true, rememberOutput = false)()
       // "UseState1" - testScala(show = true, expectRR = false, rememberOutput = true)()
       // "UseState1" - testScala()("bRrkbXoRYte9aIrMEzyIYQSTFt4=")
       // "UseState2" - testScala()("8pO47wStQLnq12ingXTgdp09akk=")
@@ -86,15 +88,15 @@ object ReactRefreshTest extends TestSuite {
     testOutcome
   }
 
-  private val rrSigHashRegex = """.*, ?"([a-zA-Z0-9+]{27}=)"\);.*""".r
+  private val rrSigHashRegex = """.*, ?"([a-zA-Z0-9/+]{27}=)"\);.*""".r
 
   protected def applyTempHacks(name: String, filename: String): Unit = {
     val before = Util.needFileContent(filename)
 
     var after = before
 
-    if (name startsWith "RewritePoC")
-      after = after.replaceAll("""\(this\$\d+ => """, "").replaceAll("""\)\(this(?:\$\d+)?\)""", "")
+    // if (name startsWith "RewritePoC")
+    //   after = after.replaceAll("""\(this\$\d+ => """, "").replaceAll("""\)\(this(?:\$\d+)?\)""", "")
 
     after = {
       var allow = true

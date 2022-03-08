@@ -100,7 +100,10 @@ object RewritePoC {
       }
 
     val result: Expr[JsComp[P]] = '{
-      val jsFunction: JsComp[P] = (p: P) => ${ renderApplied('p) }
+      val jsFunction: JsComp[P] = (ppppppppppppppppppppppppppppppppp: P) => {
+        org.scalajs.dom.console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+        ${ renderApplied('ppppppppppppppppppppppppppppppppp) }
+      }
       jsFunction
     }
 

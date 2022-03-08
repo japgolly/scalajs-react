@@ -9,8 +9,11 @@ object Main {
 
   def main(): Unit = {
 
+    // locally((new TEMPPPPPPP).test)
+    // locally(TEMPPPPPPP.test)
     locally(RewritePoC1.Component)
-    locally(RewritePoC12.Component)
+    // locally(RewritePoC2.Component)
+    // locally(RewritePoC12.Component)
 
     val app  = Component()
     val cont = dom.document.getElementById("root")
@@ -19,9 +22,9 @@ object Main {
 
   private val Component = ScalaFnComponent[Unit] { _ =>
     <.div(
-      UseState1.Component(),
-      UseState2.Component(),
-      UseStateMulti.Component(),
+      // UseState1.Component(),
+      // UseState2.Component(),
+      // UseStateMulti.Component(),
     )
   }
 }

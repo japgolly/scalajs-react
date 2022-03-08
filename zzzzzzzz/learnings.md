@@ -97,3 +97,27 @@ Potential Solutions:
   * RR injected by SJR
     * Encode RR state in a new type, and use it at compile-time in the last builder dsl method
     * Hash RR state in to a new value, and use it at runtime
+
+===============================================================================================
+
+Summary
+=======
+
+Problems:
+  * Scala.js's output is very incompatible with vite hot-reloading
+    * Components need to be in their own dedicated module, with a sole `export default`
+    * Components need to be eagerly evaluated on module init
+    * Scala objects need to be reloadable
+  * Scala.js's output is incompatible with the React Refresh babel plugin
+    * Scala.js generates unnecessary IIFEs
+  * scalajs-react creates hook component creation is incompatible with the React Refresh babel plugin
+    * Each step of the component needs to be consolidated into a single function
+
+Solutions:
+  * Scala.js: allow module processing plugins (like Babel for Scala.js, see #4643)
+  * Scala.js: avoid unnecessary IIFEs (see #4646 and draft PR #4647)
+  * Create a Scala.js plugin to provide output in the way that Vite and React Refresh recognise (pending #4643)
+  * scalajs-react: create hook components as single JS functions
+    * Option 1: A single reflective macro at the end of component creation (PoC working, see `RewritePoC`)
+    * Option 2: Capture DSL args as ASTs and fuse together at the end of component creation (might not be possible)
+    * Rejected: Extremely careful inlining of the component building DSL. This is not enough. All DSL args/functions must be fused into one.

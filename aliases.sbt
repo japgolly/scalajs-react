@@ -12,5 +12,6 @@ addCommandAlias("RRJ", "project testReactRefreshJS")
 addCommandAlias("TS",  "project tests")
 addCommandAlias("TU",  "project testUtil")
 
+addCommandAlias("trrc", "testReactRefreshJS/clean;testReactRefresh/test")
 addCommandAlias("trr", "testReactRefresh/test")
 addCommandAlias("tt",  "tests/test")

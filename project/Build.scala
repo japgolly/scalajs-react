@@ -270,7 +270,7 @@ object ScalaJsReact {
         .withModuleKind(ModuleKind.ESModule)
         .withModuleSplitStyle(ModuleSplitStyle.SmallestModules)
         .withSourceMap(false)
-        .withESFeatures(_.withESVersion(ESVersion.ES2021))
+        // .withESFeatures(_.withESVersion(ESVersion.ES2021))
         // .withSemantics(_
         //   .withArrayIndexOutOfBounds(CheckedBehavior.Unchecked)
         //   .withAsInstanceOfs(CheckedBehavior.Unchecked)
