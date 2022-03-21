@@ -14,9 +14,9 @@ object ReactRefreshTest extends TestSuite {
     }
     "scala" - {
       // "TEMPPPPPPP" - testScala(showBefore = true, show = false, expectRR = false, rememberOutput = false)()
-      "RewritePoC1"  - testScala(showBefore = false, show = true, expectRR = true, rememberOutput = false)()
-      "RewritePoC2"  - testScala(showBefore = false, show = true, expectRR = true, rememberOutput = false)()
-      "RewritePoC12" - testScala(showBefore = false, show = true, expectRR = true, rememberOutput = false)()
+      "Test"  - testScala(showBefore = true, show = false, expectRR = false, rememberOutput = false)()
+      // "RewritePoC2"  - testScala(showBefore = false, show = true, expectRR = true, rememberOutput = false)()
+      // "RewritePoC12" - testScala(showBefore = false, show = true, expectRR = true, rememberOutput = false)()
       // "UseState1" - testScala(show = true, expectRR = false, rememberOutput = true)()
       // "UseState1" - testScala()("bRrkbXoRYte9aIrMEzyIYQSTFt4=")
       // "UseState2" - testScala()("8pO47wStQLnq12ingXTgdp09akk=")
@@ -52,7 +52,7 @@ object ReactRefreshTest extends TestSuite {
                         )(expectedFrags: String*)
                          (implicit tp  : TestPath) = {
 
-    val pkg            = "japgolly.scalajs.react.test.reactrefresh"
+    val pkg            = "demo"
     val name           = tp.value.last
     val origFilename   = s"${Props.jsOutputDir}/$pkg.$name" + "$.js"
     val tempFilename   = s"${Props.tempDir}/$name.js"

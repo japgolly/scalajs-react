@@ -1,17 +1,24 @@
-package japgolly.scalajs.react.test.reactrefresh
+// package japgolly.scalajs.react.test.reactrefresh
 
-import japgolly.scalajs.react.RewritePoC
+// import japgolly.scalajs.react.RewritePoC
 
-object RewritePoC1 {
+package demo
 
-  // val Component: scalajs.js.Function1[String, Unit] =
-  //   org.scalajs.dom.console.log(_)
+object Test {
 
-  val Component = RewritePoC.start
-    .useState("omfg")
-    .render((p, s) => {
-      // org.scalajs.dom.console.log("RewritePoC1 render")
-      val i: String = s.value
-      s"Hello p=$p, s=$i !!"
-    })
+  var x = 0
+
+  val ffffffffffffffffffffffff: scalajs.js.Function1[Int, Int] =
+    _ + x
+
+  val gggggggggggggggggggggggg: scalajs.js.Function1[Int, Int] =
+    _ + 1
+
+  // val Component = RewritePoC.start
+  //   .useState("omfg")
+  //   .render((p, s) => {
+  //     // org.scalajs.dom.console.log("RewritePoC1 render")
+  //     val i: String = s.value
+  //     s"Hello p=$p, s=$i !!"
+  //   })
 }

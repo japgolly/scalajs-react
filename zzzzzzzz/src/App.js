@@ -35,15 +35,15 @@ const App = (this$3 => p => {
 })(this);
 */
 
-const App = p => {
+const App = (x => p => {
   const [count, setCount] = useState(0)
 
   return React.createElement("button", {
     type: "button",
     onClick: () => setCount(count => count + 1)
-  }, "count is: ", count);
+  }, "count!! is: ", count);
 
-};
+})(123);
 
 export default App
 
