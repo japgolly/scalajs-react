@@ -1,1 +1,1 @@
-../../project/Dependencies.scala
+../../library/project/Dependencies.scala

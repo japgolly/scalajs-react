@@ -16,9 +16,7 @@ function relink {
 
   # Link targets are relative to the destination dir, not the cwd
   tmp="$(echo "$src" | perl -pe 's,[^/\n]+,..,g')"
-  if [ $tmp = .. ]; then
-    tmp=
-  else
+  if [ $tmp != .. ]; then
     tgt="${tmp:3}/$tgt"
   fi
 

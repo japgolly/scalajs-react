@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/../library"
 
 if [ $# -gt 1 ]; then
   echo "Usage: $0 [<scala ver>]"
@@ -20,7 +20,7 @@ case "${1:-}" in
     exit 0
     ;;
   2|3)
-    SCALA_VER="$(bin/get_scala_version $1)"
+    SCALA_VER="$(../bin/get_scala_version $1)"
     echo "Scala version: $SCALA_VER"
     ;;
   *)
@@ -55,4 +55,4 @@ echo "> $(printf "%s\n    " "${cmd[@]}")"
 
 # Test downstream
 SCALA_MAJOR_VER="${SCALA_VER:0:1}"
-downstream-tests/run -$SCALA_MAJOR_VER $dryrun
+../downstream-tests/run -$SCALA_MAJOR_VER $dryrun

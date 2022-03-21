@@ -1,1 +1,1 @@
-../version.sbt
+../library/version.sbt

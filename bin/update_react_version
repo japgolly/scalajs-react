@@ -1,5 +1,5 @@
 #!/bin/bash
-cd "$(dirname "$(readlink -e "$0")")/.." || exit 1
+cd "$(dirname "$0")/../library" || exit 1
 
 [ $# -ne 1 ] && echo "Usage: $0 <version>" && exit 1
 ver="$1"
