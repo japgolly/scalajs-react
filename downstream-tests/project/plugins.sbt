@@ -1,1 +1,1 @@
-../../project/plugins.sbt
+../../library/project/plugins.sbt

@@ -1,0 +1,36 @@
+#!/bin/bash
+set -euo pipefail
+
+cd "$(dirname "$0")" || exit 1
+
+[ $# -ne 1 ] && echo "Usage: $0 <dir>" && exit 1
+dir="$1"
+if [ ! -d "$dir" ]; then
+  echo "Not a dir: $dir" >&2
+  exit 2
+fi
+
+function relink {
+  src="$1"
+  tgt="$dir/${2:-$src}"
+
+  # Link targets are relative to the destination dir, not the cwd
+  tmp="$(echo "$src" | perl -pe 's,[^/\n]+,..,g')"
+  if [ $tmp != .. ]; then
+    tgt="${tmp:3}/$tgt"
+  fi
+
+  echo "$src -> $tgt"
+  rm -f "$src"
+  ln -s "$tgt" "$src"
+  <"$src" >/dev/null # make sure the link resolves
+}
+
+relink project/build.properties
+relink project/Dependencies.scala
+relink project/InBrowserTesting.scala
+relink project/Lib.scala
+relink project/plugins.sbt
+relink version.sbt
+
+relink mima-2.0.0/src/main/scala/DomTester.scala tests/src/test/scala/japgolly/scalajs/react/test/DomTester.scala
