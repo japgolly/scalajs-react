@@ -351,6 +351,14 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
   implicit def refFullF[F[_], I, A, O]: Reusability[Ref.FullF[F, I, A, O]] =
     refRaw[A | Null].contramap(_.raw)
 
+  /** Updating a reference doesn't trigger a component re-rendering, nor is the current reference value considered for reusability.
+   *
+   * Any `map`/`contramap` functions installed in the ref are ignored for the sake of reusability. If this is undesirable, pass around
+   * a [[Reusable]] ref instead.
+   */
+  implicit def refToComponentF[F[_], I, R, O, C]: Reusability[Ref.ToComponentF[F, I, R, O, C]] =
+    refFullF[F, I, R, O].narrow
+
   /** Updating a reference doesn't trigger a component re-rendering, nor is the current reference value considered for reusability. */
   implicit def nonEmptyRefHandleF[F[_], A]: Reusability[NonEmptyRef.HandleF[F, A]] =
     refRaw[A].contramap(_.raw)

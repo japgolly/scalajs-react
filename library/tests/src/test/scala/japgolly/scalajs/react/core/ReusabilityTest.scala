@@ -120,6 +120,13 @@ object ReusabilityTest extends TestSuite {
       assertEq(r.test(a, b), a == b)
   }
 
+  private def testByRef[A: Reusability](create: => A)(implicit l: Line): Unit = {
+    val a = create
+    val b = create
+    assertEq(a ~=~ a, true)
+    assertEq(a ~=~ b, false)
+  }
+
   override def tests = Tests {
 
     "macros" - {
@@ -476,6 +483,14 @@ object ReusabilityTest extends TestSuite {
       import scala.math.BigInt
       assert(BigInt("10") ~=~ BigInt("10"))
       assert(BigInt("10") ~/~ BigInt("11"))
+    }
+
+    "ref" - {
+      "handle" - testByRef(Ref[Int]: Ref.Handle[Int])
+      "simple" - testByRef(Ref[Int])
+      "vdom"   - testByRef(Ref.toAnyVdom())
+      "scala"  - testByRef(Ref.toScalaComponent(SampleComponent1.component))
+      "js"     - testByRef(Ref.toJsComponent(JsComponentEs6PTest.Component))
     }
   }
 }
