@@ -492,5 +492,10 @@ object ReusabilityTest extends TestSuite {
       "scala"  - testByRef(Ref.toScalaComponent(SampleComponent1.component))
       "js"     - testByRef(Ref.toJsComponent(JsComponentEs6PTest.Component))
     }
+
+    "nonEmptyRef" - {
+      "handle" - testByRef(NonEmptyRef[Int](6): NonEmptyRef.Handle[Int])
+      "simple" - testByRef(NonEmptyRef[Int](6))
+    }
   }
 }
