@@ -3,8 +3,15 @@ name: CI
 on:
   pull_request:
   push:
+    paths:
+      - 'bin/**'
+      - 'downstream-tests/**'
+      - 'library/**'
+    tags-ignore:
+      - v*.*.*
 
 jobs:
+
   ci:
     runs-on: ubuntu-latest
     strategy:
@@ -19,6 +26,8 @@ jobs:
 
       - name: Git checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Setup Scala
         uses: japgolly/setup-everything-scala@v3.1
