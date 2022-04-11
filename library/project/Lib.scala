@@ -5,7 +5,6 @@ import com.jsuereth.sbtpgp.PgpKeys._
 import org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
-import sbtrelease.ReleasePlugin.autoImport._
 import xerial.sbt.Sonatype.autoImport._
 import Dependencies._
 
@@ -79,9 +78,6 @@ object Lib {
       //scalacOptions               += "-Xlog-implicits",
       incOptions                    := incOptions.value.withLogRecompileOnMacro(false),
       updateOptions                 := updateOptions.value.withCachedResolution(true),
-      releasePublishArtifactsAction := PgpKeys.publishSigned.value,
-      releaseTagComment             := s"v${(ThisBuild / version).value}",
-      releaseVcsSign                := true,
       libraryDependencies          ++= Seq(Dep.betterMonadicFor, Dep.kindProjector).filter(_ => scalaVersion.value startsWith "2"),
       disable                       := false,
       dependencyOverrides          ++= globalDependencyOverrides.value,
@@ -92,7 +88,6 @@ object Lib {
 
   def publicationSettings: PE =
     _.settings(
-      publishTo := sonatypePublishToBundle.value,
       pomExtra :=
         <scm>
           <connection>scm:git:github.com/japgolly/{ghProject}</connection>
