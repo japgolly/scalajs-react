@@ -31,6 +31,5 @@ relink project/Dependencies.scala
 relink project/InBrowserTesting.scala
 relink project/Lib.scala
 relink project/plugins.sbt
-relink version.sbt
 
 relink mima-2.0.0/src/main/scala/DomTester.scala tests/src/test/scala/japgolly/scalajs/react/test/DomTester.scala
