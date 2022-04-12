@@ -6,5 +6,3 @@ addSbtPlugin("ch.epfl.scala"  % "sbt-scalafix"       % "0.9.34")
 addSbtPlugin("com.github.sbt" % "sbt-ci-release"     % "1.5.10")
 addSbtPlugin("org.scala-js"   % "sbt-jsdependencies" % "1.0.2")
 addSbtPlugin("org.scala-js"   % "sbt-scalajs"        % "1.8.0")
-
-// addSbtPlugin("ch.epfl.scala" % "sbt-scalajs-bundler" % "0.10.0")
