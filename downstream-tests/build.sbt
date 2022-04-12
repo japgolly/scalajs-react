@@ -148,7 +148,7 @@ lazy val js = project
   .settings(
     scalaJSStage := jsStage,
     libraryDependencies ++= {
-      val ver = version.value.stripSuffix("-SNAPSHOT") + "-SNAPSHOT"
+      val ver = version.value
       Seq(
         "com.github.japgolly.scalajs-react" %%% "core" % ver,
         "com.github.japgolly.scalajs-react" %%% "core-ext-cats_effect" % ver,
@@ -174,7 +174,7 @@ lazy val jsCE = project
   .settings(
     scalaJSStage := jsStage,
     libraryDependencies ++= {
-      val ver = version.value.stripSuffix("-SNAPSHOT") + "-SNAPSHOT"
+      val ver = version.value
       Seq(
         "com.github.japgolly.scalajs-react" %%% "core-bundle-cats_effect" % ver,
         "com.github.japgolly.scalajs-react" %%% "extra" % ver,
@@ -194,7 +194,7 @@ lazy val jsCBIO = project
   .settings(
     scalaJSStage := jsStage,
     libraryDependencies ++= {
-      val ver = version.value.stripSuffix("-SNAPSHOT") + "-SNAPSHOT"
+      val ver = version.value
       Seq(
         "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io" % ver,
         "com.github.japgolly.scalajs-react" %%% "extra" % ver,
@@ -212,7 +212,7 @@ lazy val generic = project
   .settings(
     scalaJSStage := jsStage,
     libraryDependencies ++= {
-      val ver = version.value.stripSuffix("-SNAPSHOT") + "-SNAPSHOT"
+      val ver = version.value
       Seq(
         "com.github.japgolly.scalajs-react" %%% "core-generic" % ver,
         "com.github.japgolly.scalajs-react" %%% "util-dummy-defaults" % ver % Provided,
