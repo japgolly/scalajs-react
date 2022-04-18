@@ -413,6 +413,9 @@ trait SvgAttrs {
 
   final def kerning = VdomAttr("kerning")
 
+  /** React key */
+  final val key = VdomAttr.Key
+
   final def keySplines = VdomAttr("keySplines")
 
   final def keyTimes = VdomAttr("keyTimes")
