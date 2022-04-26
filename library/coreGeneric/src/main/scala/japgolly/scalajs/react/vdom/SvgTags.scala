@@ -52,7 +52,7 @@ trait SvgTags {
     * Conceptually, any parts of the drawing that lie outside of the region
     * bounded by the currently active clipping path are not drawn.
     */
-  final def clipPathTag = SvgTagOf[S.ClipPath]("clipPathTag")
+  final def clipPathTag = SvgTagOf[S.ClipPath]("clipPath")
 
   /**
     * The element allows describing the color profile used for the image.
