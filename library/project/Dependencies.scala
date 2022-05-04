@@ -26,7 +26,7 @@ object Dependencies {
     val kindProjector         = "0.13.2"
     val macrotaskExecutor     = "1.0.0"
     val nyaya                 = "1.0.0"
-    val reactJs               = "17.0.2"
+    val reactJs               = "18.0.0"
     val scalaJsJavaTime       = "1.0.0"
     val scalaTest             = "3.2.11"
     val sizzleJs              = "2.3.0"
