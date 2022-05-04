@@ -11,7 +11,7 @@ object Dependencies {
     // Externally observable
     val cats                  = "2.7.0"
     val catsEffect            = "3.3.11"
-    val microlibs             = "4.0.0"
+    val microlibs             = "4.1.0"
     val monocle2              = "2.1.0"
     val monocle3              = "3.1.0"
     val scala2                = "2.13.8"
