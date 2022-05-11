@@ -27,7 +27,7 @@ object Dependencies {
     val kindProjector         = "0.13.2"
     val macrotaskExecutor     = "1.0.0"
     val nyaya                 = "1.0.0"
-    val reactJs               = "18.0.0"
+    val reactJs               = "18.1.0"
     val scalaJsJavaTime       = "1.0.0"
     val scalaJsSecureRandom   = "1.0.0"
     val scalaTest             = "3.2.11"
@@ -92,7 +92,7 @@ object Dependencies {
     Dep.scalaJsDom.value,
     Dep.univEq.value,
     Dep.univEqCats.value,
-    "org.webjars.npm" % "scheduler" % "0.22.0", // Required for React 18.0.0
+    "org.webjars.npm" % "scheduler" % "0.22.0", // Required for React 18.1.0
   ))
 
   def addReactJsDependencies(scope: Configuration): Project => Project =
