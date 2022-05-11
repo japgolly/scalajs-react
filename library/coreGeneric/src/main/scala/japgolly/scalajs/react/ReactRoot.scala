@@ -1,7 +1,5 @@
 package japgolly.scalajs.react
 
-import japgolly.scalajs.react.vdom.VdomNode
-
 /** A location in the DOM into which React has initialised itself, and now manages.
   *
   * Can be used to render a React element into the DOM with `.render`.
@@ -10,8 +8,8 @@ import japgolly.scalajs.react.vdom.VdomNode
   */
 @inline final case class ReactRoot(raw: facade.RootType) {
 
-  @inline def render(element: VdomNode): Unit =
-    raw.render(element.rawNode)
+  @inline def render[A](node: A)(implicit r: Renderable[A]): Unit =
+    raw.render(r(node))
 
   @inline def unmount(): Unit =
     raw.unmount()
