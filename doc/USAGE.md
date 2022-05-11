@@ -52,12 +52,18 @@ Setup
     If you're using `jsDependencies`, add the following:
 
     ```scala
-    // React JS itself (Note the filenames, adjust as needed, eg. to remove addons.)
+    // Required for React 18.0.0
+    dependencyOverrides += "org.webjars.npm" % "scheduler" % "0.22.0",
+
     jsDependencies ++= Seq(
 
+      // Polyfill required for React 18.0.0
+      "org.webjars.npm" % "fast-text-encoding" % "1.0.3" / "text.js" minified "text.min.js"
+
       "org.webjars.npm" % "react" % "18.0.0"
-        /        "umd/react.development.js"
-        minified "umd/react.production.min.js"
+        /         "umd/react.development.js"
+        minified  "umd/react.production.min.js"
+        dependsOn "text.js" // <-- Load the fast-text-encoding polyfill before loading React itself
         commonJSName "React",
 
       "org.webjars.npm" % "react-dom" % "18.0.0"
@@ -72,8 +78,6 @@ Setup
         dependsOn "umd/react-dom.development.js"
         commonJSName "ReactDOMServer",
     ),
-
-    dependencyOverrides += "org.webjars.npm" % "scheduler" % "0.22.0", // Required for React 18.0.0
     ```
 
 [See here](IDE.md) for tips on configuring your IDE.

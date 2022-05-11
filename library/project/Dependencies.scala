@@ -23,6 +23,7 @@ object Dependencies {
     val betterMonadicFor      = "0.3.1"
     val catsTestkitScalaTest  = "2.1.5"
     val disciplineScalaTest   = "2.1.5"
+    val fastTextEncoding      = "1.0.3"
     val kindProjector         = "0.13.2"
     val macrotaskExecutor     = "1.0.0"
     val nyaya                 = "1.0.0"
@@ -67,6 +68,10 @@ object Dependencies {
     val betterMonadicFor = compilerPlugin("com.olegpy"     %% "better-monadic-for" % Ver.betterMonadicFor)
     val kindProjector    = compilerPlugin("org.typelevel"  %% "kind-projector"     % Ver.kindProjector cross CrossVersion.full)
 
+    /** For testing React 18 */
+    def fastTextEncoding(scope: Configuration) =
+      Def.setting("org.webjars.npm" % "fast-text-encoding" % Ver.fastTextEncoding % scope / fastTextEncodingJs minified "text.min.js")
+
     def sizzleJs(scope: Configuration) =
       Def.setting("org.webjars.bower" % "sizzle" % Ver.sizzleJs % scope / "sizzle.min.js" commonJSName "Sizzle")
 
@@ -75,6 +80,8 @@ object Dependencies {
     val reactDomServer    = ReactArtifact("react-dom-server.browser")
     val reactDoutestUtils = ReactArtifact("react-dom-test-utils")
   }
+
+  def fastTextEncodingJs = "text.js"
 
   final case class ReactArtifact(filename: String) {
     val dev = s"umd/$filename.development.js"
@@ -94,8 +101,9 @@ object Dependencies {
         jsDependencies ++= Seq(
 
           "org.webjars.npm" % "react" % Ver.reactJs % scope
-            /        "umd/react.development.js"
-            minified "umd/react.production.min.js"
+            /         "umd/react.development.js"
+            minified  "umd/react.production.min.js"
+            dependsOn fastTextEncodingJs
             commonJSName "React",
 
           "org.webjars.npm" % "react-dom" % Ver.reactJs % scope
