@@ -77,6 +77,31 @@ trait TestUtil
   def assertOuterHTML(name: => String, node: TopNode, expect: String)(implicit l: Line): Unit =
     assertEqO(Option(name), scrubReactHtml(node.outerHTML), expect)
 
+  def assertInnerHTMLMatches(node: TopNode, expectRegex: String)(implicit l: Line): Unit =
+    assertInnerHTMLMatches(null, node, Pattern.compile(expectRegex))
+
+  def assertInnerHTMLMatches(name: => String, node: TopNode, expectRegex: String)(implicit l: Line): Unit =
+    assertInnerHTMLMatches(name, node, Pattern.compile(expectRegex))
+
+  def assertInnerHTMLMatches(node: TopNode, expectPattern: Pattern)(implicit l: Line): Unit =
+    assertInnerHTMLMatches(null, node, expectPattern)
+
+  def assertInnerHTMLMatches(name: => String, node: TopNode, expectPattern: Pattern)(implicit l: Line): Unit = {
+    import japgolly.microlibs.testutil.TestUtilInternals._
+    val actual = scrubReactHtml(node.innerHTML)
+    if (!expectPattern.matcher(actual).matches()) {
+      val desc = Option(name)
+      printFail2(desc)("regexp", BOLD_BRIGHT_CYAN, expectPattern.pattern)("actual", BOLD_BRIGHT_RED, actual)
+      failMethod("assertInnerHTMLMatches", desc)
+    }
+  }
+
+  def assertInnerHTML(node: TopNode, expect: String)(implicit l: Line): Unit =
+    assertInnerHTML(null, node, expect)
+
+  def assertInnerHTML(name: => String, node: TopNode, expect: String)(implicit l: Line): Unit =
+    assertEqO(Option(name), scrubReactHtml(node.innerHTML), expect)
+
   private val reactRubbish = """\s+data-react\S*?\s*?=\s*?".*?"|<!--(?:.|[\r\n])*?-->""".r
 
   def scrubReactHtml(html: String): String =
