@@ -28,6 +28,7 @@ object Dependencies {
     val nyaya                 = "1.0.0"
     val reactJs               = "18.0.0"
     val scalaJsJavaTime       = "1.0.0"
+    val scalaJsSecureRandom   = "1.0.0"
     val scalaTest             = "3.2.11"
     val sizzleJs              = "2.3.0"
     val univEq                = "2.0.0"
@@ -54,6 +55,7 @@ object Dependencies {
     val scalaCompiler        = Def.setting("org.scala-lang"                  % "scala-compiler"              % scalaVersion.value)
     val scalaJsDom           = Def.setting("org.scala-js"                  %%% "scalajs-dom"                 % Ver.scalaJsDom)
     val scalaJsJavaTime      = Def.setting("org.scala-js"                  %%% "scalajs-java-time"           % Ver.scalaJsJavaTime cross CrossVersion.for3Use2_13)
+    val scalaJsSecureRandom  = Def.setting("org.scala-js"                  %%% "scalajs-java-securerandom"   % Ver.scalaJsSecureRandom cross CrossVersion.for3Use2_13)
     val scalaReflect         = Def.setting("org.scala-lang"                  % "scala-reflect"               % scalaVersion.value)
     val scalaTest            = Def.setting("org.scalatest"                 %%% "scalatest"                   % Ver.scalaTest)
     val sourcecode           = Def.setting("com.lihaoyi"                   %%% "sourcecode"                  % Ver.sourcecode)
