@@ -66,8 +66,9 @@ object GhPages {
 
   def main(args: Array[String]): Unit = {
     val container = dom.document.getElementById("root")
+    val root = ReactDOM.createRoot(container)
     dom.console.info("Router logging is enabled. Enjoy!")
     val router = Router(baseUrl, routerConfig.logToConsole)
-    router() renderIntoDOM container
+    root.render(router())
   }
 }
