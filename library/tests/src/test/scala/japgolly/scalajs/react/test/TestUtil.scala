@@ -75,7 +75,7 @@ trait TestUtil
     assertOuterHTML(null, node, expect)
 
   def assertOuterHTML(name: => String, node: TopNode, expect: String)(implicit l: Line): Unit =
-    assertEq(name, scrubReactHtml(node.outerHTML), expect)
+    assertEqO(Option(name), scrubReactHtml(node.outerHTML), expect)
 
   private val reactRubbish = """\s+data-react\S*?\s*?=\s*?".*?"|<!--(?:.|[\r\n])*?-->""".r
 
