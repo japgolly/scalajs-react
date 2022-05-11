@@ -3,7 +3,6 @@ package japgolly.scalajs.react
 import japgolly.scalajs.react.facade.ReactDOM.Container
 import japgolly.scalajs.react.util.Effect._
 import japgolly.scalajs.react.util.NotAllowed
-import japgolly.scalajs.react.vdom.VdomNode
 import org.scalajs.dom
 import scala.scalajs.js.|
 
@@ -34,42 +33,41 @@ object ReactDOM {
   def flushSync[F[_], A](fa: F[A])(implicit F: Sync[F]): F[A] =
     F.delay(facade.ReactDOM.flushSync(F.toJsFn(fa)))
 
-  def hydrate[G[_]](element  : VdomNode,
-                    container: Container,
-                    callback : => G[Unit])(implicit G: Dispatch[G]): facade.React.ComponentUntyped =
-    facade.ReactDOM.hydrate(element.rawNode, container, G.dispatchFn(callback))
+  def hydrate[G[_], A](element: A, container: Container, callback : => G[Unit])
+                      (implicit G: Dispatch[G], r: Renderable[A]): facade.React.ComponentUntyped =
+    facade.ReactDOM.hydrate(r(element), container, G.dispatchFn(callback))
 
   /** Same as [[createRoot()]], but is used to hydrate a container whose HTML contents were rendered by
     * [[ReactDOMServer]]. React will attempt to attach event listeners to the existing markup.
     *
     * @since v2.2.0 / React v18
     */
-  def hydrateRoot(container: Container, element: VdomNode): ReactRoot =
-    ReactRoot(raw.hydrateRoot(container, element.rawNode))
+  def hydrateRoot[A](container: Container, element: A)(implicit r: Renderable[A]): ReactRoot =
+    ReactRoot(raw.hydrateRoot(container, r(element)))
 
   /** Same as [[createRoot()]], but is used to hydrate a container whose HTML contents were rendered by
     * [[ReactDOMServer]]. React will attempt to attach event listeners to the existing markup.
     *
     * @since v2.2.0 / React v18
     */
-  def hydrateRoot(container: Container, element: VdomNode, options: ReactOptions.HydrateRoot): ReactRoot =
-    ReactRoot(raw.hydrateRoot(container, element.rawNode, options.raw()))
+  def hydrateRoot[A](container: Container, element: A, options: ReactOptions.HydrateRoot)
+                    (implicit r: Renderable[A]): ReactRoot =
+    ReactRoot(raw.hydrateRoot(container, r(element), options.raw()))
 
   /** Hydrate the container if is has children, else render into that container. */
-  def hydrateOrRender[G[_]](element  : VdomNode,
-                            container: dom.Element,
-                            callback : => G[Unit])(implicit G: Dispatch[G]): facade.React.ComponentUntyped =
+  def hydrateOrRender[G[_], A](element: A, container: dom.Element, callback: => G[Unit])
+                              (implicit G: Dispatch[G], r: Renderable[A]): facade.React.ComponentUntyped =
     if (container.hasChildNodes())
       hydrate(element, container, callback)
     else
-      element.renderIntoDOM(container, callback)
+      raw.render(r(element), container, G.dispatchFn(callback))
 
   /** Hydrate the container if is has children, else render into that container. */
-  def hydrateOrRenderIntoNewRoot(container       : dom.Element,
-                                 element         : VdomNode,
-                                 creationOptions : ReactOptions.CreateRoot = ReactOptions.CreateRoot(),
-                                 hydrationOptions: ReactOptions.HydrateRoot = ReactOptions.HydrateRoot(),
-                                ): ReactRoot =
+  def hydrateOrRenderIntoNewRoot[A](container       : dom.Element,
+                                    element         : A,
+                                    creationOptions : ReactOptions.CreateRoot = ReactOptions.CreateRoot(),
+                                    hydrationOptions: ReactOptions.HydrateRoot = ReactOptions.HydrateRoot(),
+                                   )(implicit r     : Renderable[A]): ReactRoot =
     if (container.hasChildNodes())
       hydrateRoot(container, element, hydrationOptions)
     else {
@@ -85,16 +83,16 @@ object ReactDOM {
   def createPortal(child: NotAllowed, container: Any) = child.result
 
   @deprecated("Use hydrateRoot instead", "2.2.0 / React v18")
-  def hydrate(element: VdomNode, container: Container): facade.React.ComponentUntyped =
-    facade.ReactDOM.hydrate(element.rawNode, container)
+  def hydrate[A](element: A, container: Container)(implicit r: Renderable[A]): facade.React.ComponentUntyped =
+    facade.ReactDOM.hydrate(r(element), container)
 
   /** Hydrate the container if is has children, else render into that container. */
   @deprecated("Use hydrateOrRenderIntoNewRoot instead", "2.2.0 / React v18")
-  def hydrateOrRender(element: VdomNode, container: dom.Element): facade.React.ComponentUntyped =
+  def hydrateOrRender[A](element: A, container: dom.Element)(implicit r: Renderable[A]): facade.React.ComponentUntyped =
     if (container.hasChildNodes())
       hydrate(element, container)
     else
-      element.renderIntoDOM(container)
+      raw.render(r(element), container)
 
   @deprecated("Use createRoot and root.render instead", "2.2.0 / React v18")
   def render(element  : NotAllowed,
