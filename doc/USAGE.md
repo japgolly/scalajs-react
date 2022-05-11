@@ -45,34 +45,34 @@ Setup
       libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "2.1.1"
 
       Compile / npmDependencies ++= Seq(
-        "react" -> "18.0.0",
-        "react-dom" -> "18.0.0")
+        "react" -> "18.1.0",
+        "react-dom" -> "18.1.0")
     ```
 
     If you're using `jsDependencies`, add the following:
 
     ```scala
-    // Required for React 18.0.0
+    // Required for React 18.1.0
     dependencyOverrides += "org.webjars.npm" % "scheduler" % "0.22.0",
 
     jsDependencies ++= Seq(
 
-      // Polyfill required for React 18.0.0
+      // Polyfill required for React 18.1.0
       "org.webjars.npm" % "fast-text-encoding" % "1.0.3" / "text.js" minified "text.min.js"
 
-      "org.webjars.npm" % "react" % "18.0.0"
+      "org.webjars.npm" % "react" % "18.1.0"
         /         "umd/react.development.js"
         minified  "umd/react.production.min.js"
         dependsOn "text.js" // <-- Load the fast-text-encoding polyfill before loading React itself
         commonJSName "React",
 
-      "org.webjars.npm" % "react-dom" % "18.0.0"
+      "org.webjars.npm" % "react-dom" % "18.1.0"
         /         "umd/react-dom.development.js"
         minified  "umd/react-dom.production.min.js"
         dependsOn "umd/react.development.js"
         commonJSName "ReactDOM",
 
-      "org.webjars.npm" % "react-dom" % "18.0.0"
+      "org.webjars.npm" % "react-dom" % "18.1.0"
         /         "umd/react-dom-server.browser.development.js"
         minified  "umd/react-dom-server.browser.production.min.js"
         dependsOn "umd/react-dom.development.js"
