@@ -49,7 +49,7 @@ Setup
         "react-dom" -> "18.0.0")
     ```
 
-    If you're using old-school `jsDependencies`, add something akin to:
+    If you're using `jsDependencies`, add the following:
 
     ```scala
     // React JS itself (Note the filenames, adjust as needed, eg. to remove addons.)
@@ -70,7 +70,10 @@ Setup
         /         "umd/react-dom-server.browser.development.js"
         minified  "umd/react-dom-server.browser.production.min.js"
         dependsOn "umd/react-dom.development.js"
-        commonJSName "ReactDOMServer"),
+        commonJSName "ReactDOMServer",
+    ),
+
+    dependencyOverrides += "org.webjars.npm" % "scheduler" % "0.22.0", // Required for React 18.0.0
     ```
 
 [See here](IDE.md) for tips on configuring your IDE.

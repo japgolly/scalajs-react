@@ -85,6 +85,7 @@ object Dependencies {
     Dep.scalaJsDom.value,
     Dep.univEq.value,
     Dep.univEqCats.value,
+    "org.webjars.npm" % "scheduler" % "0.22.0", // Required for React 18.0.0
   ))
 
   def addReactJsDependencies(scope: Configuration): Project => Project =
