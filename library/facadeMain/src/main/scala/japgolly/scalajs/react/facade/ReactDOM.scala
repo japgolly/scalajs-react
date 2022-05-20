@@ -16,8 +16,6 @@ trait ReactDOM extends ReactDOM18 {
 
   val version: String = js.native
 
-  final type Container = dom.Element | dom.Document
-
   @deprecated("Use createRoot instead", "2.2.0 / React v18")
   final def render(element: React.Node, container: Container): React.ComponentUntyped = js.native
 

@@ -1,17 +1,23 @@
 package japgolly.scalajs.react.facade
 
+import org.scalajs.dom
 import scala.annotation.nowarn
 import scala.scalajs.js
+import scala.scalajs.js.|
 
 @js.native
 @nowarn("cat=unused")
 trait ReactDOM18 extends js.Object {
 
+  final type Container          = dom.Element | dom.Document | dom.DocumentFragment
+  final type HydrationContainer = dom.Element | dom.Document
+  final type RootContainer      = dom.Element | dom.DocumentFragment
+
   /** Create a React root for the supplied container and return the root. The root can be used to render a React element into the DOM with `.render`. */
-  final def createRoot(container: ReactDOM.Container, options: CreateRootOptions = js.native): RootType = js.native
+  final def createRoot(container: RootContainer, options: CreateRootOptions = js.native): RootType = js.native
 
   /** Same as createRoot(), but is used to hydrate a container whose HTML contents were rendered by ReactDOMServer. React will attempt to attach event listeners to the existing markup. */
-  final def hydrateRoot(container: ReactDOM.Container, element: React.Node, options: HydrateRootOptions = js.native): RootType = js.native
+  final def hydrateRoot(container: HydrationContainer, element: React.Node, options: HydrateRootOptions = js.native): RootType = js.native
 }
 
 @js.native
