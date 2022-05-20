@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.core
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.test.ReactTestUtils
+import japgolly.scalajs.react.test.LegacyReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.VdomNode
 import japgolly.scalajs.react.vdom.html_<^._
@@ -11,7 +11,7 @@ import utest._
 object RenderableTest extends TestSuite {
 
   private def test[A: Renderable](source: A, expectHtml: String)(implicit l: Line): Unit = {
-    ReactTestUtils.withNewBodyElement { container =>
+    LegacyReactTestUtils.withNewBodyElement { container =>
       val root = ReactDOM.createRoot(container)
       try {
         root.render(source)

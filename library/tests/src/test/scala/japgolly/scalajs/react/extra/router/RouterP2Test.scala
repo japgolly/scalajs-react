@@ -163,7 +163,7 @@ object RouterP2Test extends TestSuite {
     val ctx = new Ctx(42)
 
     val sim = SimHistory(base.abs)
-    val r = ReactTestUtils.renderIntoDocument(router(ctx))
+    val r = LegacyReactTestUtils.renderIntoDocument(router(ctx))
     def html = r.getDOMNode.asMounted().asElement().outerHTML
     def currentPage(): Option[MyPage2] = lgc.parseUrl(AbsUrl(dom.window.location.href)).flatMap(config.rules.parse(_).runNow().toOption)
     isUserLoggedIn = false

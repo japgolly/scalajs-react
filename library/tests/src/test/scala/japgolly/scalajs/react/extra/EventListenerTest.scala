@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.test.ReactTestUtils
+import japgolly.scalajs.react.test.LegacyReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom._
@@ -17,7 +17,7 @@ object EventListenerTest extends TestSuite {
     .build
 
   override def tests = Tests {
-    val c = ReactTestUtils.renderIntoDocument(C())
+    val c = LegacyReactTestUtils.renderIntoDocument(C())
 
     def dispatch(name: String) = {
       val args: EventInit = new EventInit{}

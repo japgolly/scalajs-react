@@ -70,7 +70,7 @@ object MiscTest extends TestSuite {
             <.option(^.value := "c")("c"))
         ).build
 
-      val c = ReactTestUtils.renderIntoDocument(s())
+      val c = LegacyReactTestUtils.renderIntoDocument(s())
       val sel = c.getDOMNode.asMounted().domCast[html.Select]
       val options = sel.options.asInstanceOf[js.Array[html.Option]] // https://github.com/scala-js/scala-js-dom/pull/107
       val selectedOptions = options filter (_.selected) map (_.value)
@@ -96,7 +96,7 @@ object MiscTest extends TestSuite {
             <.button(^.onClick --> (add1 >> add7))
           }
           .build
-        val c = ReactTestUtils.renderIntoDocument(C())
+        val c = LegacyReactTestUtils.renderIntoDocument(C())
         assertEq(c.state, 3)
         Simulation.click run c
         assertEq(c.state, 11)
@@ -112,7 +112,7 @@ object MiscTest extends TestSuite {
             <.button(^.onClick --> (add1 >> add7))
           }
           .build
-        val c = ReactTestUtils.renderIntoDocument(C())
+        val c = LegacyReactTestUtils.renderIntoDocument(C())
         assertEq(c.state, StrInt("yay", 3))
         Simulation.click run c
         assertEq(c.state, StrInt("yay", 11))
@@ -131,7 +131,7 @@ object MiscTest extends TestSuite {
             <.button(^.onClick --> (add1 >> add7))
           }
           .build
-        val c = ReactTestUtils.renderIntoDocument(C())
+        val c = LegacyReactTestUtils.renderIntoDocument(C())
         assertEq(c.state, StrInt("yay", 3))
         Simulation.click run c
         assertEq(c.state, StrInt("yay", 11))
@@ -150,7 +150,7 @@ object MiscTest extends TestSuite {
             <.button(^.onClick --> (add1 >> add7))
           }
           .build
-        val c = ReactTestUtils.renderIntoDocument(C())
+        val c = LegacyReactTestUtils.renderIntoDocument(C())
         assertEq(c.state, StrIntWrap(StrInt("yay", 3)))
         Simulation.click run c
         assertEq(c.state, StrIntWrap(StrInt("yay", 11)))
@@ -198,7 +198,7 @@ object MiscTest extends TestSuite {
           )
         ).build
       React.Profiler.unstable_trace("poop") {
-        ReactTestUtils.withRenderedIntoDocument(comp(234)) { mounted =>
+        LegacyReactTestUtils.withRenderedIntoDocument(comp(234)) { mounted =>
           assertOuterHTML(mounted.getDOMNode.toHtml.get, "<div>i = 234</div>")
         }
       }

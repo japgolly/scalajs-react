@@ -2,7 +2,7 @@ package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.components.TriStateCheckbox
-import japgolly.scalajs.react.test.ReactTestUtils._
+import japgolly.scalajs.react.test.LegacyReactTestUtils._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.vdom.html_<^._
