@@ -6,6 +6,7 @@ import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import scala.annotation.nowarn
 import scala.scalajs.js
+import sourcecode.Line
 import utest._
 
 @nowarn("msg=Stream.+is.deprecated")
@@ -24,7 +25,7 @@ object PrefixedTest extends TestSuite {
 
   def checkbox(check: Boolean) = <.input.checkbox(^.checked := check, ^.readOnly := true)
 
-  def test(subj: VdomNode, exp: String): Unit = {
+  def test(subj: VdomNode, exp: String)(implicit l: Line): Unit = {
     val comp = ScalaComponent.static("tmp")(subj)
     assertRender(comp(), exp)
   }
@@ -49,7 +50,7 @@ object PrefixedTest extends TestSuite {
       "compJS"    - test(<.div(jsComp),              """<div><div>Hello yo</div></div>""")
     }
 
-    "checkboxT"  - test(checkbox(true),  """<input type="checkbox" checked="" readonly=""/>""")
+    "checkboxT"  - test(checkbox(true),  """<input type="checkbox" readonly="" checked=""/>""")
     "checkboxF"  - test(checkbox(false), """<input type="checkbox" readonly=""/>""")
 
      "attr" - {

@@ -6,7 +6,7 @@ import scala.scalajs.js
 import scala.scalajs.js.annotation._
 import scala.scalajs.js.|
 
-@JSImport("react-dom", JSImport.Namespace, "ReactDOM")
+@JSImport("react-dom/client", JSImport.Namespace, "ReactDOM")
 @js.native
 object ReactDOM extends ReactDOM
 
