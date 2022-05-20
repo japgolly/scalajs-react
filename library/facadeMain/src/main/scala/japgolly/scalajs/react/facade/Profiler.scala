@@ -8,7 +8,7 @@ trait Interaction extends js.Object {
   val __count  : Int    = js.native
   val id       : Int    = js.native
   val name     : String = js.native
-  val timestamp: Double  = js.native
+  val timestamp: Double = js.native
 }
 
 object Profiler {
