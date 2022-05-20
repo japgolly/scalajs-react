@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.core
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.test.ReactTestUtils
+import japgolly.scalajs.react.test.LegacyReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import sourcecode.Line
@@ -41,7 +41,7 @@ object ScalaFnComponentTest extends TestSuite {
         <.br
       })
       val w = ScalaComponent.builder[Unit]("").initialState(Add(1, 1)).render_S(c(_)).build
-      ReactTestUtils.withRenderedIntoDocument(w()) { m =>
+      LegacyReactTestUtils.withRenderedIntoDocument(w()) { m =>
         assert(rendered == 1)
         m.setState(Add(1, 2))
         assert(rendered == 1)
@@ -63,16 +63,16 @@ object ScalaFnComponentTest extends TestSuite {
         <.span(p)
       }
       val C = ScalaComponent.builder[Int].render_P(F(_)).build
-      ReactTestUtils.withRenderedIntoBody(C(7)) { (m, p) =>
+      LegacyReactTestUtils.withRenderedIntoBody(C(7)) { (m, p) =>
         def test(expectedRenders: Int, expectedHtml: Int)(implicit q: Line): Unit = {
           val a = (renders, p.innerHTML.trim)
           val e = (expectedRenders, s"<span>$expectedHtml</span>")
           assertEq(a, e)
         }
         test(1, 7)
-        ReactTestUtils.replaceProps(C, m)(7)
+        LegacyReactTestUtils.replaceProps(C, m)(7)
         test(1, 7)
-        ReactTestUtils.replaceProps(C, m)(6)
+        LegacyReactTestUtils.replaceProps(C, m)(6)
         test(2, 6)
       }
     }
@@ -86,16 +86,16 @@ object ScalaFnComponentTest extends TestSuite {
         <.span(p)
       }
       val C = ScalaComponent.builder[Int].render_P(F(_)).build
-      ReactTestUtils.withRenderedIntoBody(C(7)) { (m, p) =>
+      LegacyReactTestUtils.withRenderedIntoBody(C(7)) { (m, p) =>
         def test(expectedRenders: Int, expectedHtml: Int)(implicit q: Line): Unit = {
           val a = (renders, p.innerHTML.trim)
           val e = (expectedRenders, s"<span>$expectedHtml</span>")
           assertEq(a, e)
         }
         test(1, 7)
-        ReactTestUtils.replaceProps(C, m)(7)
+        LegacyReactTestUtils.replaceProps(C, m)(7)
         test(2, 7)
-        ReactTestUtils.replaceProps(C, m)(6)
+        LegacyReactTestUtils.replaceProps(C, m)(6)
         test(3, 6)
       }
     }
