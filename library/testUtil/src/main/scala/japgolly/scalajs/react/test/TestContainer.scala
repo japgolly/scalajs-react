@@ -1,10 +1,10 @@
 package japgolly.scalajs.react.test
 
-import japgolly.scalajs.react.facade
+import japgolly.scalajs.react.{facade => mainFacade}
 import org.scalajs.dom
 
 object TestContainer {
-  def apply(c: facade.ReactDOM.Container): TestContainer =
+  def apply(c: mainFacade.ReactDOM.Container): TestContainer =
     new TestContainer {
       override type Self = TestDom
       override protected def Self(n2: dom.Node) = TestDom(n2)
@@ -23,7 +23,7 @@ object TestContainer {
   */
 trait TestContainer extends TestDom {
 
-  def container: facade.ReactDOM.Container
+  def container: mainFacade.ReactDOM.Container
 
   final def node =
     fold(identity, identity, identity)
