@@ -91,6 +91,9 @@ trait TestDom {
   def asInput(): dom.HTMLInputElement =
     as[dom.HTMLInputElement]
 
+  def asSelect(): dom.HTMLSelectElement =
+    as[dom.HTMLSelectElement]
+
   def asTextArea(): dom.HTMLTextAreaElement =
     as[dom.HTMLTextAreaElement]
 
