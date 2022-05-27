@@ -197,10 +197,8 @@ object MiscTest extends TestSuite {
             <.div("i = ", i)
           )
         ).build
-      React.Profiler.unstable_trace("poop") {
-        LegacyReactTestUtils.withRenderedIntoDocument(comp(234)) { mounted =>
-          assertOuterHTML(mounted.getDOMNode.toHtml.get, "<div>i = 234</div>")
-        }
+      LegacyReactTestUtils.withRenderedIntoDocument(comp(234)) { mounted =>
+        assertOuterHTML(mounted.getDOMNode.toHtml.get, "<div>i = 234</div>")
       }
       assertEq(results.length, 1)
       val r = results.head
@@ -208,9 +206,6 @@ object MiscTest extends TestSuite {
       assertEq(r.phase, "mount")
       assertEq(r.phaseIsMount, true)
       assertEq(r.phaseIsUpdate, false)
-      assertEq(r.interactions.length, 1)
-      val i = r.interactions.head
-      assertEq(i.name, "poop")
     }
 
     "durationFromDOMHighResTimeStamp" - {
