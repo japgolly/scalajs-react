@@ -16,6 +16,12 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
 import scala.scalajs.js.|
 
+/** [[ReactTestUtils]] as it used to be prior to React 18.
+  *
+  * This will eventually be deprecated and removed.
+  *
+  * @since 2.2.0
+  */
 @nowarn("cat=deprecation")
 object LegacyReactTestUtils extends LegacyReactTestUtils {
   @inline def raw = japgolly.scalajs.react.test.facade.ReactTestUtils
@@ -134,6 +140,12 @@ object LegacyReactTestUtils extends LegacyReactTestUtils {
   } // Internals
 }
 
+/** [[ReactTestUtils]] as it used to be prior to React 18.
+  *
+  * This will eventually be deprecated and removed.
+  *
+  * @since 2.2.0
+  */
 @nowarn("cat=deprecation")
 trait LegacyReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtilExtensions {
   import LegacyReactTestUtils._

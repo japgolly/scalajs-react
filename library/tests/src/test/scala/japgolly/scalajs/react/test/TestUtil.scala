@@ -104,6 +104,7 @@ trait TestUtil
 
   private val reactRubbish = """\s+data-react\S*?\s*?=\s*?".*?"|<!--(?:.|[\r\n])*?-->""".r
 
+  // TODO: Use ReactTestUtils.removeReactInternals
   def scrubReactHtml(html: String): String =
     reactRubbish.replaceAllIn(html, "")
 
