@@ -26,8 +26,8 @@ sealed trait ComponentDom {
 
   final def toText: Option[dom.Text] =
     mounted.flatMap {
-      case t: dom.Text => Some(t)
-      case _           => None
+      case Node(t: dom.Text) => Some(t)
+      case _                 => None
     }
 
   /** For testing purposes. */

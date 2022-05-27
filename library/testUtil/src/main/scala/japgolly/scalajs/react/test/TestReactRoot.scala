@@ -1,14 +1,14 @@
 package japgolly.scalajs.react.test
 
-import japgolly.scalajs.react._
+import japgolly.scalajs.react.{facade => mainFacade, _}
 import org.scalajs.dom
 
 object TestReactRoot {
 
-  def apply(container: facade.ReactDOM.RootContainer): TestReactRoot =
+  def apply(container: mainFacade.ReactDOM.RootContainer): TestReactRoot =
     apply(ReactDOM.createRoot(container), container)
 
-  def apply(root: ReactRoot, container: facade.ReactDOM.Container): TestReactRoot = {
+  def apply(root: ReactRoot, container: mainFacade.ReactDOM.Container): TestReactRoot = {
     @inline def r = root
     @inline def c = container
     new TestReactRoot {
