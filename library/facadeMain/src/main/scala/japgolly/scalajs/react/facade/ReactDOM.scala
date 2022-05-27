@@ -36,7 +36,7 @@ trait ReactDOM extends ReactDOM18 {
   // ==========================================================================
   // NOTE: Ensure that ComponentDom is kept up-to-date with this type
   //
-  final type DomNode = dom.Element | dom.Text
+  final type DomNode = dom.Node
   // ==========================================================================
 
   @throws[js.JavaScriptException]("if arg isn't a React component or its unmounted")

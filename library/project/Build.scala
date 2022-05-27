@@ -240,6 +240,7 @@ object ScalaJsReact {
     .configure(commonSettings, publicationSettings, hasNoTests, effectGenericModule)
     .settings(
       moduleName := "test",
+      libraryDependencies += Dep.microlibsTestUtil.value,
     )
 
   lazy val testUtilMacros = project
