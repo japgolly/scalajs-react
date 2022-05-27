@@ -10,6 +10,9 @@ object React {
   @inline def raw: facade.React = facade.React
   @inline def version: String = facade.React.version
 
+  lazy val majorVersion: Int =
+    version.takeWhile(_.isDigit).toInt
+
   /** Create a new context.
     *
     * If you'd like to retain type information about the JS type used under-the-hood with React,

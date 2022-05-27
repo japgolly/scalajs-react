@@ -2,7 +2,6 @@ package japgolly.scalajs.react.core
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.ReactTestUtils
-import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.VdomNode
 import japgolly.scalajs.react.vdom.html_<^._
 import sourcecode.Line
@@ -10,17 +9,10 @@ import utest._
 
 object RenderableTest extends TestSuite {
 
-  private def test[A: Renderable](source: A, expectHtml: String)(implicit l: Line): Unit = {
-    ReactTestUtils.withNewBodyElement { container =>
-      val root = ReactDOM.createRoot(container)
-      try {
-        root.render(source)
-        assertOuterHTML(container, expectHtml)
-      } finally {
-        root.unmount()
-      }
+  private def test[A: Renderable](source: A, expectHtml: String)(implicit l: Line): Unit =
+    ReactTestUtils.withRendered(source) { r =>
+      r.outerHTML.assert(expectHtml)
     }
-  }
 
   override def tests = Tests {
 
@@ -28,10 +20,6 @@ object RenderableTest extends TestSuite {
 
     "text" - {
       test("cool", "cool")
-    }
-
-    "boolean" - {
-      test(true, "true")
     }
 
     "short" - {
@@ -73,7 +61,7 @@ object RenderableTest extends TestSuite {
 
     "jsFnComponent" - {
       import JsFnComponentTest._
-      test(Component(JsProps("Aiden")), "<div><div>Hello Aiden</div></div>")
+      test(Component(JsProps("Aiden")), "<div>Hello Aiden</div>")
     }
 
     "scalaComponent" - {

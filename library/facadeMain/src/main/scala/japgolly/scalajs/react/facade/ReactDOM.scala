@@ -6,7 +6,7 @@ import scala.scalajs.js
 import scala.scalajs.js.annotation._
 import scala.scalajs.js.|
 
-@JSImport("react-dom", JSImport.Namespace, "ReactDOM")
+@JSImport("react-dom/client", JSImport.Namespace, "ReactDOM")
 @js.native
 object ReactDOM extends ReactDOM
 
@@ -15,8 +15,6 @@ object ReactDOM extends ReactDOM
 trait ReactDOM extends ReactDOM18 {
 
   val version: String = js.native
-
-  final type Container = dom.Element | dom.Document
 
   @deprecated("Use createRoot instead", "2.2.0 / React v18")
   final def render(element: React.Node, container: Container): React.ComponentUntyped = js.native
@@ -38,7 +36,7 @@ trait ReactDOM extends ReactDOM18 {
   // ==========================================================================
   // NOTE: Ensure that ComponentDom is kept up-to-date with this type
   //
-  final type DomNode = dom.Element | dom.Text
+  final type DomNode = dom.Node
   // ==========================================================================
 
   @throws[js.JavaScriptException]("if arg isn't a React component or its unmounted")

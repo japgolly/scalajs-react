@@ -69,13 +69,13 @@ object VdomTest extends TestSuite {
     }
 
     "portal" - {
-      ReactTestUtils.withNewBodyElement { portalTarget =>
+      LegacyReactTestUtils.withNewBodyElement { portalTarget =>
         val comp = ScalaComponent.static("tmp")(
           <.div("Here we go...",
             ReactPortal(<.div("NICE"), portalTarget)))
-        ReactTestUtils.withRenderedIntoBody(comp()) { m =>
+        LegacyReactTestUtils.withRenderedIntoBody(comp()) { m =>
           val compHtml = m.outerHtmlScrubbed()
-          val portalHtml = ReactTestUtils.removeReactInternals(portalTarget.innerHTML)
+          val portalHtml = LegacyReactTestUtils.removeReactInternals(portalTarget.innerHTML)
           assertEq((compHtml, portalHtml), ("<div>Here we go...</div>", "<div>NICE</div>"))
         }
       }
@@ -101,7 +101,7 @@ object VdomTest extends TestSuite {
               ^.value := s)
           }
           .build
-      ReactTestUtils.withRenderedIntoBody(c()) { m =>
+      LegacyReactTestUtils.withRenderedIntoBody(c()) { m =>
         def txt() = m.getDOMNode.asMounted().domCast[html.Input].value
         SimEvent.Keyboard.Enter.simulateKeyDown(m)
         assertEq(txt(), "enter!")
@@ -125,7 +125,7 @@ object VdomTest extends TestSuite {
             }
             .build
 
-        ReactTestUtils.withRenderedIntoBody(c()) { _ =>
+        LegacyReactTestUtils.withRenderedIntoBody(c()) { _ =>
           assert(value.isInstanceOf[html.Input])
         }
         assert(value eq null)
@@ -145,7 +145,7 @@ object VdomTest extends TestSuite {
             }
             .build
 
-        ReactTestUtils.withRenderedIntoBody(c()) { _ =>
+        LegacyReactTestUtils.withRenderedIntoBody(c()) { _ =>
           val x = ref.get.runNow()
           assert(x.isDefined)
         }
