@@ -68,10 +68,6 @@ object Dependencies {
     val betterMonadicFor = compilerPlugin("com.olegpy"     %% "better-monadic-for" % Ver.betterMonadicFor)
     val kindProjector    = compilerPlugin("org.typelevel"  %% "kind-projector"     % Ver.kindProjector cross CrossVersion.full)
 
-    /** For testing React 18 */
-    def fastTextEncoding(scope: Configuration) =
-      Def.setting("org.webjars.npm" % "fast-text-encoding" % Ver.fastTextEncoding % scope / fastTextEncodingJs minified "text.min.js")
-
     def sizzleJs(scope: Configuration) =
       Def.setting("org.webjars.bower" % "sizzle" % Ver.sizzleJs % scope / "sizzle.min.js" commonJSName "Sizzle")
 
@@ -99,6 +95,11 @@ object Dependencies {
     _.enablePlugins(JSDependenciesPlugin)
       .settings(
         jsDependencies ++= Seq(
+
+          /** For testing React 18 */
+          "org.webjars.npm" % "fast-text-encoding" % Ver.fastTextEncoding % scope
+          / fastTextEncodingJs
+          minified "text.min.js",
 
           "org.webjars.npm" % "react" % Ver.reactJs % scope
             /         "umd/react.development.js"

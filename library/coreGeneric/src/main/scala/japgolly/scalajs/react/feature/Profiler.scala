@@ -5,6 +5,7 @@ import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.util.JsUtil
 import japgolly.scalajs.react.vdom.PackageBase._
 import java.time.Duration
+import scala.annotation.nowarn
 import scala.scalajs.js
 
 /** The Profiler measures how often a React application renders and what the "cost" of rendering is. Its purpose is to
@@ -67,6 +68,7 @@ object Profiler {
     * @param startTime Timestamp when React began rendering the current update.
     * @param commitTime Timestamp when React committed the current update. This value is shared between all profilers in a commit, enabling them to be grouped if desirable.
     */
+  @nowarn("cat=deprecation")
   final case class OnRenderData(id              : String,
                                 phase           : String,
                                 actualDurationMs: Double,

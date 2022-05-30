@@ -226,7 +226,6 @@ object ScalaJsReact {
         Dep.scalaJsSecureRandom.value % Test,
       ),
       jsDependencies ++= Seq(
-        Dep.fastTextEncoding(Test).value,
         Dep.sizzleJs(Test).value,
         (ProvidedJS / "polyfill.js") % Test,
         (ProvidedJS / "component-es6.js" dependsOn Dep.reactDom.dev) % Test,

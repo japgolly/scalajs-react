@@ -69,7 +69,7 @@ object MiscTest extends TestSuite {
             <.option(^.value := "c")("c"))
         ).build
 
-      ReactTestUtils.withRendered(s()) { d =>
+      ReactTestUtils2.withRendered(s()) { d =>
         val sel = d.asSelect()
         val selectedOptions =sel.options.filter(_.selected).map(_.value)
         assertSet(selectedOptions.toSet, Set("a", "c"))
@@ -95,7 +95,7 @@ object MiscTest extends TestSuite {
             <.button(<.span($.state), ^.onClick --> (add1 >> add7))
           }
           .build
-        ReactTestUtils.withRendered(C()) { d =>
+        ReactTestUtils2.withRendered(C()) { d =>
           d.select("span").innerHTML.assert("3")
           Simulation.click run d.node
           d.select("span").innerHTML.assert("11")
@@ -112,7 +112,7 @@ object MiscTest extends TestSuite {
             <.button(^.onClick --> (add1 >> add7))
           }
           .build
-        val c = LegacyReactTestUtils.renderIntoDocument(C())
+        val c = ReactTestUtils.renderIntoDocument(C())
         assertEq(c.state, StrInt("yay", 3))
         Simulation.click run c
         assertEq(c.state, StrInt("yay", 11))
@@ -131,7 +131,7 @@ object MiscTest extends TestSuite {
             <.button(^.onClick --> (add1 >> add7))
           }
           .build
-        val c = LegacyReactTestUtils.renderIntoDocument(C())
+        val c = ReactTestUtils.renderIntoDocument(C())
         assertEq(c.state, StrInt("yay", 3))
         Simulation.click run c
         assertEq(c.state, StrInt("yay", 11))
@@ -150,7 +150,7 @@ object MiscTest extends TestSuite {
             <.button(^.onClick --> (add1 >> add7))
           }
           .build
-        val c = LegacyReactTestUtils.renderIntoDocument(C())
+        val c = ReactTestUtils.renderIntoDocument(C())
         assertEq(c.state, StrIntWrap(StrInt("yay", 3)))
         Simulation.click run c
         assertEq(c.state, StrIntWrap(StrInt("yay", 11)))
@@ -197,7 +197,7 @@ object MiscTest extends TestSuite {
             <.div("i = ", i)
           )
         ).build
-      ReactTestUtils.withRendered(comp(234)) { d =>
+      ReactTestUtils2.withRendered(comp(234)) { d =>
         d.outerHTML.assert("<div>i = 234</div>")
       }
       assertEq(results.length, 1)

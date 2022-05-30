@@ -16,7 +16,7 @@ object LegacyTestTest extends TestSuite {
 
   lazy val A = ScalaComponent.builder[Unit]("A").render_C(c => <.p(^.cls := "AA", c)).build
   lazy val B = ScalaComponent.builder[Unit]("B").renderStatic(<.p(^.cls := "BB", "hehehe")).build
-  lazy val rab = LegacyReactTestUtils.renderIntoDocument(A(B()))
+  lazy val rab = ReactTestUtils.renderIntoDocument(A(B()))
 
   val inputRef = Ref[HTMLInputElement]
 
@@ -47,13 +47,13 @@ object LegacyTestTest extends TestSuite {
   val tests = Tests {
 
     "findRenderedDOMComponentWithClass" - {
-      val x = LegacyReactTestUtils.findRenderedDOMComponentWithClass(rab, "BB")
+      val x = ReactTestUtils.findRenderedDOMComponentWithClass(rab, "BB")
       val n = x.getDOMNode.asMounted().asElement()
       assert(n.matchesBy[HTMLElement](_.className == "BB"))
     }
 
     "findRenderedComponentWithType" - {
-      val n = LegacyReactTestUtils.findRenderedComponentWithType(rab, B).getDOMNode.asMounted().asElement()
+      val n = ReactTestUtils.findRenderedComponentWithType(rab, B).getDOMNode.asMounted().asElement()
       assert(n.matchesBy[HTMLElement](_.className == "BB"))
     }
 
@@ -63,20 +63,20 @@ object LegacyTestTest extends TestSuite {
 
       "plainElement" - {
         val re: VdomElement = <.div("Good")
-        val c = LegacyReactTestUtils.renderIntoDocument(re)
+        val c = ReactTestUtils.renderIntoDocument(re)
         test(c, """<div>Good</div>""")
       }
 
       "scalaComponent" - {
-        val c = LegacyReactTestUtils.renderIntoDocument(B())
+        val c = ReactTestUtils.renderIntoDocument(B())
         test(c, """<p class="BB">hehehe</p>""")
       }
     }
 
     "Simulate" - {
       "click" - {
-        val c = LegacyReactTestUtils.renderIntoDocument(IC())
-        val s = LegacyReactTestUtils.findRenderedDOMComponentWithTag(c, "span")
+        val c = ReactTestUtils.renderIntoDocument(IC())
+        val s = ReactTestUtils.findRenderedDOMComponentWithTag(c, "span")
         val a = s.getDOMNode.asMounted().asElement().innerHTML
         Simulate.click(inputRef.unsafeGet())
         val b = s.getDOMNode.asMounted().asElement().innerHTML
@@ -93,8 +93,8 @@ object LegacyTestTest extends TestSuite {
             )
           }).build
 
-          val c = LegacyReactTestUtils.renderIntoDocument(IDC())
-          val s = LegacyReactTestUtils.findRenderedDOMComponentWithTag(c, "span")
+          val c = ReactTestUtils.renderIntoDocument(IDC())
+          val s = ReactTestUtils.findRenderedDOMComponentWithTag(c, "span")
 
           val a = s.getDOMNode.asMounted().asElement().innerHTML
           simF(inputRef.unsafeGet())
@@ -182,14 +182,14 @@ object LegacyTestTest extends TestSuite {
           }
           <.div(^.onClick ==> onClick)
         }.build
-        LegacyReactTestUtils.withRenderedIntoDocument(c()) { m =>
+        ReactTestUtils.withRenderedIntoDocument(c()) { m =>
           Simulate.click(m)
         }
         assertEq(ok, true)
       }
 
       "change" - {
-        val c = LegacyReactTestUtils.renderIntoDocument(IT())
+        val c = ReactTestUtils.renderIntoDocument(IT())
         SimEvent.Change("hehe").simulate(c)
         val t = c.getDOMNode.asMounted().domCast[HTMLInputElement].value
         assertEq(t, "HEHE")
@@ -203,13 +203,13 @@ object LegacyTestTest extends TestSuite {
             e("change") >> T.setState(ev.target.value)
           <.input.text(^.value := T.state, ^.onFocus --> e("focus"), ^.onChange ==> chg, ^.onBlur --> e("blur")).withRef(inputRef)
         }).build
-        LegacyReactTestUtils.renderIntoDocument(C())
+        ReactTestUtils.renderIntoDocument(C())
         Simulation.focusChangeBlur("good") run inputRef.unsafeGet()
         assertEq(events, Vector("focus", "change", "blur"))
         assertEq(inputRef.unsafeGet().value, "good")
       }
       "targetByName" - {
-        val c = LegacyReactTestUtils.renderIntoDocument(IC())
+        val c = ReactTestUtils.renderIntoDocument(IC())
         var count = 0
         def tgt = {
           count += 1
@@ -222,10 +222,10 @@ object LegacyTestTest extends TestSuite {
 
     "withRenderedIntoDocument" - {
       var m: ScalaComponent.MountedImpure[Unit, Boolean, Unit] = null
-      LegacyReactTestUtils.withRenderedIntoDocument(IC()) { mm =>
+      ReactTestUtils.withRenderedIntoDocument(IC()) { mm =>
         m = mm
         val n = m.getDOMNode.asMounted().asElement()
-        assert(LegacyReactTestUtils.removeReactInternals(n.outerHTML) startsWith "<label><input ")
+        assert(ReactTestUtils.removeReactInternals(n.outerHTML) startsWith "<label><input ")
         // assert(m.isMounted == yesItsMounted)
       }
       // assert(m.isMounted == nopeNotMounted)
@@ -235,10 +235,10 @@ object LegacyTestTest extends TestSuite {
       def inspectBody() = document.body.childElementCount
       val body1 = inspectBody()
       var m: ScalaComponent.MountedImpure[Unit, Boolean, Unit] = null
-      LegacyReactTestUtils.withRenderedIntoBody(IC()) { mm =>
+      ReactTestUtils.withRenderedIntoBody(IC()) { mm =>
         m = mm
         val n = m.getDOMNode.asMounted().asElement()
-        assert(LegacyReactTestUtils.removeReactInternals(n.outerHTML) startsWith "<label><input ")
+        assert(ReactTestUtils.removeReactInternals(n.outerHTML) startsWith "<label><input ")
         // assert(m.isMounted == yesItsMounted)
 
         // Benefits of body over detached
@@ -255,12 +255,12 @@ object LegacyTestTest extends TestSuite {
     "withRenderedIntoDocumentFuture" - {
       var m: ScalaComponent.MountedImpure[Unit, Boolean, Unit] = null
       val promise: Promise[Unit] = Promise[Unit]()
-      LegacyReactTestUtils.withRenderedIntoDocumentFuture(IC()) { mm =>
+      ReactTestUtils.withRenderedIntoDocumentFuture(IC()) { mm =>
         m = mm
         promise.future
       }
       val n = m.getDOMNode.asMounted().asElement()
-      assert(LegacyReactTestUtils.removeReactInternals(n.outerHTML) startsWith "<label><input ")
+      assert(ReactTestUtils.removeReactInternals(n.outerHTML) startsWith "<label><input ")
       // assert(m.isMounted == yesItsMounted)
 
       promise.success(())
@@ -273,12 +273,12 @@ object LegacyTestTest extends TestSuite {
       val body1 = inspectBody()
       var m: ScalaComponent.MountedImpure[Unit, Boolean, Unit] = null
       val promise: Promise[Unit] = Promise[Unit]()
-      val future = LegacyReactTestUtils.withRenderedIntoBodyFuture(IC()) { mm =>
+      val future = ReactTestUtils.withRenderedIntoBodyFuture(IC()) { mm =>
         m = mm
         promise.future
       }
       val n = m.getDOMNode.asMounted().asElement()
-      assert(LegacyReactTestUtils.removeReactInternals(n.outerHTML) startsWith "<label><input ")
+      assert(ReactTestUtils.removeReactInternals(n.outerHTML) startsWith "<label><input ")
       // assert(m.isMounted == yesItsMounted)
 
       // Benefits of body over detached
@@ -297,20 +297,20 @@ object LegacyTestTest extends TestSuite {
     }
 
     "modifyProps" - {
-      LegacyReactTestUtils.withRenderedIntoDocument(CP("start")) { m =>
+      ReactTestUtils.withRenderedIntoDocument(CP("start")) { m =>
         assertRendered(m.getDOMNode.asMounted().asElement(), "<div>none → start</div>")
-        LegacyReactTestUtils.modifyProps(CP, m)(_ + "ed")
+        ReactTestUtils.modifyProps(CP, m)(_ + "ed")
         assertRendered(m.getDOMNode.asMounted().asElement(), "<div>start → started</div>")
-        LegacyReactTestUtils.replaceProps(CP, m)("done!")
+        ReactTestUtils.replaceProps(CP, m)("done!")
         assertRendered(m.getDOMNode.asMounted().asElement(), "<div>started → done!</div>")
       }
     }
 
     "removeReactInternals" - {
       val c = ScalaComponent.static("")(<.div(<.br, "hello", <.hr))
-      LegacyReactTestUtils.withRenderedIntoDocument(c()) { m =>
+      ReactTestUtils.withRenderedIntoDocument(c()) { m =>
         val orig = m.getDOMNode.asMounted().asElement().outerHTML
-        val after = LegacyReactTestUtils.removeReactInternals(orig)
+        val after = ReactTestUtils.removeReactInternals(orig)
         assertEq("<div><br>hello<hr></div>", after)
         s"$orig  →  $after"
       }
@@ -319,7 +319,7 @@ object LegacyTestTest extends TestSuite {
     "act" - {
       // Just making sure the facade and types align
       var called = false
-      LegacyReactTestUtils.act {
+      ReactTestUtils.act {
         called = true
       }
       assertEq(called, true)
@@ -329,7 +329,7 @@ object LegacyTestTest extends TestSuite {
 //    "actAsync" - {
 //      // Just making sure the facade and types align
 //      var called = false
-//      LegacyReactTestUtils.actAsync {
+//      ReactTestUtils.actAsync {
 //        AsyncCallback.delay {
 //          called = true
 //        }

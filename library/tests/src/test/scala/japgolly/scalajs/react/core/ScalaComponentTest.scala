@@ -2,7 +2,7 @@ package japgolly.scalajs.react.core
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.TestUtil._
-import japgolly.scalajs.react.test.{InferenceHelpers, LegacyReactTestUtils, Simulate}
+import japgolly.scalajs.react.test.{InferenceHelpers, ReactTestUtils, Simulate}
 import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
 import scala.annotation.nowarn
 import utest._
@@ -23,7 +23,7 @@ object ScalaComponentPTest extends TestSuite {
 
     "displayName" - {
       assertEq(BasicComponent.displayName, "HelloMessage")
-//      LegacyReactTestUtils.withRenderedIntoDocument(BasicComponent(BasicProps("X"))) { m =>
+//      ReactTestUtils.withRenderedIntoDocument(BasicComponent(BasicProps("X"))) { m =>
 //        println(inspectObject(m.raw))
 //        assertEq(m.raw.displayName, "HelloMessage")
 //      }
@@ -43,7 +43,7 @@ object ScalaComponentPTest extends TestSuite {
       assertEq(unmounted.propsChildren.isEmpty, true)
       assertEq(unmounted.key, None)
       assertEq(unmounted.ref, None)
-      LegacyReactTestUtils.withNewBodyElement { mountNode =>
+      ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = unmounted.renderIntoDOM(mountNode)
         val n = mounted.getDOMNode.asMounted().asElement()
         assertOuterHTML(n, "<div>Hello Bob</div>")
@@ -56,7 +56,7 @@ object ScalaComponentPTest extends TestSuite {
     }
 
     "withKey" - {
-      LegacyReactTestUtils.withNewBodyElement { mountNode =>
+      ReactTestUtils.withNewBodyElement { mountNode =>
         val u = BasicComponent.withKey("k")(BasicProps("Bob"))
         assertEq(u.key, Option[Key]("k"))
         val m = u.renderIntoDOM(mountNode)
@@ -71,7 +71,7 @@ object ScalaComponentPTest extends TestSuite {
       val c2 = BasicComponent.mapCtorType(_ withProps BasicProps("hello!"))
       val unmounted = c2()
       assertEq(unmounted.props.name, "hello!")
-      LegacyReactTestUtils.withNewBodyElement { mountNode =>
+      ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = unmounted.renderIntoDOM(mountNode)
         val n = mounted.getDOMNode.asMounted().asElement()
         assertOuterHTML(n, "<div>Hello hello!</div>")
@@ -149,7 +149,7 @@ object ScalaComponentPTest extends TestSuite {
         .componentDidCatch($ => $.setState(Some($.error.message.replaceFirst("'.+' *", ""))))
         .build
 
-      val staleDomNodeCallback = LegacyReactTestUtils.withNewBodyElement { mountNode =>
+      val staleDomNodeCallback = ReactTestUtils.withNewBodyElement { mountNode =>
         assertMountCount(0)
 
         var mounted = Comp(Props(1, 2, 3)).renderIntoDOM(mountNode)
@@ -194,7 +194,7 @@ object ScalaComponentPTest extends TestSuite {
         .componentDidUpdate($ => Callback(snapshots :+= $.snapshot))
         .build
 
-      LegacyReactTestUtils.withNewBodyElement { mountNode =>
+      ReactTestUtils.withNewBodyElement { mountNode =>
         var mounted = Comp(10).renderIntoDOM(mountNode)
         assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=10 s=110</div>")
         assertEq(snapshots, Vector())
@@ -216,7 +216,7 @@ object ScalaComponentPTest extends TestSuite {
           .getDerivedStateFromPropsOption((_, s) => if ((s & 1) == 0) Some(s >> 1) else None)
           .build
 
-        LegacyReactTestUtils.withNewBodyElement { mountNode =>
+        ReactTestUtils.withNewBodyElement { mountNode =>
           var mounted = Comp(108).renderIntoDOM(mountNode)
           assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=108 s=4</div>")
 
@@ -240,7 +240,7 @@ object ScalaComponentPTest extends TestSuite {
           .getDerivedStateFromPropsOption((_, s) => if ((s & 1) == 0) Some(s >> 1) else None)
           .build
 
-        LegacyReactTestUtils.withNewBodyElement { mountNode =>
+        ReactTestUtils.withNewBodyElement { mountNode =>
           var mounted = Comp(-108).renderIntoDOM(mountNode)
           assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=-108 s=4</div>")
 
@@ -264,7 +264,7 @@ object ScalaComponentPTest extends TestSuite {
           .getDerivedStateFromPropsOption((_, s) => if ((s & 1) == 0) Some(s >> 1) else None)
           .build
 
-        LegacyReactTestUtils.withNewBodyElement { mountNode =>
+        ReactTestUtils.withNewBodyElement { mountNode =>
           var mounted = Comp(-108).renderIntoDOM(mountNode)
           assertOuterHTML(mounted.getDOMNode.asMounted().asElement(), "<div>p=-108 s=4</div>")
 
@@ -302,7 +302,7 @@ object ScalaComponentPTest extends TestSuite {
         .renderBackend[Backend]
         .build
 
-      LegacyReactTestUtils.withNewBodyElement { mountNode =>
+      ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = Component().renderIntoDOM(mountNode)
         assertEq(results, Vector())
 
@@ -344,7 +344,7 @@ object ScalaComponentSTest extends TestSuite {
       assert(unmounted.propsChildren.isEmpty)
       assertEq(unmounted.key, None)
       assertEq(unmounted.ref, None)
-      LegacyReactTestUtils.withNewBodyElement { mountNode =>
+      ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = unmounted.renderIntoDOM(mountNode)
         val n = mounted.getDOMNode.asMounted().asElement()
         val b = mounted.backend

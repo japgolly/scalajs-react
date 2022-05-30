@@ -3,7 +3,7 @@ package japgolly.scalajs.react.test
 import cats.Eq
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.router
-import japgolly.scalajs.react.test.ReactTestUtils.removeReactInternals
+import japgolly.scalajs.react.test.ReactTestUtils2.removeReactInternals
 import java.util.regex.Pattern
 import scala.annotation.nowarn
 import scala.reflect.ClassTag
@@ -115,7 +115,7 @@ trait TestUtil
   }
 
   def assertRendered(n: TopNode, expected: String)(implicit l: Line): Unit = {
-    val rendered: String = LegacyReactTestUtils.removeReactInternals(n.outerHTML)
+    val rendered: String = ReactTestUtils.removeReactInternals(n.outerHTML)
     assertEq(rendered, expected)
   }
 

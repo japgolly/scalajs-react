@@ -39,8 +39,8 @@ trait TestReactRoot extends TestContainer {
     root.raw
 
   def render[A](unmounted: A)(implicit r: Renderable[A]): Unit =
-    ReactTestUtils.act(root.render(unmounted))
+    ReactTestUtils2.act(root.render(unmounted))
 
   def unmount(): Unit =
-    ReactTestUtils.act(root.unmount())
+    ReactTestUtils2.act(root.unmount())
 }

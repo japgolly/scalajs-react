@@ -28,14 +28,14 @@ object ReactTestUtilsConfigTest extends TestSuite {
     "warnings" - {
       "react" - AroundReact.fatalReactWarnings {
         val c = ScalaFnComponent[Int](i => <.p(<.td(s"i = $i")))
-        val t = Try(ReactTestUtils.withRendered(c(123))(_ => ()))
+        val t = Try(ReactTestUtils2.withRendered(c(123))(_ => ()))
         assertEq(t.isFailure, true)
         t
       }
 
       "unlreated" - AroundReact.fatalReactWarnings {
         val c = ScalaFnComponent[Int](i => <.p(s"i = $i"))
-        val t = Try(ReactTestUtils.withRendered(c(123)) { _ =>
+        val t = Try(ReactTestUtils2.withRendered(c(123)) { _ =>
           console.info(".")
           console.log(".")
           console.warn(".")
