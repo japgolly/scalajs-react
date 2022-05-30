@@ -2,7 +2,7 @@ package japgolly.scalajs.react.test.internal
 
 import japgolly.microlibs.testutil.TestUtil
 import japgolly.microlibs.testutil.TestUtil._
-import japgolly.scalajs.react.test.ReactTestUtils
+import japgolly.scalajs.react.test.ReactTestUtils2
 import java.util.regex.Pattern
 import org.scalajs.dom
 import sourcecode.Line
@@ -31,7 +31,7 @@ object HtmlAssertionDsl {
     apply(
       name    = name,
       rawHtml = read(identity),
-      html    = read(ReactTestUtils.removeReactInternals))
+      html    = read(ReactTestUtils2.removeReactInternals))
   }
 }
 

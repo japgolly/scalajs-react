@@ -2,9 +2,10 @@ package japgolly.scalajs.react.facade
 
 import scala.scalajs.js
 
-@deprecated("Removed in React 18", "2.2.0")
 @js.native
 trait SecretInternals extends js.Object {
+
+  @deprecated("Removed in React 18", "2.2.0")
   final val SchedulerTracing: SchedulerTracing = js.native
 }
 

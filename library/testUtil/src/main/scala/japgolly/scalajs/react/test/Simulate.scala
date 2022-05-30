@@ -24,8 +24,8 @@ object Simulate {
       e)
 
   private def wrap(f: => Unit): Unit =
-    if (React.majorVersion >= 18 || ReactTestUtils.IsReactActEnvironment())
-      ReactTestUtils.act(f)
+    if (React.majorVersion >= 18 || ReactTestUtils2.IsReactActEnvironment())
+      ReactTestUtils2.act(f)
     else
       f
 

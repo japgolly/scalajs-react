@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.test.LegacyReactTestUtils
+import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.vdom.html_<^._
 import utest._
 
@@ -23,7 +23,7 @@ object BroadcasterTest extends TestSuite {
     val b = new B
 
     "component" - {
-      val c = LegacyReactTestUtils.renderIntoDocument(C(b))
+      val c = ReactTestUtils.renderIntoDocument(C(b))
       assert(c.state == Vector())
       b.broadcast(2).runNow()
       assert(c.state == Vector(2))

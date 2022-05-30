@@ -75,7 +75,7 @@ object ReactTestVarTest extends TestSuite {
         .render_P(parent => <.div(parent.state.runNow(), ^.onClick --> parent.modState(_ + 1)))
         .build
       val v = ReactTestVar(1)
-      LegacyReactTestUtils.withRenderedIntoDocument(c(v.stateAccess)) { m =>
+      ReactTestUtils.withRenderedIntoDocument(c(v.stateAccess)) { m =>
         v.onUpdate(m.forceUpdate)
         assertRendered(m.getDOMNode.asMounted().asElement(), "<div>1</div>")
         Simulate.click(m.getDOMNode.asMounted().asElement())

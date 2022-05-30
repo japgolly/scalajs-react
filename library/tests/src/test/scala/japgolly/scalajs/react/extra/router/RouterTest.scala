@@ -91,7 +91,7 @@ object RouterTest extends TestSuite {
     import MyPage.{Root, Hello, Greet, QueryParamPage}
     val base = RouterTestHelp.localBaseUrl_/
     val router = Router(base, MyPage.config.logToConsole)
-    val c = LegacyReactTestUtils.renderIntoDocument(router())
+    val c = ReactTestUtils.renderIntoDocument(router())
     def node = c.getDOMNode.asMounted().asElement()
     def html = node.outerHTML
 

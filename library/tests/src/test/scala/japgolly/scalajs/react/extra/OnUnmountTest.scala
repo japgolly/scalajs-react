@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.test.LegacyReactTestUtils
+import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.vdom.html_<^._
 import utest._
 
@@ -26,7 +26,7 @@ object OnUnmountTest extends TestSuite {
     .build
 
   override def tests = Tests {
-    val c = LegacyReactTestUtils.renderIntoDocument(Outer())
+    val c = ReactTestUtils.renderIntoDocument(Outer())
     assert(i == 1)
     c.setState(false)
     assert(i == 0)

@@ -110,7 +110,7 @@ object StateSnapshotZoomTest extends TestSuite {
 
     def counts() = (Middle.renders, intRenders, strRenders)
 
-    LegacyReactTestUtils.withNewBodyElement { mountNode =>
+    ReactTestUtils.withNewBodyElement { mountNode =>
       val mounted = Top.Comp().renderIntoDOM(mountNode)
       def dom() = mounted.getDOMNode.asMounted().asElement()
       def intDom() = dom().querySelector("span")
