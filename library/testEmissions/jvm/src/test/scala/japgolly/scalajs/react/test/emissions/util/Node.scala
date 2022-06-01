@@ -9,7 +9,7 @@ object Node {
 
   private val init = Try {
     val cmd = Seq("npm", "install", "--no-audit", "--no-fund")
-    println(cmd.mkString("\n> ", " ", ""))
+    print(cmd.mkString("> ", " ", ""))
 
     val code = Process(cmd, dir).!
     println()

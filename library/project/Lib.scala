@@ -14,6 +14,12 @@ object Lib {
 
   val ghProject = "scalajs-react"
 
+  private def readConfigVar(name: String): String =
+    Option(System.getProperty(name)).orElse(Option(System.getenv(name)))
+      .fold("")(_.trim.toLowerCase)
+
+  val inCI = readConfigVar("CI") == "1"
+
   def scalacCommonFlags: Seq[String] = Seq(
     "-deprecation",
     "-feature",

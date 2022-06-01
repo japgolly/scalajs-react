@@ -14,6 +14,7 @@ object Main {
 
   private val Component = ScalaFnComponent[Unit] { _ =>
     <.div(
+      UseState.Component(),
     )
   }
 }

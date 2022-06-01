@@ -1,7 +1,6 @@
 package japgolly.scalajs.react.test.emissions.util
 
 import japgolly.microlibs.testutil.TestUtil._
-import japgolly.microlibs.utils.FileUtils
 import sourcecode.Line
 
 final case class Babel(before        : String,
@@ -36,19 +35,10 @@ final case class Babel(before        : String,
   private def showBadOutput(): Unit =
     Util.debugShowContent(s"$beforeFilename <output>", after, "\u001b[43;30m")
 
-  def rememberOrAssertOutput(filename: String)(implicit l: Line): Any =
-    Util.getFileContent(filename) match {
-
-      // If no expectation file exists, create it
-      case None =>
-        println(s"File not found, creating: $filename")
-        FileUtils.write(filename, after)
-        s"Created $filename"
-
-      // Compare against expectation
-      case Some(e) =>
-        assertOutput(e)
-        ()
+  def assertOrSaveOutput(filename: String)(implicit l: Line): Any =
+    Util.useOrCreateFile(filename, after, assertOutput(_)) match {
+      case None    => s"Created $filename"
+      case Some(_) => ()
     }
 }
 

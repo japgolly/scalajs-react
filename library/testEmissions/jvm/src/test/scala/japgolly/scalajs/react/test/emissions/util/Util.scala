@@ -94,6 +94,22 @@ object Util {
     try s.mkString finally s.close()
   }
 
+  def useOrCreateFile[A](filename: String, create: => String, use: String => A): Option[A] =
+    getFileContent(filename) match {
+
+      // If no file exists, create it
+      case None =>
+        if (Props.CI)
+          throw new RuntimeException(s"File not found: $filename. This file should've been checked in to git.")
+        println(s"File not found, creating: $filename")
+        FileUtils.write(filename, create)
+        None
+
+      // File exists
+      case Some(s) =>
+        Some(use(s))
+    }
+
   def writeToTempFile(fileSuffix: String)(content: String): String = {
     val p = Files.createTempFile("sjr-emissions-", fileSuffix)
     val f = p.toFile()

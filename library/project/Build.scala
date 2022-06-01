@@ -227,6 +227,7 @@ object ScalaJsReact {
         val testResDir  = (Test / resourceDirectory).value
         val testRootDir = (Test / sourceDirectory).value
         Seq(
+          s"-DCI=${if (inCI) "1" else "0"}",
           s"-DjsOutputDir=${jsOutputDir.absolutePath}",
           s"-DtempDir=${tempDir.absolutePath}",
           s"-DtestResDir=${testResDir.absolutePath}",
