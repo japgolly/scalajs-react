@@ -22,14 +22,14 @@ object Lib {
     "-language:higherKinds",
     "-language:existentials",
     "-unchecked",                                    // Enable additional warnings where generated code depends on assumptions.
+    "-Wconf:msg=may.not.be.exhaustive:e",            // Make non-exhaustive matches errors instead of warnings
+    "-Wconf:msg=Reference.to.uninitialized.value:e", // Make uninitialised value calls errors instead of warnings
     "-Yno-generic-signatures",                       // Suppress generation of generic signatures for Java.
   )
 
   def scalac2Flags = Seq(
     "-opt:l:inline",
     "-opt-inline-from:japgolly.scalajs.react.**",
-    "-Wconf:msg=may.not.be.exhaustive:e",            // Make non-exhaustive matches errors instead of warnings
-    "-Wconf:msg=Reference.to.uninitialized.value:e", // Make uninitialised value calls errors instead of warnings
     "-Wunused:explicits",                            // Warn if an explicit parameter is unused.
     "-Wunused:implicits",                            // Warn if an implicit parameter is unused.
     "-Wunused:imports",                              // Warn if an import selector is not referenced.
@@ -61,6 +61,7 @@ object Lib {
 
   def scalac3Flags = Seq(
     "-source:3.0-migration",
+    "-Wconf:msg=unused:s", // Scala 3.1 doesn't support @nowarn("cat=unused")
     "-Ykind-projector",
     // "-Xprint:all",
   )

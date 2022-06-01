@@ -157,6 +157,7 @@ lazy val js = project
         Dep.microlibsCompileTime.value % Test,
         Dep.microlibsTestUtil.value % Test,
         Dep.scalaJsJavaTime.value % Test,
+        Dep.scalaJsSecureRandom.value % Test,
       )
     },
     scalaJSLinkerConfig ~= { _
@@ -182,6 +183,7 @@ lazy val jsCE = project
         Dep.microlibsCompileTime.value % Test,
         Dep.microlibsTestUtil.value % Test,
         Dep.scalaJsJavaTime.value % Test,
+        Dep.scalaJsSecureRandom.value % Test,
       )
     },
   )
@@ -202,6 +204,7 @@ lazy val jsCBIO = project
         Dep.microlibsCompileTime.value % Test,
         Dep.microlibsTestUtil.value % Test,
         Dep.scalaJsJavaTime.value % Test,
+        Dep.scalaJsSecureRandom.value % Test,
       )
     },
   )

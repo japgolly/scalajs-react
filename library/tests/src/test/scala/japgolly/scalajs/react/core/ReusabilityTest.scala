@@ -127,6 +127,31 @@ object ReusabilityTest extends TestSuite {
     assertEq(a ~=~ b, false)
   }
 
+  // Utest's Scala 3 macros don't handle inner macros well and will cause crash
+
+  private object derive {
+    def CC0         = Reusability.derive[CC0]
+    def CC1         = Reusability.derive[CC1]
+    def CC2         = Reusability.derive[CC2]
+    def CCT0_Int    = Reusability.derive[CCT0[Int]]
+    def CCT1_Int    = Reusability.derive[CCT1[Int]]
+    def CCT2_String = Reusability.derive[CCT2[String]]
+    def CC1_i       = Reusability.caseClassExcept[CC1]("i")
+    def CC2_i       = Reusability.caseClassExcept[CC2]("i")
+    def CC2_n       = Reusability.caseClassExcept[CC2]("n")
+    def CC4_a_c     = Reusability.caseClassExcept[CC4]("a", "c")
+  }
+
+  private class DerivesByRef {
+    class X
+    implicit val x: Reusability[X] = Reusability.never
+    val _ = x
+    case class Y(x: X)
+    implicit val y: Reusability[Y] = Reusability.derive[Y]
+    val y1 = Y(new X)
+    val y2 = Y(new X)
+  }
+
   override def tests = Tests {
 
     "macros" - {
@@ -135,32 +160,32 @@ object ReusabilityTest extends TestSuite {
 
       "caseClass" - {
         "cc0" - {
-          implicit val r: Reusability[CC0] = Reusability.derive[CC0]
+          implicit val r: Reusability[CC0] = derive.CC0
           test(CC0(), CC0(), true)
         }
         "cc1" - {
-          implicit val r: Reusability[CC1] = Reusability.derive[CC1]
+          implicit val r: Reusability[CC1] = derive.CC1
           test(CC1(2), CC1(2), true)
           test(CC1(2), CC1(3), false)
         }
         "cc2" - {
-          implicit val r: Reusability[CC2] = Reusability.derive[CC2]
+          implicit val r: Reusability[CC2] = derive.CC2
           test(CC2(3,"a"), CC2(3,"a"), true)
           test(CC2(3,"a"), CC2(3,"b"), false)
           test(CC2(3,"a"), CC2(4,"a"), false)
         }
 
         "cct0" - {
-          implicit val r: Reusability[CCT0[Int]] = Reusability.derive[CCT0[Int]]
+          implicit val r: Reusability[CCT0[Int]] = derive.CCT0_Int
           test(CCT0[Int](), CCT0[Int](), true)
         }
         "cct1" - {
-          implicit val r: Reusability[CCT1[Int]] = Reusability.derive[CCT1[Int]]
+          implicit val r: Reusability[CCT1[Int]] = derive.CCT1_Int
           test(CCT1(2), CCT1(2), true)
           test(CCT1(2), CCT1(3), false)
         }
         "cct2" - {
-          implicit val r: Reusability[CCT2[String]] = Reusability.derive[CCT2[String]]
+          implicit val r: Reusability[CCT2[String]] = derive.CCT2_String
           test(CCT2(3,"a"), CCT2(3,"a"), true)
           test(CCT2(3,"a"), CCT2(3,"b"), false)
           test(CCT2(3,"a"), CCT2(4,"a"), false)
@@ -170,13 +195,8 @@ object ReusabilityTest extends TestSuite {
           ()
         }
         "derivesByRef" - {
-          class X
-          implicit val x: Reusability[X] = Reusability.never
-          val _ = x
-          case class Y(x: X)
-          implicit val y: Reusability[Y] = Reusability.derive[Y]
-          val y1 = Y(new X)
-          val y2 = Y(new X)
+          val d = new DerivesByRef
+          import d._
           test(y1, y2, false)
           test(y1, y1, true)
         }
@@ -184,27 +204,27 @@ object ReusabilityTest extends TestSuite {
 
       "caseClassExcept" - {
         "1/1" - {
-          implicit val r: Reusability[CC1] = Reusability.caseClassExcept[CC1]("i")
+          implicit val r: Reusability[CC1] = derive.CC1_i
           test(CC1(2), CC1(2), true)
           test(CC1(2), CC1(3), true)
         }
 
         "1st of 2" - {
-          implicit val r: Reusability[CC2] = Reusability.caseClassExcept[CC2]("i")
+          implicit val r: Reusability[CC2] = derive.CC2_i
           test(CC2(3,"a"), CC2(3,"a"), true)
           test(CC2(3,"a"), CC2(3,"b"), false)
           test(CC2(3,"a"), CC2(4,"a"), true)
         }
 
         "2nd of 2" - {
-          implicit val r: Reusability[CC2] = Reusability.caseClassExcept[CC2]("n")
+          implicit val r: Reusability[CC2] = derive.CC2_n
           test(CC2(3,"a"), CC2(3,"a"), true)
           test(CC2(3,"a"), CC2(3,"b"), true)
           test(CC2(3,"a"), CC2(4,"a"), false)
         }
 
          "2/4" - {
-           implicit val r: Reusability[CC4] = Reusability.caseClassExcept[CC4]("a", "c")
+           implicit val r: Reusability[CC4] = derive.CC4_a_c
            test(CC4(1, 2, 3, 4), CC4(1, 2, 3, 4), true)
            test(CC4(1, 2, 3, 4), CC4(0, 2, 3, 4), true)
            test(CC4(1, 2, 3, 4), CC4(1, 0, 3, 4), false)
