@@ -223,12 +223,14 @@ object ScalaJsReact {
       Test / fork := true,
       Test / javaOptions ++= {
         val jsOutputDir = (testEmissionsJS / Compile / fastLinkJS / scalaJSLinkerOutputDirectory).value
+        val scalaVer    = scalaVersion.value
         val tempDir     = (Test / classDirectory).value
         val testResDir  = (Test / resourceDirectory).value
         val testRootDir = (Test / sourceDirectory).value
         Seq(
           s"-DCI=${if (inCI) "1" else "0"}",
           s"-DjsOutputDir=${jsOutputDir.absolutePath}",
+          s"-DscalaVer=$scalaVer",
           s"-DtempDir=${tempDir.absolutePath}",
           s"-DtestResDir=${testResDir.absolutePath}",
           s"-DtestRootDir=${testRootDir.absolutePath}",

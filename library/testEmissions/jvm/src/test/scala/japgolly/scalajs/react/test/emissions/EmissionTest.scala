@@ -29,7 +29,7 @@ object EmissionTest extends TestSuite {
     val name           = tp.value.last
     val actualFilename = s"${Props.jsOutputDir}/$pkg.$name" + "$.js"
     val tempFilename   = s"${Props.tempDir}/$name.js"
-    val expectFilename = s"${Props.testResDir}/${Props.resSubdirScala}/$name-out.js"
+    val expectFilename = s"${Props.testResDir}/${Props.resSubdirScala}/$name-out${Props.scalaMajorVer}.js"
     var utestOutput    = () : Any
 
     val actual = {

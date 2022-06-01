@@ -10,9 +10,12 @@ object Props {
 
   val CI          = Prop.get("CI").contains("1")
   val jsOutputDir = Prop.need("jsOutputDir")
+  val scalaVer    = Prop.need("scalaVer")
   val tempDir     = Prop.need("tempDir")
   val testResDir  = Prop.need("testResDir")
   val testRootDir = Prop.need("testRootDir")
+
+  val scalaMajorVer = scalaVer.takeWhile(_.isDigit).toInt
 
   // -------------------------------------------------------------------------------------------------------------------
 
