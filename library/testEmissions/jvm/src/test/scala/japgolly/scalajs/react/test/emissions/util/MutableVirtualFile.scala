@@ -25,7 +25,7 @@ class MutableVirtualFile(val filenameOption: Option[String], val originalContent
     modifyLinesIterator(_.map(f))
 
   def modifyLinesIterator(f: Iterator[String] => Iterator[String]): this.type =
-    set(f(content.linesIterator).mkString("\n"))
+    set(f(content.linesIterator).mkString("\n") + "\n")
 
   def +=(newLine: String): this.type =
     set(content + "\n" + newLine)

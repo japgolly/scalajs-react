@@ -46,6 +46,7 @@ object EmissionTest extends TestSuite {
       // Make output much more readable, we're not testing the validity of SJS here
       if (normalise)
         js.modifyLines(_
+          .replace("＿", "_")
           .replace("$0024", "$")
           .replace("$002e", "_") // "."
           .replace("$005f", "_")
