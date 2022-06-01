@@ -1,6 +1,7 @@
 import sbt._
 import sbt.Keys._
 import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin.autoImport._
+import org.scalajs.linker.interface.{ModuleInitializer, ModuleSplitStyle}
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import scalafix.sbt.BuildInfo.{scalafixVersion => ScalafixVer}
@@ -35,19 +36,24 @@ object ScalaJsReact {
       ghpages,
       ghpagesMacros,
       scalafixRules,
+      testEmissions,
+      testEmissionsJS,
       tests,
-      testUtilMacros,
       testUtil,
+      testUtilMacros,
       util,
       utilCatsEffect,
       utilDummyDefaults,
       utilFallbacks,
     )
 
-  def commonSettings: PE =
-    _.enablePlugins(ScalaJSPlugin, ScalafixPlugin)
+  def commonSettingsCross: PE =
+    _.enablePlugins(ScalafixPlugin)
       .dependsOn(scalafixRules % ScalafixConfig)
       .configure(commonSettingsWithoutPlugins)
+
+  def commonSettings: PE =
+    _.enablePlugins(ScalaJSPlugin).configure(commonSettingsCross)
 
   def shimDummyDefaults: PE =
     _.dependsOn(utilDummyDefaults % Provided)
@@ -208,6 +214,48 @@ object ScalaJsReact {
       disable := scalaVersion.value.startsWith("3"),
     )
     .configure(conditionallyDisable) // keep this last
+
+  lazy val testEmissions = project
+    .in(file("testEmissions/jvm"))
+    .configure(commonSettingsCross, preventPublication, utestSettingsCross)
+    .settings(
+      libraryDependencies += Dep.microlibsUtils.value,
+      Test / fork := true,
+      Test / javaOptions ++= {
+        val jsOutputDir = (testEmissionsJS / Compile / fastLinkJS / scalaJSLinkerOutputDirectory).value
+        val tempDir     = (Test / classDirectory).value
+        val testResDir  = (Test / resourceDirectory).value
+        val testRootDir = (Test / sourceDirectory).value
+        Seq(
+          s"-DjsOutputDir=${jsOutputDir.absolutePath}",
+          s"-DtempDir=${tempDir.absolutePath}",
+          s"-DtestResDir=${testResDir.absolutePath}",
+          s"-DtestRootDir=${testRootDir.absolutePath}",
+        )
+      },
+      Test / test     := (Test / test    ).dependsOn(testEmissionsJS / Compile / fastLinkJS).value,
+      Test / testOnly := (Test / testOnly).dependsOn(testEmissionsJS / Compile / fastLinkJS).evaluated,
+    )
+
+  lazy val testEmissionsJS = project
+    .in(file("testEmissions/js"))
+    .configure(commonSettings, preventPublication, hasNoTests)
+    .dependsOn(coreBundleCallback)
+    .settings(
+      Compile / scalaJSLinkerConfig ~= { _
+        .withModuleKind(ModuleKind.ESModule)
+        .withModuleSplitStyle(ModuleSplitStyle.SmallestModules)
+        .withSourceMap(false)
+        // .withESFeatures(_.withESVersion(ESVersion.ES2021))
+        // .withSemantics(_
+        //   .withArrayIndexOutOfBounds(CheckedBehavior.Unchecked)
+        //   .withAsInstanceOfs(CheckedBehavior.Unchecked)
+        //   .withProductionMode(true)
+        // )
+      },
+      Compile / scalaJSModuleInitializers +=
+        ModuleInitializer.mainMethod("japgolly.scalajs.react.test.emissions.Main", "main")
+    )
 
   lazy val tests = project
     .dependsOn(testUtil, coreExtCatsEffect, extraExtMonocle3)

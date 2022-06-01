@@ -112,14 +112,24 @@ object Lib {
   def preventPublication: PE =
     _.settings(publish / skip := true)
 
+  def utestSettingsCross(scope: Configuration): PE =
+    _.settings(
+      scope / scalacOptions ++= {
+        val isScala2 = scalaVersion.value.startsWith("2")
+        if (isScala2) Seq("-Wconf:msg=copyArrayToImmutableIndexedSeq:s") else Seq()
+      },
+      libraryDependencies += Dep.utest.value % scope,
+      libraryDependencies += Dep.microlibsTestUtil.value % scope,
+      testFrameworks      += new TestFramework("utest.runner.Framework"))
+
+  def utestSettingsCross: PE =
+    utestSettingsCross(Test)
+
   def utestSettings(scope: Configuration): PE =
-    _.configure(InBrowserTesting.js)
+    _.configure(InBrowserTesting.js, utestSettingsCross(scope))
       .settings(
         jsEnv                := new JSDOMNodeJSEnv,
-        Test / scalacOptions += "-language:reflectiveCalls",
-        libraryDependencies  += Dep.utest.value % scope,
-        libraryDependencies  += Dep.microlibsTestUtil.value % scope,
-        testFrameworks       += new TestFramework("utest.runner.Framework"))
+        Test / scalacOptions += "-language:reflectiveCalls")
 
   def utestSettings: PE =
     utestSettings(Test)
