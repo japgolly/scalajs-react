@@ -15,11 +15,12 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         include:
-          - java: 14
+          - java: 18.0.1
             scala: 2
-          - java: 8
+          - java: 11.0.15
             scala: 3
     name: Scala v${{ matrix.scala }} / Java v${{ matrix.java }}
     steps:
@@ -32,7 +33,7 @@ jobs:
       - name: Setup Scala
         uses: japgolly/setup-everything-scala@v3.1
         with:
-          java-version: adopt@1.${{ matrix.java }}
+          java-version: adoptium@1.${{ matrix.java }}
 
       - name: Build and test
         shell: bash
