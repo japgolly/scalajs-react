@@ -8,10 +8,10 @@ ThisBuild / scalacOptions ++= {
 ThisBuild / semanticdbEnabled := true
 
 // NOTE: Upgrade downstream-tests/scalafix.sbt too!
-ThisBuild / semanticdbVersion := "4.4.35"
+ThisBuild / semanticdbVersion := "4.5.5"
 
 ThisBuild / scalafixScalaBinaryVersion := "2.13"
 
 ThisBuild / scalafixDependencies ++= Seq(
-  "com.github.liancheng" %% "organize-imports" % "0.5.0"
+  "com.github.liancheng" %% "organize-imports" % "0.6.0"
 )

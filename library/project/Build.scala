@@ -272,6 +272,7 @@ object ScalaJsReact {
         Dep.nyayaGen.value % Test,
         Dep.nyayaTest.value % Test,
         Dep.scalaJsJavaTime.value % Test,
+        Dep.scalaJsSecureRandom.value % Test,
       ),
       jsDependencies ++= Seq(
         Dep.sizzleJs(Test).value,
