@@ -71,7 +71,8 @@ object EmissionTest extends TestSuite {
         }
 
     } finally {
-      if (showResult || !golden)
+      val didNothing = !golden && expectedFrags.isEmpty
+      if (showResult || didNothing)
         Util.debugShowContent(s"$name.scala JS", actual, "\u001b[107;30m")
     }
 
