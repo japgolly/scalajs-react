@@ -9,10 +9,10 @@ object EmissionTest extends TestSuite {
 
   override def tests = Tests {
 
-    "UseState" - testScala(hack = TestJs.Hack { _
-      .dropLinesUntil(_ endsWith " = function (props) {")
-      .takeLinesTo(_ == "};")
-    }, golden = false)
+    // "UseState" - testScala(hack = TestJs.Hack { _
+    //   .dropLinesUntil(_ endsWith " = function (props) {")
+    //   .takeLinesTo(_ == "};")
+    // }.disable, golden = false)
 
   }
 

@@ -69,4 +69,15 @@ class MacroLogger {
 
   def apply(name: => Any, value: => Any)(implicit l: Line): Unit =
     apply(s"$YELLOW$name:$RESET $value")
+
+  def all(name: => Any, values: => Iterable[Any])(implicit l: Line): Unit =
+    if (enabled) {
+      val vs = values
+      val total = vs.size
+      var i = 0
+      for (v <- vs) {
+        i += 1
+        apply(s"$name [$i/$total]", v)
+      }
+    }
 }

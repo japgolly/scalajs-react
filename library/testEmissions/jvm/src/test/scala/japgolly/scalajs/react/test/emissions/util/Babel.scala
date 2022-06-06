@@ -62,8 +62,14 @@ object Babel {
   private def useCfgNorm = "--config-file=./babel.norm.json"
 
   def normaliseToStr(srcFilename: String): String =
-    Node.babel(srcFilename, useCfgNorm)
+    if (Util.exists(srcFilename))
+      Node.babel(srcFilename, useCfgNorm)
+    else
+      throw new RuntimeException("File not found: " + srcFilename)
 
   def normaliseToFile(srcFilename: String, tgtFilename: String): Unit =
-    Node.babel(srcFilename, useCfgNorm, "-o", tgtFilename)
+    if (Util.exists(srcFilename))
+      Node.babel(srcFilename, useCfgNorm, "-o", tgtFilename)
+    else
+      throw new RuntimeException("File not found: " + srcFilename)
 }

@@ -9,7 +9,7 @@ trait Box[+A] extends js.Object {
 }
 
 object Box {
-  @inline def apply[A](value: A): Box[A] =
+  def apply[A](value: A): Box[A] =
     js.Dynamic.literal(a = value.asInstanceOf[js.Any]).asInstanceOf[Box[A]]
 
   val Unit: Box[Unit] =

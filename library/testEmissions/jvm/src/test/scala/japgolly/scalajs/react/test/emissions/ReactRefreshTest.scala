@@ -2,6 +2,7 @@ package japgolly.scalajs.react.test.emissions
 
 import japgolly.microlibs.utils.FileUtils
 import japgolly.scalajs.react.test.emissions.util._
+import japgolly.univeq._
 import scala.annotation.nowarn
 import scala.util.Try
 import utest._
@@ -12,11 +13,16 @@ object ReactRefreshTest extends TestSuite {
   override def tests = Tests {
 
     "js" - {
-      "demo" - testJs()
+      "fn" - testJs()
+      "hooks" - testJs()
       // "temp" - testJs()
     }
 
-    // "UseState" - showScala()
+    "sjr" - {
+      "HooksWithChildren" - testScala()
+      "NoHooksWithChildren" - showScala()
+      "UseState" - testScala()
+    }
   }
 
   // ===================================================================================================================
@@ -44,8 +50,8 @@ object ReactRefreshTest extends TestSuite {
   protected def showScala(assertRR          : Boolean     = false,
                           assertNoRR        : Boolean     = false,
                           assertBabelChanges: Boolean     = false,
-                          showPreBabel      : Boolean     = true,
-                          showResult        : Boolean     = false,
+                          showPreBabel      : Boolean     = false,
+                          showResult        : Boolean     = true,
                           showDiff          : Boolean     = true,
                           golden            : Boolean     = false,
                           hack              : TestJs.Hack = null,
@@ -137,7 +143,7 @@ object ReactRefreshTest extends TestSuite {
         Util.debugShowContent(s"$name.scala JS pre-babel", before, "\u001b[107;30m", rrFlags = false)
       if (showResult)
         Util.debugShowContent(s"$name.scala JS post-babel", after, "\u001b[107;30m")
-      if (showDiff)
+      if (showDiff && (before !=* after))
         Util.debugShowDiff(before, after)
     }
 

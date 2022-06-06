@@ -35,7 +35,7 @@ object TestJs {
     val humanReadable: Hack = {
 
       // Lines that simply initialise object singletons
-      val objectInit = """^ *(?:\$j_[a-zA-Z_]+\$\.)?\$m_[a-zA-Z_]+\$\(\);$""".r
+      val objectInit = """^ *(?:\$j_[a-zA-Z0-9_]+\$\.)?\$m_[a-zA-Z0-9_]+\$\(\); *$""".r
 
       apply(_
         .modifyLines(_

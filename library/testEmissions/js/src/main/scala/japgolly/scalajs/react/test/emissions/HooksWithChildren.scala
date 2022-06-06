@@ -3,17 +3,17 @@ package japgolly.scalajs.react.test.emissions
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 
-object UseState {
+object HooksWithChildren {
 
   val Component = ScalaFnComponent.withHooks[Int]
+    .withPropsChildren
     .useState(123)
-    .useStateBy((p, s1) => p + s1.value)
-    .useStateBy($ => $.props + $.hook1.value + $.hook2.value)
-    .render { (_, s1, s2, s3) =>
-      val sum = s1.value + s2.value + s3.value
+    .render { (p, c, s1) =>
+      val sum = p + s1.value + c.count
       <.button(
         "Sum = ", sum,
         ^.onClick --> s1.modState(_ + 1),
+        c
       )
     }
 }

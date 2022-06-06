@@ -30,7 +30,7 @@ object Util {
 
   def debugShowContent(name: String, content: String, colour: String, rrFlags: Boolean = true): Unit = {
     val batPath = "/usr/bin/bat"
-    var useBat  = (new File(batPath)).exists()
+    var useBat  = exists(batPath)
 
     val rrDesc =
       if (rrFlags) {
@@ -83,7 +83,7 @@ object Util {
 
   def debugShowDiff(content1: String, content2: String): Unit = {
     var diffPath = "/usr/bin/colordiff"
-    if (!(new File(diffPath)).exists())
+    if (!exists(diffPath))
       diffPath = "diff"
 
     val file1 = writeToTempFile("")(content1)
@@ -94,6 +94,9 @@ object Util {
     Seq(diffPath, "-uw", file1, file2).#|(Seq("tail", "+3")).!
     println(sep)
   }
+
+  def exists(filename: String): Boolean =
+    (new File(filename)).exists()
 
   def getFileContent(path: String): Option[String] = {
     val f = new File(path)
