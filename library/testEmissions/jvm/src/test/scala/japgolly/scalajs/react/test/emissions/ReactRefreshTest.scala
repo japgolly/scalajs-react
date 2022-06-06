@@ -20,7 +20,6 @@ object ReactRefreshTest extends TestSuite {
 
     "sjr" - {
       "HooksWithChildren" - testScala()
-      "NoHooksWithChildren" - showScala()
       "UseState" - testScala()
     }
   }
