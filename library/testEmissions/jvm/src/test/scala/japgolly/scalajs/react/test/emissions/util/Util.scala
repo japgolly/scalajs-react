@@ -113,12 +113,7 @@ object Util {
     }
   }
 
-  private def readSource(src: => Source): String = {
-    val s = src
-    try s.mkString finally s.close()
-  }
-
-  def useOrCreateFile[A](filename: String, create: => String, use: String => A): Option[A] =
+  def readOrCreateFile[A](filename: String, create: => String): Option[String] =
     getFileContent(filename) match {
 
       // If no file exists, create it
@@ -130,9 +125,14 @@ object Util {
         None
 
       // File exists
-      case Some(s) =>
-        Some(use(s))
+      case s@ Some(_) =>
+        s
     }
+
+  private def readSource(src: => Source): String = {
+    val s = src
+    try s.mkString finally s.close()
+  }
 
   def writeToTempFile(fileSuffix: String)(content: String): String = {
     val p = Files.createTempFile("sjr-emissions-", fileSuffix)

@@ -1,8 +1,8 @@
 package japgolly.scalajs.react.test.emissions
 
+import japgolly.microlibs.testutil.TestUtil._
 import japgolly.microlibs.utils.FileUtils
 import japgolly.scalajs.react.test.emissions.util._
-import japgolly.univeq._
 import scala.annotation.nowarn
 import scala.util.Try
 import utest._
@@ -54,6 +54,7 @@ object ReactRefreshTest extends TestSuite {
                           showDiff          : Boolean     = true,
                           golden            : Boolean     = false,
                           hack              : TestJs.Hack = null,
+                          onCmp             : TestJs.Hack = TestJs.Hack.forComparison,
                           onShow            : TestJs.Hack = TestJs.Hack.humanReadable,
                           expectedFrags     : Seq[String] = Seq.empty)
                          (implicit tp       : TestPath) =
@@ -66,6 +67,7 @@ object ReactRefreshTest extends TestSuite {
     showDiff           = showDiff,
     golden             = false,
     hack               = hack,
+    onCmp              = onCmp,
     onShow             = onShow,
     expectedFrags      = expectedFrags,
   )
@@ -79,6 +81,7 @@ object ReactRefreshTest extends TestSuite {
                           showDiff          : Boolean     = false,
                           golden            : Boolean     = true,
                           hack              : TestJs.Hack = null,
+                          onCmp             : TestJs.Hack = TestJs.Hack.forComparison,
                           onShow            : TestJs.Hack = TestJs.Hack.humanReadable,
                           expectedFrags     : Seq[String] = Seq.empty)
                          (implicit tp       : TestPath) = {
@@ -124,7 +127,7 @@ object ReactRefreshTest extends TestSuite {
       babel.assertOutputContains(expectedFrags: _*)
 
       if (golden)
-        utestOutput = babel.assertOrSaveOutput(expectFilename)
+        utestOutput = babel.assertOrSaveOutput(expectFilename, onCmp)
 
       if (utestOutput == ())
         reactRefreshSignature(babel.after) match {

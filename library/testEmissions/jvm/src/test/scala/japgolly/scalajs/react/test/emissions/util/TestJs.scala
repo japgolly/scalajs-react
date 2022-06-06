@@ -51,5 +51,14 @@ object TestJs {
         .filterNot(objectInit)
       )
     }
+
+    // Hacks to apply before comparison, so that tests consitently pass
+    val comparisonHacks: Hack =
+      apply(_.modify(_
+        .replace("PropsChildren$", "PropsChildren") // Not sure why SJS sometimes emits one or the other
+      ))
+
+    val forComparison: Hack =
+      humanReadable >> comparisonHacks
   }
 }

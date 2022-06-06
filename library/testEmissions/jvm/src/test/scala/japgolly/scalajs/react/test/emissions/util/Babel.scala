@@ -36,9 +36,18 @@ final case class Babel(before        : String,
     Util.debugShowContent(s"$beforeFilename <output>", after, "\u001b[43;30m")
 
   def assertOrSaveOutput(filename: String)(implicit l: Line): Any =
-    Util.useOrCreateFile(filename, after, assertOutput(_)) match {
+    Util.readOrCreateFile(filename, after) match {
       case None    => s"Created $filename"
-      case Some(_) => ()
+      case Some(s) => assertOutput(s)
+    }
+
+  def assertOrSaveOutput(filename: String, preCmpHack: TestJs.Hack)(implicit l: Line): Any =
+    Util.readOrCreateFile(filename, after) match {
+      case None    => s"Created $filename"
+      case Some(e) =>
+        val actual = preCmpHack.runAnon(after).content
+        val expect = preCmpHack.runAnon(e).content
+        assertMultiline(actual, expect)
     }
 }
 

@@ -23,6 +23,7 @@ object EmissionTest extends TestSuite {
                           golden       : Boolean     = true,
                           normalise    : Boolean     = true,
                           hack         : TestJs.Hack = null,
+                          onCmp        : TestJs.Hack = TestJs.Hack.forComparison,
                           expectedFrags: Seq[String] = Seq.empty)
                          (implicit tp  : TestPath) = {
 
@@ -58,9 +59,12 @@ object EmissionTest extends TestSuite {
       assertContainsAll(actual, expectedFrags: _*)
 
       if (golden)
-        Util.useOrCreateFile(expectFilename, actual, assertMultiline(actual, _)) match {
+        Util.readOrCreateFile(expectFilename, actual) match {
           case None    => utestOutput = s"Created $expectFilename"
-          case Some(_) =>
+          case Some(e) =>
+            val actual2 = onCmp.runAnon(actual).content
+            val expect2 = onCmp.runAnon(e).content
+            assertMultiline(actual2, expect2)
         }
 
     } finally {
