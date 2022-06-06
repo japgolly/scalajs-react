@@ -77,7 +77,7 @@
 /* [2-] */ def useState                            [S](initialState: => S)(implicit step: Step): step.Next[UseState[S]]
 /* [2-] */ def useStateBy                          [S](initialState: Ctx => S)(implicit step: Step): step.Next[UseState[S]]
 /* [2-] */ def useStateBy                          [S](initialState: CtxFn[S])(implicit step: Step): step.Next[UseState[S]]
-/* [--] */ def useStateWithReuse                   [S: ClassTag: Reusability](initialState: => S)(implicit step: Step): step.Next[UseStateWithReuse[S]]
-/* [--] */ def useStateWithReuseBy                 [S: ClassTag: Reusability](initialState: Ctx => S)(implicit step: Step): step.Next[UseStateWithReuse[S]]
-/* [--] */ def useStateWithReuseBy                 [S: ClassTag: Reusability](initialState: CtxFn[S])(implicit step: Step): step.Next[UseStateWithReuse[S]]
+/* [2-] */ def useStateWithReuse                   [S: ClassTag: Reusability](initialState: => S)(implicit step: Step): step.Next[UseStateWithReuse[S]]
+/* [2-] */ def useStateWithReuseBy                 [S: ClassTag: Reusability](initialState: Ctx => S)(implicit step: Step): step.Next[UseStateWithReuse[S]]
+/* [2-] */ def useStateWithReuseBy                 [S: ClassTag: Reusability](initialState: CtxFn[S])(implicit step: Step): step.Next[UseStateWithReuse[S]]
 ```

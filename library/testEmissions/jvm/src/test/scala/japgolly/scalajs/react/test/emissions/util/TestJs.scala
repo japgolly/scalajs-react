@@ -35,7 +35,7 @@ object TestJs {
     val humanReadable: Hack = {
 
       // Lines that simply initialise object singletons
-      val objectInit = """^ *(?:\$j_[a-zA-Z0-9_]+\$\.)?\$m_[a-zA-Z0-9_]+\$\(\); *$""".r
+      val objectInit = """^ *(?:\$j_[a-zA-Z0-9_]+\$?\.)?\$m_[a-zA-Z0-9_]+\$\(\); *$""".r
 
       apply(_
         .modifyLines(_
@@ -54,9 +54,12 @@ object TestJs {
 
     // Hacks to apply before comparison, so that tests consitently pass
     val comparisonHacks: Hack =
-      apply(_.modify(_
-        .replace("PropsChildren$", "PropsChildren") // Not sure why SJS sometimes emits one or the other
-      ))
+      apply(_
+        .filterNot(_ startsWith "import ")
+        .modify(_
+          .replace("PropsChildren$", "PropsChildren") // Not sure why SJS sometimes emits one or the other
+        )
+      )
 
     val forComparison: Hack =
       humanReadable >> comparisonHacks

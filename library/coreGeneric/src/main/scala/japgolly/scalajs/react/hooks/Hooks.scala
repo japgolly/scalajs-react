@@ -247,12 +247,15 @@ object Hooks {
     @inline def apply[S, O](r: facade.React.UseState[S], oss: Reusable[facade.React.UseStateSetter[O]]): UseState[S] =
       UseStateF(r, oss)(D.Sync)
 
-    def unsafeCreate[S](initialState: => S): UseState[S] = {
+    def unsafeCreateJsBoxed[S](initialState: => S): facade.React.UseState[Box[S]] = {
       // Boxing is required because React's useState uses reflection to distinguish between {set,mod}State.
-      val initialStateFn = (() => Box(initialState)): js.Function0[Box[S]]
-      val originalResult = facade.React.useStateFn[Box[S]](initialStateFn)
-      fromJsBoxed(originalResult)
+      facade.React.useStateFn[Box[S]](
+        (() => Box(initialState)): js.Function0[Box[S]]
+      )
     }
+
+    def unsafeCreate[S](initialState: => S): UseState[S] =
+      fromJsBoxed(unsafeCreateJsBoxed(initialState))
 
     def fromJsBoxed[S](r: facade.React.UseState[Box[S]]): UseState[S] = {
       val originalSetState = Reusable.byRef(r._2)
@@ -371,6 +374,12 @@ object Hooks {
     def unsafeCreate[S](initialState: => S)(implicit r: Reusability[S], ct: ClassTag[S]): UseStateWithReuse[S] = {
       val rr = Reusable.reusabilityInstance(r)
       val us = UseState.unsafeCreate(initialState).withReusability
+      UseStateWithReuseF(us, rr)
+    }
+
+    def fromJsBoxed[S](raw: facade.React.UseState[Box[S]])(implicit r: Reusability[S], ct: ClassTag[S]): UseStateWithReuse[S] = {
+      val rr = Reusable.reusabilityInstance(r)
+      val us = UseState.fromJsBoxed(raw).withReusability
       UseStateWithReuseF(us, rr)
     }
   }

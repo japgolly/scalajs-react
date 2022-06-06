@@ -185,6 +185,27 @@ class HookMacros(val c: Context) extends MacroUtils {
   private def inlineHookStep(step: HookStep)(implicit log: MacroLogger): Either[() => String, HookRewriter => TermName] = {
     log("inlineHookStep." + step.name, step)
 
+    def by[A](fn: Tree)(use: (HookRewriter, Tree) => A): Either[() => String, HookRewriter => A] =
+      fn match {
+        case f@ Function(params, _) =>
+          Right { b =>
+            if (params.sizeIs == 1) {
+              val ctxArg = b.ctxArg()
+              use(b, call(f, ctxArg :: Nil))
+            } else
+              use(b, call(f, b.args()))
+          }
+
+        case _ =>
+          Left(() => s"Expected a function, found: ${showRaw(fn)}")
+      }
+
+    def maybeBy[A](f: Tree)(use: (HookRewriter, Tree) => A): Either[() => String, HookRewriter => A] =
+      if (step.name endsWith "By")
+        by(f)(use)
+      else
+        Right(use(_, f))
+
     def useState(b: HookRewriter, tpe: Tree, body: Tree) = {
       val rawName = b.nextHookName("_raw")
       val name    = b.nextHookName()
@@ -193,29 +214,25 @@ class HookMacros(val c: Context) extends MacroUtils {
       name
     }
 
+    def useStateWithReuse(b: HookRewriter, tpe: Tree, body: Tree, reuse: Tree, ct: Tree) = {
+      val rawName = b.nextHookName("_raw")
+      val name    = b.nextHookName()
+      b += q"val $rawName = $React.useStateFn(() => $Box[$tpe]($body))"
+      b += q"val $name = $Hooks.UseStateWithReuse.fromJsBoxed[$tpe]($rawName)($reuse, $ct)"
+      name
+    }
+
     step.name match {
 
-      case "useState" =>
-        val targ = step.targs.head
-        val arg  = step.args.head.head
-        Right(useState(_, targ, arg))
+      case "useState" | "useStateBy" =>
+        val List(tpe) = step.targs : @nowarn
+        val List(List(f), _) = step.args : @nowarn
+        maybeBy(f)(useState(_, tpe, _))
 
-      case "useStateBy" =>
-        val targ = step.targs.head
-        val arg  = step.args.head.head
-        arg match {
-          case f@ Function(params, _) =>
-            if (params.sizeIs == 1)
-              Right { b =>
-                val ctxArg = b.ctxArg()
-                useState(b, targ, call(f, ctxArg :: Nil))
-              }
-            else
-              Right(b => useState(b, targ, call(f, b.args())))
-
-          case _ =>
-            Left(() => s"Expected a function, found: ${showRaw(arg)}")
-        }
+      case "useStateWithReuse" | "useStateWithReuseBy" =>
+        val List(tpe) = step.targs : @nowarn
+        val List(List(f), List(ct, reuse, _)) = step.args : @nowarn
+        maybeBy(f)(useStateWithReuse(_, tpe, _, reuse, ct))
 
       case _ =>
         Left(() => s"Inlining of hook method '${step.name}' not yet supported.")
@@ -226,7 +243,7 @@ class HookMacros(val c: Context) extends MacroUtils {
     log("inlineHookRender." + step.name, step)
     step.name match {
       case "render" =>
-        @nowarn("msg=exhaustive") val List(List(renderFn), _) = step.args
+        val List(List(renderFn), _) = step.args : @nowarn
         Right(b => call(renderFn, b.args()))
 
       case _ =>

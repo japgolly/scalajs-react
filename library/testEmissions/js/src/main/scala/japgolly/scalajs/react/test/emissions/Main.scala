@@ -16,6 +16,7 @@ object Main {
     <.div(
       HooksWithChildren.Component(0)(<.div),
       UseState.Component(0),
+      UseStateWithReuse.Component(0),
     )
   }
 }
