@@ -10,9 +10,10 @@ object EmissionTest extends TestSuite {
   override def tests = Tests {
 
     "UseState" - testScala(hack = TestJs.Hack { _
-      .dropLinesUntil(_ startsWith "function ")
-      .takeLinesTo(_ startsWith "export ")
-    })
+      .dropLinesUntil(_ endsWith " = function (props) {")
+      .takeLinesTo(_ == "};")
+    }, golden = false)
+
   }
 
   // ===================================================================================================================
@@ -45,15 +46,7 @@ object EmissionTest extends TestSuite {
 
       // Make output much more readable, we're not testing the validity of SJS here
       if (normalise)
-        js.modifyLines(_
-          .replace("＿", "_")
-          .replace("$0024", "$")
-          .replace("$002e", "_") // "."
-          .replace("$005f", "_")
-          .replace("$less$up", "")
-          .replace("japgolly_scalajs_react_", "sjr_")
-          .replaceAll("scala_scalajs_runtime_(?=AnonFunction|WrappedVarArgs)", "")
-        )
+        TestJs.Hack.humanReadable.run(js)
 
       if (hack ne null)
         hack.run(js)
@@ -73,7 +66,7 @@ object EmissionTest extends TestSuite {
     } finally {
       val didNothing = !golden && expectedFrags.isEmpty
       if (showResult || didNothing)
-        Util.debugShowContent(s"$name.scala JS", actual, "\u001b[107;30m")
+        Util.debugShowContent(s"$name.scala JS", actual, "\u001b[107;30m", rrFlags = false)
     }
 
     utestOutput

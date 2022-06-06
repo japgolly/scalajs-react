@@ -2,6 +2,7 @@ package japgolly.scalajs.react.test.emissions
 
 import japgolly.microlibs.utils.FileUtils
 import japgolly.scalajs.react.test.emissions.util._
+import scala.annotation.nowarn
 import scala.util.Try
 import utest._
 import utest.framework.TestPath
@@ -14,6 +15,8 @@ object ReactRefreshTest extends TestSuite {
       "demo" - testJs()
       // "temp" - testJs()
     }
+
+    // "UseState" - showScala()
   }
 
   // ===================================================================================================================
@@ -37,13 +40,41 @@ object ReactRefreshTest extends TestSuite {
   }
 
   /** Load scalajs-react output JS, run ReactRefresh transforms over it, and confirm the result. */
+  @nowarn("cat=unused")
+  protected def showScala(assertRR          : Boolean     = false,
+                          assertNoRR        : Boolean     = false,
+                          assertBabelChanges: Boolean     = false,
+                          showPreBabel      : Boolean     = true,
+                          showResult        : Boolean     = false,
+                          showDiff          : Boolean     = true,
+                          golden            : Boolean     = false,
+                          hack              : TestJs.Hack = null,
+                          onShow            : TestJs.Hack = TestJs.Hack.humanReadable,
+                          expectedFrags     : Seq[String] = Seq.empty)
+                         (implicit tp       : TestPath) =
+  testScala(
+    assertRR           = false,
+    assertNoRR         = false,
+    assertBabelChanges = false,
+    showPreBabel       = showPreBabel,
+    showResult         = showResult,
+    showDiff           = showDiff,
+    golden             = false,
+    hack               = hack,
+    onShow             = onShow,
+    expectedFrags      = expectedFrags,
+  )
+
+  /** Load scalajs-react output JS, run ReactRefresh transforms over it, and confirm the result. */
   protected def testScala(assertRR          : Boolean     = true,
                           assertNoRR        : Boolean     = false,
                           assertBabelChanges: Boolean     = true,
-                          showResult        : Boolean     = false,
                           showPreBabel      : Boolean     = false,
+                          showResult        : Boolean     = false,
+                          showDiff          : Boolean     = false,
                           golden            : Boolean     = true,
                           hack              : TestJs.Hack = null,
+                          onShow            : TestJs.Hack = TestJs.Hack.humanReadable,
                           expectedFrags     : Seq[String] = Seq.empty)
                          (implicit tp       : TestPath) = {
 
@@ -90,22 +121,34 @@ object ReactRefreshTest extends TestSuite {
       if (golden)
         utestOutput = babel.assertOrSaveOutput(expectFilename)
 
-      if (utestOutput == () && assertRR)
-        utestOutput =
-          babel.after.replace('\n', ' ') match {
-            case rrSigHashRegex(h) => h
-            case _                 => "Failed to find the RefreshSig state id"
-          }
+      if (utestOutput == ())
+        reactRefreshSignature(babel.after) match {
+          case Some(sig) => utestOutput = sig
+          case None =>
+            if (assertRR)
+              utestOutput = "Failed to find the RefreshSig state id"
+        }
 
     } finally {
+      def show(s: String): String = onShow.runAnon(s).content
+      lazy val before = show(babel.before)
+      lazy val after = show(babel.after)
       if (showPreBabel)
-        Util.debugShowContent(s"$name.scala JS pre-babel", babel.before, "\u001b[107;30m")
+        Util.debugShowContent(s"$name.scala JS pre-babel", before, "\u001b[107;30m", rrFlags = false)
       if (showResult)
-        Util.debugShowContent(s"$name.scala JS post-babel", babel.after, "\u001b[107;30m")
+        Util.debugShowContent(s"$name.scala JS post-babel", after, "\u001b[107;30m")
+      if (showDiff)
+        Util.debugShowDiff(before, after)
     }
 
     utestOutput
   }
 
   private val rrSigHashRegex = """.*, ?"([a-zA-Z0-9/+]{27}=)"\);.*""".r
+
+  private def reactRefreshSignature(js: String): Option[String] =
+    js.replace('\n', ' ') match {
+      case rrSigHashRegex(h) => Some(h)
+      case _                 => None
+    }
 }

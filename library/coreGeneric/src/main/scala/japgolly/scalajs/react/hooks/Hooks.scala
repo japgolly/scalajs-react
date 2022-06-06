@@ -249,11 +249,14 @@ object Hooks {
 
     def unsafeCreate[S](initialState: => S): UseState[S] = {
       // Boxing is required because React's useState uses reflection to distinguish between {set,mod}State.
-      val initialStateFn   = (() => Box(initialState)): js.Function0[Box[S]]
-      val originalResult   = facade.React.useState[Box[S]](initialStateFn)
-      val originalSetState = Reusable.byRef(originalResult._2)
-      UseState(originalResult, originalSetState)
-        .xmap(_.unbox)(Box.apply)
+      val initialStateFn = (() => Box(initialState)): js.Function0[Box[S]]
+      val originalResult = facade.React.useStateFn[Box[S]](initialStateFn)
+      fromJsBoxed(originalResult)
+    }
+
+    def fromJsBoxed[S](r: facade.React.UseState[Box[S]]): UseState[S] = {
+      val originalSetState = Reusable.byRef(r._2)
+      UseState(r, originalSetState).xmap(_.unbox)(Box.apply)
     }
   }
 

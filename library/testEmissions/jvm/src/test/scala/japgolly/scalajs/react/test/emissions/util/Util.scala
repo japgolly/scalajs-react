@@ -28,12 +28,19 @@ object Util {
     go(str, 0)
   }
 
-  def debugShowContent(name: String, content: String, colour: String): Unit = {
+  def debugShowContent(name: String, content: String, colour: String, rrFlags: Boolean = true): Unit = {
     val batPath = "/usr/bin/bat"
     var useBat  = (new File(batPath)).exists()
-    val rr      = containsRR(content)
-    val rrDesc  = if (rr) "\u001b[102;30m[RR]" else "\u001b[101;97m[RR]"
-    val sep     = "=" * (name.length + 5)
+
+    val rrDesc =
+      if (rrFlags) {
+        val rr = containsRR(content)
+        val flags = if (rr) "\u001b[102;30m[RR:Y]" else "\u001b[101;97m[RR:N]"
+        flags + Console.RESET + " "
+      } else
+        ""
+
+    val sep = "=" * (name.length + (if (rrFlags) 7 else 0))
 
     val content2 = {
       val sb = new java.lang.StringBuilder
@@ -58,7 +65,7 @@ object Util {
     }
 
     println(sep)
-    println(rrDesc + Console.RESET + " " + colour + name + Console.RESET)
+    println(rrDesc + colour + name + Console.RESET)
     println(sep)
     if (useBat) {
       val f = writeToTempFile(".js")(content2)
@@ -72,6 +79,20 @@ object Util {
     }
     println(Console.RESET + sep)
     println()
+  }
+
+  def debugShowDiff(content1: String, content2: String): Unit = {
+    var diffPath = "/usr/bin/colordiff"
+    if (!(new File(diffPath)).exists())
+      diffPath = "diff"
+
+    val file1 = writeToTempFile("")(content1)
+    val file2 = writeToTempFile("")(content2)
+
+    val sep = Console.YELLOW_B + Console.BLACK + ("=" * 120) + Console.RESET
+    println(sep)
+    Seq(diffPath, "-uw", file1, file2).#|(Seq("tail", "+3")).!
+    println(sep)
   }
 
   def getFileContent(path: String): Option[String] = {

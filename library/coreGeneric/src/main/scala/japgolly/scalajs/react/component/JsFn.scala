@@ -11,9 +11,10 @@ import scala.scalajs.js
 
 object JsFn extends JsBaseComponentTemplate[facade.React.StatelessFunctionalComponent] {
 
-  type Component[P <: js.Object, CT[-p, +u] <: CtorType[p, u]] = ComponentRoot[P, CT, Unmounted[P]]
-  type Unmounted[P <: js.Object]                               = UnmountedRoot[P]
-  type Mounted                                                 = Unit
+  type RawComponent[P <: js.Object]                               = js.Function1[P with facade.PropsWithChildren, facade.React.Node]
+  type Component   [P <: js.Object, CT[-p, +u] <: CtorType[p, u]] = ComponentRoot[P, CT, Unmounted[P]]
+  type Unmounted   [P <: js.Object]                               = UnmountedRoot[P]
+  type Mounted                                                    = Unit
 
   def apply[P <: js.Object, C <: Children]
            (raw: js.Any)
@@ -27,9 +28,9 @@ object JsFn extends JsBaseComponentTemplate[facade.React.StatelessFunctionalComp
     componentRoot[P, s.CT, Unmounted[P]](rc, s.pf.rmap(s.summon(rc))(unmountedRoot))(s.pf)
   }
 
-  def fromJsFn[P <: js.Object, C <: Children](render: js.Function1[P with facade.PropsWithChildren, facade.React.Element])
-                                             (implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] =
-    JsFn.force[P, C](render)(s)
+  // TODO: This name... fromRaw? fromJs? Is it consistent across the project?
+  @inline def fromJsFn[P <: js.Object, C <: Children](render: RawComponent[P])(implicit s: CtorType.Summoner[P, C]): Component[P, s.CT] =
+    force[P, C](render)(s)
 
   /** Type used when creating a JsFnComponent that ignores its props */
   type UnusedObject = Box[Unit]
