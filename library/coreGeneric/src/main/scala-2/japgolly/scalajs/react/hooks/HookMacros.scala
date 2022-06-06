@@ -35,7 +35,7 @@ class HookMacros(val c: Context) extends MacroUtils {
   private def ScalaFn     : Tree = q"_root_.japgolly.scalajs.react.component.ScalaFn"
   private def withHooks          = "withHooks"
 
-  case class HookDefn(propsType: Tree, steps: List[HookStep])
+  case class HookDefn(steps: List[HookStep])
   case class HookStep(name: String, targs: List[Tree], args: List[List[Tree]])
 
   def render[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]]
@@ -92,11 +92,7 @@ class HookMacros(val c: Context) extends MacroUtils {
             if (args.nonEmpty)
               Left(() => s"$withHooks called with args when none exepcted: ${args.map(_.map(showCode(_)))}")
             else
-              targs match {
-                case props :: Nil => Right(HookDefn(props, steps))
-                case Nil          => Left(() => s"$withHooks called without targs, unable to discern Props type.")
-                case _            => Left(() => s"$withHooks called multiple targs: ${targs.map(showCode(_))}")
-              }
+              Right(HookDefn(steps))
           } else {
             val step = HookStep(name, targs, args)
             log(s"Found step '$name'", step)
