@@ -3,10 +3,9 @@ package japgolly.scalajs.react.hooks
 import japgolly.microlibs.compiletime.MacroUtils
 import japgolly.scalajs.react.component.ScalaFn.Component
 import japgolly.scalajs.react.hooks.Api._
-import japgolly.scalajs.react.internal.{Box, MacroLogger}
+import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.vdom.VdomNode
 import japgolly.scalajs.react.{Children, CtorType}
-import scala.annotation.{nowarn, tailrec}
 import scala.reflect.macros.blackbox.Context
 
 object HookMacros {
@@ -35,84 +34,120 @@ class HookMacros(val c: Context) extends MacroUtils {
   private def PropsChildren: Tree = q"_root_.japgolly.scalajs.react.PropsChildren"
   private def React        : Tree = q"_root_.japgolly.scalajs.react.facade.React"
   private def ScalaFn      : Tree = q"_root_.japgolly.scalajs.react.component.ScalaFn"
-  private def withHooks           = "withHooks"
 
-  private case class HookDefn(steps: List[HookStep])
+  private final class HookMacrosImpl extends AbstractHookMacros {
+    import AbstractHookMacros._
 
-  private case class HookStep(name: String, targs: List[Tree], args: List[List[Tree]])
+    override type Tree = c.universe.Tree
 
-  private class HookRewriter(props: Tree, initChildren: Tree, propsChildren: Tree) {
-    private var stmts = Vector.empty[Tree]
-    private var hooks = List.empty[Ident]
-    private var _hookCount = 0
-    private var _usesChildren = false
-
-    def usesChildren() =
-      _usesChildren
-
-    def useChildren(): Unit = {
-      _usesChildren = true
-      this += initChildren
+    override type Apply = c.universe.Apply
+    override val Apply = new ApplyExtractor {
+      override def apply(fun: Tree, args: List[Tree]) = c.universe.Apply(fun, args)
+      override def unapply(a: Apply) = c.universe.Apply.unapply(a)
     }
 
-    def +=(stmt: Tree): Unit =
-      stmts :+= stmt
-
-    def hookCount(): Int =
-      _hookCount
-
-    def nextHookName(suffix: String = ""): TermName =
-      TermName("hook" + (hookCount() + 1) + suffix)
-
-    def registerHook(h: TermName): Unit = {
-      hooks :+= Ident(h)
-      _hookCount += 1
+    override type TypeApply = c.universe.TypeApply
+    override val TypeApply = new TypeApplyExtractor {
+      override def apply(fun: Tree, args: List[Tree]) = c.universe.TypeApply(fun, args)
+      override def unapply(a: TypeApply) = c.universe.TypeApply.unapply(a)
     }
 
-    def args(): List[Tree] =
-      if (usesChildren())
-        props :: propsChildren :: hooks
-      else
-        props :: hooks
-
-    def ctxArg(): Tree = {
-      val hookCtxObj = if (usesChildren()) q"$HookCtx.withChildren" else HookCtx
-      val create = Apply(hookCtxObj, args())
-      val name = nextHookName("_ctx")
-      this += q"val $name = $create"
-      Ident(name)
+    override type Select = c.universe.Select
+    override val Select = new SelectExtractor {
+      override def apply(qualifier: Tree, name: String) = c.universe.Select(qualifier, TermName(name))
+      override def unapply(a: Select) = c.universe.Select.unapply(a).map(x => (x._1, x._2.toString))
     }
 
-    def wrap(body: Tree): Tree =
-      q"..$stmts; $body"
+    override type Function = c.universe.Function
+    override val Function = new FunctionExtractor {
+      override def unapply(f: Function) = c.universe.Function.unapply(f)
+    }
+
+    override def showRaw(t: Tree): String = c.universe.showRaw(t)
+    override def showCode(t: Tree): String = c.universe.showCode(t)
+
+    override type HookRef = TermName
+
+    override def rewriter() =
+      new HookRewriter[Tree, TermName] {
+        override protected def props                          = q"props.unbox"
+        override protected def initChildren                   = q"val children = $PropsChildren.fromRawProps(props)"
+        override protected def propsChildren                  = q"children"
+        override protected def Apply(t: Tree, as: List[Tree]) = c.universe.Apply(t, as)
+        override protected def hookCtx(withChildren: Boolean) = if (withChildren) q"$HookCtx.withChildren" else HookCtx
+        override protected def Ident(name: TermName)          = c.universe.Ident(name)
+        override protected def TermName(name: String)         = c.universe.TermName(name)
+        override protected def ValDef(n: TermName, t: Tree)   = q"val $n = $t"
+        override def wrap(body: Tree)                         = q"..$stmts; $body"
+
+      }
+
+    override def call(function: Tree, args: List[Tree]): Tree = {
+      import internal._
+
+      function match {
+        case Function(params, body) =>
+
+          // From scala/test/files/run/macro-range/Common_1.scala
+          class TreeSubstituter(from: List[Symbol], to: List[Tree]) extends Transformer {
+            override def transform(tree: Tree): Tree = tree match {
+              case Ident(_) =>
+                def subst(from: List[Symbol], to: List[Tree]): Tree =
+                  if (from.isEmpty) tree
+                  else if (tree.symbol == from.head) to.head.duplicate
+                  else subst(from.tail, to.tail);
+                subst(from, to)
+              case _ =>
+                val tree1 = super.transform(tree)
+                if (tree1 ne tree) setType(tree1, null)
+                tree1
+            }
+          }
+          val t = new TreeSubstituter(params.map(_.symbol), args)
+          t.transform(body)
+
+        case _ =>
+          Apply(Select(function, "apply"), args)
+      }
+    }
+
+    override protected def vdomRawNode(vdom: Tree) =
+      q"$vdom.rawNode"
+
+    override protected def useStateFn(tpe: Tree, body: Tree) =
+      q"$React.useStateFn(() => $Box[$tpe]($body))"
+
+    override protected def useStateFromJsBoxed(tpe: Tree, raw: HookRef) =
+      q"$Hooks.UseState.fromJsBoxed[$tpe]($raw)"
+
+    override protected def useStateWithReuseFromJsBoxed(tpe: Tree, raw: HookRef, reuse: Tree, ct: Tree) =
+      q"$Hooks.UseStateWithReuse.fromJsBoxed[$tpe]($raw)($reuse, $ct)"
   }
 
-  // -------------------------------------------------------------------------------------------------------------------
+  // ===================================================================================================================
 
   def render[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]]
             (f: c.Tree)(step: c.Tree, s: c.Tree)
             (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree = {
 
-    implicit val log = MacroLogger()
+    val hookMacros = new HookMacrosImpl
+    import hookMacros.log
+
     log.enabled = showCode(c.macroApplication).contains("DEBUG") // TODO: DELETE
     log.header()
-    log("macroApplication", showRaw(c.macroApplication))
-
-    val self = c.prefix
-
-    val parsed = parseHookDefn(c.macroApplication, Nil, Nil, Nil)
-
-    val inlined = parsed
-      .flatMap(inlineHookDefn)
-      .map(inlineHookRawComponent[P])
-      .map(inlineHookComponent[P, C](_, s))
 
     val result: Tree =
-      inlined match {
-        case Right(r) =>
-          r
-        case Left(e) =>
-          log(e())
+      hookMacros(c.macroApplication) match {
+
+        case Right(newBody) =>
+          c.untypecheck(q"""
+            val rawComponent: $JsFn.RawComponent[${Box(P)}] = props => $newBody
+            $ScalaFn.fromBoxed($JsFn.fromJsFn[${Box(P)}, $C](rawComponent)($s))
+          """)
+
+        case Left(err) =>
+          log(err()) // TODO: make a proper warning?
+          val self = c.prefix
           q"""
             val f = $step.squash($f)
             $self.render(f)($s)
@@ -121,178 +156,5 @@ class HookMacros(val c: Context) extends MacroUtils {
 
     log.footer(showCode(result))
     result
-  }
-
-  @tailrec
-  private def parseHookDefn(tree: Tree, targs: List[Tree], args: List[List[Tree]], steps: List[HookStep])
-                           (implicit log: MacroLogger): Either[() => String, HookDefn] =
-      tree match {
-
-        case Apply(t, a) =>
-           parseHookDefn(t, targs, a :: args, steps)
-
-        case TypeApply(t, a) =>
-          if (targs.isEmpty)
-            parseHookDefn(t, a, args, steps)
-          else
-            Left(() => "Multiple type arg clauses found at " + showRaw(tree))
-
-        case Select(t, n) =>
-          val name = n.toString
-          if (name == withHooks) {
-            if (args.nonEmpty)
-              Left(() => s"$withHooks called with args when none exepcted: ${args.map(_.map(showCode(_)))}")
-            else
-              Right(HookDefn(steps))
-          } else {
-            val step = HookStep(name, targs, args)
-            log(s"Found step '$name'", step)
-            parseHookDefn(t, Nil, Nil, step :: steps)
-          }
-
-        case _ =>
-          Left(() => "Don't know how to parse " + showRaw(tree))
-      }
-
-  private def inlineHookDefn(h: HookDefn)(implicit log: MacroLogger): Either[() => String, HookRewriter => Tree] = {
-    val it = h.steps.iterator
-    var renderStep: HookStep = null
-    var hooks = Vector.empty[HookRewriter => TermName]
-    var withPropsChildren = false
-    while (it.hasNext) {
-      val step = it.next()
-      if (it.hasNext) {
-        if (hooks.isEmpty && step.name == "withPropsChildren")
-          withPropsChildren = true
-        else
-          inlineHookStep(step) match {
-            case Right(h) => hooks :+= h
-            case Left(e)  => return Left(e)
-          }
-      } else
-        renderStep = step
-    }
-
-    hookRenderInliner(renderStep).map { buildRender => b =>
-      if (withPropsChildren)
-        b.useChildren()
-      for (h <- hooks)
-        b registerHook h(b)
-      buildRender(b)
-    }
-  }
-
-  private def inlineHookStep(step: HookStep)(implicit log: MacroLogger): Either[() => String, HookRewriter => TermName] = {
-    log("inlineHookStep." + step.name, step)
-
-    def by[A](fn: Tree)(use: (HookRewriter, Tree) => A): Either[() => String, HookRewriter => A] =
-      fn match {
-        case f@ Function(params, _) =>
-          Right { b =>
-            if (params.sizeIs == 1) {
-              val ctxArg = b.ctxArg()
-              use(b, call(f, ctxArg :: Nil))
-            } else
-              use(b, call(f, b.args()))
-          }
-
-        case _ =>
-          Left(() => s"Expected a function, found: ${showRaw(fn)}")
-      }
-
-    def maybeBy[A](f: Tree)(use: (HookRewriter, Tree) => A): Either[() => String, HookRewriter => A] =
-      if (step.name endsWith "By")
-        by(f)(use)
-      else
-        Right(use(_, f))
-
-    def useState(b: HookRewriter, tpe: Tree, body: Tree) = {
-      val rawName = b.nextHookName("_raw")
-      val name    = b.nextHookName()
-      b += q"val $rawName = $React.useStateFn(() => $Box[$tpe]($body))"
-      b += q"val $name = $Hooks.UseState.fromJsBoxed[$tpe]($rawName)"
-      name
-    }
-
-    def useStateWithReuse(b: HookRewriter, tpe: Tree, body: Tree, reuse: Tree, ct: Tree) = {
-      val rawName = b.nextHookName("_raw")
-      val name    = b.nextHookName()
-      b += q"val $rawName = $React.useStateFn(() => $Box[$tpe]($body))"
-      b += q"val $name = $Hooks.UseStateWithReuse.fromJsBoxed[$tpe]($rawName)($reuse, $ct)"
-      name
-    }
-
-    step.name match {
-
-      case "useState" | "useStateBy" =>
-        val List(tpe) = step.targs : @nowarn
-        val List(List(f), _) = step.args : @nowarn
-        maybeBy(f)(useState(_, tpe, _))
-
-      case "useStateWithReuse" | "useStateWithReuseBy" =>
-        val List(tpe) = step.targs : @nowarn
-        val List(List(f), List(ct, reuse, _)) = step.args : @nowarn
-        maybeBy(f)(useStateWithReuse(_, tpe, _, reuse, ct))
-
-      case _ =>
-        Left(() => s"Inlining of hook method '${step.name}' not yet supported.")
-    }
-  }
-
-  private def hookRenderInliner(step: HookStep)(implicit log: MacroLogger): Either[() => String, HookRewriter => Tree] = {
-    log("inlineHookRender." + step.name, step)
-    step.name match {
-      case "render" =>
-        val List(List(renderFn), _) = step.args : @nowarn
-        Right(b => call(renderFn, b.args()))
-
-      case _ =>
-        Left(() => s"Inlining of hook render method '${step.name}' not yet supported.")
-    }
-  }
-
-  private def inlineHookRawComponent[P](rewrite: HookRewriter => Tree)(implicit P: c.WeakTypeTag[P]): Tree = {
-    val b       = new HookRewriter(q"props.unbox", q"val children = $PropsChildren.fromRawProps(props)", q"children")
-    val render1 = rewrite(b)
-    val render2 = b.wrap(q"$render1.rawNode")
-    q"(props => $render2): $JsFn.RawComponent[${Box(P)}]"
-  }
-
-  private def inlineHookComponent[P, C <: Children](rawComp: Tree, summoner: c.Tree)(implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): Tree = {
-    c.untypecheck(q"""
-      val rawComponent = $rawComp
-      $ScalaFn.fromBoxed($JsFn.fromJsFn[${Box(P)}, $C](rawComponent)($summoner))
-    """)
-  }
-
-  // -------------------------------------------------------------------------------------------------------------------
-
-  private def call(function: Tree, args: List[Tree]): Tree = {
-    import internal._
-
-    function match {
-      case Function(params, body) =>
-
-        // From scala/test/files/run/macro-range/Common_1.scala
-        class TreeSubstituter(from: List[Symbol], to: List[Tree]) extends Transformer {
-          override def transform(tree: Tree): Tree = tree match {
-            case Ident(_) =>
-              def subst(from: List[Symbol], to: List[Tree]): Tree =
-                if (from.isEmpty) tree
-                else if (tree.symbol == from.head) to.head.duplicate
-                else subst(from.tail, to.tail);
-              subst(from, to)
-            case _ =>
-              val tree1 = super.transform(tree)
-              if (tree1 ne tree) setType(tree1, null)
-              tree1
-          }
-        }
-        val t = new TreeSubstituter(params.map(_.symbol), args)
-        t.transform(body)
-
-      case _ =>
-        Apply(Select(function, TermName("apply")), args)
-    }
   }
 }
