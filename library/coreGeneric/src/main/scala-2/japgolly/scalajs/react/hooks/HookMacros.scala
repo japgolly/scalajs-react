@@ -38,53 +38,71 @@ class HookMacros(val c: Context) extends MacroUtils {
   private final class HookMacrosImpl extends AbstractHookMacros {
     import AbstractHookMacros._
 
-    override type Tree = c.universe.Tree
+    override type Expr[A]  = Term
+    override type HookRef  = TermName
+    override type Stmt     = c.universe.Tree
+    override type Term     = c.universe.Tree
+    override type Type[A]  = TypeTree
+    override type TypeTree = c.universe.Tree
+
+    override protected def asTerm[A](e: Expr[A]) = e
+    override protected def Expr[A](t: Term) = t
+    override protected def hookRefToTerm(r: HookRef) = Ident(r)
+    override protected def Type[A](t: TypeTree) = t
 
     override type Apply = c.universe.Apply
     override val Apply = new ApplyExtractor {
-      override def apply(fun: Tree, args: List[Tree]) = c.universe.Apply(fun, args)
-      override def unapply(a: Apply) = c.universe.Apply.unapply(a)
+      override def apply(fun: Term, args: List[Term]) = c.universe.Apply(fun, args)
+      override def unapply(a: Term) = a match {
+        case c.universe.Apply(x, y) => Some((x, y))
+        case _ => None
+      }
     }
 
     override type TypeApply = c.universe.TypeApply
     override val TypeApply = new TypeApplyExtractor {
-      override def apply(fun: Tree, args: List[Tree]) = c.universe.TypeApply(fun, args)
-      override def unapply(a: TypeApply) = c.universe.TypeApply.unapply(a)
+      override def apply(fun: Term, args: List[TypeTree]) = c.universe.TypeApply(fun, args)
+      override def unapply(a: Term) = a match {
+        case c.universe.TypeApply(x, y) => Some((x, y))
+        case _ => None
+      }
     }
 
     override type Select = c.universe.Select
     override val Select = new SelectExtractor {
-      override def apply(qualifier: Tree, name: String) = c.universe.Select(qualifier, TermName(name))
-      override def unapply(a: Select) = c.universe.Select.unapply(a).map(x => (x._1, x._2.toString))
+      override def apply(qualifier: Term, name: String) = c.universe.Select(qualifier, TermName(name))
+      override def unapply(a: Term) = a match {
+        case c.universe.Select(x, y) => Some((x, y.toString))
+        case _ => None
+      }
     }
 
     override type Function = c.universe.Function
     override val Function = new FunctionExtractor {
-      override def unapply(f: Function) = c.universe.Function.unapply(f)
+      override def unapply(a: Term) = a match {
+        case c.universe.Function(x, y) => Some((x, y))
+        case _ => None
+      }
     }
 
-    override def showRaw(t: Tree): String = c.universe.showRaw(t)
-    override def showCode(t: Tree): String = c.universe.showCode(t)
-
-    override type HookRef = TermName
+    override def showRaw(t: Term): String = c.universe.showRaw(t)
+    override def showCode(t: Term): String = c.universe.showCode(t)
 
     override def rewriter() =
-      new HookRewriter[Tree, TermName] {
-        override protected def props                          = q"props.unbox"
-        override protected def initChildren                   = q"val children = $PropsChildren.fromRawProps(props)"
-        override protected def propsChildren                  = q"children"
-        override protected def Apply(t: Tree, as: List[Tree]) = c.universe.Apply(t, as)
+      new HookRewriter[Tree, Term, HookRef] {
+        override protected def Apply(t: Term, as: List[Term]) = c.universe.Apply(t, as)
         override protected def hookCtx(withChildren: Boolean) = if (withChildren) q"$HookCtx.withChildren" else HookCtx
-        override protected def Ident(name: TermName)          = c.universe.Ident(name)
-        override protected def TermName(name: String)         = c.universe.TermName(name)
-        override protected def ValDef(n: TermName, t: Tree)   = q"val $n = $t"
-        override def wrap(body: Tree)                         = q"..$stmts; $body"
-
+        override protected def Ident(name: HookRef)           = c.universe.Ident(name)
+        override protected def initChildren                   = q"val children = $PropsChildren.fromRawProps(props)"
+        override protected def props                          = q"props.unbox"
+        override protected def propsChildren                  = q"children"
+        override protected def HookRef(name: String)          = c.universe.TermName(name)
+        override protected def ValDef(n: HookRef, t: Term)    = q"val $n = $t"
+        override def wrap(body: Term)                         = q"..$stmts; $body"
       }
 
     override def call(function: Tree, args: List[Tree]): Tree = {
       import internal._
-
       function match {
         case Function(params, body) =>
 
@@ -111,17 +129,17 @@ class HookMacros(val c: Context) extends MacroUtils {
       }
     }
 
-    override protected def vdomRawNode(vdom: Tree) =
-      q"$vdom.rawNode"
-
-    override protected def useStateFn(tpe: Tree, body: Tree) =
+    override protected def useStateFn[S] = (tpe, body) =>
       q"$React.useStateFn(() => $Box[$tpe]($body))"
 
-    override protected def useStateFromJsBoxed(tpe: Tree, raw: HookRef) =
+    override protected def useStateFromJsBoxed[S] = (tpe, raw) =>
       q"$Hooks.UseState.fromJsBoxed[$tpe]($raw)"
 
-    override protected def useStateWithReuseFromJsBoxed(tpe: Tree, raw: HookRef, reuse: Tree, ct: Tree) =
+    override protected def useStateWithReuseFromJsBoxed[S] = (tpe, raw, reuse, ct) =>
       q"$Hooks.UseStateWithReuse.fromJsBoxed[$tpe]($raw)($reuse, $ct)"
+
+    override protected def vdomRawNode = vdom =>
+      q"$vdom.rawNode"
   }
 
   // ===================================================================================================================
