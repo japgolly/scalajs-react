@@ -88,6 +88,10 @@ object Lib {
       libraryDependencies          ++= Seq(Dep.betterMonadicFor, Dep.kindProjector).filter(_ => scalaVersion.value startsWith "2"),
       disable                       := false,
       dependencyOverrides          ++= globalDependencyOverrides.value,
+      Test / clean := {
+        val dir = (Test / classDirectory).value
+        IO.delete(dir)
+      }
     )
 
   def byScalaVersion[A](f: PartialFunction[(Long, Long), Seq[A]]): Def.Initialize[Seq[A]] =

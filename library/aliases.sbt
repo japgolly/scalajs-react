@@ -12,6 +12,7 @@ addCommandAlias("TEJ", "project testEmissionsJS")
 addCommandAlias("TT",  "project tests")
 addCommandAlias("TU",  "project testUtil")
 
+addCommandAlias("tcc", "compile; Test/clean; Test/compile")
 addCommandAlias("tt",  "tests/test")
 addCommandAlias("te",  "testEmissions/test")
 addCommandAlias("cte", "testEmissionsJS/clean;testEmissions/test")
