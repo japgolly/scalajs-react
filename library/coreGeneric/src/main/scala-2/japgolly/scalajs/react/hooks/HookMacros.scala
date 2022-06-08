@@ -88,14 +88,12 @@ class HookMacros(val c: Context) extends MacroUtils {
     override def showRaw(t: Term): String = c.universe.showRaw(t)
     override def showCode(t: Term): String = c.universe.showCode(t)
 
-    override def rewriter() =
+    override def rewriter(rc: RewriterCtx) =
       new HookRewriter[Tree, Term, HookRef] {
+        override protected val ctx                            = rc
         override protected def Apply(t: Term, as: List[Term]) = c.universe.Apply(t, as)
         override protected def hookCtx(withChildren: Boolean) = if (withChildren) q"$HookCtx.withChildren" else HookCtx
         override protected def Ident(name: HookRef)           = c.universe.Ident(name)
-        override protected def initChildren                   = q"val children = $PropsChildren.fromRawProps(props)"
-        override protected def props                          = q"props.unbox"
-        override protected def propsChildren                  = q"children"
         override protected def HookRef(name: String)          = c.universe.TermName(name)
         override protected def ValDef(n: HookRef, t: Term)    = q"val $n = $t"
         override def wrap(body: Term)                         = q"..$stmts; $body"
@@ -157,7 +155,13 @@ class HookMacros(val c: Context) extends MacroUtils {
     val result: Tree =
       hookMacros(c.macroApplication) match {
 
-        case Right(newBody) =>
+        case Right(rewrite) =>
+          val ctx = hookMacros.rewriterCtx(
+            props        = q"props.unbox",
+            initChildren = q"val children = $PropsChildren.fromRawProps(props)",
+            children     = q"children",
+          )
+          val newBody = rewrite(ctx)
           c.untypecheck(q"""
             val rawComponent: $JsFn.RawComponent[${Box(P)}] = props => $newBody
             $ScalaFn.fromBoxed($JsFn.fromJsFn[${Box(P)}, $C](rawComponent)($s))

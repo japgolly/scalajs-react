@@ -42,13 +42,11 @@ object AbstractHookMacros {
     private var _hookCount    = 0
     private var _usesChildren = false
 
+    protected val ctx: HookRewriterCtx[Stmt, Term]
     protected def Apply(t: Term, args: List[Term]): Term
     protected def hookCtx(withChildren: Boolean): Term
-    protected def Ident(name: HookRef): Term
-    protected def initChildren: Stmt
-    protected def props: Term
-    protected def propsChildren: Term
     protected def HookRef(name: String): HookRef
+    protected def Ident(name: HookRef): Term
     protected def ValDef(name: HookRef, body: Term): Stmt
 
     final override def usesChildren() =
@@ -56,7 +54,7 @@ object AbstractHookMacros {
 
     final override def useChildren(): Unit = {
       _usesChildren = true
-      this += initChildren
+      this += ctx.initChildren
     }
 
     final override def +=(stmt: Stmt): Unit =
@@ -78,9 +76,9 @@ object AbstractHookMacros {
 
     final override def args(): List[Term] =
       if (usesChildren())
-        props :: propsChildren :: hooks
+        ctx.props :: ctx.children :: hooks
       else
-        props :: hooks
+        ctx.props :: hooks
 
     final override def ctxArg(): Term = {
       val hookCtxObj = hookCtx(usesChildren())
@@ -90,6 +88,8 @@ object AbstractHookMacros {
       Ident(name)
     }
   }
+
+  final case class HookRewriterCtx[Stmt, Term](props: Term, initChildren: Stmt, children: Term)
 }
 
 // @nowarn("msg=unchecked since it is eliminated by erasure|cannot be checked at run ?time")
@@ -141,7 +141,7 @@ trait AbstractHookMacros {
   protected def showRaw(t: Term): String
   protected def showCode(t: Term): String
 
-  def rewriter(): Rewriter
+  def rewriter(ctx: HookRewriterCtx[Stmt, Term]): Rewriter
 
   protected def call(function: Term, args: List[Term]): Term
 
@@ -162,6 +162,10 @@ trait AbstractHookMacros {
   }
 
   type Rewriter = HookRewriterApi[Stmt, Term, HookRef]
+  type RewriterCtx = HookRewriterCtx[Stmt, Term]
+
+  def rewriterCtx(props: Term, initChildren: Stmt, children: Term): RewriterCtx =
+    HookRewriterCtx(props, initChildren, children)
 
   implicit val log: MacroLogger =
     MacroLogger()
@@ -172,11 +176,11 @@ trait AbstractHookMacros {
 
   private val withHooks = "withHooks"
 
-  final def apply(tree: Term): Either[() => String, Term] =
+  final def apply(tree: Term): Either[() => String, RewriterCtx => Term] =
     for {
       p <- parse(tree)
       r <- rewriteComponent(p)
-    } yield applyRewrite(r)
+    } yield applyRewrite(_, r)
 
   final def parse(tree: Term): Either[() => String, HookDefn] =
     _parse(tree, Nil, Nil, Nil)
@@ -210,9 +214,9 @@ trait AbstractHookMacros {
         Left(() => "Don't know how to parse " + showRaw(tree))
     }
 
-  def applyRewrite(rewrite: Rewriter => Term): Term = {
+  def applyRewrite(ctx: RewriterCtx, rewrite: Rewriter => Term): Term = {
     import AutoTypeImplicits._
-    val b    = rewriter()
+    val b    = rewriter(ctx)
     val vdom = rewrite(b)
     b.wrap(vdomRawNode(vdom))
   }
