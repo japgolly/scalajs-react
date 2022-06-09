@@ -14,27 +14,31 @@ object AbstractHookMacros {
 
   trait HookRewriterApi[Stmt, Term, HookRef] {
     def +=(stmt: Stmt): Unit
-    def valDef(name: HookRef, body: Term): Unit
     def args(): List[Term]
     def ctxArg(): Term
     def hookCount(): Int
-    def nextHookName(suffix: String): HookRef
+    def nextHookName(): String
     def registerHook(h: HookRef): Unit
     def useChildren(): Unit
     def usesChildren(): Boolean
+    def valDef(name: String, body: Term): HookRef
     def wrap(body: Term): Term
 
     final def createRawAndHook(raw: Term, hook: HookRef => Term): HookRef = {
-      val rawName = nextHookName("_raw")
-      val name    = nextHookName()
-      valDef(rawName, raw)
-      valDef(name, hook(rawName))
-      name
+      val rawDef = valDef(raw, "_raw")
+      hookDef(hook(rawDef))
     }
 
-    final def nextHookName(): HookRef =
-      nextHookName("")
+    final def hookDef(body: Term): HookRef =
+      valDef(nextHookName(), body)
+
+    final def valDef(body: Term, suffix: String): HookRef =
+      valDef(nextHookName() + suffix, body)
   }
+
+  // -------------------------------------------------------------------------------------------------------------------
+
+  final case class HookRewriterCtx[Stmt, Term](props: Term, initChildren: Stmt, children: Term)
 
   trait HookRewriter[Stmt, Term, HookRef] extends HookRewriterApi[Stmt, Term, HookRef] {
     protected var stmts       = Vector.empty[Stmt]
@@ -45,9 +49,7 @@ object AbstractHookMacros {
     protected val ctx: HookRewriterCtx[Stmt, Term]
     protected def Apply(t: Term, args: List[Term]): Term
     protected def hookCtx(withChildren: Boolean): Term
-    protected def HookRef(name: String): HookRef
-    protected def Ident(name: HookRef): Term
-    protected def ValDef(name: HookRef, body: Term): Stmt
+    protected def hookRefToTerm(ref: HookRef): Term
 
     final override def usesChildren() =
       _usesChildren
@@ -60,17 +62,14 @@ object AbstractHookMacros {
     final override def +=(stmt: Stmt): Unit =
       stmts :+= stmt
 
-    final def valDef(name: HookRef, body: Term): Unit =
-      this += ValDef(name, body)
-
     final override def hookCount(): Int =
       _hookCount
 
-    final override def nextHookName(suffix: String = ""): HookRef =
-      HookRef("hook" + (hookCount() + 1) + suffix)
+    final override def nextHookName(): String =
+      "hook" + (hookCount() + 1)
 
     final override def registerHook(h: HookRef): Unit = {
-      hooks :+= Ident(h)
+      hooks :+= hookRefToTerm(h)
       _hookCount += 1
     }
 
@@ -83,20 +82,17 @@ object AbstractHookMacros {
     final override def ctxArg(): Term = {
       val hookCtxObj = hookCtx(usesChildren())
       val create = Apply(hookCtxObj, args())
-      val name = nextHookName("_ctx")
-      valDef(name, create)
-      Ident(name)
+      val ctx = valDef(create, "_ctx")
+      hookRefToTerm(ctx)
     }
   }
-
-  final case class HookRewriterCtx[Stmt, Term](props: Term, initChildren: Stmt, children: Term)
 }
 
-// @nowarn("msg=unchecked since it is eliminated by erasure|cannot be checked at run ?time")
+// =====================================================================================================================
+
 trait AbstractHookMacros {
   import AbstractHookMacros._
 
-  // ===================================================================================================================
   // Abstractions
 
   type Expr[A]
@@ -132,10 +128,9 @@ trait AbstractHookMacros {
     def unapply(select: Term): Option[(Term, String)]
   }
 
-  protected type Function <: Term
   protected val Function: FunctionExtractor
   protected abstract class FunctionExtractor {
-    def unapply(function: Term): Option[(List[Term], Term)]
+    def unapply(function: Term): Option[Int]
   }
 
   protected def showRaw(t: Term): String
@@ -150,7 +145,6 @@ trait AbstractHookMacros {
   protected def useStateWithReuseFromJsBoxed[S]: (Type[S], Expr[React.UseState[Box[S]]], Expr[Reusability[S]], Expr[ClassTag[S]]) => Expr[Hooks.UseStateWithReuse[S]]
   protected def vdomRawNode: Expr[VdomNode] => Expr[React.Node]
 
-  // ===================================================================================================================
   // Concrete
 
   protected object AutoTypeImplicits {
@@ -254,18 +248,18 @@ trait AbstractHookMacros {
 
     def by[A](fn: Term)(use: (Rewriter, Term) => A): Either[() => String, Rewriter => A] =
       fn match {
-        case f@ Function(params, _) =>
+        case Function(paramCount) =>
           Right { b =>
             val takesHookCtx = (
-              b.hookCount() > 1 && // HookCtx only provided from the second hook onwards
-              params.sizeIs == 1   // Function argument takes a single param
+              b.hookCount() > 1  // HookCtx only provided from the second hook onwards
+              && paramCount == 1 // Function argument takes a single param
             )
             val args =
               if (takesHookCtx)
                 b.ctxArg() :: Nil
               else
                 b.args()
-            use(b, call(f, args))
+            use(b, call(fn, args))
           }
 
         case _ =>

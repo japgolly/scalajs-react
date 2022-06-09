@@ -93,9 +93,8 @@ class HookMacros(val c: Context) extends MacroUtils {
         override protected val ctx                            = rc
         override protected def Apply(t: Term, as: List[Term]) = c.universe.Apply(t, as)
         override protected def hookCtx(withChildren: Boolean) = if (withChildren) q"$HookCtx.withChildren" else HookCtx
-        override protected def Ident(name: HookRef)           = c.universe.Ident(name)
-        override protected def HookRef(name: String)          = c.universe.TermName(name)
-        override protected def ValDef(n: HookRef, t: Term)    = q"val $n = $t"
+        override protected def hookRefToTerm(r: HookRef)      = Ident(r)
+        override def valDef(n: String, t: Term)               = { val r = TermName(n); this += q"val $r = $t"; r }
         override def wrap(body: Term)                         = q"..$stmts; $body"
       }
 
