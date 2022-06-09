@@ -107,28 +107,22 @@ trait AbstractHookMacros {
   protected def hookRefToTerm(r: HookRef): Term
   protected def Type[A](t: TypeTree): Type[A]
 
-  protected type Apply <: Term
-  protected val Apply: ApplyExtractor
+  protected val ApplyLike: ApplyExtractor
   protected abstract class ApplyExtractor {
-    def apply(fun: Term, args: List[Term]): Apply
     def unapply(apply: Term): Option[(Term, List[Term])]
   }
 
-  protected type TypeApply <: Term
-  protected val TypeApply: TypeApplyExtractor
+  protected val TypeApplyLike: TypeApplyExtractor
   protected abstract class TypeApplyExtractor {
-    def apply(fun: Term, args: List[TypeTree]): TypeApply
     def unapply(typeApply: Term): Option[(Term, List[TypeTree])]
   }
 
-  protected type Select <: Term
-  protected val Select: SelectExtractor
+  protected val SelectLike: SelectExtractor
   protected abstract class SelectExtractor {
-    def apply(qualifier: Term, name: String): Select
     def unapply(select: Term): Option[(Term, String)]
   }
 
-  protected val Function: FunctionExtractor
+  protected val FunctionLike: FunctionExtractor
   protected abstract class FunctionExtractor {
     def unapply(function: Term): Option[Int]
   }
@@ -170,12 +164,6 @@ trait AbstractHookMacros {
 
   private val withHooks = "withHooks"
 
-  final def apply(tree: Term): Either[() => String, RewriterCtx => Term] =
-    for {
-      p <- parse(tree)
-      r <- rewriteComponent(p)
-    } yield applyRewrite(_, r)
-
   final def parse(tree: Term): Either[() => String, HookDefn] =
     _parse(tree, Nil, Nil, Nil)
 
@@ -183,16 +171,16 @@ trait AbstractHookMacros {
   private def _parse(tree: Term, targs: List[TypeTree], args: List[List[Term]], steps: List[HookStep]): Either[() => String, HookDefn] =
     tree match {
 
-      case Apply(t, a) =>
+      case ApplyLike(t, a) =>
          _parse(t, targs, a :: args, steps)
 
-      case TypeApply(t, a) =>
+      case TypeApplyLike(t, a) =>
         if (targs.isEmpty)
           _parse(t, a, args, steps)
         else
           Left(() => "Multiple type arg clauses found at " + showRaw(tree))
 
-      case Select(t, name) =>
+      case SelectLike(t, name) =>
         if (name == withHooks) {
           if (args.nonEmpty)
             Left(() => s"$withHooks called with args when none exepcted: ${args.map(_.map(showCode(_)))}")
@@ -208,7 +196,7 @@ trait AbstractHookMacros {
         Left(() => "Don't know how to parse " + showRaw(tree))
     }
 
-  def applyRewrite(ctx: RewriterCtx, rewrite: Rewriter => Term): Term = {
+  def applyRewrite(rewrite: Rewriter => Term): RewriterCtx => Expr[React.Node] = ctx => {
     import AutoTypeImplicits._
     val b    = rewriter(ctx)
     val vdom = rewrite(b)
@@ -248,7 +236,7 @@ trait AbstractHookMacros {
 
     def by[A](fn: Term)(use: (Rewriter, Term) => A): Either[() => String, Rewriter => A] =
       fn match {
-        case Function(paramCount) =>
+        case FunctionLike(paramCount) =>
           Right { b =>
             val takesHookCtx = (
               b.hookCount() > 1  // HookCtx only provided from the second hook onwards

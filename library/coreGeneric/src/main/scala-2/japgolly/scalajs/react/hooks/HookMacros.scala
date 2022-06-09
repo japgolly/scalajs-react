@@ -50,37 +50,30 @@ class HookMacros(val c: Context) extends MacroUtils {
     override protected def hookRefToTerm(r: HookRef) = Ident(r)
     override protected def Type[A](t: TypeTree) = t
 
-    override type Apply = c.universe.Apply
-    override val Apply = new ApplyExtractor {
-      override def apply(fun: Term, args: List[Term]) = c.universe.Apply(fun, args)
+    override val ApplyLike = new ApplyExtractor {
       override def unapply(a: Term) = a match {
-        case c.universe.Apply(x, y) => Some((x, y))
+        case Apply(x, y) => Some((x, y))
         case _ => None
       }
     }
 
-    override type TypeApply = c.universe.TypeApply
-    override val TypeApply = new TypeApplyExtractor {
-      override def apply(fun: Term, args: List[TypeTree]) = c.universe.TypeApply(fun, args)
+    override val TypeApplyLike = new TypeApplyExtractor {
       override def unapply(a: Term) = a match {
-        case c.universe.TypeApply(x, y) => Some((x, y))
+        case TypeApply(x, y) => Some((x, y))
         case _ => None
       }
     }
 
-    override type Select = c.universe.Select
-    override val Select = new SelectExtractor {
-      override def apply(qualifier: Term, name: String) = c.universe.Select(qualifier, TermName(name))
+    override val SelectLike = new SelectExtractor {
       override def unapply(a: Term) = a match {
-        case c.universe.Select(x, y) => Some((x, y.toString))
+        case Select(x, y) => Some((x, y.toString))
         case _ => None
       }
     }
 
-    override type Function = c.universe.Function
-    override val Function = new FunctionExtractor {
+    override val FunctionLike = new FunctionExtractor {
       override def unapply(a: Term) = a match {
-        case c.universe.Function(x, y) => Some((x, y))
+        case Function(params, _) => Some(params.size)
         case _ => None
       }
     }
@@ -122,7 +115,7 @@ class HookMacros(val c: Context) extends MacroUtils {
           t.transform(body)
 
         case _ =>
-          Apply(Select(function, "apply"), args)
+          Apply(Select(function, TermName("apply")), args)
       }
     }
 
@@ -151,8 +144,14 @@ class HookMacros(val c: Context) extends MacroUtils {
     log.enabled = showCode(c.macroApplication).contains("DEBUG") // TODO: DELETE
     log.header()
 
+    val rewriteAttempt =
+      for {
+        p <- hookMacros.parse(c.macroApplication)
+        r <- hookMacros.rewriteComponent(p)
+      } yield hookMacros.applyRewrite(r)
+
     val result: Tree =
-      hookMacros(c.macroApplication) match {
+      rewriteAttempt match {
 
         case Right(rewrite) =>
           val ctx = hookMacros.rewriterCtx(
