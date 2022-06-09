@@ -85,10 +85,14 @@ class HookMacros(val c: Context) extends MacroUtils {
       new HookRewriter[Tree, Term, HookRef] {
         override protected val ctx                            = rc
         override protected def Apply(t: Term, as: List[Term]) = c.universe.Apply(t, as)
-        override protected def hookCtx(withChildren: Boolean) = if (withChildren) q"$HookCtx.withChildren" else HookCtx
         override protected def hookRefToTerm(r: HookRef)      = Ident(r)
         override def valDef(n: String, t: Term)               = { val r = TermName(n); this += q"val $r = $t"; r }
         override def wrap(body: Term)                         = q"..$stmts; $body"
+
+        override protected def hookCtx(withChildren: Boolean, args: List[Term]) = {
+          val obj = if (withChildren) q"$HookCtx.withChildren" else HookCtx
+          Apply(obj, args)
+        }
       }
 
     override def call(function: Tree, args: List[Tree]): Tree = {
@@ -141,7 +145,7 @@ class HookMacros(val c: Context) extends MacroUtils {
     val hookMacros = new HookMacrosImpl
     import hookMacros.log
 
-    log.enabled = showCode(c.macroApplication).contains("DEBUG") // TODO: DELETE
+    log.enabled = false // showCode(c.macroApplication).contains("DEBUG")
     log.header()
 
     val rewriteAttempt =

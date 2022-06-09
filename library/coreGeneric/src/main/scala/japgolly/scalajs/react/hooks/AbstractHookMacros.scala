@@ -48,7 +48,7 @@ object AbstractHookMacros {
 
     protected val ctx: HookRewriterCtx[Stmt, Term]
     protected def Apply(t: Term, args: List[Term]): Term
-    protected def hookCtx(withChildren: Boolean): Term
+    protected def hookCtx(withChildren: Boolean, args: List[Term]): Term
     protected def hookRefToTerm(ref: HookRef): Term
 
     final override def usesChildren() =
@@ -80,8 +80,7 @@ object AbstractHookMacros {
         ctx.props :: hooks
 
     final override def ctxArg(): Term = {
-      val hookCtxObj = hookCtx(usesChildren())
-      val create = Apply(hookCtxObj, args())
+      val create = hookCtx(usesChildren(), args())
       val ctx = valDef(create, "_ctx")
       hookRefToTerm(ctx)
     }
@@ -158,7 +157,10 @@ trait AbstractHookMacros {
   implicit val log: MacroLogger =
     MacroLogger()
 
-  case class HookDefn(steps: List[HookStep])
+  case class HookDefn(steps: List[HookStep]) {
+    def +(s: HookStep): HookDefn =
+      HookDefn(steps ::: s :: Nil)
+  }
 
   case class HookStep(name: String, targs: List[TypeTree], args: List[List[Term]])
 
