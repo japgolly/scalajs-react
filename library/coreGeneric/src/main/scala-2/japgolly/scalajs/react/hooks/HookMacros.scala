@@ -10,10 +10,19 @@ import scala.reflect.macros.blackbox.Context
 
 object HookMacros {
 
-  trait ApiSecondaryWithRenderMacros[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]] {
+  trait ApiSecondaryWithRenderMacros200[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]]   {
       self: PrimaryWithRender[P, C, Ctx, Step] with Secondary[Ctx, CtxFn, Step] =>
 
-    final def render(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
+    def render(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
+      render(step.squash(f)(_))
+  }
+
+  trait ApiSecondaryWithRenderMacros[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]]
+  extends ApiSecondaryWithRenderMacros200[P, C, Ctx, CtxFn, Step]
+  {
+      self: PrimaryWithRender[P, C, Ctx, Step] with Secondary[Ctx, CtxFn, Step] =>
+
+    final override def render(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
       // Without macros: render(step.squash(f)(_))
       macro HookMacros.render[P, C, Ctx, CtxFn, Step]
   }

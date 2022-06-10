@@ -37,7 +37,7 @@ object HookComponentBuilder {
 
     type RenderFn[-P, +Ctx] = (Ctx => VdomNode) => P => VdomNode
 
-    final class Subsequent[P, Ctx, CtxFn[_]](renderFn: RenderFn[P, Ctx]) extends Api.SecondaryWithRender[P, Children.None, Ctx, CtxFn, SubsequentStep[P, Ctx, CtxFn]] {
+    final class Subsequent[P, Ctx, CtxFn[_]](renderFn: RenderFn[P, Ctx]) extends Api.SecondaryWithRender2[P, Children.None, Ctx, CtxFn, SubsequentStep[P, Ctx, CtxFn]] {
 
       override protected def self(f: Ctx => Any)(implicit step: Step): step.Self =
         step.self(renderFn, f)
@@ -129,7 +129,7 @@ object HookComponentBuilder {
 
     type RenderFn[-P, +Ctx] = (Ctx => VdomNode) => (P, PropsChildren) => VdomNode
 
-    final class Subsequent[P, Ctx, CtxFn[_]](renderFn: RenderFn[P, Ctx]) extends Api.SecondaryWithRender[P, Children.Varargs, Ctx, CtxFn, SubsequentStep[P, Ctx, CtxFn]] {
+    final class Subsequent[P, Ctx, CtxFn[_]](renderFn: RenderFn[P, Ctx]) extends Api.SecondaryWithRender2[P, Children.Varargs, Ctx, CtxFn, SubsequentStep[P, Ctx, CtxFn]] {
 
       override protected def self(f: Ctx => Any)(implicit step: Step): step.Self =
         step.self(renderFn, f)
