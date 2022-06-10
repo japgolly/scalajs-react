@@ -49,20 +49,20 @@ $h_Ljapgolly_scalajs_react_test_emissions_UseStateWithReuse$.prototype = $c_Ljap
 
 $c_Ljapgolly_scalajs_react_test_emissions_UseStateWithReuse$.prototype.japgolly$scalajs$react$test$emissions$UseStateWithReuse$$$anonfun$Component$3__Ljapgolly_scalajs_react_internal_Box__Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF__Ljapgolly_scalajs_react_internal_Box = function (props$1, hook1$1) {
   var $$x2 = $j_japgolly$002escalajs$002ereact$002einternal$002eBox$0024.$m_Ljapgolly_scalajs_react_internal_Box$();
-  var $$x1 = $j_java$002elang$002eObject.$uI(props$1.a);
+  var $$x1 = props$1.a;
   var this$1 = hook1$1.Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF__f_withoutReuse;
-  return $$x2.apply__O__Ljapgolly_scalajs_react_internal_Box($$x1 + $j_java$002elang$002eObject.$uI(this$1.Ljapgolly_scalajs_react_hooks_Hooks$UseStateF$$anon$2__f_raw[0]) | 0);
+  return $$x2.apply__O__Ljapgolly_scalajs_react_internal_Box(($$x1 | 0) + (this$1.Ljapgolly_scalajs_react_hooks_Hooks$UseStateF$$anon$2__f_raw[0] | 0) | 0);
 };
 
 $c_Ljapgolly_scalajs_react_test_emissions_UseStateWithReuse$.prototype.japgolly$scalajs$react$test$emissions$UseStateWithReuse$$$anonfun$Component$4__Ljapgolly_scalajs_react_hooks_HookCtx$P2__Ljapgolly_scalajs_react_internal_Box = function (hook3_ctx$1) {
   var $$x3 = $j_japgolly$002escalajs$002ereact$002einternal$002eBox$0024.$m_Ljapgolly_scalajs_react_internal_Box$();
-  var $$x2 = $j_java$002elang$002eObject.$uI(hook3_ctx$1.Ljapgolly_scalajs_react_hooks_HookCtx$P0__f_props);
-  var this$1 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseStateWithReuseF.$as_Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF(hook3_ctx$1.Ljapgolly_scalajs_react_hooks_HookCtx$P1__f_hook1);
+  var $$x2 = hook3_ctx$1.Ljapgolly_scalajs_react_hooks_HookCtx$P0__f_props;
+  var this$1 = hook3_ctx$1.Ljapgolly_scalajs_react_hooks_HookCtx$P1__f_hook1;
   var this$2 = this$1.Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF__f_withoutReuse;
-  var $$x1 = $j_java$002elang$002eObject.$uI(this$2.Ljapgolly_scalajs_react_hooks_Hooks$UseStateF$$anon$2__f_raw[0]);
-  var this$3 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseStateWithReuseF.$as_Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF(hook3_ctx$1.Ljapgolly_scalajs_react_hooks_HookCtx$P2__f_hook2);
+  var $$x1 = this$2.Ljapgolly_scalajs_react_hooks_Hooks$UseStateF$$anon$2__f_raw[0];
+  var this$3 = hook3_ctx$1.Ljapgolly_scalajs_react_hooks_HookCtx$P2__f_hook2;
   var this$4 = this$3.Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF__f_withoutReuse;
-  return $$x3.apply__O__Ljapgolly_scalajs_react_internal_Box(($$x2 + $$x1 | 0) + $j_java$002elang$002eObject.$uI(this$4.Ljapgolly_scalajs_react_hooks_Hooks$UseStateF$$anon$2__f_raw[0]) | 0);
+  return $$x3.apply__O__Ljapgolly_scalajs_react_internal_Box((($$x2 | 0) + ($$x1 | 0) | 0) + (this$4.Ljapgolly_scalajs_react_hooks_Hooks$UseStateF$$anon$2__f_raw[0] | 0) | 0);
 };
 
 $c_Ljapgolly_scalajs_react_test_emissions_UseStateWithReuse$.prototype.japgolly$scalajs$react$test$emissions$UseStateWithReuse$$$anonfun$Component$1__Ljapgolly_scalajs_react_internal_Box__sjs_js_$bar = _s(function (props) {
@@ -98,16 +98,16 @@ $c_Ljapgolly_scalajs_react_test_emissions_UseStateWithReuse$.prototype.japgolly$
   var us$2 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseStateF.$f_Ljapgolly_scalajs_react_hooks_Hooks$UseStateF__withReusability__F2__Ljapgolly_scalajs_react_hooks_Hooks$UseStateF(this$17, r$2);
   var hook3 = new $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseStateWithReuseF.$c_Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF(us$2, rr$2, ct$2);
   var this$18 = hook1.Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF__f_withoutReuse;
-  var $$x2 = $j_java$002elang$002eObject.$uI(this$18.Ljapgolly_scalajs_react_hooks_Hooks$UseStateF$$anon$2__f_raw[0]);
+  var $$x2 = this$18.Ljapgolly_scalajs_react_hooks_Hooks$UseStateF$$anon$2__f_raw[0];
   var this$19 = hook2.Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF__f_withoutReuse;
-  var $$x1 = $j_java$002elang$002eObject.$uI(this$19.Ljapgolly_scalajs_react_hooks_Hooks$UseStateF$$anon$2__f_raw[0]);
+  var $$x1 = this$19.Ljapgolly_scalajs_react_hooks_Hooks$UseStateF$$anon$2__f_raw[0];
   var this$20 = hook3.Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF__f_withoutReuse;
-  var sum = ($$x2 + $$x1 | 0) + $j_java$002elang$002eObject.$uI(this$20.Ljapgolly_scalajs_react_hooks_Hooks$UseStateF$$anon$2__f_raw[0]) | 0;
+  var sum = (($$x2 | 0) + ($$x1 | 0) | 0) + (this$20.Ljapgolly_scalajs_react_hooks_Hooks$UseStateF$$anon$2__f_raw[0] | 0) | 0;
   var $$x3 = $j_japgolly$002escalajs$002ereact$002evdom$002eHtmlTagOf$0024.$m_Ljapgolly_scalajs_react_vdom_HtmlTagOf$();
   $j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$();
   $j_japgolly$002escalajs$002ereact$002evdom$002eExports$0024.$m_Ljapgolly_scalajs_react_vdom_Exports$();
   var array = [($j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$(), $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024.$m_Ljapgolly_scalajs_react_vdom_VdomNode$(), new $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024$0024anon$00241.$c_Ljapgolly_scalajs_react_vdom_VdomNode$$anon$1("DEBUG = ")), ($j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$(), $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024.$m_Ljapgolly_scalajs_react_vdom_VdomNode$(), new $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024$0024anon$00241.$c_Ljapgolly_scalajs_react_vdom_VdomNode$$anon$1(sum)), $j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$().Ljapgolly_scalajs_react_vdom_html＿$less$up$__f_$up.Ljapgolly_scalajs_react_vdom_HtmlAttrAndStyles$__f_onClick.$minus$minus$greater__F0__F1__Ljapgolly_scalajs_react_vdom_TagMod(new $j_scala$002escalajs$002eruntime$002eAnonFunction0.$c_sjsr_AnonFunction0((hook1$2 => () => hook1$2.modState__F1__Ljapgolly_scalajs_react_Reusable(new $j_scala$002eFunction1.$c_sjsr_AnonFunction1(x$2$2 => {
-    var x$2 = $j_java$002elang$002eObject.$uI(x$2$2);
+    var x$2 = x$2$2 | 0;
     return 1 + x$2 | 0;
   })))(hook1)), $j_japgolly$002escalajs$002ereact$002evdom$002eAttr$0024EventCallback$0024.$m_Ljapgolly_scalajs_react_vdom_Attr$EventCallback$().reusableDefaultSync__F1())];
   var this$32 = $$x3.apply$extension__T__sci_Seq__Ljapgolly_scalajs_react_vdom_TagOf("button", new $j_scala$002escalajs$002eruntime$002eWrappedVarArgs.$c_sjsr_WrappedVarArgs(array));

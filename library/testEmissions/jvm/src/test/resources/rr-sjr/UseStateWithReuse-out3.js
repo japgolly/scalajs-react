@@ -49,50 +49,49 @@ function $c_Ljapgolly_scalajs_react_test_emissions_UseStateWithReuse$() {
   var f = new $j_scala$002eFunction1.$c_sjsr_AnonFunction1(((initialState$2$1, evidence$4$2, evidence$5$2) => ctx => $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseStateWithReuse$0024.$m_Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuse$().unsafeCreate__F0__F2__s_reflect_ClassTag__Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF(new $j_scala$002escalajs$002eruntime$002eAnonFunction0.$c_sjsr_AnonFunction0(((initialState$8$2, ctx$2) => () => initialState$8$2.apply__O__O(ctx$2))(initialState$2$1, ctx)), evidence$5$2, evidence$4$2))(initialState$1, evidence$2, evidence$3));
   var this$18 = this$8.next__F1__Ljapgolly_scalajs_react_hooks_HookComponentBuilder$ComponentP$FirstStep__Ljapgolly_scalajs_react_hooks_HookComponentBuilder$ComponentP$Subsequent(f, step);
   var initialState$3 = new $j_scala$002escalajs$002eruntime$002eAnonFunction2.$c_sjsr_AnonFunction2((p, s1) => {
-    var p$1 = $j_java$002elang$002eObject.$uI(p);
-    var s1$1 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseStateWithReuseF.$as_Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF(s1);
+    var p$1 = p | 0;
+    var s1$1 = s1;
     var this$12 = s1$1.Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF__f_withoutReuse;
-    return p$1 + $j_java$002elang$002eObject.$uI(this$12.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0]) | 0;
+    return p$1 + (this$12.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0] | 0) | 0;
   });
   var evidence$6 = $j_java$002elang$002eCharacter$0024.$m_s_reflect_ManifestFactory$IntManifest$();
   var this$16 = $j_japgolly$002escalajs$002ereact$002eReusability.$m_Ljapgolly_scalajs_react_Reusability$();
   var evidence$7 = this$16.by_$eq$eq__F2();
   var step$1 = new $j_japgolly$002escalajs$002ereact$002ehooks$002eComponentP$005fSubsequentSteps$0024$0024anon$00241.$c_Ljapgolly_scalajs_react_hooks_ComponentP＿SubsequentSteps$$anon$1();
-  var initialState$4 = new $j_scala$002eFunction1.$c_sjsr_AnonFunction1(((initialState$2$2, step$2) => _$62 => $j_scala$002eFunction1.$as_F1(step$2.squash__F1().apply__O__O(initialState$2$2)).apply__O__O(_$62))(initialState$3, step$1));
+  var initialState$4 = new $j_scala$002eFunction1.$c_sjsr_AnonFunction1(((initialState$2$2, step$2) => _$62 => step$2.squash__F1().apply__O__O(initialState$2$2).apply__O__O(_$62))(initialState$3, step$1));
   var f$1 = new $j_scala$002eFunction1.$c_sjsr_AnonFunction1(((initialState$2$3, evidence$4$2$1, evidence$5$2$1) => ctx$1 => $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseStateWithReuse$0024.$m_Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuse$().unsafeCreate__F0__F2__s_reflect_ClassTag__Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF(new $j_scala$002escalajs$002eruntime$002eAnonFunction0.$c_sjsr_AnonFunction0(((initialState$8$2$1, ctx$2$1) => () => initialState$8$2$1.apply__O__O(ctx$2$1))(initialState$2$3, ctx$1)), evidence$5$2$1, evidence$4$2$1))(initialState$4, evidence$6, evidence$7));
-  var this$31 = $j_japgolly$002escalajs$002ereact$002ehooks$002eApi$0024Primary.$as_Ljapgolly_scalajs_react_hooks_Api$Primary(this$18.next__F1__Ljapgolly_scalajs_react_hooks_HookComponentBuilder$ComponentP$SubsequentStep__O(f$1, step$1));
+  var this$31 = this$18.next__F1__Ljapgolly_scalajs_react_hooks_HookComponentBuilder$ComponentP$SubsequentStep__O(f$1, step$1);
   var initialState$5 = new $j_scala$002eFunction1.$c_sjsr_AnonFunction1(δ => {
-    var δ$1 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024P2.$as_Ljapgolly_scalajs_react_hooks_HookCtx$P2(δ);
-    var $$x2 = $j_java$002elang$002eObject.$uI(δ$1.Ljapgolly_scalajs_react_hooks_HookCtx$P0__f_props);
-    var this$22 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseStateWithReuseF.$as_Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF(δ$1.Ljapgolly_scalajs_react_hooks_HookCtx$P1__f_hook1);
+    var δ$1 = δ;
+    var $$x2 = δ$1.Ljapgolly_scalajs_react_hooks_HookCtx$P0__f_props;
+    var this$22 = δ$1.Ljapgolly_scalajs_react_hooks_HookCtx$P1__f_hook1;
     var this$23 = this$22.Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF__f_withoutReuse;
-    var $$x1 = $j_java$002elang$002eObject.$uI(this$23.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0]);
-    var this$24 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseStateWithReuseF.$as_Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF(δ$1.Ljapgolly_scalajs_react_hooks_HookCtx$P2__f_hook2);
+    var $$x1 = this$23.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0];
+    var this$24 = δ$1.Ljapgolly_scalajs_react_hooks_HookCtx$P2__f_hook2;
     var this$25 = this$24.Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF__f_withoutReuse;
-    return ($$x2 + $$x1 | 0) + $j_java$002elang$002eObject.$uI(this$25.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0]) | 0;
+    return (($$x2 | 0) + ($$x1 | 0) | 0) + (this$25.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0] | 0) | 0;
   });
   var evidence$4 = $j_java$002elang$002eCharacter$0024.$m_s_reflect_ManifestFactory$IntManifest$();
   var this$29 = $j_japgolly$002escalajs$002ereact$002eReusability.$m_Ljapgolly_scalajs_react_Reusability$();
   var evidence$5 = this$29.by_$eq$eq__F2();
   var step$3 = new $j_japgolly$002escalajs$002ereact$002ehooks$002eComponentP$005fSubsequentSteps$0024$0024anon$00242.$c_Ljapgolly_scalajs_react_hooks_ComponentP＿SubsequentSteps$$anon$2();
-  $j_japgolly$002escalajs$002ereact$002ehooks$002eHookComponentBuilder$0024ComponentP$0024Subsequent.$as_Ljapgolly_scalajs_react_hooks_HookComponentBuilder$ComponentP$Subsequent(this$31.next__F1__Ljapgolly_scalajs_react_hooks_Api$AbstractStep__O(new $j_scala$002eFunction1.$c_sjsr_AnonFunction1(((initialState$2$4, evidence$4$2$2, evidence$5$2$2) => ctx$3 => $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseStateWithReuse$0024.$m_Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuse$().unsafeCreate__F0__F2__s_reflect_ClassTag__Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF(new $j_scala$002escalajs$002eruntime$002eAnonFunction0.$c_sjsr_AnonFunction0(((initialState$8$2$2, ctx$2$2) => () => initialState$8$2$2.apply__O__O(ctx$2$2))(initialState$2$4, ctx$3)), evidence$5$2$2, evidence$4$2$2))(initialState$5, evidence$4, evidence$5)), step$3));
+  this$31.next__F1__Ljapgolly_scalajs_react_hooks_Api$AbstractStep__O(new $j_scala$002eFunction1.$c_sjsr_AnonFunction1(((initialState$2$4, evidence$4$2$2, evidence$5$2$2) => ctx$3 => $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseStateWithReuse$0024.$m_Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuse$().unsafeCreate__F0__F2__s_reflect_ClassTag__Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF(new $j_scala$002escalajs$002eruntime$002eAnonFunction0.$c_sjsr_AnonFunction0(((initialState$8$2$2, ctx$2$2) => () => initialState$8$2$2.apply__O__O(ctx$2$2))(initialState$2$4, ctx$3)), evidence$5$2$2, evidence$4$2$2))(initialState$5, evidence$4, evidence$5)), step$3);
   var f$proxy1 = new $j_scala$002escalajs$002eruntime$002eAnonFunction4.$c_sjsr_AnonFunction4((_$1, s1$2, s2, s3) => {
-    $j_java$002elang$002eObject.$uI(_$1);
-    var s1$3 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseStateWithReuseF.$as_Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF(s1$2);
-    var s2$1 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseStateWithReuseF.$as_Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF(s2);
-    var s3$1 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseStateWithReuseF.$as_Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF(s3);
+    var s1$3 = s1$2;
+    var s2$1 = s2;
+    var s3$1 = s3;
     var this$34 = s1$3.Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF__f_withoutReuse;
-    var $$x4 = $j_java$002elang$002eObject.$uI(this$34.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0]);
+    var $$x4 = this$34.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0];
     var this$35 = s2$1.Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF__f_withoutReuse;
-    var $$x3 = $j_java$002elang$002eObject.$uI(this$35.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0]);
+    var $$x3 = this$35.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0];
     var this$36 = s3$1.Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF__f_withoutReuse;
-    var sum = ($$x4 + $$x3 | 0) + $j_java$002elang$002eObject.$uI(this$36.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0]) | 0;
+    var sum = (($$x4 | 0) + ($$x3 | 0) | 0) + (this$36.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0] | 0) | 0;
     var this$45 = $j_japgolly$002escalajs$002ereact$002evdom$002eHtmlTagOf$0024.$m_Ljapgolly_scalajs_react_vdom_HtmlTagOf$();
     $j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$();
     $j_japgolly$002escalajs$002ereact$002evdom$002eExports$0024.$m_Ljapgolly_scalajs_react_vdom_Exports$();
     var self = "button";
     var xs = $j_java$002elang$002eCharacter$0024.$m_sr_ScalaRunTime$().wrapRefArray__AO__sci_ArraySeq(new ($j_japgolly$002escalajs$002ereact$002evdom$002eTagMod.$d_Ljapgolly_scalajs_react_vdom_TagMod.getArrayOf().constr)([($j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$(), $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024.$m_Ljapgolly_scalajs_react_vdom_VdomNode$(), new $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024$0024anon$00241.$c_Ljapgolly_scalajs_react_vdom_VdomNode$$anon$1("DEBUG = ")), ($j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$(), $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024.$m_Ljapgolly_scalajs_react_vdom_VdomNode$(), new $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024$0024anon$00241.$c_Ljapgolly_scalajs_react_vdom_VdomNode$$anon$1(sum)), $j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$().Ljapgolly_scalajs_react_vdom_html＿$less$up$__f_$up.Ljapgolly_scalajs_react_vdom_HtmlAttrAndStyles$__f_onClick.$minus$minus$greater__F0__F1__Ljapgolly_scalajs_react_vdom_TagMod(new $j_scala$002escalajs$002eruntime$002eAnonFunction0.$c_sjsr_AnonFunction0((s1$2$1 => () => s1$2$1.modState__F1__Ljapgolly_scalajs_react_Reusable(new $j_scala$002eFunction1.$c_sjsr_AnonFunction1(_$2 => {
-      var _$2$1 = $j_java$002elang$002eObject.$uI(_$2);
+      var _$2$1 = _$2 | 0;
 
       return 1 + _$2$1 | 0;
     })))(s1$3)), $j_japgolly$002escalajs$002ereact$002evdom$002eAttr$0024EventCallback$0024.$m_Ljapgolly_scalajs_react_vdom_Attr$EventCallback$().reusableDefaultSync__F1())]));
@@ -117,9 +116,9 @@ function $c_Ljapgolly_scalajs_react_test_emissions_UseStateWithReuse$() {
       var hook1 = new $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseStateWithReuseF.$c_Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF(us, rr, ct);
       var hook2_raw = $i_react.useState(((props$2, hook1$2) => () => {
         var $$x5 = $j_japgolly$002escalajs$002ereact$002einternal$002eBox$0024.$m_Ljapgolly_scalajs_react_internal_Box$();
-        var p$2 = $j_java$002elang$002eObject.$uI(props$2.a);
+        var p$2 = props$2.a | 0;
         var this$55 = hook1$2.Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF__f_withoutReuse;
-        return $$x5.apply__O__Ljapgolly_scalajs_react_internal_Box(p$2 + $j_java$002elang$002eObject.$uI(this$55.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0]) | 0);
+        return $$x5.apply__O__Ljapgolly_scalajs_react_internal_Box(p$2 + (this$55.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0] | 0) | 0);
       })(props, hook1));
       var this$56 = $j_japgolly$002escalajs$002ereact$002eReusability.$m_Ljapgolly_scalajs_react_Reusability$();
       var r$1 = this$56.by_$eq$eq__F2();
@@ -132,13 +131,13 @@ function $c_Ljapgolly_scalajs_react_test_emissions_UseStateWithReuse$() {
       var hook3_ctx = $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024P2.$ct_Ljapgolly_scalajs_react_hooks_HookCtx$P2__O__O__O__(new $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024P2.$c_Ljapgolly_scalajs_react_hooks_HookCtx$P2(), props$1, hook1, hook2);
       var hook3_raw = $i_react.useState((hook3_ctx$2 => () => {
         var $$x8 = $j_japgolly$002escalajs$002ereact$002einternal$002eBox$0024.$m_Ljapgolly_scalajs_react_internal_Box$();
-        var $$x7 = $j_java$002elang$002eObject.$uI(hook3_ctx$2.Ljapgolly_scalajs_react_hooks_HookCtx$P0__f_props);
-        var this$64 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseStateWithReuseF.$as_Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF(hook3_ctx$2.Ljapgolly_scalajs_react_hooks_HookCtx$P1__f_hook1);
+        var $$x7 = hook3_ctx$2.Ljapgolly_scalajs_react_hooks_HookCtx$P0__f_props;
+        var this$64 = hook3_ctx$2.Ljapgolly_scalajs_react_hooks_HookCtx$P1__f_hook1;
         var this$65 = this$64.Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF__f_withoutReuse;
-        var $$x6 = $j_java$002elang$002eObject.$uI(this$65.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0]);
-        var this$66 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseStateWithReuseF.$as_Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF(hook3_ctx$2.Ljapgolly_scalajs_react_hooks_HookCtx$P2__f_hook2);
+        var $$x6 = this$65.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0];
+        var this$66 = hook3_ctx$2.Ljapgolly_scalajs_react_hooks_HookCtx$P2__f_hook2;
         var this$67 = this$66.Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF__f_withoutReuse;
-        return $$x8.apply__O__Ljapgolly_scalajs_react_internal_Box(($$x7 + $$x6 | 0) + $j_java$002elang$002eObject.$uI(this$67.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0]) | 0);
+        return $$x8.apply__O__Ljapgolly_scalajs_react_internal_Box((($$x7 | 0) + ($$x6 | 0) | 0) + (this$67.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0] | 0) | 0);
       })(hook3_ctx));
       var this$68 = $j_japgolly$002escalajs$002ereact$002eReusability.$m_Ljapgolly_scalajs_react_Reusability$();
       var r$2 = this$68.by_$eq$eq__F2();
@@ -147,8 +146,8 @@ function $c_Ljapgolly_scalajs_react_test_emissions_UseStateWithReuse$() {
       var this$73 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseState$0024.$m_Ljapgolly_scalajs_react_hooks_Hooks$UseState$().fromJsBoxed__sjs_js_Tuple2__Ljapgolly_scalajs_react_hooks_Hooks$UseStateF(hook3_raw);
       var us$2 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024$0024anon$00242.$f_Ljapgolly_scalajs_react_hooks_Hooks$UseStateF__withReusability__F2__Ljapgolly_scalajs_react_hooks_Hooks$UseStateF(this$73, r$2);
       var hook3 = new $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseStateWithReuseF.$c_Ljapgolly_scalajs_react_hooks_Hooks$UseStateWithReuseF(us$2, rr$2, ct$2);
-      return $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode.$as_Ljapgolly_scalajs_react_vdom_VdomNode(f$proxy1$2.apply__O__O__O__O__O(props.a, hook1, hook2, hook3)).rawNode__O();
-    }, "2BAfwknz55uf3wBgBMOZEfZt5Gk=");
+      return f$proxy1$2.apply__O__O__O__O__O(props.a, hook1, hook2, hook3).rawNode__O();
+    }, "rdPtgGYg2x5mCMwXQexQFncti08=");
   })(f$proxy1);
 
   var $$x9 = $j_japgolly$002escalajs$002ereact$002ecomponent$002eScalaFn$0024.$m_Ljapgolly_scalajs_react_component_ScalaFn$();

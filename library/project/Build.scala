@@ -1,7 +1,7 @@
 import sbt._
 import sbt.Keys._
 import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin.autoImport._
-import org.scalajs.linker.interface.{ModuleInitializer, ModuleSplitStyle}
+import org.scalajs.linker.interface.{CheckedBehavior, ModuleInitializer, ModuleSplitStyle}
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import scalafix.sbt.BuildInfo.{scalafixVersion => ScalafixVer}
@@ -250,11 +250,11 @@ object ScalaJsReact {
         .withModuleSplitStyle(ModuleSplitStyle.SmallestModules)
         .withSourceMap(false)
         // .withESFeatures(_.withESVersion(ESVersion.ES2021))
-        // .withSemantics(_
-        //   .withArrayIndexOutOfBounds(CheckedBehavior.Unchecked)
-        //   .withAsInstanceOfs(CheckedBehavior.Unchecked)
-        //   .withProductionMode(true)
-        // )
+        .withSemantics(_
+          .withArrayIndexOutOfBounds(CheckedBehavior.Unchecked)
+          .withAsInstanceOfs(CheckedBehavior.Unchecked)
+          .withProductionMode(true)
+        )
       },
       Compile / scalaJSModuleInitializers +=
         ModuleInitializer.mainMethod("japgolly.scalajs.react.test.emissions.Main", "main")
