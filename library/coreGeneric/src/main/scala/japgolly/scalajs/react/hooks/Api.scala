@@ -690,12 +690,12 @@ object Api {
     def renderWithReuseBy[A](reusableInputs: Ctx => A)(f: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], C], r: Reusability[A]): Component[P, s.CT]
   }
 
-  trait SecondaryWithRender[P, C <: Children, Ctx, CtxFn[_], _Step <: SubsequentStep[Ctx, CtxFn]] extends PrimaryWithRender[P, C, Ctx, _Step] with Secondary[Ctx, CtxFn, _Step] {
+  trait SecondaryWithRender[P, C <: Children, Ctx, CtxFn[_], _Step <: SubsequentStep[Ctx, CtxFn]] extends PrimaryWithRender[P, C, Ctx, _Step] with Secondary[Ctx, CtxFn, _Step] with HookMacros.ApiSecondaryWithRenderMacros[P, C, Ctx, CtxFn, _Step] {
 
     // This has been moved into HookMacros.ApiSecondaryWithRenderMacros
     //
-    def render(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
-      render(step.squash(f)(_))
+    // final def render(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
+    //   render(step.squash(f)(_))
 
     final def renderReusable[A](f: CtxFn[Reusable[A]])(implicit step: Step, s: CtorType.Summoner[Box[P], C], v: A => VdomNode): Component[P, s.CT] =
       renderReusable(step.squash(f)(_))
@@ -705,37 +705,5 @@ object Api {
 
     final def renderWithReuseBy[A](reusableInputs: CtxFn[A])(f: A => VdomNode)(implicit step: Step, s: CtorType.Summoner[Box[P], C], r: Reusability[A]): Component[P, s.CT] =
       renderWithReuseBy(step.squash(reusableInputs)(_))(f)
-  }
-
-  // trait SecondaryWithRender2[P, C <: Children, Ctx, CtxFn[_], _Step <: SubsequentStep[Ctx, CtxFn]] extends PrimaryWithRender[P, C, Ctx, _Step] with Secondary[Ctx, CtxFn, _Step] with HookMacros.ApiSecondaryWithRenderMacros[P, C, Ctx, CtxFn, _Step] {
-
-  //   // This has been moved into HookMacros.ApiSecondaryWithRenderMacros
-  //   //
-  //   // final def render(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
-  //   //   render(step.squash(f)(_))
-
-  //   final def renderReusable[A](f: CtxFn[Reusable[A]])(implicit step: Step, s: CtorType.Summoner[Box[P], C], v: A => VdomNode): Component[P, s.CT] =
-  //     renderReusable(step.squash(f)(_))
-
-  //   final def renderWithReuse(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C], r: Reusability[Ctx]): Component[P, s.CT] =
-  //     renderWithReuse(step.squash(f)(_))
-
-  //   final def renderWithReuseBy[A](reusableInputs: CtxFn[A])(f: A => VdomNode)(implicit step: Step, s: CtorType.Summoner[Box[P], C], r: Reusability[A]): Component[P, s.CT] =
-  //     renderWithReuseBy(step.squash(reusableInputs)(_))(f)
-  // }
-
-  trait SecondaryWithRender2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]]
-    extends SecondaryWithRender[P, C, Ctx, CtxFn, Step]
-    // with HookMacros.ApiSecondaryWithRenderMacros[P, C, Ctx, CtxFn, Step]
-
-  @inline final class PoopyMcFartFace[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]](
-        self: SecondaryWithRender2[P, C, Ctx, CtxFn, Step]) extends AnyVal {
-
-    // def render(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
-    //   self.render(f)
-
-    inline def render(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
-      // Without macros: render(step.squash(f)(_))
-      HookMacros.renderWorkaround[P, C, Ctx, CtxFn, Step, s.CT](self, f, step, s)
   }
 }
