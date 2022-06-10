@@ -123,7 +123,8 @@ trait AbstractHookMacros {
 
   protected val FunctionLike: FunctionExtractor
   protected abstract class FunctionExtractor {
-    def unapply(function: Term): Option[Int]
+    final type Success = Int
+    def unapply(function: Term): Option[Success]
   }
 
   protected def showRaw(t: Term): String

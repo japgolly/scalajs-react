@@ -58,8 +58,21 @@ class HookMacros(val c: Context) extends MacroUtils {
 
     override val FunctionLike = new FunctionExtractor {
       override def unapply(a: Term) = a match {
-        case Function(params, _) => Some(params.size)
-        case _ => None
+
+        case Function(params, _) =>
+          Some(params.size)
+
+        case Apply(ta@ TypeApply(_, targs), _) if ta.tpe.resultType.typeSymbol.name.toString.startsWith("Function") =>
+          Some(targs.size - 1)
+
+        case s: Select =>
+          s.tpe match {
+            case TypeRef(_, f, args) if f.name.toString.startsWith("Function") => Some(args.size - 1)
+            case _ => None
+          }
+
+        case _ =>
+          None
       }
     }
 

@@ -83,8 +83,30 @@ object HookMacros {
 
     override val FunctionLike = new FunctionExtractor {
       override def unapply(function: Term) = function match {
+
+        case Apply(TypeApply(f, args), _) if f.tpe.show.startsWith("scala.scalajs.js.Any.toFunction") =>
+          Some(args.size - 1)
+
         case Block(List(DefDef(_, List(TermParamClause(params)), _, Some(_))), Closure(Ident(_), _)) =>
           Some(params.size)
+
+        case i@ Ident(_) =>
+          i.symbol.tree match {
+            case d: DefDef => byTypeTree(d.returnTpt)
+            case v: ValDef => byTypeTree(v.tpt)
+            case _         => None
+          }
+
+        case _ =>
+          None
+      }
+
+      private def byTypeTree(tpt: TypeTree): Option[Success] =
+        byTypeRepr(tpt.tpe)
+
+      private def byTypeRepr(t: TypeRepr): Option[Success] = t match {
+        case AppliedType(TypeRef(ThisType(_), f), args) if f.startsWith("Function") =>
+          Some(args.size - 1)
         case _ =>
           None
       }

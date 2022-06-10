@@ -19,6 +19,8 @@ object ReactRefreshTest extends TestSuite {
     }
 
     "sjr" - {
+      "HooksWithJsFns" - testScala()
+      "HooksWithScalaFns" - testScala()
       "HooksWithChildren" - testScala()
       "UseState" - testScala()
       "UseStateWithReuse" - testScala()

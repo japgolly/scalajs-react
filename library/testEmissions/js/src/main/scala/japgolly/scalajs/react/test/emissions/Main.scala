@@ -15,6 +15,8 @@ object Main {
   private val Component = ScalaFnComponent[Unit] { _ =>
     <.div(
       HooksWithChildren.Component(0)(<.div),
+      HooksWithJsFns.Component(0),
+      HooksWithScalaFns.Component(0),
       UseState.Component(0),
       UseStateWithReuse.Component(0),
     )
