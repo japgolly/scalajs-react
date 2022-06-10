@@ -18,16 +18,6 @@ import scala.scalajs.js
 
 object HookMacros {
 
-  trait ApiSecondaryWithRenderMacros[P, C <: Children, Ctx, CtxFn[_], _Step <: SubsequentStep[Ctx, CtxFn]] {
-      self: PrimaryWithRender[P, C, Ctx, _Step] with Secondary[Ctx, CtxFn, _Step] =>
-
-    inline final def render(inline f: CtxFn[VdomNode])(implicit inline step: Step, inline s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
-      // Without macros: render(step.squash(f)(_))
-      renderWorkaround[P, C, Ctx, CtxFn, Step, s.CT](this, f, step, s)
-  }
-
-  // ===================================================================================================================
-
   private def HookMacrosImpl(qq: Quotes): HookMacrosImpl { val q: qq.type } =
     new HookMacrosImpl {
       override implicit val q: qq.type = qq

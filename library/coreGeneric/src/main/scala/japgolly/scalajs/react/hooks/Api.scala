@@ -690,7 +690,7 @@ object Api {
     def renderWithReuseBy[A](reusableInputs: Ctx => A)(f: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], C], r: Reusability[A]): Component[P, s.CT]
   }
 
-  trait SecondaryWithRender[P, C <: Children, Ctx, CtxFn[_], _Step <: SubsequentStep[Ctx, CtxFn]] extends PrimaryWithRender[P, C, Ctx, _Step] with Secondary[Ctx, CtxFn, _Step] with HookMacros.ApiSecondaryWithRenderMacros[P, C, Ctx, CtxFn, _Step] {
+  trait SecondaryWithRender[P, C <: Children, Ctx, CtxFn[_], _Step <: SubsequentStep[Ctx, CtxFn]] extends PrimaryWithRender[P, C, Ctx, _Step] with Secondary[Ctx, CtxFn, _Step] with ApiSecondaryWithRenderMacros[P, C, Ctx, CtxFn, _Step] {
 
     // This has been moved into HookMacros.ApiSecondaryWithRenderMacros
     //

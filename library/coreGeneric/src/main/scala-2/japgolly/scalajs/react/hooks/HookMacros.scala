@@ -1,25 +1,10 @@
 package japgolly.scalajs.react.hooks
 
 import japgolly.microlibs.compiletime.MacroUtils
-import japgolly.scalajs.react.component.ScalaFn.Component
 import japgolly.scalajs.react.hooks.Api._
 import japgolly.scalajs.react.internal.Box
-import japgolly.scalajs.react.vdom.VdomNode
-import japgolly.scalajs.react.{Children, CtorType}
+import japgolly.scalajs.react.Children
 import scala.reflect.macros.blackbox.Context
-
-object HookMacros {
-
-  trait ApiSecondaryWithRenderMacros[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]] {
-      self: PrimaryWithRender[P, C, Ctx, Step] with Secondary[Ctx, CtxFn, Step] =>
-
-    final def render(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
-      // Without macros: render(step.squash(f)(_))
-      macro HookMacros.render[P, C, Ctx, CtxFn, Step]
-  }
-}
-
-// =====================================================================================================================
 
 class HookMacros(val c: Context) extends MacroUtils {
   import c.universe._
