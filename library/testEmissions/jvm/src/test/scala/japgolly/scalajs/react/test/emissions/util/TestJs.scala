@@ -1,11 +1,16 @@
 package japgolly.scalajs.react.test.emissions.util
 
+import japgolly.scalajs.react.test.emissions.util.MutableVirtualFile.LineTarget
+
 // We're gonna inherit like it's 1999 baby! 🥳
 class TestJs(val name: String, val filename: String, originalContent: String)
     extends MutableVirtualFile(Some(filename), originalContent) {
 
   def this(name: String, filename: String) =
     this(name, filename, Util.needFileContent(filename))
+
+  def run(h: TestJs.Hack): Unit =
+    h.run(this)
 
   trim()
 }
@@ -20,8 +25,14 @@ object TestJs {
     def unless(f: TestJs => Boolean): Hack = when(!f(_))
     def disable                     : Hack = Hack.none
 
-    def runAnon(jsContent: String): TestJs = {
-      val js = new TestJs("anon", "anon.js", jsContent)
+    def runAnon(jsContent: String): TestJs =
+      runAs("", "anon.js", jsContent)
+
+    def runAs(name: String, jsContent: String): TestJs =
+      runAs(name, if (name.endsWith(".js")) name else name + ".js", jsContent)
+
+    def runAs(name: String, filename: String, jsContent: String): TestJs = {
+      val js = new TestJs(name, filename, jsContent)
       run(js)
       js
     }
@@ -46,14 +57,23 @@ object TestJs {
           .replace("$less$up", "")
           .replace("japgolly_scalajs_react_", "sjr_")
           .replace("japgolly$scalajs$react$", "sjr$")
+          .replaceAll("\\$\\d+", "\\$0") // change `this$24` etc into just `this$0`
           .replaceAll("scala_scalajs_runtime_(?=AnonFunction|WrappedVarArgs)", "")
         )
         .filterNot(objectInit)
       )
     }
 
-    // Hacks to apply before comparison, so that tests consitently pass
-    val comparisonHacks: Hack =
+    def addName(where: LineTarget): Hack =
+      apply { js =>
+        if (js.name.nonEmpty)
+          js.addLine(s"// Name: ${js.name}", where)
+      }
+
+    def addSizeDetails(where: LineTarget): Hack =
+      apply(js => js.addLine(s"// ${js.descSize()}", where))
+
+    private val comparisonHacks: Hack =
       apply(_
         .filterNot(_ startsWith "import ")
         .modify(_
@@ -61,7 +81,14 @@ object TestJs {
         )
       )
 
-    val forComparison: Hack =
-      humanReadable >> comparisonHacks
+    // Hacks to apply before comparison so that
+    //   1) tests consitently pass
+    //   2) lots of irrelevant noise is filtered out when presenting failures
+    val forComparison: Hack = (
+      humanReadable
+      >> comparisonHacks
+      >> addSizeDetails(LineTarget.End)
+      >> addName(LineTarget.End)
+    )
   }
 }

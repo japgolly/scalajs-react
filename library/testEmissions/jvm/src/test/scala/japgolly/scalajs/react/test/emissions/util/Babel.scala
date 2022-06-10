@@ -22,8 +22,10 @@ final case class Babel(before        : String,
     }
   }
 
-  def assertOutput(is: String)(implicit l: Line): Unit =
-    assertMultiline(actual = after, expect = is)
+  def assertOutput(expect: String)(implicit l: Line): Unit = {
+    val name = beforeFilename.replaceFirst("^.+/(.+)\\.js$", "$1")
+    Util.assertJs(name, after, expect)
+  }
 
   def assertOutputContains(frags: String*)(implicit l: Line): Unit =
     for (frag <- frags)
@@ -45,9 +47,8 @@ final case class Babel(before        : String,
     Util.readOrCreateFile(filename, after) match {
       case None    => s"Created $filename"
       case Some(e) =>
-        val actual = preCmpHack.runAnon(after).content
-        val expect = preCmpHack.runAnon(e).content
-        assertMultiline(actual, expect)
+        val name = filename.replaceFirst("^.+/(.+?)(-out[23]?)?\\.js$", "$1")
+        Util.assertJs(name, after, e, preCmpHack)
     }
 }
 

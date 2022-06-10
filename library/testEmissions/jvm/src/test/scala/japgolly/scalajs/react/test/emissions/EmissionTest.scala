@@ -62,8 +62,8 @@ object EmissionTest extends TestSuite {
         Util.readOrCreateFile(expectFilename, actual) match {
           case None    => utestOutput = s"Created $expectFilename"
           case Some(e) =>
-            val actual2 = onCmp.runAnon(actual).content
-            val expect2 = onCmp.runAnon(e).content
+            val actual2 = onCmp.runAs(name, actual).content
+            val expect2 = onCmp.runAs(name, e).content
             assertMultiline(actual2, expect2)
         }
 

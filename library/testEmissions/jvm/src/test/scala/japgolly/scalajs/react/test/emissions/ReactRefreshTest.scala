@@ -139,7 +139,7 @@ object ReactRefreshTest extends TestSuite {
         }
 
     } finally {
-      def show(s: String): String = onShow.runAnon(s).content
+      def show(s: String): String = onShow.runAs(name, s).content
       lazy val before = show(babel.before)
       lazy val after = show(babel.after)
       if (showPreBabel)

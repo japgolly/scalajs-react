@@ -6,7 +6,7 @@ import java.util.regex.Pattern
 import scala.util.matching.Regex
 
 class MutableVirtualFile(val filenameOption: Option[String], val originalContent: String) {
-  import MutableVirtualFile.StringFilterDsl
+  import MutableVirtualFile.{LineTarget, StringFilterDsl}
 
   var content = originalContent
 
@@ -27,8 +27,21 @@ class MutableVirtualFile(val filenameOption: Option[String], val originalContent
   def modifyLinesIterator(f: Iterator[String] => Iterator[String]): this.type =
     set(f(content.linesIterator).mkString("\n") + "\n")
 
+  def prepend(prefix: String): this.type =
+    set(prefix + content)
+
+  def prependLine(newLine: String): this.type =
+    set(newLine + "\n" + content)
+
   def +=(newLine: String): this.type =
     set(content + "\n" + newLine)
+
+  def addLine(newLine: String, where: LineTarget): this.type =
+    where match {
+      case LineTarget.Start => prependLine(newLine)
+      case LineTarget.End   => this += newLine
+      case LineTarget.Both  => prependLine(newLine) += newLine
+    }
 
   def dropLines(n: Int): this.type =
     modifyLinesIterator(_.drop(n))
@@ -76,6 +89,13 @@ class MutableVirtualFile(val filenameOption: Option[String], val originalContent
 
   def trim(): Unit =
     set(content.trim + "\n")
+
+  def descSize(): String = {
+    val bytes    = content.length
+    val total    = content.linesIterator.size
+    val nonblank = content.linesIterator.count(_.trim.nonEmpty)
+    s"$total lines, $nonblank non-blank, $bytes bytes"
+  }
 }
 
 object MutableVirtualFile {
@@ -101,5 +121,12 @@ object MutableVirtualFile {
 
     def apply(p: Pattern): A =
       apply(p.matcher(_).matches())
+  }
+
+  sealed trait LineTarget
+  object LineTarget {
+    case object Start extends LineTarget
+    case object End   extends LineTarget
+    case object Both  extends LineTarget
   }
 }
