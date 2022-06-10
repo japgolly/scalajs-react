@@ -294,7 +294,7 @@ trait AbstractHookMacros {
     log("rewriteRender:" + step.name, step)
     step.name match {
 
-      case "render" =>
+      case "render" | "renderDebug" =>
         val List(List(renderFn), _) = step.args : @nowarn
         Right(b => call(renderFn, b.args()))
 

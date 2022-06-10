@@ -125,18 +125,44 @@ object HookMacros {
   // https://github.com/lampepfl/dotty/issues/15357
   inline def renderWorkaround[
         P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]
-      ](inline self: PrimaryWithRender[P, C, Ctx, Step] with Secondary[Ctx, CtxFn, Step],
-        inline f    : CtxFn[VdomNode],
-        inline step : Step,
-        inline s    : CtorType.Summoner.Aux[Box[P], C, CT],
+      ](self : PrimaryWithRender[P, C, Ctx, Step] with Secondary[Ctx, CtxFn, Step],
+        f    : CtxFn[VdomNode],
+        step : Step,
+        s    : CtorType.Summoner.Aux[Box[P], C, CT],
        ): Component[P, CT] =
     ${ renderMacro[P, C, Ctx, CtxFn, Step, CT]('self, 'f, 'step, 's) }
+
+  inline def renderWorkaroundDebug[
+        P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]
+      ](self : PrimaryWithRender[P, C, Ctx, Step] with Secondary[Ctx, CtxFn, Step],
+        f    : CtxFn[VdomNode],
+        step : Step,
+        s    : CtorType.Summoner.Aux[Box[P], C, CT],
+       ): Component[P, CT] =
+    ${ renderMacroDebug[P, C, Ctx, CtxFn, Step, CT]('self, 'f, 'step, 's) }
 
   def renderMacro[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]]
       (self: Expr[PrimaryWithRender[P, C, Ctx, Step] with Secondary[Ctx, CtxFn, Step]],
       f    : Expr[CtxFn[VdomNode]],
       step : Expr[Step],
       s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+     )(using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], CtxFn: Type[CtxFn], Step: Type[Step]): Expr[Component[P, CT]] =
+    _renderMacro(self, f, step, s, false)
+
+  def renderMacroDebug[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]]
+      (self: Expr[PrimaryWithRender[P, C, Ctx, Step] with Secondary[Ctx, CtxFn, Step]],
+      f    : Expr[CtxFn[VdomNode]],
+      step : Expr[Step],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+     )(using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], CtxFn: Type[CtxFn], Step: Type[Step]): Expr[Component[P, CT]] =
+    _renderMacro(self, f, step, s, true)
+
+  def _renderMacro[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]]
+      (self: Expr[PrimaryWithRender[P, C, Ctx, Step] with Secondary[Ctx, CtxFn, Step]],
+      f    : Expr[CtxFn[VdomNode]],
+      step : Expr[Step],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+      debug: Boolean,
      )(using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], CtxFn: Type[CtxFn], Step: Type[Step]): Expr[Component[P, CT]] = {
 
     import quotes.reflect.*
@@ -144,7 +170,7 @@ object HookMacros {
     val hookMacros = HookMacrosImpl(q)
     import hookMacros.{log, HookStep}
 
-    log.enabled = false // f.show.contains("DEBUG")
+    log.enabled = debug // f.show.contains("DEBUG")
     log.header()
 
     val renderStep =

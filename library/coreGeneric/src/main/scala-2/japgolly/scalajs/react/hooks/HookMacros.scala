@@ -125,12 +125,22 @@ class HookMacros(val c: Context) extends MacroUtils {
 
   def render[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]]
             (f: c.Tree)(step: c.Tree, s: c.Tree)
-            (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree = {
+            (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
+    _render(f, step, s, false)(P, C)
+
+  def renderDebug[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]]
+                 (f: c.Tree)(step: c.Tree, s: c.Tree)
+                 (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
+    _render(f, step, s, true)(P, C)
+
+  def _render[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]]
+             (f: c.Tree, step: c.Tree, s: c.Tree, debug: Boolean)
+             (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree = {
 
     val hookMacros = new HookMacrosImpl
     import hookMacros.log
 
-    log.enabled = false // showCode(c.macroApplication).contains("DEBUG")
+    log.enabled = debug
     log.header()
 
     val rewriteAttempt =

@@ -19,4 +19,7 @@ trait ApiSecondaryWithRenderMacros[P, C <: Children, Ctx, CtxFn[_], Step <: Subs
 
   final override def render(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
     macro HookMacros.render[P, C, Ctx, CtxFn, Step]
+
+  final def renderDebug(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
+    macro HookMacros.renderDebug[P, C, Ctx, CtxFn, Step]
 }
