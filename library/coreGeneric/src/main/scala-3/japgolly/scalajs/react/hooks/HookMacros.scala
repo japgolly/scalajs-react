@@ -204,7 +204,7 @@ object HookMacros {
           }
 
         case Left(err) =>
-          log("Rewrite failure", err()) // TODO: make a proper warning?
+          report.warning(err())
           '{ $self.render($step.squash($f)(_))($s) }
       }
 

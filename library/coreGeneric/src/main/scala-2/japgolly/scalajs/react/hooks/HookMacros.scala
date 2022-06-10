@@ -165,7 +165,7 @@ class HookMacros(val c: Context) extends MacroUtils {
           """)
 
         case Left(err) =>
-          log(err()) // TODO: make a proper warning?
+          c.warning(c.enclosingPosition, err())
           val self = c.prefix
           q"""
             val f = $step.squash($f)
