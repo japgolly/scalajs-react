@@ -35,7 +35,7 @@ object ReactRefreshTest extends TestSuite {
   private var globalFailure = Option.empty[RuntimeException]
 
   private def ignoreReactRefreshUpdate(ver: String): Boolean = {
-    val ignore = Set[String]("0.13.0")
+    val ignore = Set[String]()
     ignore.contains(ver)
   }
 
