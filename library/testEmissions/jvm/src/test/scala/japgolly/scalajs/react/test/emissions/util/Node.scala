@@ -18,10 +18,13 @@ object Node {
       throw new ExceptionInInitializerError(s"`${cmd.mkString(" ")}` exited with $code")
   }
 
-  def babel(args: String*): String = {
+  def run(cmd: String*): ProcessResult = {
     val _ = init
-    val cmd = Seq("./node_modules/.bin/babel") ++ args
-    val res = ProcessResult(cmd, dir)
+    ProcessResult(cmd, dir)
+  }
+
+  def babel(args: String*): String = {
+    val res = run(("./node_modules/.bin/babel" +: args): _*)
     res.assertExitStatus()
     res.out
   }

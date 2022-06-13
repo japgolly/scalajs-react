@@ -4,6 +4,7 @@ import japgolly.microlibs.testutil.TestUtil._
 import japgolly.microlibs.utils.FileUtils
 import japgolly.scalajs.react.test.emissions.util._
 import scala.annotation.nowarn
+import scala.Console._
 import scala.util.Try
 import utest._
 import utest.framework.TestPath
@@ -11,6 +12,8 @@ import utest.framework.TestPath
 object ReactRefreshTest extends TestSuite {
 
   override def tests = Tests {
+
+    "version" - validateReactRefreshVersion()
 
     "js" - {
       "fn" - testJs()
@@ -29,8 +32,45 @@ object ReactRefreshTest extends TestSuite {
 
   // ===================================================================================================================
 
+  private var globalFailure = Option.empty[RuntimeException]
+
+  private def ignoreReactRefreshUpdate(ver: String): Boolean = {
+    val ignore = Set[String]("0.13.0")
+    ignore.contains(ver)
+  }
+
+  private def validateReactRefreshVersion(): Any = {
+    val r = Node.run("npm", "outdated")
+    r.exitStatus match {
+      case 0 =>
+        // everything is up to date
+      case 1 =>
+        r.out.linesIterator.find(_ startsWith "react-refresh ") match {
+          case None =>
+            // react-refresh is up to date
+          case Some(line) =>
+            val latest = line.split("\\s+")(3)
+            val msg = s"react-refresh is out-of-date. Latest version is $YELLOW_B$latest$RESET"
+            if (ignoreReactRefreshUpdate(latest))
+              msg // render as test output
+            else {
+              val e = new RuntimeException(msg)
+              globalFailure = Some(e)
+              throw e
+            }
+        }
+      case _ =>
+        r.assertExitStatus()
+    }
+  }
+
+  private def preTest(): Unit =
+    globalFailure.foreach(throw _)
+
   /** Load a JS file in /resources/, run ReactRefresh transforms over it, and confirm the result. */
   protected def testJs()(implicit tp: TestPath) = {
+    preTest()
+
     val dir            = Props.resSubdirJsRR
     val name           = tp.value.last
     val base           = s"${Props.testResDir}/$dir/$name"
@@ -88,6 +128,7 @@ object ReactRefreshTest extends TestSuite {
                           onShow            : TestJs.Hack = TestJs.Hack.humanReadable,
                           expectedFrags     : Seq[String] = Seq.empty)
                          (implicit tp       : TestPath) = {
+    preTest()
 
     val pkg            = Props.rootPkg
     val name           = tp.value.last
