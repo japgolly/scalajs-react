@@ -55,6 +55,7 @@ object HookMacros {
     override protected def asTerm[A](e: Expr[A]) = e.asTerm
     override protected def Expr[A](t: Term) = t.asExprOf[Any].asInstanceOf[Expr[A]]
     override protected def hookRefToTerm(r: HookRef) = r.ref
+    override protected def typeOfTerm(t: Term) = t.tpe.asTypeTree
     override protected def Type[A](t: TypeTree) = {
       val x: scala.quoted.Type[?] = t.asType
       x.asInstanceOf[scala.quoted.Type[A]]
@@ -128,6 +129,24 @@ object HookMacros {
       val t = Apply(Select.unique(f, "apply"), args)
       Term.betaReduce(t).getOrElse(t)
     }
+
+    override protected def isUnit(t: TypeTree): Boolean =
+      t.tpe.asType match {
+        case '[Unit] => true
+        case _       => false
+      }
+
+    override protected def unitTerm =
+      '{ () }
+
+    override protected def unitType: Type[Unit] =
+      scala.quoted.Type.of[Unit]
+
+    override protected def custom[I, O] = implicit (ti, to, hook, i) =>
+      '{ $hook.unsafeInit($i) }
+
+    override protected def customArg[Ctx, Arg] = implicit (tc, ta, hookArg, ctx) =>
+      '{ $hookArg.convert($ctx) }
 
     override protected def useStateFn[S] = implicit (tpe, body) =>
       '{ React.useStateFn(() => Box[$tpe]($body)) }

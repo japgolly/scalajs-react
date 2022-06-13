@@ -27,13 +27,14 @@ class HookMacros(val c: Context) extends MacroUtils {
     override type HookRef  = TermName
     override type Stmt     = c.universe.Tree
     override type Term     = c.universe.Tree
-    override type Type[A]  = TypeTree
-    override type TypeTree = c.universe.Tree
+    override type Type[A]  = c.universe.Type
+    override type TypeTree = c.universe.TypeTree
 
     override protected def asTerm[A](e: Expr[A]) = e
     override protected def Expr[A](t: Term) = t
     override protected def hookRefToTerm(r: HookRef) = Ident(r)
-    override protected def Type[A](t: TypeTree) = t
+    override protected def Type[A](t: TypeTree) = t.tpe
+    override protected def typeOfTerm(t: Term) = c.universe.TypeTree(t.tpe)
 
     override val ApplyLike = new ApplyExtractor {
       override def unapply(a: Term) = a match {
@@ -44,7 +45,7 @@ class HookMacros(val c: Context) extends MacroUtils {
 
     override val TypeApplyLike = new TypeApplyExtractor {
       override def unapply(a: Term) = a match {
-        case TypeApply(x, y) => Some((x, y))
+        case TypeApply(x, y) => Some((x, y.map(t => TypeTree(t.tpe))))
         case _ => None
       }
     }
@@ -120,6 +121,21 @@ class HookMacros(val c: Context) extends MacroUtils {
           Apply(Select(function, TermName("apply")), args)
       }
     }
+
+    override protected def isUnit(t: TypeTree): Boolean =
+      t.tpe == typeOf[Unit]
+
+    override protected def unitTerm =
+      q"()"
+
+    override protected def unitType =
+      c.universe.definitions.UnitTpe
+
+    override protected def custom[I, O] = (_, _, hook, i) =>
+      q"$hook.unsafeInit($i)"
+
+    override protected def customArg[Ctx, Arg] = (_, _, hookArg, ctx) =>
+      q"$hookArg.convert($ctx)"
 
     override protected def useStateFn[S] = (tpe, body) =>
       q"$React.useStateFn(() => $Box[$tpe]($body))"

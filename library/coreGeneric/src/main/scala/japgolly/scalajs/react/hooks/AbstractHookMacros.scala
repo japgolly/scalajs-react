@@ -12,25 +12,44 @@ object AbstractHookMacros {
   // ===================================================================================================================
   // Hook Rewriter
 
-  trait HookRewriterApi[Stmt, Term, HookRef] {
+  trait HookRewriterApi[Stmt, Term <: Stmt, HookRef] {
     def +=(stmt: Stmt): Unit
     def args(): List[Term]
-    def ctxArg(): Term
+    def createCtxArg(): Term
     def hookCount(): Int
     def nextHookName(): String
     def registerHook(h: HookRef): Unit
+    def skipHook(): Unit
     def useChildren(): Unit
     def usesChildren(): Boolean
     def valDef(name: String, body: Term): HookRef
     def wrap(body: Term): Term
 
-    final def createRawAndHook(raw: Term, hook: HookRef => Term): HookRef = {
-      val rawDef = valDef(raw, "_raw")
-      hookDef(hook(rawDef))
+    final def argsOrCreateCtxArg(paramCount: Int): List[Term] = {
+      val takesHookCtx = (
+        hookCount() > 1    // HookCtx only provided from the second hook onwards
+        && paramCount == 1 // Function argument takes a single param
+      )
+      if (takesHookCtx)
+        createCtxArg() :: Nil
+      else
+        args()
     }
 
-    final def hookDef(body: Term): HookRef =
+    final def createRawAndHook(raw: Term, hook: HookRef => Term): HookRef = {
+      val rawDef = valDef(raw, "_raw")
+      createHook(hook(rawDef))
+    }
+
+    final def createHook(body: Term): HookRef =
       valDef(nextHookName(), body)
+
+    final def createHook(body: Term, discard: Boolean): Option[HookRef] =
+      if (discard) {
+        this += body
+        None
+      } else
+        Some(createHook(body))
 
     final def valDef(body: Term, suffix: String): HookRef =
       valDef(nextHookName() + suffix, body)
@@ -40,7 +59,7 @@ object AbstractHookMacros {
 
   final case class HookRewriterCtx[Stmt, Term](props: Term, initChildren: Stmt, children: Term)
 
-  trait HookRewriter[Stmt, Term, HookRef] extends HookRewriterApi[Stmt, Term, HookRef] {
+  trait HookRewriter[Stmt, Term <: Stmt, HookRef] extends HookRewriterApi[Stmt, Term, HookRef] {
     protected var stmts       = Vector.empty[Stmt]
     private var hooks         = List.empty[Term]
     private var _hookCount    = 0
@@ -73,13 +92,16 @@ object AbstractHookMacros {
       _hookCount += 1
     }
 
+    final override def skipHook(): Unit =
+      _hookCount += 1
+
     final override def args(): List[Term] =
       if (usesChildren())
         ctx.props :: ctx.children :: hooks
       else
         ctx.props :: hooks
 
-    final override def ctxArg(): Term = {
+    final override def createCtxArg(): Term = {
       val create = hookCtx(usesChildren(), args())
       val ctx = valDef(create, "_ctx")
       hookRefToTerm(ctx)
@@ -97,7 +119,7 @@ trait AbstractHookMacros {
   type Expr[A]
   type HookRef
   type Stmt
-  type Term
+  type Term <: Stmt
   type Type[A]
   type TypeTree
 
@@ -105,6 +127,7 @@ trait AbstractHookMacros {
   protected def Expr[A](t: Term): Expr[A]
   protected def hookRefToTerm(r: HookRef): Term
   protected def Type[A](t: TypeTree): Type[A]
+  protected def typeOfTerm(t: Term): TypeTree
 
   protected val ApplyLike: ApplyExtractor
   protected abstract class ApplyExtractor {
@@ -133,12 +156,19 @@ trait AbstractHookMacros {
   def rewriter(ctx: HookRewriterCtx[Stmt, Term]): Rewriter
 
   protected def call(function: Term, args: List[Term]): Term
+  protected def isUnit(t: TypeTree): Boolean
+  protected def unitTerm: Expr[Unit]
+  protected def unitType: Type[Unit]
+
+  protected def custom[I, O]: (Type[I], Type[O], Expr[CustomHook[I, O]], Expr[I]) => Expr[O]
+  protected def customArg[Ctx, Arg]: (Type[Ctx], Type[Arg], Expr[CustomHook.Arg[Ctx, Arg]], Expr[Ctx]) => Expr[Arg]
 
   protected def useStateFn[S]: (Type[S], Expr[S]) => Expr[React.UseState[Box[S]]]
   protected def useStateFromJsBoxed[S]: (Type[S], Expr[React.UseState[Box[S]]]) => Expr[Hooks.UseState[S]]
   protected def useStateWithReuseFromJsBoxed[S]: (Type[S], Expr[React.UseState[Box[S]]], Expr[Reusability[S]], Expr[ClassTag[S]]) => Expr[Hooks.UseStateWithReuse[S]]
   protected def vdomRawNode: Expr[VdomNode] => Expr[React.Node]
 
+  // -----------------------------------------------------------------------------------------------------------
   // Concrete
 
   protected object AutoTypeImplicits {
@@ -163,12 +193,18 @@ trait AbstractHookMacros {
       HookDefn(steps ::: s :: Nil)
   }
 
-  case class HookStep(name: String, targs: List[TypeTree], args: List[List[Term]])
+  case class HookStep(name: String, targs: List[TypeTree], args: List[List[Term]]) {
+    def sig = (targs, args)
+  }
 
   private val withHooks = "withHooks"
 
-  final def parse(tree: Term): Either[() => String, HookDefn] =
-    _parse(tree, Nil, Nil, Nil)
+  final def parse(tree: Term): Either[() => String, HookDefn] = {
+    log.hold()
+    val r = _parse(tree, Nil, Nil, Nil)
+    log.release(printPending = r.isLeft)
+    r
+  }
 
   @tailrec
   private def _parse(tree: Term, targs: List[TypeTree], args: List[List[Term]], steps: List[HookStep]): Either[() => String, HookDefn] =
@@ -209,16 +245,16 @@ trait AbstractHookMacros {
   def rewriteComponent(h: HookDefn): Either[() => String, Rewriter => Term] = {
     val it                = h.steps.iterator
     var renderStep        = null : HookStep
-    var hooks             = Vector.empty[Rewriter => HookRef]
+    var hookFns           = Vector.empty[Rewriter => Option[HookRef]]
     var withPropsChildren = false
     while (it.hasNext) {
       val step = it.next()
       if (it.hasNext) {
-        if (hooks.isEmpty && step.name == "withPropsChildren")
+        if (hookFns.isEmpty && step.name == "withPropsChildren")
           withPropsChildren = true
         else
           rewriteStep(step) match {
-            case Right(h) => hooks :+= h
+            case Right(h) => hookFns :+= h
             case Left(e)  => return Left(e)
           }
       } else
@@ -228,61 +264,88 @@ trait AbstractHookMacros {
     rewriteRender(renderStep).map { buildRender => b =>
       if (withPropsChildren)
         b.useChildren()
-      for (h <- hooks)
-        b registerHook h(b)
+      for (hf <- hookFns)
+        hf(b) match {
+          case Some(h) => b.registerHook(h)
+          case None    => b.skipHook()
+        }
       buildRender(b)
     }
   }
 
-  def rewriteStep(step: HookStep): Either[() => String, Rewriter => HookRef] = {
+  def rewriteStep(step: HookStep): Either[() => String, Rewriter => Option[HookRef]] = {
     log("rewriteStep:" + step.name, step)
 
-    def by[A](fn: Term)(use: (Rewriter, Term) => A): Either[() => String, Rewriter => A] =
+    def by[A](fn: Term)(use: (Rewriter, Term => Term) => A): Either[() => String, Rewriter => A] =
       fn match {
         case FunctionLike(paramCount) =>
           Right { b =>
-            val takesHookCtx = (
-              b.hookCount() > 1  // HookCtx only provided from the second hook onwards
-              && paramCount == 1 // Function argument takes a single param
-            )
-            val args =
-              if (takesHookCtx)
-                b.ctxArg() :: Nil
-              else
-                b.args()
-            use(b, call(fn, args))
+            val args = b.argsOrCreateCtxArg(paramCount)
+            use(b, call(_, args))
           }
 
         case _ =>
           Left(() => s"Expected a function, found: ${showRaw(fn)}")
       }
 
-    def maybeBy[A](f: Term)(use: (Rewriter, Term) => A): Either[() => String, Rewriter => A] =
+    def maybeBy[A](f: Term)(use: (Rewriter, Term => Term) => A): Either[() => String, Rewriter => A] =
       if (step.name endsWith "By")
         by(f)(use)
       else
-        Right(use(_, f))
+        Right(use(_, identity))
+
+    implicit def autoSomeHookRefs(r: HookRef): Option[HookRef] =
+      Some(r)
 
     import AutoTypeImplicits._
     trait X
 
     step.name match {
 
-      case "useState" | "useStateBy" =>
-        val List(tpe) = step.targs : @nowarn
-        val List(List(f), _) = step.args : @nowarn
-        maybeBy(f) { (b, body) =>
+      // val (List(), List(List())) = step.sig : @nowarn
+
+      case "custom" =>
+        val (List(i, o), List(List(h), List(_, a, _))) = step.sig : @nowarn
+        Right { b =>
+          val initHook: Term =
+            if (isUnit(i))
+              custom[Unit, X](unitType, o, h, unitTerm)
+            else {
+              val ctxArgs      = b.argsOrCreateCtxArg(1)
+              val List(ctxArg) = ctxArgs : @nowarn
+              val ctxArgType   = typeOfTerm(ctxArg)
+              val ctx          = b.valDef(customArg[X, X](ctxArgType, o, a, ctxArg), "_ctx")
+              custom[X, X](i, o, h, ctx)
+            }
+          b.createHook(initHook, discard = isUnit(o))
+        }
+
+      case "customBy" =>
+        val (List(o), List(List(h), List(_, _))) = step.sig : @nowarn
+        by(h) { (b, withCtx) =>
           b.createRawAndHook(
-            raw  = useStateFn[X](tpe, body),
+            raw  = withCtx(h),
+            hook = custom[Unit, X](unitType, o, _, unitTerm))
+        }
+
+      // case "useMemo" | "useMemoBy" =>
+      //   val (List(d, a), List(List(deps), List(create), List(reuse, step))) = step.sig : @nowarn
+      //   maybeBy(deps) { (b, withCtx) =>
+      //   }
+
+      case "useState" | "useStateBy" =>
+        val (List(tpe), List(List(initialState), List(_))) = step.sig : @nowarn
+        maybeBy(initialState) { (b, withCtx) =>
+          b.createRawAndHook(
+            raw  = useStateFn[X](tpe, withCtx(initialState)),
             hook = useStateFromJsBoxed[X](tpe, _))
         }
 
       case "useStateWithReuse" | "useStateWithReuseBy" =>
-        val List(tpe) = step.targs : @nowarn
-        val List(List(f), List(ct, reuse, _)) = step.args : @nowarn
-        maybeBy(f) { (b, body) =>
+        val (List(tpe), List(List(initialState), List(ct, reuse, _)))  = step.sig : @nowarn
+        maybeBy(initialState) { (b, withCtx) =>
           b.createRawAndHook(
-            raw  = useStateFn[X](tpe, body),
+            raw  = useStateFn[X](tpe, withCtx(initialState)),
             hook = useStateWithReuseFromJsBoxed[X](tpe, _, reuse, ct))
         }
 

@@ -57,13 +57,14 @@ object CustomHook {
 
   trait ArgLowPri {
     implicit def id[A, B >: A]: Arg[A, B] =
-        Arg[A, B](a => a)
+      Arg[A, B](a => a)
   }
 
   object Arg extends ArgLowPri {
     def const[C, I](i: I): Arg[C, I] =
       apply[C, I](_ => i)
 
+    implicit def exactId [A]        : Arg[A, A]                            = apply(a => a)
     implicit def unit    [Ctx]      : Arg[Ctx, Unit]                       = const(())
     implicit def ctxProps[P]        : Arg[HookCtx.P0[P], P]                = apply((_: HookCtx.P0[P]).props)
     implicit def ctxPropsChildren   : Arg[HookCtx.PC0[Any], PropsChildren] = apply((_: HookCtx.PC0[Any]).propsChildren)
