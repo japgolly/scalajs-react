@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.test.emissions
 
+import java.lang.{Boolean => JBoolean}
 import japgolly.microlibs.testutil.TestUtil._
 import japgolly.microlibs.utils.FileUtils
 import japgolly.scalajs.react.test.emissions.util._
@@ -84,14 +85,16 @@ object ReactRefreshTest extends TestSuite {
       Util.debugShowContent(s"$inFilename <output>", babel.after, "\u001b[106;30m")
       ()
     } else
-      babel.assertOrSaveOutput(expectFilename)
+      babel.assertOrSaveOutput(expectFilename) match {
+        case () => testOutputFromSig(babel.after, null)
+        case r  => r
+      }
   }
 
   /** Load scalajs-react output JS, run ReactRefresh transforms over it, and confirm the result. */
   @nowarn("cat=unused")
-  protected def showScala(assertRR          : Boolean     = false,
-                          assertNoRR        : Boolean     = false,
-                          assertBabelChanges: Boolean     = false,
+  protected def showScala(assertRR          : JBoolean    = null,
+                          assertBabelChanges: JBoolean    = null,
                           showPreBabel      : Boolean     = false,
                           showResult        : Boolean     = true,
                           showDiff          : Boolean     = true,
@@ -102,9 +105,8 @@ object ReactRefreshTest extends TestSuite {
                           expectedFrags     : Seq[String] = Seq.empty)
                          (implicit tp       : TestPath) =
   testScala(
-    assertRR           = false,
-    assertNoRR         = false,
-    assertBabelChanges = false,
+    assertRR           = null,
+    assertBabelChanges = null,
     showPreBabel       = showPreBabel,
     showResult         = showResult,
     showDiff           = showDiff,
@@ -116,9 +118,8 @@ object ReactRefreshTest extends TestSuite {
   )
 
   /** Load scalajs-react output JS, run ReactRefresh transforms over it, and confirm the result. */
-  protected def testScala(assertRR          : Boolean     = true,
-                          assertNoRR        : Boolean     = false,
-                          assertBabelChanges: Boolean     = true,
+  protected def testScala(assertRR          : JBoolean    = true,
+                          assertBabelChanges: JBoolean    = null,
                           showPreBabel      : Boolean     = false,
                           showResult        : Boolean     = false,
                           showDiff          : Boolean     = false,
@@ -159,13 +160,13 @@ object ReactRefreshTest extends TestSuite {
       }
 
     try {
-      if (assertBabelChanges)
+      if (assertBabelChanges || (assertBabelChanges == null && assertRR))
         babel.assertChanged()
 
       if (assertRR)
         babel.assertRR(true)
 
-      if (assertNoRR)
+      if (assertRR == false)
         babel.assertRR(false)
 
       babel.assertOutputContains(expectedFrags: _*)
@@ -174,12 +175,7 @@ object ReactRefreshTest extends TestSuite {
         utestOutput = babel.assertOrSaveOutput(expectFilename, onCmp)
 
       if (utestOutput == ())
-        reactRefreshSignature(babel.after) match {
-          case Some(sig) => utestOutput = sig
-          case None =>
-            if (assertRR)
-              utestOutput = "Failed to find the RefreshSig state id"
-        }
+        utestOutput = testOutputFromSig(babel.after, assertRR)
 
     } finally {
       def show(s: String): String = onShow.runAs(name, s).content
@@ -203,4 +199,13 @@ object ReactRefreshTest extends TestSuite {
       case rrSigHashRegex(h) => Some(h)
       case _                 => None
     }
+
+  private def testOutputFromSig(js: String, expect: JBoolean): Any =
+    if (expect == false)
+      "react-refresh not installed"
+    else
+      reactRefreshSignature(js) match {
+        case Some(sig) => sig
+        case None      => if (expect) "Failed to find the RefreshSig state id" else ()
+      }
 }
