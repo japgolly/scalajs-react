@@ -14,6 +14,8 @@ object Main {
 
   private val Component = ScalaFnComponent[Unit] { _ =>
     <.div(
+      CustomHooks.Component(0),
+      CustomHooksBy.Component(0),
       HooksWithChildren.Component(0)(<.div),
       HooksWithJsFns.Component(0),
       HooksWithScalaFns.Component(0),

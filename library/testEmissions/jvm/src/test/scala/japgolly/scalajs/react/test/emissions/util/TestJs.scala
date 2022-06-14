@@ -77,7 +77,9 @@ object TestJs {
       apply(_
         .filterNot(_ startsWith "import ")
         .modify(_
-          .replace("PropsChildren$", "PropsChildren") // Not sure why SJS sometimes emits one or the other
+          // Not sure why SJS sometimes emits one or the other of the following
+          .replace("PropsChildren$", "PropsChildren")
+          .replace("$FirstStep.$", "$First.$") // Scala 3 only
         )
       )
 

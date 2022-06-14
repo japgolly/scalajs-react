@@ -1,13 +1,10 @@
 ```scala
 // HookComponentBuilder.scala
-/* [--] */ def withPropsChildren: ComponentPC.First[P]
+/* [23] */ def withPropsChildren: ComponentPC.First[P]
 /* [--] */ def render(f: (P, PropsChildren) => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT]
 /* [--] */ def render in primary API
 
 // Api.scala
-/* [--] */ def custom                              [I, O](hook: CustomHook[I, O])(implicit step: Step, a: CustomHook.Arg[Ctx, I], d: DynamicNextStep[O]): d.OneOf[step.Self, step.Next[O]]
-/* [--] */ def customBy                            [O](hook: Ctx => CustomHook[Unit, O])(implicit step: Step, d: DynamicNextStep[O]): d.OneOf[step.Self, step.Next[O]]
-/* [--] */ def customBy                            [O](hook: CtxFn[CustomHook[Unit, O]])(implicit step: Step, d: DynamicNextStep[O]): d.OneOf[step.Self, step.Next[O]]
 /* [--] */ def localLazyVal                        [A](a: => A)(implicit step: Step): step.Next[() => A]
 /* [--] */ def localLazyValBy                      [A](f: Ctx => A)(implicit step: Step): step.Next[() => A]
 /* [--] */ def localLazyValBy                      [A](f: CtxFn[A])(implicit step: Step): step.Next[() => A]
@@ -17,13 +14,6 @@
 /* [--] */ def localVar                            [A](a: => A)(implicit step: Step): step.Next[Var[A]]
 /* [--] */ def localVarBy                          [A](f: Ctx => A)(implicit step: Step): step.Next[Var[A]]
 /* [--] */ def localVarBy                          [A](f: CtxFn[A])(implicit step: Step): step.Next[Var[A]]
-/* [2-] */ def render                              (f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], C]): Component[P, s.CT]
-/* [--] */ def renderReusable                      [A](f: Ctx => Reusable[A])(implicit s: CtorType.Summoner[Box[P], C], v: A => VdomNode): Component[P, s.CT]
-/* [--] */ def renderReusable                      [A](f: CtxFn[Reusable[A]])(implicit step: Step, s: CtorType.Summoner[Box[P], C], v: A => VdomNode): Component[P, s.CT]
-/* [--] */ def renderWithReuse                     (f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], C], r: Reusability[Ctx]): Component[P, s.CT]
-/* [--] */ def renderWithReuse                     (f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C], r: Reusability[Ctx]): Component[P, s.CT]
-/* [--] */ def renderWithReuseBy                   [A](reusableInputs: Ctx => A)(f: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], C], r: Reusability[A]): Component[P, s.CT]
-/* [--] */ def renderWithReuseBy                   [A](reusableInputs: CtxFn[A])(f: A => VdomNode)(implicit step: Step, s: CtorType.Summoner[Box[P], C], r: Reusability[A]): Component[P, s.CT]
 /* [--] */ def unchecked                           [A](f: => A)(implicit step: Step, d: DynamicNextStep[A]): d.OneOf[step.Self, step.Next[A]]
 /* [--] */ def uncheckedBy                         [A](f: Ctx => A)(implicit step: Step, d: DynamicNextStep[A]): d.OneOf[step.Self, step.Next[A]]
 /* [--] */ def uncheckedBy                         [A](f: CtxFn[A])(implicit step: Step, d: DynamicNextStep[A]): d.OneOf[step.Self, step.Next[A]]
@@ -74,10 +64,11 @@
 /* [--] */ def useRefToScalaComponent              [P, S, B, CT[-p, +u] <: CtorType[p, u
 /* [--] */ def useRefToScalaComponent              [P, S, B](implicit step: Step): step.Next[Ref.ToScalaComponent[P, S, B]]
 /* [--] */ def useRefToVdom                        [N <: TopNode: ClassTag](implicit step: Step): step.Next[Ref.ToVdom[N]]
-/* [2-] */ def useState                            [S](initialState: => S)(implicit step: Step): step.Next[UseState[S]]
-/* [2-] */ def useStateBy                          [S](initialState: Ctx => S)(implicit step: Step): step.Next[UseState[S]]
-/* [2-] */ def useStateBy                          [S](initialState: CtxFn[S])(implicit step: Step): step.Next[UseState[S]]
-/* [2-] */ def useStateWithReuse                   [S: ClassTag: Reusability](initialState: => S)(implicit step: Step): step.Next[UseStateWithReuse[S]]
-/* [2-] */ def useStateWithReuseBy                 [S: ClassTag: Reusability](initialState: Ctx => S)(implicit step: Step): step.Next[UseStateWithReuse[S]]
-/* [2-] */ def useStateWithReuseBy                 [S: ClassTag: Reusability](initialState: CtxFn[S])(implicit step: Step): step.Next[UseStateWithReuse[S]]
+
+/* [--] */ def renderReusable                      [A](f: Ctx => Reusable[A])(implicit s: CtorType.Summoner[Box[P], C], v: A => VdomNode): Component[P, s.CT]
+/* [--] */ def renderReusable                      [A](f: CtxFn[Reusable[A]])(implicit step: Step, s: CtorType.Summoner[Box[P], C], v: A => VdomNode): Component[P, s.CT]
+/* [--] */ def renderWithReuse                     (f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], C], r: Reusability[Ctx]): Component[P, s.CT]
+/* [--] */ def renderWithReuse                     (f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C], r: Reusability[Ctx]): Component[P, s.CT]
+/* [--] */ def renderWithReuseBy                   [A](reusableInputs: Ctx => A)(f: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], C], r: Reusability[A]): Component[P, s.CT]
+/* [--] */ def renderWithReuseBy                   [A](reusableInputs: CtxFn[A])(f: A => VdomNode)(implicit step: Step, s: CtorType.Summoner[Box[P], C], r: Reusability[A]): Component[P, s.CT]
 ```
