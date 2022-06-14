@@ -4,15 +4,16 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 
-object ScalaSpecificHooksTest {
+class ScalaSpecificHooksTest {
   import HooksTest._
+
+  private val hookS = CustomHook[Int].useStateBy(identity).buildReturning(_.hook1)
 
   // TODO: https://github.com/lampepfl/dotty/issues/12663
   // This is the original version
   def testCustomHook(): Unit = {
     val counter = new Counter
 
-    val hookS = CustomHook[Int].useStateBy(identity).buildReturning(_.hook1)
     val hookE = CustomHook[Int].useEffectBy(counter.incCB(_)).build
 
     val comp = ScalaFnComponent.withHooks[PI]

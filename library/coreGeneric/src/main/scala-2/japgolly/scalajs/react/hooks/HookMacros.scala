@@ -24,7 +24,7 @@ class HookMacros(val c: Context) extends MacroUtils {
     import AbstractHookMacros._
 
     override type Expr[A]  = Term
-    override type HookRef  = TermName
+    override type Ref      = TermName
     override type Stmt     = c.universe.Tree
     override type Term     = c.universe.Tree
     override type Type[A]  = c.universe.Type
@@ -32,7 +32,7 @@ class HookMacros(val c: Context) extends MacroUtils {
 
     override protected def asTerm[A](e: Expr[A]) = e
     override protected def Expr[A](t: Term) = t
-    override protected def hookRefToTerm(r: HookRef) = Ident(r)
+    override protected def refToTerm(r: Ref) = Ident(r)
     override protected def Type[A](t: TypeTree) = t.tpe
     override protected def typeOfTerm(t: Term) = c.universe.TypeTree(t.tpe)
 
@@ -80,19 +80,16 @@ class HookMacros(val c: Context) extends MacroUtils {
     override def showRaw(t: Term): String = c.universe.showRaw(t)
     override def showCode(t: Term): String = c.universe.showCode(t)
 
-    override def rewriter(rc: RewriterCtx) =
-      new HookRewriter[Tree, Term, HookRef] {
-        override protected val ctx                            = rc
-        override protected def Apply(t: Term, as: List[Term]) = c.universe.Apply(t, as)
-        override protected def hookRefToTerm(r: HookRef)      = Ident(r)
-        override def valDef(n: String, t: Term)               = { val r = TermName(n); this += q"val $r = $t"; r }
-        override def wrap(body: Term)                         = q"..$stmts; $body"
+    override protected def wrap =
+      (s, b) => q"..$s; $b"
 
-        override protected def hookCtx(withChildren: Boolean, args: List[Term]) = {
-          val obj = if (withChildren) q"$HookCtx.withChildren" else HookCtx
-          Apply(obj, args)
-        }
-      }
+    override protected val rewriterBridge: RewriterBridge =
+      HookRewriter.Bridge[Stmt, Term, Ref](
+        apply     = Apply(_, _),
+        hookCtx   = (c, as) => Apply(if (c) q"$HookCtx.withChildren" else HookCtx, as),
+        refToTerm = r => Ident(r),
+        valDef    = (n, t) => { val r = TermName(n); (q"val $r = $t", r) },
+      )
 
     override def call(function: Tree, args: List[Tree]): Tree = {
       import internal._
@@ -174,20 +171,20 @@ class HookMacros(val c: Context) extends MacroUtils {
 
     val rewriteAttempt =
       for {
-        p <- hookMacros.parse(c.macroApplication)
-        r <- hookMacros.rewriteComponent(p)
-      } yield hookMacros.applyRewrite(r)
+        hookDefn <- hookMacros.parse(c.macroApplication)
+        rewriter <- hookMacros.rewriteComponent(hookDefn)
+      } yield rewriter
 
     val result: Tree =
       rewriteAttempt match {
 
-        case Right(rewrite) =>
+        case Right(rewriter) =>
           val ctx = hookMacros.rewriterCtx(
             props        = q"props.unbox",
             initChildren = q"val children = $PropsChildren.fromRawProps(props)",
             children     = q"children",
           )
-          val newBody = rewrite(ctx)
+          val newBody = rewriter(ctx)
           c.untypecheck(q"""
             val rawComponent: $JsFn.RawComponent[${Box(P)}] = props => $newBody
             $ScalaFn.fromBoxed($JsFn.fromJsFn[${Box(P)}, $C](rawComponent)($s))

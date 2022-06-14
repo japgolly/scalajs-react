@@ -112,7 +112,7 @@ object HooksTest extends TestSuite {
 
   private def testCustomHook(): Unit = {
     // TODO: https://github.com/lampepfl/dotty/issues/12663
-    ScalaSpecificHooksTest.testCustomHook()
+    (new ScalaSpecificHooksTest).testCustomHook()
 
   //   val counter = new Counter
 
@@ -144,7 +144,11 @@ object HooksTest extends TestSuite {
   }
 
   private def testCustomHookComposition(): Unit = {
+    new TestCustomHookComposition
+  }
 
+  // TODO: Temporary workaround to https://github.com/lampepfl/dotty/issues/15435
+  private class TestCustomHookComposition {
     locally {
       type LL = CustomHook[Long, Long]
       type II = CustomHook[Int, Int]

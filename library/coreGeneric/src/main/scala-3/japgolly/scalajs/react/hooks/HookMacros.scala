@@ -21,21 +21,6 @@ object HookMacros {
   private def HookMacrosImpl(qq: Quotes): HookMacrosImpl { val q: qq.type } =
     new HookMacrosImpl {
       override implicit val q: qq.type = qq
-      import q.reflect.*
-
-      override def rewriter(rctx: RewriterCtx): Rewriter =
-        new AbstractHookMacros.HookRewriter[Stmt, Term, HookRef] {
-          override protected val ctx                            = rctx
-          override protected def Apply(t: Term, as: List[Term]) = q.reflect.Apply(t, as)
-          override protected def hookRefToTerm(r: HookRef)      = r.ref
-          override def valDef(n: String, t: Term)               = { val r = untypedValDef(n, t.tpe, Flags.EmptyFlags)(t); this += r.valDef; r }
-          override def wrap(body: Term)                         = Block(stmts.toList, body)
-
-          override protected def hookCtx(withChildren: Boolean, args: List[Term]) = {
-            val obj = if (withChildren) '{HookCtx.withChildren} else '{HookCtx}
-            Select.overloaded(obj.asTerm, "apply", args.map(_.tpe), args)
-          }
-        }
     }
 
   @nowarn("msg=Consider using canonical type reference .+Underlying instead")
@@ -46,7 +31,7 @@ object HookMacros {
     import q.reflect.*
 
     override type Expr[A]  = scala.quoted.Expr[A]
-    override type HookRef  = UntypedValDef.WithQuotes[q.type]
+    override type Ref      = UntypedValDef.WithQuotes[q.type]
     override type Stmt     = q.reflect.Statement
     override type Term     = q.reflect.Term
     override type Type[A]  = scala.quoted.Type[A]
@@ -54,12 +39,23 @@ object HookMacros {
 
     override protected def asTerm[A](e: Expr[A]) = e.asTerm
     override protected def Expr[A](t: Term) = t.asExprOf[Any].asInstanceOf[Expr[A]]
-    override protected def hookRefToTerm(r: HookRef) = r.ref
+    override protected def refToTerm(r: Ref) = r.ref
     override protected def typeOfTerm(t: Term) = t.tpe.asTypeTree
     override protected def Type[A](t: TypeTree) = {
       val x: scala.quoted.Type[?] = t.asType
       x.asInstanceOf[scala.quoted.Type[A]]
     }
+
+    override protected def wrap =
+      (s, b) => Block(s.toList, b)
+
+    override protected val rewriterBridge: RewriterBridge =
+      HookRewriter.Bridge[Stmt, Term, Ref](
+        apply     = Apply(_, _),
+        hookCtx   = (c, as) => Select.overloaded((if (c) '{HookCtx.withChildren} else '{HookCtx}).asTerm, "apply", as.map(_.tpe), as),
+        refToTerm = _.ref,
+        valDef    = (n, t) => { val r = untypedValDef(n, t.tpe, Flags.EmptyFlags)(t); (r.valDef, r) },
+      )
 
     override val ApplyLike = new ApplyExtractor {
       override def unapply(a: Term) = a match {
@@ -214,14 +210,16 @@ object HookMacros {
     log.enabled = debug // f.show.contains("DEBUG")
     log.header()
 
+    // log("self", self.asTerm.underlying.show)
+
     val renderStep =
       HookStep("render", Nil, List(List(f.asTerm), List(step.asTerm, s.asTerm)))
 
     val rewriteAttempt =
       for {
-        p <- hookMacros.parse(self.asTerm.underlying)
-        r <- hookMacros.rewriteComponent(p + renderStep)
-      } yield hookMacros.applyRewrite(r)
+        hookDefn <- hookMacros.parse(self.asTerm.underlying)
+        compBody <- hookMacros.rewriteComponent(hookDefn + renderStep)
+      } yield compBody
 
     val result: Expr[Component[P, CT]] =
       rewriteAttempt match {

@@ -4,16 +4,17 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 
-object ScalaSpecificHooksTest {
+class ScalaSpecificHooksTest {
   import HooksTest._
+
+  // TODO: These have been moved outside due to https://github.com/lampepfl/dotty/issues/15435
+  private val counter = new Counter
+  private val hookS = CustomHook[Int].useStateBy(identity).buildReturning(_.hook1)
+  private val hookE = CustomHook[Int].useEffectBy(counter.incCB(_)).build
 
   // TODO: https://github.com/lampepfl/dotty/issues/12663
   // I swapped the order of the last two hooks to avoid use of a CtxFn after a DynamicNextStep.
   def testCustomHook(): Unit = {
-    val counter = new Counter
-
-    val hookS = CustomHook[Int].useStateBy(identity).buildReturning(_.hook1)
-    val hookE = CustomHook[Int].useEffectBy(counter.incCB(_)).build
 
     val comp = ScalaFnComponent.withHooks[PI]
       .custom(hookE(10))
@@ -22,7 +23,7 @@ object ScalaSpecificHooksTest {
       .customBy((p, s, _) => hookE(p.pi + s.value))
       .customBy($ => hookE($.props.pi + $.hook1.value + 1))
       .customBy($ => hookS($.props.pi + $.hook1.value + 1)) // <--- s3
-      .render((_, s1, s2, s3) =>
+      .renderDebug((_, s1, s2, s3) =>
         <.div(
           s"${s1.value}:${s2.value}:${s3.value}",
           <.button(^.onClick --> s1.modState(_ + 1))
