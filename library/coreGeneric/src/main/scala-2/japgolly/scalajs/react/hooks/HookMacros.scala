@@ -30,11 +30,53 @@ class HookMacros(val c: Context) extends MacroUtils {
     override type Type[A]  = c.universe.Type
     override type TypeTree = c.universe.TypeTree
 
-    override protected def asTerm[A](e: Expr[A]) = e
-    override protected def Expr[A](t: Term) = t
-    override protected def refToTerm(r: Ref) = Ident(r)
-    override protected def Type[A](t: TypeTree) = t.tpe
-    override protected def typeOfTerm(t: Term) = c.universe.TypeTree(t.tpe)
+    override protected def asTerm    [A](e: Expr[A])  = e
+    override protected def Expr      [A](t: Term)     = t
+    override protected def isUnit       (t: TypeTree) = t.tpe == typeOf[Unit]
+    override protected def refToTerm    (r: Ref)      = Ident(r)
+    override protected def showCode     (t: Term)     = c.universe.showCode(t)
+    override protected def showRaw      (t: Term)     = c.universe.showRaw(t)
+    override protected def Type      [A](t: TypeTree) = t.tpe
+    override protected def typeOfTerm   (t: Term)     = c.universe.TypeTree(t.tpe)
+    override protected def unitTerm                   = q"()"
+    override protected def unitType                   = c.universe.definitions.UnitTpe
+    override protected def wrap                       = (s, b) => q"..$s; $b"
+
+    override def call(function: Tree, args: List[Tree]): Tree = {
+      import internal._
+      function match {
+        case Function(params, body) =>
+
+          // From scala/test/files/run/macro-range/Common_1.scala
+          class TreeSubstituter(from: List[Symbol], to: List[Tree]) extends Transformer {
+            override def transform(tree: Tree): Tree = tree match {
+              case Ident(_) =>
+                def subst(from: List[Symbol], to: List[Tree]): Tree =
+                  if (from.isEmpty) tree
+                  else if (tree.symbol == from.head) to.head.duplicate
+                  else subst(from.tail, to.tail);
+                subst(from, to)
+              case _ =>
+                val tree1 = super.transform(tree)
+                if (tree1 ne tree) setType(tree1, null)
+                tree1
+            }
+          }
+          val t = new TreeSubstituter(params.map(_.symbol), args)
+          t.transform(body)
+
+        case _ =>
+          Apply(Select(function, TermName("apply")), args)
+      }
+    }
+
+    override protected val rewriterBridge: RewriterBridge =
+      HookRewriter.Bridge[Stmt, Term, Ref](
+        apply     = Apply(_, _),
+        hookCtx   = (c, as) => Apply(if (c) q"$HookCtx.withChildren" else HookCtx, as),
+        refToTerm = r => Ident(r),
+        valDef    = (n, t) => { val r = TermName(n); (q"val $r = $t", r) },
+      )
 
     override val ApplyLike = new ApplyExtractor {
       override def unapply(a: Term) = a match {
@@ -77,57 +119,6 @@ class HookMacros(val c: Context) extends MacroUtils {
       }
     }
 
-    override def showRaw(t: Term): String = c.universe.showRaw(t)
-    override def showCode(t: Term): String = c.universe.showCode(t)
-
-    override protected def wrap =
-      (s, b) => q"..$s; $b"
-
-    override protected val rewriterBridge: RewriterBridge =
-      HookRewriter.Bridge[Stmt, Term, Ref](
-        apply     = Apply(_, _),
-        hookCtx   = (c, as) => Apply(if (c) q"$HookCtx.withChildren" else HookCtx, as),
-        refToTerm = r => Ident(r),
-        valDef    = (n, t) => { val r = TermName(n); (q"val $r = $t", r) },
-      )
-
-    override def call(function: Tree, args: List[Tree]): Tree = {
-      import internal._
-      function match {
-        case Function(params, body) =>
-
-          // From scala/test/files/run/macro-range/Common_1.scala
-          class TreeSubstituter(from: List[Symbol], to: List[Tree]) extends Transformer {
-            override def transform(tree: Tree): Tree = tree match {
-              case Ident(_) =>
-                def subst(from: List[Symbol], to: List[Tree]): Tree =
-                  if (from.isEmpty) tree
-                  else if (tree.symbol == from.head) to.head.duplicate
-                  else subst(from.tail, to.tail);
-                subst(from, to)
-              case _ =>
-                val tree1 = super.transform(tree)
-                if (tree1 ne tree) setType(tree1, null)
-                tree1
-            }
-          }
-          val t = new TreeSubstituter(params.map(_.symbol), args)
-          t.transform(body)
-
-        case _ =>
-          Apply(Select(function, TermName("apply")), args)
-      }
-    }
-
-    override protected def isUnit(t: TypeTree): Boolean =
-      t.tpe == typeOf[Unit]
-
-    override protected def unitTerm =
-      q"()"
-
-    override protected def unitType =
-      c.universe.definitions.UnitTpe
-
     override protected def custom[I, O] = (_, _, hook, i) =>
       q"$hook.unsafeInit($i)"
 
@@ -164,8 +155,8 @@ class HookMacros(val c: Context) extends MacroUtils {
              (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree = {
 
     val hookMacros = new HookMacrosImpl
-    import hookMacros.log
 
+    import hookMacros.log
     log.enabled = debug
     log.header()
 

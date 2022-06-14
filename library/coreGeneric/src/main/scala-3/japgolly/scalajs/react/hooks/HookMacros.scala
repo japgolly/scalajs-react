@@ -37,17 +37,40 @@ object HookMacros {
     override type Type[A]  = scala.quoted.Type[A]
     override type TypeTree = q.reflect.TypeTree
 
-    override protected def asTerm[A](e: Expr[A]) = e.asTerm
-    override protected def Expr[A](t: Term) = t.asExprOf[Any].asInstanceOf[Expr[A]]
-    override protected def refToTerm(r: Ref) = r.ref
-    override protected def typeOfTerm(t: Term) = t.tpe.asTypeTree
+    override protected def asTerm    [A](e: Expr[A]) = e.asTerm
+    override protected def Expr      [A](t: Term)    = t.asExprOf[Any].asInstanceOf[Expr[A]]
+    override protected def refToTerm    (r: Ref)     = r.ref
+    override protected def showCode     (t: Term)    = t.show(using q.reflect.Printer.TreeShortCode)
+    override protected def showRaw      (t: Term)    = t.show(using q.reflect.Printer.TreeStructure)
+    override protected def typeOfTerm   (t: Term)    = t.tpe.asTypeTree
+    override protected def unitTerm                  = '{ () }
+    override protected def unitType                  = scala.quoted.Type.of[Unit]
+    override protected def wrap                      = (s, b) => Block(s.toList, b)
+
+    override def call(function: Term, args: List[Term]): Term = {
+      val f = extractFunction(function)
+      val t = Apply(Select.unique(f, "apply"), args)
+      Term.betaReduce(t).getOrElse(t)
+    }
+
+    @tailrec
+    private def extractFunction(term: Term): Term =
+      term match {
+        case Inlined(None, Nil, f) => extractFunction(f)
+        case Block(Nil, expr)      => extractFunction(expr)
+        case f                     => f
+      }
+
+    override protected def isUnit(t: TypeTree): Boolean =
+      t.tpe.asType match {
+        case '[Unit] => true
+        case _       => false
+      }
+
     override protected def Type[A](t: TypeTree) = {
       val x: scala.quoted.Type[?] = t.asType
       x.asInstanceOf[scala.quoted.Type[A]]
     }
-
-    override protected def wrap =
-      (s, b) => Block(s.toList, b)
 
     override protected val rewriterBridge: RewriterBridge =
       HookRewriter.Bridge[Stmt, Term, Ref](
@@ -60,21 +83,21 @@ object HookMacros {
     override val ApplyLike = new ApplyExtractor {
       override def unapply(a: Term) = a match {
         case Apply(x, y) => Some((x, y))
-        case _ => None
+        case _           => None
       }
     }
 
     override val TypeApplyLike = new TypeApplyExtractor {
       override def unapply(a: Term) =  a match {
         case TypeApply(x, y) => Some((x, y))
-        case _ => None
+        case _               => None
       }
     }
 
     override val SelectLike = new SelectExtractor {
       override def unapply(a: Term) =  a match {
         case Select(x, y) => Some((x, y))
-        case _ => None
+        case _            => None
       }
     }
 
@@ -89,17 +112,14 @@ object HookMacros {
 
         case i@ Ident(_) =>
           i.symbol.tree match {
-            case d: DefDef => byTypeTree(d.returnTpt)
-            case v: ValDef => byTypeTree(v.tpt)
+            case d: DefDef => byTypeRepr(d.returnTpt.tpe)
+            case v: ValDef => byTypeRepr(v.tpt.tpe)
             case _         => None
           }
 
         case _ =>
           None
       }
-
-      private def byTypeTree(tpt: TypeTree): Option[Success] =
-        byTypeRepr(tpt.tpe)
 
       private def byTypeRepr(t: TypeRepr): Option[Success] = t match {
         case AppliedType(TypeRef(ThisType(_), f), args) if f.startsWith("Function") =>
@@ -108,35 +128,6 @@ object HookMacros {
           None
       }
     }
-
-    override def showRaw(t: Term): String = t.show(using q.reflect.Printer.TreeStructure)
-    override def showCode(t: Term): String = t.show(using q.reflect.Printer.TreeShortCode)
-
-    @tailrec
-    private def extractFunction(term: Term): Term =
-      term match {
-        case Inlined(None, Nil, f) => extractFunction(f)
-        case Block(Nil, expr)      => extractFunction(expr)
-        case f                     => f
-      }
-
-    override def call(function: Term, args: List[Term]): Term = {
-      val f = extractFunction(function)
-      val t = Apply(Select.unique(f, "apply"), args)
-      Term.betaReduce(t).getOrElse(t)
-    }
-
-    override protected def isUnit(t: TypeTree): Boolean =
-      t.tpe.asType match {
-        case '[Unit] => true
-        case _       => false
-      }
-
-    override protected def unitTerm =
-      '{ () }
-
-    override protected def unitType: Type[Unit] =
-      scala.quoted.Type.of[Unit]
 
     override protected def custom[I, O] = implicit (ti, to, hook, i) =>
       '{ $hook.unsafeInit($i) }
@@ -218,13 +209,13 @@ object HookMacros {
     val rewriteAttempt =
       for {
         hookDefn <- hookMacros.parse(self.asTerm.underlying)
-        compBody <- hookMacros.rewriteComponent(hookDefn + renderStep)
-      } yield compBody
+        rewriter <- hookMacros.rewriteComponent(hookDefn + renderStep)
+      } yield rewriter
 
     val result: Expr[Component[P, CT]] =
       rewriteAttempt match {
 
-        case Right(rewrite) =>
+        case Right(rewriter) =>
           type JsProps = Box[P] with facade.PropsWithChildren
 
           def newBody(props: Expr[JsProps]): Expr[React.Node] = {
@@ -234,7 +225,7 @@ object HookMacros {
               initChildren = children.valDef,
               children     = children.ref.asTerm,
             )
-            rewrite(ctx)
+            rewriter(ctx)
           }
 
           '{

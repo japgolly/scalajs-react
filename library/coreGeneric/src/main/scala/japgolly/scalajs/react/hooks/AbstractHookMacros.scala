@@ -16,13 +16,14 @@ object AbstractHookMacros {
               val bridge      : HookRewriter.Bridge[Stmt, Term, Ref]
     protected val hookNo      : Int
     protected val initialCtx  : HookRewriter.InitialCtx[Stmt, Term]
+    protected def initialStmts: Vector[Stmt]
     protected val prevHooks   : List[Term]
     protected val usesChildren: Boolean
-    protected def initialStmts: Vector[Stmt]
 
     private var _stmts: Vector[Stmt] =
       initialStmts
 
+    // Don't make this an eager val. It depends on `val hookNo`
     protected def hookName =
       "hook" + hookNo
 
@@ -100,9 +101,9 @@ object AbstractHookMacros {
         override           val bridge       = bridg
         override protected val hookNo       = 1
         override protected val initialCtx   = ctx
+        override protected def initialStmts = if (useChildren) Vector(ctx.initChildren) else Vector.empty
         override protected val prevHooks    = Nil
         override protected val usesChildren = useChildren
-        override protected def initialStmts = if (useChildren) Vector(ctx.initChildren) else Vector.empty
       }
 
     def next[Stmt, Term <: Stmt, Ref](prev: HookRewriter[Stmt, Term, Ref])(newHook: Option[Ref]): HookRewriter[Stmt, Term, Ref] =
@@ -110,9 +111,9 @@ object AbstractHookMacros {
         override           val bridge       = prev.bridge
         override protected val hookNo       = prev.hookNo + 1
         override protected val initialCtx   = prev.initialCtx
+        override protected def initialStmts = prev.stmts()
         override protected val prevHooks    = newHook.fold(prev.prevHooks)(prev.prevHooks :+ prev.bridge.refToTerm(_))
         override protected val usesChildren = prev.usesChildren
-        override protected def initialStmts = prev.stmts()
       }
   }
 }
@@ -122,21 +123,12 @@ object AbstractHookMacros {
 trait AbstractHookMacros {
   import AbstractHookMacros._
 
-  // Abstractions
-
   type Expr[A]
   type Ref
   type Stmt
   type Term <: Stmt
   type Type[A]
   type TypeTree
-
-  protected def asTerm[A](e: Expr[A]): Term
-  protected def Expr[A](t: Term): Expr[A]
-  protected def refToTerm(r: Ref): Term
-  protected def Type[A](t: TypeTree): Type[A]
-  protected def typeOfTerm(t: Term): TypeTree
-  protected def wrap: (Vector[Stmt], Term) => Term
 
   protected val ApplyLike: ApplyExtractor
   protected abstract class ApplyExtractor {
@@ -159,44 +151,29 @@ trait AbstractHookMacros {
     def unapply(function: Term): Option[Success]
   }
 
-  protected def showRaw(t: Term): String
-  protected def showCode(t: Term): String
-
-  protected val rewriterBridge: RewriterBridge
-
-  protected def call(function: Term, args: List[Term]): Term
-  protected def isUnit(t: TypeTree): Boolean
-  protected def unitTerm: Expr[Unit]
-  protected def unitType: Type[Unit]
+  protected def asTerm        [A](e: Expr[A])                      : Term
+  protected def call             (function: Term, args: List[Term]): Term
+  protected def Expr          [A](t: Term)                         : Expr[A]
+  protected def isUnit           (t: TypeTree)                     : Boolean
+  protected def refToTerm        (r: Ref)                          : Term
+  protected def showCode         (t: Term)                         : String
+  protected def showRaw          (t: Term)                         : String
+  protected def Type          [A](t: TypeTree)                     : Type[A]
+  protected def typeOfTerm       (t: Term)                         : TypeTree
+  protected def unitTerm                                           : Expr[Unit]
+  protected def unitType                                           : Type[Unit]
+  protected def wrap                                               : (Vector[Stmt], Term) => Term
+  protected val rewriterBridge                                     : RewriterBridge
 
   protected def custom[I, O]: (Type[I], Type[O], Expr[CustomHook[I, O]], Expr[I]) => Expr[O]
-  protected def customArg[Ctx, Arg]: (Type[Ctx], Type[Arg], Expr[CustomHook.Arg[Ctx, Arg]], Expr[Ctx]) => Expr[Arg]
-
+  protected def customArg[C, A]: (Type[C], Type[A], Expr[CustomHook.Arg[C, A]], Expr[C]) => Expr[A]
   protected def useStateFn[S]: (Type[S], Expr[S]) => Expr[React.UseState[Box[S]]]
   protected def useStateFromJsBoxed[S]: (Type[S], Expr[React.UseState[Box[S]]]) => Expr[Hooks.UseState[S]]
   protected def useStateWithReuseFromJsBoxed[S]: (Type[S], Expr[React.UseState[Box[S]]], Expr[Reusability[S]], Expr[ClassTag[S]]) => Expr[Hooks.UseStateWithReuse[S]]
   protected def vdomRawNode: Expr[VdomNode] => Expr[React.Node]
 
-  // -----------------------------------------------------------------------------------------------------------
+  // -------------------------------------------------------------------------------------------------------------------
   // Concrete
-
-  protected object AutoTypeImplicits {
-    @inline implicit def autoTerm[A](e: Expr[A]): Term = asTerm(e)
-    @inline implicit def autoRefToTerm(r: Ref): Term = refToTerm(r)
-    @inline implicit def autoRefToExpr[A](r: Ref): Expr[A] = asTerm(refToTerm(r))
-    @inline implicit def autoTypeOf[A](t: TypeTree): Type[A] = Type(t)
-    @inline implicit def autoExprOf[A](t: Term): Expr[A] = Expr(t)
-  }
-
-  type Rewriter       = HookRewriter[Stmt, Term, Ref]
-  type RewriterBridge = HookRewriter.Bridge[Stmt, Term, Ref]
-  type RewriterCtx    = HookRewriter.InitialCtx[Stmt, Term]
-
-  def rewriterCtx(props: Term, initChildren: Stmt, children: Term): RewriterCtx =
-    HookRewriter.InitialCtx(props, initChildren, children)
-
-  implicit val log: MacroLogger =
-    MacroLogger()
 
   case class HookDefn(steps: Vector[HookStep]) {
     def +(s: HookStep): HookDefn =
@@ -207,7 +184,23 @@ trait AbstractHookMacros {
     def sig = (targs, args)
   }
 
-  private val withHooks = "withHooks"
+  final type Rewriter       = HookRewriter[Stmt, Term, Ref]
+  final type RewriterBridge = HookRewriter.Bridge[Stmt, Term, Ref]
+  final type RewriterCtx    = HookRewriter.InitialCtx[Stmt, Term]
+
+  final implicit val log: MacroLogger =
+    MacroLogger()
+
+  final def rewriterCtx(props: Term, initChildren: Stmt, children: Term): RewriterCtx =
+    HookRewriter.InitialCtx(props, initChildren, children)
+
+  protected object AutoTypeImplicits {
+    @inline implicit def autoTerm[A](e: Expr[A]): Term = asTerm(e)
+    @inline implicit def autoRefToTerm(r: Ref): Term = refToTerm(r)
+    @inline implicit def autoRefToExpr[A](r: Ref): Expr[A] = asTerm(refToTerm(r))
+    @inline implicit def autoTypeOf[A](t: TypeTree): Type[A] = Type(t)
+    @inline implicit def autoExprOf[A](t: Term): Expr[A] = Expr(t)
+  }
 
   private def traverseVector[A, E, B](as: Vector[A])(f: A => Either[E, B]): Either[E, Vector[B]] = {
     var results = Vector.empty[B]
@@ -222,12 +215,15 @@ trait AbstractHookMacros {
     Right(results)
   }
 
+  // -------------------------------------------------------------------------------------------------------------------
   final def parse(tree: Term): Either[() => String, HookDefn] = {
     log.hold()
     val r = _parse(tree, Nil, Nil, Nil)
     log.release(printPending = r.isLeft)
     r
   }
+
+  private val withHooks = "withHooks"
 
   @tailrec
   private def _parse(tree: Term, targs: List[TypeTree], args: List[List[Term]], steps: List[HookStep]): Either[() => String, HookDefn] =
@@ -258,6 +254,7 @@ trait AbstractHookMacros {
         Left(() => "Don't know how to parse " + showRaw(tree))
     }
 
+  // -------------------------------------------------------------------------------------------------------------------
   def rewriteComponent(h: HookDefn): Either[() => String, RewriterCtx => Expr[React.Node]] = {
     if (h.steps.isEmpty)
       return Left(() => "Failed to find any hook steps to parse.")
@@ -279,6 +276,7 @@ trait AbstractHookMacros {
     }
   }
 
+  // -------------------------------------------------------------------------------------------------------------------
   def rewriteStep(step: HookStep): Either[() => String, Rewriter => Option[Ref]] = {
     log("rewriteStep:" + step.name, step)
 
@@ -361,6 +359,7 @@ trait AbstractHookMacros {
     }
   }
 
+  // -------------------------------------------------------------------------------------------------------------------
   def rewriteRender(step: HookStep): Either[() => String, Rewriter => Term] = {
     log("rewriteRender:" + step.name, step)
     step.name match {
