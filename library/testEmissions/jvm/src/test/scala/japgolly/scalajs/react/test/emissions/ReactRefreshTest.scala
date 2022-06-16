@@ -19,6 +19,7 @@ object ReactRefreshTest extends TestSuite {
     "js" - {
       "fn" - testJs()
       "hooks" - testJs()
+      "custom_hooks" - testJs()
       // "temp" - testJs()
     }
 
@@ -194,13 +195,17 @@ object ReactRefreshTest extends TestSuite {
     utestOutput
   }
 
-  private val rrSigHashRegex = """.*, ?"([a-zA-Z0-9/+]{27}=)"\);.*""".r
+  private val rrSigRegex = """^.*(?:_s.*|},) "([a-zA-Z0-9/+]{27}=)"(?:, .+|\);)?$""".r
 
-  private def reactRefreshSignature(js: String): Option[String] =
-    js.replace('\n', ' ') match {
-      case rrSigHashRegex(h) => Some(h)
-      case _                 => None
-    }
+  private def reactRefreshSignature(js: String): Option[String] = {
+    val all: String =
+      js.linesIterator.flatMap {
+        case rrSigRegex(h) => Some(h)
+        case _             => None
+      }.mkString(" / ")
+
+    Option.when(all.nonEmpty)(all)
+  }
 
   private def testOutputFromSig(js: String, expect: JBoolean): Any =
     if (expect == false)
