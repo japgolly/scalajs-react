@@ -9,6 +9,18 @@ import scala.reflect.macros.blackbox.Context
 class HookMacros(val c: Context) extends MacroUtils {
   import c.universe._
 
+  def render[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]]
+            (f: c.Tree)(step: c.Tree, s: c.Tree)
+            (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
+    _render(f, step, s, false)(P, C)
+
+  def renderDebug[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]]
+                 (f: c.Tree)(step: c.Tree, s: c.Tree)
+                 (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
+    _render(f, step, s, true)(P, C)
+
+  // ===================================================================================================================
+
   private implicit def autoTagToType[A](t: c.WeakTypeTag[A]): Type = t.tpe
 
   private def Box          : Tree = q"_root_.japgolly.scalajs.react.internal.Box"
@@ -139,16 +151,6 @@ class HookMacros(val c: Context) extends MacroUtils {
   }
 
   // ===================================================================================================================
-
-  def render[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]]
-            (f: c.Tree)(step: c.Tree, s: c.Tree)
-            (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
-    _render(f, step, s, false)(P, C)
-
-  def renderDebug[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]]
-                 (f: c.Tree)(step: c.Tree, s: c.Tree)
-                 (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
-    _render(f, step, s, true)(P, C)
 
   def _render[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]]
              (f: c.Tree, step: c.Tree, s: c.Tree, debug: Boolean)
