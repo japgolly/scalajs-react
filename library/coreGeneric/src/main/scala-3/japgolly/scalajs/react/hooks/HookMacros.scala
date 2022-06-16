@@ -204,7 +204,7 @@ object HookMacros {
     // log("self", self.asTerm.underlying.show)
 
     val renderStep =
-      HookStep("render", Nil, List(List(f.asTerm), List(step.asTerm, s.asTerm)))
+      HookStep("renderRR", Nil, List(List(f.asTerm), List(step.asTerm, s.asTerm)))
 
     val rewriteAttempt =
       for {

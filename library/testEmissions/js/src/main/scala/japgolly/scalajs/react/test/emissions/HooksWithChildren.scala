@@ -8,7 +8,7 @@ object HooksWithChildren {
   val Component = ScalaFnComponent.withHooks[Int]
     .withPropsChildren
     .useState(123)
-    .render { (p, c, s1) =>
+    .renderRR { (p, c, s1) =>
       val sum = p + s1.value + c.count
       <.button(
         "Sum = ", sum,

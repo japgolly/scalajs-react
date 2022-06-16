@@ -692,10 +692,8 @@ object Api {
 
   trait SecondaryWithRender[P, C <: Children, Ctx, CtxFn[_], _Step <: SubsequentStep[Ctx, CtxFn]] extends PrimaryWithRender[P, C, Ctx, _Step] with Secondary[Ctx, CtxFn, _Step] with ApiSecondaryWithRenderMacros[P, C, Ctx, CtxFn, _Step] {
 
-    // This has been moved into HookMacros.ApiSecondaryWithRenderMacros
-    //
-    // final def render(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
-    //   render(step.squash(f)(_))
+    final def render(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
+      render(step.squash(f)(_))
 
     final def renderReusable[A](f: CtxFn[Reusable[A]])(implicit step: Step, s: CtorType.Summoner[Box[P], C], v: A => VdomNode): Component[P, s.CT] =
       renderReusable(step.squash(f)(_))

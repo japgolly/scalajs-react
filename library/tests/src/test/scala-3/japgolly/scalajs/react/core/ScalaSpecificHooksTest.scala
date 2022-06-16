@@ -23,7 +23,7 @@ class ScalaSpecificHooksTest {
       .customBy((p, s, _) => hookE(p.pi + s.value))
       .customBy($ => hookE($.props.pi + $.hook1.value + 1))
       .customBy($ => hookS($.props.pi + $.hook1.value + 1)) // <--- s3
-      .renderDebug((_, s1, s2, s3) =>
+      .render((_, s1, s2, s3) =>
         <.div(
           s"${s1.value}:${s2.value}:${s3.value}",
           <.button(^.onClick --> s1.modState(_ + 1))

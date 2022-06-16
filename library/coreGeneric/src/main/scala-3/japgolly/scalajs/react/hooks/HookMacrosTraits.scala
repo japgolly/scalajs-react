@@ -15,20 +15,12 @@ import scala.quoted.*
 import scala.reflect.ClassTag
 import scala.scalajs.js
 
-trait ApiSecondaryWithRenderMacrosBinCompat[P, C <: Children, Ctx, CtxFn[_], _Step <: SubsequentStep[Ctx, CtxFn]] {
+trait ApiSecondaryWithRenderMacros[P, C <: Children, Ctx, CtxFn[_], _Step <: SubsequentStep[Ctx, CtxFn]] {
       self: PrimaryWithRender[P, C, Ctx, _Step] with Secondary[Ctx, CtxFn, _Step] =>
 
-  def render(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
-    render(step.squash(f)(_))
-}
-
-trait ApiSecondaryWithRenderMacros[P, C <: Children, Ctx, CtxFn[_], _Step <: SubsequentStep[Ctx, CtxFn]]
-    extends ApiSecondaryWithRenderMacrosBinCompat[P, C, Ctx, CtxFn, _Step] {
-    self: PrimaryWithRender[P, C, Ctx, _Step] with Secondary[Ctx, CtxFn, _Step] =>
-
-  inline override final def render(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
+  inline final def renderRR(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
     HookMacros.renderWorkaround[P, C, Ctx, CtxFn, Step, s.CT](this, f, step, s)
 
-  inline final def renderDebug(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
+  inline final def renderRRDebug(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
     HookMacros.renderWorkaroundDebug[P, C, Ctx, CtxFn, Step, s.CT](this, f, step, s)
 }

@@ -9,7 +9,7 @@ object UseState {
     .useState(123)
     .useStateBy((p, s1) => p + s1.value)
     .useStateBy($ => $.props + $.hook1.value + $.hook2.value)
-    .render { (_, s1, s2, s3) =>
+    .renderRR { (_, s1, s2, s3) =>
       val sum = s1.value + s2.value + s3.value
       <.button(
         "Sum = ", sum,

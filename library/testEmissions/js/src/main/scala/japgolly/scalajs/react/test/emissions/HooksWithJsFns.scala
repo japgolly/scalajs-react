@@ -31,5 +31,5 @@ object HooksWithJsFns {
     .useState(jsState0())
     .useStateBy(jsState1)
     .useStateBy(jsState2)
-    .render(render)
+    .renderRR(render)
 }

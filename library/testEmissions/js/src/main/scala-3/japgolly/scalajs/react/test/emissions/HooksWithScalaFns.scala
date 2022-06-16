@@ -33,5 +33,5 @@ object HooksWithScalaFns {
     .useStateBy(state1)
     .useStateBy(state2)
     .useStateBy(state3)
-    .render(render)
+    .renderRR(render)
 }

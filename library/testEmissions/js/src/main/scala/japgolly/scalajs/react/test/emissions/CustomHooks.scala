@@ -13,7 +13,7 @@ object CustomHooks {
     .custom(customHook1)
     .custom(customHook2)
     .custom(customHook3)
-    .render { (p, s1, s2) =>
+    .renderRR { (p, s1, s2) =>
       val sum = p + s1.value + s2.value
       <.div("Sum = ", sum)
     }
