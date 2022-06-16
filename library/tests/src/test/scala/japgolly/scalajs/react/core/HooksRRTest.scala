@@ -10,7 +10,9 @@ import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.html.Input
 import utest._
 
-object HooksTest extends TestSuite {
+// Copy of HooksTest but using renderRR
+// TODO: Remove tests that don't use renderRR
+object HooksRRTest extends TestSuite {
 
   // TODO: https://github.com/lampepfl/dotty/issues/12663
   // Should be private ↓
@@ -112,7 +114,7 @@ object HooksTest extends TestSuite {
 
   private def testCustomHook(): Unit = {
     // TODO: https://github.com/lampepfl/dotty/issues/12663
-    ScalaSpecificHooksTest.testCustomHook()
+    ScalaSpecificHooksTest.testCustomHookRR()
 
   //   val counter = new Counter
 
@@ -126,7 +128,7 @@ object HooksTest extends TestSuite {
   //     .customBy((p, s, _) => hookE(p.pi + s.value))
   //     .customBy($ => hookS($.props.pi + $.hook1.value + 1)) // <--- s3
   //     .customBy($ => hookE($.props.pi + $.hook1.value + 1))
-  //     .render((p, s1, s2, s3) =>
+  //     .renderRR((p, s1, s2, s3) =>
   //       <.div(
   //         s"${s1.value}:${s2.value}:${s3.value}",
   //         <.button(^.onClick --> s1.modState(_ + 1))
@@ -215,7 +217,7 @@ object HooksTest extends TestSuite {
 
     val comp = ScalaFnComponent.withHooks[PI]
       .customBy(p => hook(p.pi))
-      .render((_, h) => h.toString)
+      .renderRR((_, h) => h.toString)
 
     test(comp(PI(3))) { t =>
       t.assertText("(3,ah)")
@@ -230,7 +232,7 @@ object HooksTest extends TestSuite {
       .localLazyValBy((p, _) => p.pi + counter.inc())
       .localLazyValBy($ => $.props.pi + counter.inc())
       .useState(123)
-      .render { (p, f1, f2, f3, s) =>
+      .renderRR { (p, f1, f2, f3, s) =>
         val v3 = f3()
         val v2 = f2()
         val v1 = f1()
@@ -252,7 +254,7 @@ object HooksTest extends TestSuite {
       .localValBy((p, _) => p.pi + counter.inc())
       .localValBy($ => $.props.pi + counter.inc())
       .useState(123)
-      .render { (p, v1, v2, v3, s) =>
+      .renderRR { (p, v1, v2, v3, s) =>
         <.div(
           <.div(s"P=$p, v1=$v1, v2=$v2, v3=$v3"),
           <.button(^.onClick --> s.modState(_ + 1)))
@@ -271,7 +273,7 @@ object HooksTest extends TestSuite {
       .localVarBy((p, _) => p.pi + counter.inc())
       .localVarBy($ => $.props.pi + counter.inc())
       .useState(123)
-      .render { (p, v1, v2, v3, s) =>
+      .renderRR { (p, v1, v2, v3, s) =>
         v1.value += 100
         v2.value += 100
         v3.value += 100
@@ -298,7 +300,7 @@ object HooksTest extends TestSuite {
       .uncheckedBy($ => counterS.inc($.props.pi + $.hook1 + 1))
       .uncheckedBy($ => {counterE.inc($.props.pi + $.hook1 + 1); ()})
       .useState(0)
-      .render((_, s1, s2, s3, x) =>
+      .renderRR((_, s1, s2, s3, x) =>
         <.div(
           s"$s1:$s2:$s3",
           <.button(^.onClick --> x.modState(_ + 1))
@@ -321,7 +323,7 @@ object HooksTest extends TestSuite {
       .useCallback(counter.incCB(9))
       .useCallback((i: Int) => counter.incCB(i))
       .useState(0)
-      .render((_, c1, c2, s) =>
+      .renderRR((_, c1, c2, s) =>
         <.div(
           "S=", counter.value,
           ", R1=", ReusableCallbackComponent(c1),
@@ -351,7 +353,7 @@ object HooksTest extends TestSuite {
       .useCallbackBy((_, c1) => (i: Int) => c1 >> counter.incCB(i))
       .useCallbackBy($ => (i: Int) => $.hook1 >> counter.incCB(2 + i))
       .useState(0)
-      .render((_, c1, c2, c3, s) =>
+      .renderRR((_, c1, c2, c3, s) =>
         <.div(
           "S=", counter.value,
           ", R1=", ReusableCallbackComponent(c1),
@@ -387,7 +389,7 @@ object HooksTest extends TestSuite {
       .useCallbackWithDeps(depA.value)(_ => counter.incCB(depA.value))
       .useCallbackWithDeps(depB.value)(_ => (i: Int) => counter.incCB(depB.value + i - 1))
       .useState(0)
-      .render((_, c1, c2, s) =>
+      .renderRR((_, c1, c2, s) =>
         <.div(
           "S=", counter.value,
           ", R1=", ReusableCallbackComponent(c1),
@@ -425,7 +427,7 @@ object HooksTest extends TestSuite {
       .useState(20) // hook3: dep2
       .useCallbackWithDepsBy((_, _, d1, _) => d1.value)((_, _, _, _) => counter.incCB) // hook4
       .useCallbackWithDepsBy(_.hook3.value)($ => _ => (i: Int) => counter.incCB($.hook3.value + i - 1)) // hook5
-      .render((_, c0, d1, d2, c1, c2) =>
+      .renderRR((_, c0, d1, d2, c1, c2) =>
         <.div(
           "S=", counter.value,
           ", C0=", ReusableCallbackComponent(c0),
@@ -467,7 +469,7 @@ object HooksTest extends TestSuite {
 
     val compC = ScalaFnComponent.withHooks[Unit]
       .useContext(ctx)
-      .render((_, c) => c)
+      .renderRR((_, c) => c)
 
     val comp = ScalaFnComponent[Unit] { _ =>
       <.div(
@@ -483,18 +485,18 @@ object HooksTest extends TestSuite {
   }
 
   // Can't really observe this but can at least confirm that usage doesn't throw
-  private def testUseDebugValue(): Unit = {
-    val comp = ScalaFnComponent.withHooks[PI]
-      .useDebugValue("hehe")
-      .useDebugValueBy(_.pi)
-      .useState(0)
-      .useDebugValueBy($ => $.props.pi + $.hook1.value)
-      .render($ => <.div($.props.pi))
+  // private def testUseDebugValue(): Unit = {
+  //   val comp = ScalaFnComponent.withHooks[PI]
+  //     .useDebugValue("hehe")
+  //     .useDebugValueBy(_.pi)
+  //     .useState(0)
+  //     .useDebugValueBy($ => $.props.pi + $.hook1.value)
+  //     .renderRR($ => <.div($.props.pi))
 
-    test(comp(PI(3))) { t =>
-      t.assertText("3")
-    }
-  }
+  //   test(comp(PI(3))) { t =>
+  //     t.assertText("3")
+  //   }
+  // }
 
   trait X_UseEffect_Primary[Ctx, Step <: HooksApi.AbstractStep] {
     def X_useEffect[A](effect: A)(implicit a: UseEffectArg[A], step: Step): step.Self
@@ -582,7 +584,7 @@ object HooksTest extends TestSuite {
         .X_useEffect(counter1.incCB(101))
         .X_useEffect(counter1.incCB.ret(counter2.incCB))
         .useState(321)
-        .render((_, s) => <.button(^.onClick --> s.modState(_ + 1)))
+        .renderRR((_, s) => <.button(^.onClick --> s.modState(_ + 1)))
 
       test(comp()) { t =>
         assertEq(state(), "103:0")
@@ -599,7 +601,7 @@ object HooksTest extends TestSuite {
         .useState(100)
         .X_useEffectBy((_, s1) => counter1.incCB(s1.value))
         .X_useEffectBy($ => counter1.incCB.ret(counter2.incCB($.hook1.value)))
-        .render((_, s) => <.button(^.onClick --> s.modState(_ + 1)))
+        .renderRR((_, s) => <.button(^.onClick --> s.modState(_ + 1)))
 
       test(comp()) { t =>
         assertEq(state(), "101:0")
@@ -617,7 +619,7 @@ object HooksTest extends TestSuite {
         .X_useEffectOnMount(counter1.incCB(101))
         .X_useEffectOnMount(counter1.incCB.ret(counter2.incCB))
         .useState(321)
-        .render((_, s) => <.button(^.onClick --> s.modState(_ + 1)))
+        .renderRR((_, s) => <.button(^.onClick --> s.modState(_ + 1)))
 
       test(comp()) { t =>
         assertEq(state(), "103:0")
@@ -634,7 +636,7 @@ object HooksTest extends TestSuite {
         .useState(100)
         .X_useEffectOnMountBy((_, s1) => counter1.incCB(s1.value))
         .X_useEffectOnMountBy($ => counter1.incCB.ret(counter2.incCB($.hook1.value)))
-        .render((_, s) => <.button(^.onClick --> s.modState(_ + 1)))
+        .renderRR((_, s) => <.button(^.onClick --> s.modState(_ + 1)))
 
       test(comp()) { t =>
         assertEq(state(), "101:0")
@@ -655,7 +657,7 @@ object HooksTest extends TestSuite {
         .X_useEffectWithDeps(dep2.value)(_ => counter1.incCB(100))
         .X_useEffectWithDeps(dep3.value)(_ => counter1.incCB(10).ret(counter2.incCB(10)))
         .useState(321)
-        .render((_, s) => <.button(^.onClick --> s.modState(_ + 1)))
+        .renderRR((_, s) => <.button(^.onClick --> s.modState(_ + 1)))
 
       test(comp()) { t =>
         assertEq(state(), "111:0")
@@ -682,7 +684,7 @@ object HooksTest extends TestSuite {
         .useState(100)
         .X_useEffectWithDepsBy((_, _) => dep2.value)((_, s) => _ => counter1.incCB(s.value))
         .X_useEffectWithDepsBy(_ => dep3.value)($ => _ => counter1.incCB($.hook1.value / 10).ret(counter2.incCB($.hook1.value / 10)))
-        .render((_, s) => {
+        .renderRR((_, s) => {
           _state = s.value
           <.button(^.onClick --> s.modState(_ + 100))
         })
@@ -705,7 +707,7 @@ object HooksTest extends TestSuite {
     val counter = new Counter
     val comp = ScalaFnComponent.withHooks[Unit]
       .useForceUpdate
-      .render { (_, forceUpdate) =>
+      .renderRR { (_, forceUpdate) =>
         val rev = counter.inc()
         <.div(
           rev, ":", ReusableCallbackComponent(forceUpdate)
@@ -728,7 +730,7 @@ object HooksTest extends TestSuite {
       .useMemo(dep1.value)(counter.incCB)
       .useMemo(dep2.value)(counter.incCB)
       .useState(0)
-      .render((_, c1, c2, s) =>
+      .renderRR((_, c1, c2, s) =>
         <.div(
           "C1=", ReusableCallbackComponent(c1),
           ", C2=", ReusableCallbackComponent(c2),
@@ -769,7 +771,7 @@ object HooksTest extends TestSuite {
       .useMemoBy((_, _, s) => s.value)((_, _, s) => _ => counter.incCB(s.value))
       .useState(5)
       .useMemoBy($ => $.props.pi + $.hook4.value)(_ => counter.incCB)
-      .render((_, c1, s2, c2, s3, c3) =>
+      .renderRR((_, c1, s2, c2, s3, c3) =>
         <.div(
           "S2=", s2.value,
           ", S3=", s3.value,
@@ -803,7 +805,7 @@ object HooksTest extends TestSuite {
     val comp = ScalaFnComponent.withHooks[Unit]
       .useRef(100)
       .useState(0)
-      .render { (_, ref, s) =>
+      .renderRR { (_, ref, s) =>
         <.div(
           ref.value,
           <.button(^.onClick --> ref.mod(_ + 1)),
@@ -825,7 +827,7 @@ object HooksTest extends TestSuite {
       .useRefBy(_.pi + 1)
       .useRefBy($ => $.props.pi + $.hook1.value)
       .useState(0)
-      .render { (_, ref1, ref2, s) =>
+      .renderRR { (_, ref1, ref2, s) =>
         <.div(
           s"${ref1.value}:${ref2.value}",
           <.button(^.onClick --> ref1.mod(_ + 1)),
@@ -848,7 +850,7 @@ object HooksTest extends TestSuite {
     val comp = ScalaFnComponent.withHooks[Unit]
       .useRefToVdom[Input]
       .useState("x")
-      .render { (_, inputRef, s) =>
+      .renderRR { (_, inputRef, s) =>
 
         def onChange(e: ReactEventFromInput): Callback =
           s.setState(e.target.value)
@@ -885,7 +887,7 @@ object HooksTest extends TestSuite {
       .useReducer(add(0), 100)
       .useReducerBy((_, s1) => add(s1.value), (p, s1) => p.pi + s1.value)
       .useReducerBy($ => add($.hook1.value), $ => $.props.pi + $.hook1.value + $.hook2.value)
-      .render((p, s1, s2, s3) =>
+      .renderRR((p, s1, s2, s3) =>
         <.div(
           <.div(s"P=$p, s1=${s1.value}, s2=${s2.value}, s3=${s3.value}"),
           <.button(^.onClick --> s1.dispatch(1)),
@@ -906,7 +908,7 @@ object HooksTest extends TestSuite {
       .useState(100)
       .useStateBy((p, s1) => p.pi + s1.value)
       .useStateBy($ => $.props.pi + $.hook1.value + $.hook2.value)
-      .render((p, s1, s2, s3) =>
+      .renderRR((p, s1, s2, s3) =>
         <.div(
           <.div(s"P=$p, s1=${s1.value}, s2=${s2.value}, s3=${s3.value}"),
           <.button(^.onClick --> (
@@ -922,7 +924,7 @@ object HooksTest extends TestSuite {
   private def testUseStateSetStateReusability(): Unit = {
     val comp = ScalaFnComponent.withHooks[Unit]
       .useState(4)
-      .render { (_, s) =>
+      .renderRR { (_, s) =>
         <.div(
           s"S=${s.value}",
           ", R1=", ReusableSetIntComponent(s.setState),
@@ -955,7 +957,7 @@ object HooksTest extends TestSuite {
   private def testUseStateModStateReusability(): Unit = {
     val comp = ScalaFnComponent.withHooks[Unit]
       .useState(4)
-      .render { (_, s) =>
+      .renderRR { (_, s) =>
         <.div(
           s"S=${s.value}",
           ", R1=", ReusableModIntComponent(s.modState),
@@ -991,7 +993,7 @@ object HooksTest extends TestSuite {
       .useStateWithReuse(PI(100))
       .useStateWithReuseBy((p, s1) => p + s1.value)
       .useStateWithReuseBy($ => $.props + $.hook1.value + $.hook2.value)
-      .render((p, s1, s2, s3) =>
+      .renderRR((p, s1, s2, s3) =>
         <.div(
           <.div(s"P=$p, s1=${s1.value}, s2=${s2.value}, s3=${s3.value}"),
           <.button(^.onClick --> (
@@ -1014,7 +1016,7 @@ object HooksTest extends TestSuite {
 
     val comp = ScalaFnComponent.withHooks[Unit]
       .useStateWithReuse(PI(4))
-      .render { (_, s) =>
+      .renderRR { (_, s) =>
         <.div(
           s"S=${s.value}",
           ", R1=", ReusableSetIntComponent(s.setState.map(f => (i: Int) => f(PI(i)).value)),
@@ -1049,7 +1051,7 @@ object HooksTest extends TestSuite {
     implicit val reusability: Reusability[PI] = Reusability.by[PI, Int](_.pi >> 1)
     val comp = ScalaFnComponent.withHooks[Unit]
       .useStateWithReuse(PI(4))
-      .render { (_, s) =>
+      .renderRR { (_, s) =>
         <.div(
           s"S=${s.value}",
           ", R0=", ReusableCallbackComponent(s.modState(_ + 1)),
@@ -1079,7 +1081,7 @@ object HooksTest extends TestSuite {
       .useStateSnapshot(100)
       .useStateSnapshotBy((p, s1) => p.pi + s1.value)
       .useStateSnapshotBy($ => $.props.pi + $.hook1.value + $.hook2.value)
-      .render { (p, s1, s2, s3) =>
+      .renderRR { (p, s1, s2, s3) =>
         latestS3 = s3.value
         <.div(
           <.button(^.onClick --> (s1.modState(_ + 1) >> s2.modState(-_) >> s3.modState(_ * 10))),
@@ -1118,7 +1120,7 @@ object HooksTest extends TestSuite {
       .useStateSnapshotWithReuseBy((p, s1) => p.pi + s1.value)
       .useStateSnapshotWithReuseBy($ => $.props.pi + $.hook1.value + $.hook2.value)
       .useStateSnapshotWithReuse(330.asInstanceOf[I])
-      .render { (p, s1, s2, s3, s4) =>
+      .renderRR { (p, s1, s2, s3, s4) =>
         latestS3 = s3.value
         <.div(
           <.button(^.onClick --> (s1.modState(_ + 1) >> s2.modState(-_) >> s3.modState(_ * 10))),
@@ -1288,7 +1290,7 @@ object HooksTest extends TestSuite {
     }
     "unchecked" - testUnchecked()
     "useContext" - testUseContext()
-    "useDebugValue" - testUseDebugValue()
+    // "useDebugValue" - testUseDebugValue() TODO: reenable
     "useEffect" - {
       import UseEffect._
       "const" - testConst()
