@@ -9,6 +9,16 @@ import scala.reflect.ClassTag
 
 object AbstractHookMacros {
 
+  final case class HookDefn[Term, TypeTree](steps: Vector[HookStep[Term, TypeTree]]) {
+    def +(s: HookStep[Term, TypeTree]): HookDefn[Term, TypeTree] =
+      HookDefn(steps :+ s)
+  }
+
+  final case class HookStep[Term, TypeTree](name: String, targs: List[TypeTree], args: List[List[Term]]) {
+    def sig = (targs, args)
+  }
+
+
   // ===================================================================================================================
   // Hook Rewriter
 
@@ -121,7 +131,7 @@ object AbstractHookMacros {
 // =====================================================================================================================
 
 trait AbstractHookMacros {
-  import AbstractHookMacros._
+  import AbstractHookMacros.HookRewriter
 
   type Expr[A]
   type Ref
@@ -176,15 +186,9 @@ trait AbstractHookMacros {
   // -------------------------------------------------------------------------------------------------------------------
   // Concrete
 
-  case class HookDefn(steps: Vector[HookStep]) {
-    def +(s: HookStep): HookDefn =
-      HookDefn(steps :+ s)
-  }
 
-  case class HookStep(name: String, targs: List[TypeTree], args: List[List[Term]]) {
-    def sig = (targs, args)
-  }
-
+  final type HookDefn       = AbstractHookMacros.HookDefn[Term, TypeTree]
+  final type HookStep       = AbstractHookMacros.HookStep[Term, TypeTree]
   final type Rewriter       = HookRewriter[Stmt, Term, Ref]
   final type RewriterBridge = HookRewriter.Bridge[Stmt, Term, Ref]
   final type RewriterCtx    = HookRewriter.InitialCtx[Stmt, Term]
@@ -244,9 +248,9 @@ trait AbstractHookMacros {
           if (args.nonEmpty)
             Left(() => s"$withHooks called with args when none exepcted: ${args.map(_.map(showCode(_)))}")
           else
-            Right(HookDefn(steps.toVector))
+            Right(AbstractHookMacros.HookDefn(steps.toVector))
         } else {
-          val step = HookStep(name, targs, args)
+          val step = AbstractHookMacros.HookStep(name, targs, args)
           log(s"Found step '$name'", step)
           _parse(t, Nil, Nil, step :: steps)
         }

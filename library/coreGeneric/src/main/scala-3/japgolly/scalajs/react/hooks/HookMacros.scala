@@ -213,7 +213,7 @@ object HookMacros {
     import quotes.reflect.*
 
     val hookMacros = HookMacrosImpl(q)
-    import hookMacros.{log, HookStep}
+    import hookMacros.log
 
     log.enabled = debug // f.show.contains("DEBUG")
     log.header()
@@ -224,8 +224,8 @@ object HookMacros {
 
     log("self", macroApplication.show)
 
-    val renderStep =
-      HookStep("renderRR", Nil, List(List(f.asTerm), List(step.asTerm, s.asTerm)))
+    val renderStep: hookMacros.HookStep =
+      AbstractHookMacros.HookStep("renderRR", Nil, List(List(f.asTerm), List(step.asTerm, s.asTerm)))
 
     val rewriteAttempt =
       for {
