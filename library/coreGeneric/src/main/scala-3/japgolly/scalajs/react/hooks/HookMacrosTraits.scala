@@ -19,8 +19,8 @@ trait ApiSecondaryWithRenderMacros[P, C <: Children, Ctx, CtxFn[_], _Step <: Sub
       self: PrimaryWithRender[P, C, Ctx, _Step] with Secondary[Ctx, CtxFn, _Step] =>
 
   inline final def renderRR(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
-    HookMacros.renderWorkaround[P, C, Ctx, CtxFn, Step, s.CT](this, f, step, s)
+    HookMacros.render2Workaround[P, C, Ctx, CtxFn, Step, s.CT](this, f, step, s)
 
   inline final def renderRRDebug(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
-    HookMacros.renderWorkaroundDebug[P, C, Ctx, CtxFn, Step, s.CT](this, f, step, s)
+    HookMacros.renderDebug2Workaround[P, C, Ctx, CtxFn, Step, s.CT](this, f, step, s)
 }

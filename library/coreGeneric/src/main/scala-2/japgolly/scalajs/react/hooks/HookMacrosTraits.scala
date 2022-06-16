@@ -10,8 +10,8 @@ trait ApiSecondaryWithRenderMacros[P, C <: Children, Ctx, CtxFn[_], Step <: Subs
       self: PrimaryWithRender[P, C, Ctx, Step] with Secondary[Ctx, CtxFn, Step] =>
 
   final def renderRR(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
-    macro HookMacros.render[P, C, Ctx, CtxFn, Step]
+    macro HookMacros.render2[P, C, Ctx, CtxFn, Step]
 
   final def renderRRDebug(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
-    macro HookMacros.renderDebug[P, C, Ctx, CtxFn, Step]
+    macro HookMacros.renderDebug2[P, C, Ctx, CtxFn, Step]
 }

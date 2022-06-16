@@ -9,15 +9,15 @@ import scala.reflect.macros.blackbox.Context
 class HookMacros(val c: Context) extends MacroUtils {
   import c.universe._
 
-  def render[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]]
-            (f: c.Tree)(step: c.Tree, s: c.Tree)
-            (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
-    _render(f, step, s, false)(P, C)
+  def render2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]]
+             (f: c.Tree)(step: c.Tree, s: c.Tree)
+             (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
+    _render2(f, step, s, false)(P, C)
 
-  def renderDebug[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]]
-                 (f: c.Tree)(step: c.Tree, s: c.Tree)
-                 (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
-    _render(f, step, s, true)(P, C)
+  def renderDebug2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]]
+                  (f: c.Tree)(step: c.Tree, s: c.Tree)
+                  (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
+    _render2(f, step, s, true)(P, C)
 
   // ===================================================================================================================
 
@@ -152,9 +152,9 @@ class HookMacros(val c: Context) extends MacroUtils {
 
   // ===================================================================================================================
 
-  def _render[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]]
-             (f: c.Tree, step: c.Tree, s: c.Tree, debug: Boolean)
-             (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree = {
+  def _render2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]]
+              (f: c.Tree, step: c.Tree, s: c.Tree, debug: Boolean)
+              (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree = {
 
     val hookMacros = new HookMacrosImpl
 
