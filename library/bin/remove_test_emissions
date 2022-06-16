@@ -1,0 +1,8 @@
+#!/bin/bash
+
+cd "$(dirname "$0")/.." || exit 1
+[ $# -ne 1 ] && echo "Usage: $0 <scala major-version>" && exit 1
+
+set -euo pipefail
+
+rm -fv ./testEmissions/jvm/src/test/resources/rr-sjr/*-out"$1".js

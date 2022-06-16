@@ -17,10 +17,16 @@ import scala.scalajs.js
 
 trait ApiSecondaryWithRenderMacros[P, C <: Children, Ctx, CtxFn[_], _Step <: SubsequentStep[Ctx, CtxFn]] {
       self: PrimaryWithRender[P, C, Ctx, _Step] with Secondary[Ctx, CtxFn, _Step] =>
+}
 
-  inline final def renderRR(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
-    HookMacros.render2Workaround[P, C, Ctx, CtxFn, Step, s.CT](this, f, step, s)
+object ApiSecondaryWithRenderMacros {
 
-  inline final def renderRRDebug(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
-    HookMacros.renderDebug2Workaround[P, C, Ctx, CtxFn, Step, s.CT](this, f, step, s)
+  extension [P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]](inline self: ApiSecondaryWithRenderMacros[P, C, Ctx, CtxFn, Step]) {
+
+    inline def renderRR(inline f: CtxFn[VdomNode])(implicit inline step: Step, inline s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
+      HookMacros.render2Workaround[P, C, Ctx, CtxFn, Step, s.CT](self, f, step, s)
+
+    inline def renderRRDebug(inline f: CtxFn[VdomNode])(implicit inline step: Step, inline s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
+      HookMacros.renderDebug2Workaround[P, C, Ctx, CtxFn, Step, s.CT](self, f, step, s)
+  }
 }

@@ -42,19 +42,20 @@ class HookMacros(val c: Context) extends MacroUtils {
     override type Type[A]  = c.universe.Type
     override type TypeTree = c.universe.TypeTree
 
-    override protected def asTerm    [A](e: Expr[A])  = e
-    override protected def Expr      [A](t: Term)     = t
-    override protected def isUnit       (t: TypeTree) = t.tpe == typeOf[Unit]
-    override protected def refToTerm    (r: Ref)      = Ident(r)
-    override protected def showCode     (t: Term)     = c.universe.showCode(t)
-    override protected def showRaw      (t: Term)     = c.universe.showRaw(t)
-    override protected def Type      [A](t: TypeTree) = t.tpe
-    override protected def typeOfTerm   (t: Term)     = c.universe.TypeTree(t.tpe)
-    override protected def unitTerm                   = q"()"
-    override protected def unitType                   = c.universe.definitions.UnitTpe
-    override protected def wrap                       = (s, b) => q"..$s; $b"
+    override protected def asTerm    [A] = identity
+    override protected def Expr      [A] = identity
+    override protected def isUnit        = _.tpe == unitType
+    override protected def refToTerm     = Ident(_)
+    override protected def showCode      = c.universe.showCode(_)
+    override protected def showRaw       = c.universe.showRaw(_)
+    override protected def Type      [A] = _.tpe
+    override protected def typeOfTerm    = t => c.universe.TypeTree(t.tpe)
+    override protected def uninline      = identity
+    override protected def unitTerm      = q"()"
+    override protected def unitType      = c.universe.definitions.UnitTpe
+    override protected def wrap          = (s, b) => Block(s.toList, b)
 
-    override def call(function: Tree, args: List[Tree]): Tree = {
+    override protected def call = (function, args) => {
       import internal._
       function match {
         case Function(params, body) =>

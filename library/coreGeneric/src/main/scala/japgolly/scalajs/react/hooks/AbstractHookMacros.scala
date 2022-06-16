@@ -151,19 +151,20 @@ trait AbstractHookMacros {
     def unapply(function: Term): Option[Success]
   }
 
-  protected def asTerm        [A](e: Expr[A])                      : Term
-  protected def call             (function: Term, args: List[Term]): Term
-  protected def Expr          [A](t: Term)                         : Expr[A]
-  protected def isUnit           (t: TypeTree)                     : Boolean
-  protected def refToTerm        (r: Ref)                          : Term
-  protected def showCode         (t: Term)                         : String
-  protected def showRaw          (t: Term)                         : String
-  protected def Type          [A](t: TypeTree)                     : Type[A]
-  protected def typeOfTerm       (t: Term)                         : TypeTree
-  protected def unitTerm                                           : Expr[Unit]
-  protected def unitType                                           : Type[Unit]
-  protected def wrap                                               : (Vector[Stmt], Term) => Term
-  protected val rewriterBridge                                     : RewriterBridge
+  protected def asTerm     [A]: Expr[A] => Term
+  protected def call          : (Term, List[Term]) => Term
+  protected def Expr       [A]: Term => Expr[A]
+  protected def isUnit        : TypeTree => Boolean
+  protected def refToTerm     : Ref => Term
+  protected def showCode      : Term => String
+  protected def showRaw       : Term => String
+  protected def Type       [A]: TypeTree => Type[A]
+  protected def typeOfTerm    : Term => TypeTree
+  protected def uninline      : Term => Term
+  protected def unitTerm      : Expr[Unit]
+  protected def unitType      : Type[Unit]
+  protected def wrap          : (Vector[Stmt], Term) => Term
+  protected val rewriterBridge: RewriterBridge
 
   protected def custom[I, O]: (Type[I], Type[O], Expr[CustomHook[I, O]], Expr[I]) => Expr[O]
   protected def customArg[C, A]: (Type[C], Type[A], Expr[CustomHook.Arg[C, A]], Expr[C]) => Expr[A]
@@ -227,7 +228,7 @@ trait AbstractHookMacros {
 
   @tailrec
   private def _parse(tree: Term, targs: List[TypeTree], args: List[List[Term]], steps: List[HookStep]): Either[() => String, HookDefn] =
-    tree match {
+    uninline(tree) match {
 
       case ApplyLike(t, a) =>
          _parse(t, targs, a :: args, steps)
