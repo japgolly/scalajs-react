@@ -32,6 +32,24 @@ object ApiPrimaryWithRenderMacros {
 
 // =====================================================================================================================
 
+trait ComponentPCMacros[P]
+    extends ApiPrimaryWithRenderMacros[P, Children.Varargs, HookCtx.PC0[P], HookComponentBuilder.ComponentPC.FirstStep[P]] {
+    self: HookComponentBuilder.ComponentPC.First[P] =>
+}
+
+object ComponentPCMacros {
+  extension [P](inline self: ComponentPCMacros[P]) {
+
+    inline def renderRR(inline f: (P, PropsChildren) => VdomNode)(implicit inline s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
+      HookMacros.renderC1Workaround[P, s.CT](self, f, s)
+
+    inline def renderRRDebug(inline f: (P, PropsChildren) => VdomNode)(implicit inline s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
+      HookMacros.renderDebugC1Workaround[P, s.CT](self, f, s)
+  }
+}
+
+// =====================================================================================================================
+
 trait ApiSecondaryWithRenderMacros[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]]
     extends ApiPrimaryWithRenderMacros[P, C, Ctx, Step] {
     self: PrimaryWithRender[P, C, Ctx, Step] with Secondary[Ctx, CtxFn, Step] =>

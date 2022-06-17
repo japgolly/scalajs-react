@@ -1,9 +1,4 @@
 ```scala
-// HookComponentBuilder.scala
-/* [23] */ def withPropsChildren: ComponentPC.First[P]
-/* [--] */ def render(f: (P, PropsChildren) => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT]
-/* [--] */ def render in primary API
-
 // Api.scala
 /* [--] */ def localLazyVal                        [A](a: => A)(implicit step: Step): step.Next[() => A]
 /* [--] */ def localLazyValBy                      [A](f: Ctx => A)(implicit step: Step): step.Next[() => A]

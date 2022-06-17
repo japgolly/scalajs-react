@@ -18,6 +18,8 @@ import scala.scalajs.js
 
 object HookMacros {
 
+  // -------------------------------------------------------------------------------------------------------------------
+
   type PrimaryProxy[P, C <: Children, Ctx, Step <: AbstractStep] =
     ApiPrimaryWithRenderMacros[P, C, Ctx, Step]
 
@@ -25,37 +27,62 @@ object HookMacros {
     PrimaryWithRender[P, C, Ctx, Step]
 
   // https://github.com/lampepfl/dotty/issues/15357
-  inline def render1Workaround[
-        P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]
-      ](inline proxy: PrimaryProxy[P, C, Ctx, Step],
-        inline f    : Ctx => VdomNode,
-        inline s    : CtorType.Summoner.Aux[Box[P], C, CT],
-       ): Component[P, CT] =
+  inline def render1Workaround[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: PrimaryProxy[P, C, Ctx, Step],
+      inline f    : Ctx => VdomNode,
+      inline s    : CtorType.Summoner.Aux[Box[P], C, CT]): Component[P, CT] =
     ${ render1[P, C, Ctx, Step, CT]('proxy, 'f, 's) }
 
-  inline def renderDebug1Workaround[
-        P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]
-      ](inline proxy: PrimaryProxy[P, C, Ctx, Step],
-        inline f    : Ctx => VdomNode,
-        inline s    : CtorType.Summoner.Aux[Box[P], C, CT],
-       ): Component[P, CT] =
+  inline def renderDebug1Workaround[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: PrimaryProxy[P, C, Ctx, Step],
+      inline f    : Ctx => VdomNode,
+      inline s    : CtorType.Summoner.Aux[Box[P], C, CT]): Component[P, CT] =
     ${ renderDebug1[P, C, Ctx, Step, CT]('proxy, 'f, 's) }
 
-  def render1[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]]
-     (proxy: Expr[PrimaryProxy[P, C, Ctx, Step]],
+  def render1[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[PrimaryProxy[P, C, Ctx, Step]],
       f    : Expr[Ctx => VdomNode],
-      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
-     )(using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], Step: Type[Step]): Expr[Component[P, CT]] =
+      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]])
+      (using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], Step: Type[Step]): Expr[Component[P, CT]] =
     _render1(proxy, f, s, false)
 
-  def renderDebug1[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]]
-     (proxy: Expr[PrimaryProxy[P, C, Ctx, Step]],
+  def renderDebug1[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[PrimaryProxy[P, C, Ctx, Step]],
       f    : Expr[Ctx => VdomNode],
-      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
-     )(using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], Step: Type[Step]): Expr[Component[P, CT]] =
+      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]])
+     (using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], Step: Type[Step]): Expr[Component[P, CT]] =
     _render1(proxy, f, s, true)
 
-  // ===================================================================================================================
+  // -------------------------------------------------------------------------------------------------------------------
+
+  // https://github.com/lampepfl/dotty/issues/15357
+  inline def renderC1Workaround[P, CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: ComponentPCMacros[P],
+      inline f    : (P, PropsChildren) => VdomNode,
+      inline s    : CtorType.Summoner.Aux[Box[P], Children.Varargs, CT]): Component[P, CT] =
+    ${ renderC1[P, CT]('proxy, 'f, 's) }
+
+  inline def renderDebugC1Workaround[P, CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: ComponentPCMacros[P],
+      inline f    : (P, PropsChildren) => VdomNode,
+      inline s    : CtorType.Summoner.Aux[Box[P], Children.Varargs, CT]): Component[P, CT] =
+    ${ renderDebugC1[P, CT]('proxy, 'f, 's) }
+
+  def renderC1[P, CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[ComponentPCMacros[P]],
+      f    : Expr[(P, PropsChildren) => VdomNode],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], Children.Varargs, CT]])
+      (using q: Quotes, P: Type[P], CT: Type[CT]): Expr[Component[P, CT]] =
+    _renderC1(proxy, f, s, false)
+
+  def renderDebugC1[P, CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[ComponentPCMacros[P]],
+      f    : Expr[(P, PropsChildren) => VdomNode],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], Children.Varargs, CT]])
+      (using q: Quotes, P: Type[P], CT: Type[CT]): Expr[Component[P, CT]] =
+    _renderC1(proxy, f, s, true)
+
+  // -------------------------------------------------------------------------------------------------------------------
 
   type SecondaryProxy[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]] =
     ApiSecondaryWithRenderMacros[P, C, Ctx, CtxFn, Step]
@@ -64,38 +91,34 @@ object HookMacros {
     PrimaryWithRender[P, C, Ctx, Step] with Secondary[Ctx, CtxFn, Step]
 
   // https://github.com/lampepfl/dotty/issues/15357
-  inline def render2Workaround[
-        P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]
-      ](inline proxy: SecondaryProxy[P, C, Ctx, CtxFn, Step],
-        inline f    : CtxFn[VdomNode],
-        inline step : Step,
-        inline s    : CtorType.Summoner.Aux[Box[P], C, CT],
-       ): Component[P, CT] =
+  inline def render2Workaround[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: SecondaryProxy[P, C, Ctx, CtxFn, Step],
+      inline f    : CtxFn[VdomNode],
+      inline step : Step,
+      inline s    : CtorType.Summoner.Aux[Box[P], C, CT]): Component[P, CT] =
     ${ render2[P, C, Ctx, CtxFn, Step, CT]('proxy, 'f, 'step, 's) }
 
-  inline def renderDebug2Workaround[
-        P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]
-      ](inline proxy: SecondaryProxy[P, C, Ctx, CtxFn, Step],
-        inline f    : CtxFn[VdomNode],
-        inline step : Step,
-        inline s    : CtorType.Summoner.Aux[Box[P], C, CT],
-       ): Component[P, CT] =
+  inline def renderDebug2Workaround[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: SecondaryProxy[P, C, Ctx, CtxFn, Step],
+      inline f    : CtxFn[VdomNode],
+      inline step : Step,
+      inline s    : CtorType.Summoner.Aux[Box[P], C, CT]): Component[P, CT] =
     ${ renderDebug2[P, C, Ctx, CtxFn, Step, CT]('proxy, 'f, 'step, 's) }
 
-  def render2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]]
-     (proxy: Expr[SecondaryProxy[P, C, Ctx, CtxFn, Step]],
+  def render2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[SecondaryProxy[P, C, Ctx, CtxFn, Step]],
       f    : Expr[CtxFn[VdomNode]],
       step : Expr[Step],
-      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
-     )(using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], CtxFn: Type[CtxFn], Step: Type[Step]): Expr[Component[P, CT]] =
+      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]])
+      (using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], CtxFn: Type[CtxFn], Step: Type[Step]): Expr[Component[P, CT]] =
     _render2(proxy, f, step, s, false)
 
-  def renderDebug2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]]
-     (proxy: Expr[SecondaryProxy[P, C, Ctx, CtxFn, Step]],
+  def renderDebug2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[SecondaryProxy[P, C, Ctx, CtxFn, Step]],
       f    : Expr[CtxFn[VdomNode]],
       step : Expr[Step],
-      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
-     )(using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], CtxFn: Type[CtxFn], Step: Type[Step]): Expr[Component[P, CT]] =
+      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]])
+      (using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], CtxFn: Type[CtxFn], Step: Type[Step]): Expr[Component[P, CT]] =
     _render2(proxy, f, step, s, true)
 
   // ===================================================================================================================
@@ -166,7 +189,14 @@ object HookMacros {
     override protected val rewriterBridge: RewriterBridge =
       HookRewriter.Bridge[Stmt, Term, Ref](
         apply     = Apply(_, _),
-        hookCtx   = (c, as) => Select.overloaded((if (c) '{HookCtx.withChildren} else '{HookCtx}).asTerm, "apply", as.map(_.tpe), as),
+        hookCtx   = (usesChildren, args) => {
+                      if (usesChildren) {
+                        // .patch below removes the PropsChildren arg
+                        val targs = args.patch(1, Nil, 1).map(_.tpe)
+                        Select.overloaded('{HookCtx.withChildren}.asTerm, "apply", targs, args)
+                      } else
+                        Select.overloaded('{HookCtx}.asTerm, "apply", args.map(_.tpe), args)
+                    },
         refToTerm = _.ref,
         valDef    = (n, t) => { val r = untypedValDef(n, t.tpe, Flags.EmptyFlags)(t); (r.valDef, r) },
       )
@@ -251,12 +281,12 @@ object HookMacros {
 
   import AbstractHookMacros.HookStep
 
-  def _render1[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]]
-     (proxy   : Expr[PrimaryProxy[P, C, Ctx, Step]],
+  def _render1[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
+      proxy   : Expr[PrimaryProxy[P, C, Ctx, Step]],
       renderFn: Expr[Ctx => VdomNode],
       summoner: Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
-      debug   : Boolean,
-     )(using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], Step: Type[Step]): Expr[Component[P, CT]] = {
+      debug   : Boolean)
+      (using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], Step: Type[Step]): Expr[Component[P, CT]] = {
 
     import quotes.reflect.*
 
@@ -271,13 +301,33 @@ object HookMacros {
     )
   }
 
-  def _render2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]]
-     (proxy   : Expr[SecondaryProxy[P, C, Ctx, CtxFn, Step]],
+  def _renderC1[P, CT[-p, +u] <: CtorType[p, u]](
+      proxy   : Expr[ComponentPCMacros[P]],
+      renderFn: Expr[(P, PropsChildren) => VdomNode],
+      summoner: Expr[CtorType.Summoner.Aux[Box[P], Children.Varargs, CT]],
+      debug   : Boolean)
+      (using q: Quotes, P: Type[P], CT: Type[CT]): Expr[Component[P, CT]] = {
+
+    import quotes.reflect.*
+
+    val self = proxy.asInstanceOf[Expr[HookComponentBuilder.ComponentPC.First[P]]]
+
+    _render[P, Children.Varargs, CT](
+      macroApplication = self.asTerm,
+      summoner         = summoner,
+      debug            = debug,
+      renderStep       = HookStep("renderRR", Nil, List(List(renderFn.asTerm), List(summoner.asTerm))),
+      giveUp           = () => '{ $self.render($renderFn)($summoner) },
+    )
+  }
+
+  def _render2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
+      proxy   : Expr[SecondaryProxy[P, C, Ctx, CtxFn, Step]],
       renderFn: Expr[CtxFn[VdomNode]],
       step    : Expr[Step],
       summoner: Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
-      debug   : Boolean,
-     )(using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], CtxFn: Type[CtxFn], Step: Type[Step]): Expr[Component[P, CT]] = {
+      debug   : Boolean)
+      (using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], CtxFn: Type[CtxFn], Step: Type[Step]): Expr[Component[P, CT]] = {
 
     import quotes.reflect.*
 
@@ -294,14 +344,13 @@ object HookMacros {
 
   // ===================================================================================================================
 
-  private def _render[P, C <: Children, CT[-p, +u] <: CtorType[p, u]]
-      (using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT])
-     (macroApplication: q.reflect.Term,
+  private def _render[P, C <: Children, CT[-p, +u] <: CtorType[p, u]](
+      using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT])(
+      macroApplication: q.reflect.Term,
       summoner        : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
       debug           : Boolean,
       renderStep      : HookStep[q.reflect.Term, q.reflect.TypeTree],
-      giveUp          : () => Expr[Component[P, CT]],
-     ): Expr[Component[P, CT]] = {
+      giveUp          : () => Expr[Component[P, CT]]): Expr[Component[P, CT]] = {
 
     import quotes.reflect.*
 
@@ -312,6 +361,13 @@ object HookMacros {
     log.header()
     // log("self", macroApplication.show)
 
+    def onFailure(msg: String): Expr[Component[P, CT]] = {
+      import Console._
+      log(RED_B + WHITE + "Giving up. " + msg + RESET)
+      report.warning(msg)
+      giveUp()
+    }
+
     val rewriteAttempt =
       for {
         hookDefn <- hookMacros.parse(macroApplication)
@@ -319,34 +375,34 @@ object HookMacros {
       } yield rewriter
 
     val result: Expr[Component[P, CT]] =
-      rewriteAttempt match {
+      try
+        rewriteAttempt match {
 
-        case Right(rewriter) =>
-          type JsProps = Box[P] with facade.PropsWithChildren
+          case Right(rewriter) =>
+            type JsProps = Box[P] with facade.PropsWithChildren
 
-          def newBody(props: Expr[JsProps]): Expr[React.Node] = {
-            val children = typedValDef[PropsChildren]("children", Flags.EmptyFlags)('{ PropsChildren.fromRawProps($props) })
-            val ctx = hookMacros.rewriterCtx(
-              props        = '{ $props.unbox }.asTerm,
-              initChildren = children.valDef,
-              children     = children.ref.asTerm,
-            )
-            rewriter(ctx)
-          }
+            def newBody(props: Expr[JsProps]): Expr[React.Node] = {
+              val children = typedValDef[PropsChildren]("children", Flags.EmptyFlags)('{ PropsChildren.fromRawProps($props) })
+              val ctx = hookMacros.rewriterCtx(
+                props        = '{ $props.unbox }.asTerm,
+                initChildren = children.valDef,
+                children     = children.ref.asTerm,
+              )
+              rewriter(ctx)
+            }
 
-          '{
-            val rawComponent: JsFn.RawComponent[Box[P]] = props => ${newBody('props)}
-            ScalaFn.fromBoxed(JsFn.fromJsFn[Box[P], C](rawComponent)($summoner))
-          }
+            '{
+              val rawComponent: JsFn.RawComponent[Box[P]] = props => ${newBody('props)}
+              ScalaFn.fromBoxed(JsFn.fromJsFn[Box[P], C](rawComponent)($summoner))
+            }
 
-        case Left(err) =>
-          val msg = err()
-          import Console._
-          log(RED_B + WHITE + "Giving up. " + msg + RESET)
-
-          report.warning(msg)
-
-          giveUp()
+          case Left(err) =>
+            onFailure(err())
+        }
+      catch {
+        case err: Throwable =>
+          // err.printStackTrace()
+          onFailure(err.getMessage())
       }
 
     log.footer(result.show)

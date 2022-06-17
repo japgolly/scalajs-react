@@ -1,11 +1,11 @@
 package japgolly.scalajs.react.test.emissions
 
-import java.lang.{Boolean => JBoolean}
 import japgolly.microlibs.testutil.TestUtil._
 import japgolly.microlibs.utils.FileUtils
 import japgolly.scalajs.react.test.emissions.util._
-import scala.annotation.nowarn
+import java.lang.{Boolean => JBoolean}
 import scala.Console._
+import scala.annotation.nowarn
 import scala.util.Try
 import utest._
 import utest.framework.TestPath
@@ -17,20 +17,23 @@ object ReactRefreshTest extends TestSuite {
     "version" - validateReactRefreshVersion()
 
     "js" - {
-      "fn" - testJs()
-      "hooks" - testJs()
+      "fn"           - testJs()
+      "hooks"        - testJs()
       "custom_hooks" - testJs()
-      // "temp" - testJs()
+      // "temp"      - testJs()
     }
 
     "sjr" - {
-      "CustomHooks" - testScala(assertRR = false) // TODO:
-      "CustomHooksBy" - testScala(assertRR = false) // TODO:
-      "HooksWithJsFns" - testScala()
-      "HooksWithScalaFns" - testScala()
-      "HooksWithChildren" - testScala()
-      "UseState" - testScala()
-      "UseStateWithReuse" - testScala()
+      "CustomHooks"                 - testScala(assertRR = false) // TODO:
+      "CustomHooksBy"               - testScala(assertRR = false) // TODO:
+      "HooksWithChildrenCtxFn"      - testScala()
+      "HooksWithChildrenCtxObj"     - testScala()
+      "HooksWithJsFns"              - testScala()
+      "HooksWithScalaFns"           - testScala()
+      "JustPropsChildrenViaHookApi" - testScala(assertRR = false) // TODO:
+      "JustPropsViaHookApi"         - testScala(assertRR = false) // TODO:
+      "UseState"                    - testScala()
+      "UseStateWithReuse"           - testScala()
     }
   }
 
@@ -209,7 +212,8 @@ object ReactRefreshTest extends TestSuite {
 
   private def testOutputFromSig(js: String, expect: JBoolean): Any =
     if (expect == false)
-      "react-refresh not installed"
+      // "react-refresh not installed"
+      "-"
     else
       reactRefreshSignature(js) match {
         case Some(sig) => sig

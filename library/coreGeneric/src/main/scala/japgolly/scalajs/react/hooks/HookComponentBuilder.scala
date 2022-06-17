@@ -107,7 +107,7 @@ object HookComponentBuilder {
 
   object ComponentPC {
 
-    final class First[P](init: HookCtx.PC0[P] => Unit) extends Api.PrimaryWithRender[P, Children.Varargs, HookCtx.PC0[P], FirstStep[P]] {
+    final class First[P](init: HookCtx.PC0[P] => Unit) extends Api.PrimaryWithRender[P, Children.Varargs, HookCtx.PC0[P], FirstStep[P]] with ComponentPCMacros[P] {
       type Ctx = HookCtx.PC0[P]
 
       override protected def self(f: Ctx => Any)(implicit step: Step): step.Self =

@@ -3,7 +3,7 @@ package japgolly.scalajs.react.test.emissions
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 
-object HooksWithChildren {
+object HooksWithChildrenCtxFn {
 
   val Component = ScalaFnComponent.withHooks[Int]
     .withPropsChildren

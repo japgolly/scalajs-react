@@ -112,6 +112,23 @@ object HooksRRTest extends TestSuite {
 
   // ===================================================================================================================
 
+  private def testProps(): Unit = {
+    val comp = ScalaFnComponent.withHooks[Int]
+      .renderRR(_ + 1)
+
+    test(comp(3))(_ assertText "4")
+  }
+
+  private def testPropsChildren(): Unit = {
+    val inner = ScalaFnComponent.withHooks[Int]
+      .withPropsChildren
+      .renderRR((p, c) => <.div(p + 1, " | ", c))
+
+    val comp = ScalaFnComponent[Int] { p => inner(p * 10)(<.p("yo!")) }
+
+    test(comp(3))(_ assertText "31 | yo!")
+  }
+
   private def testCustomHook(): Unit = {
     // TODO: https://github.com/lampepfl/dotty/issues/12663
     ScalaSpecificHooksTest.testCustomHookRR()
@@ -1277,9 +1294,40 @@ object HooksRRTest extends TestSuite {
     }
   }
 
+  private def testPropsChildrenCtxObj(): Unit = {
+    val inner = ScalaFnComponent.withHooks[Int]
+      .withPropsChildren
+      .useState(123)
+      .renderRR { $ =>
+        val p = $.props
+        val c = $.propsChildren
+        val s = $.hook1
+        <.div(p + 1, " | ", s.value, " | ", c)
+      }
+
+    val comp = ScalaFnComponent[Int] { p => inner(p * 10)(<.p("yo!")) }
+
+    test(comp(3))(_ assertText "31 | 123 | yo!")
+  }
+
+  private def testPropsChildrenCtxFn(): Unit = {
+    val inner = ScalaFnComponent.withHooks[Int]
+      .withPropsChildren
+      .useState(123)
+      .renderRR((p, c, s) => <.div(p + 1, " | ", s.value, " | ", c))
+
+    val comp = ScalaFnComponent[Int] { p => inner(p * 10)(<.p("yo!")) }
+
+    test(comp(3))(_ assertText "31 | 123 | yo!")
+  }
+
   // ===================================================================================================================
 
   override def tests = Tests {
+    "noHooks" - {
+      "props" - testProps()
+      "propsChildren" - testPropsChildren()
+    }
     "custom" - {
       "usage" - testCustomHook()
       "composition" - testCustomHookComposition()
@@ -1341,6 +1389,11 @@ object HooksRRTest extends TestSuite {
     }
     "useStateSnapshot" - testUseStateSnapshot()
     "useStateSnapshotWithReuse" - testUseStateSnapshotWithReuse()
+
+    "withPropsChildren" - {
+      "ctxObj" - testPropsChildrenCtxObj()
+      "ctxFn" - testPropsChildrenCtxFn()
+    }
 
     "renderWithReuse" - {
       "main" - testRenderWithReuse()

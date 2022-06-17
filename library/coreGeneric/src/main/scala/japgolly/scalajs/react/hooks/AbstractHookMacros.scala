@@ -7,6 +7,34 @@ import japgolly.scalajs.react.vdom.VdomNode
 import scala.annotation.{nowarn, tailrec}
 import scala.reflect.ClassTag
 
+/* Coverage
+ * ========
+ *
+ *   - P
+ *     - behaviour tested in HooksRRTest.testProps()
+ *     - react-refresh integration tested in JustPropsViaHookApi
+ *
+ *   - CtxObj(P)
+ *     - behaviour tested in HooksRRTest.testUseState()
+ *     - react-refresh integration tested in UseStateWithReuse
+ *
+ *   - CtxFn(P)
+ *     - behaviour tested in HooksRRTest.testUseCallback()
+ *     - react-refresh integration tested in UseState
+ *
+ *   - (P, PC)
+ *     - behaviour tested in HooksRRTest.testPropsChildren()
+ *     - react-refresh integration tested in JustPropsChildrenViaHookApi
+ *
+ *   - CtxObj(P, PC)
+ *     - behaviour tested in HooksRRTest.testPropsChildrenCtxObj()
+ *     - react-refresh integration tested in HooksWithChildrenCtxObj
+ *
+ *   - CtxFn(P, PC)
+ *     - behaviour tested in HooksRRTest.testPropsChildrenCtxFn()
+ *     - react-refresh integration tested in HooksWithChildrenCtxFn
+ */
+
 object AbstractHookMacros {
 
   final case class HookDefn[Term, TypeTree](steps: Vector[HookStep[Term, TypeTree]]) {

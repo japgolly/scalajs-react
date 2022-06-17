@@ -14,11 +14,24 @@ final case class Babel(before        : String,
     }
 
   def assertRR(expectInstalled: Boolean = true)(implicit l: Line): Unit = {
-    val actual = Util.countRR(after)
-    val expect = if (expectInstalled) 1 else 0
-    if (actual !=* expect) {
-      showBadOutput()
-      assertEq("RR installations", actual, expect)
+
+    // Presense
+    locally {
+      val actual = Util.containsRR(after)
+      if (actual !=* expectInstalled) {
+        showBadOutput()
+        assertEq("RR installed?", actual, expectInstalled)
+      }
+    }
+
+    // Count installations
+    locally {
+      val actual = Util.countRR(after)
+      val expect = if (expectInstalled) 1 else 0
+      if (actual !=* expect) {
+        showBadOutput()
+        assertEq("RR installations", actual, expect)
+      }
     }
   }
 

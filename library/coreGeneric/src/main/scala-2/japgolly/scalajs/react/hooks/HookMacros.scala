@@ -1,42 +1,45 @@
 package japgolly.scalajs.react.hooks
 
 import japgolly.microlibs.compiletime.MacroUtils
+import japgolly.scalajs.react.Children
 import japgolly.scalajs.react.hooks.Api._
 import japgolly.scalajs.react.internal.Box
-import japgolly.scalajs.react.Children
 import scala.reflect.macros.blackbox.Context
 
 class HookMacros(val c: Context) extends MacroUtils {
   import c.universe._
 
-  def render1[P, C <: Children]
-             (f: c.Tree)(s: c.Tree)
-             (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
+  // -------------------------------------------------------------------------------------------------------------------
+
+  def render1[P, C <: Children](f: c.Tree)(s: c.Tree)(implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
     _render1(f, s, false)(P, C)
 
-  def renderDebug1[P, C <: Children]
-                  (f: c.Tree)(s: c.Tree)
-                  (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
+  def renderDebug1[P, C <: Children](f: c.Tree)(s: c.Tree)(implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
     _render1(f, s, true)(P, C)
 
-  private def _render1[P, C <: Children]
-                      (f: c.Tree, s: c.Tree, debug: Boolean)
-                      (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
+  private def _render1[P, C <: Children](f: c.Tree, s: c.Tree, debug: Boolean)(implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
     _render[P, C](f, None, s, debug)
 
-  def render2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]]
-             (f: c.Tree)(step: c.Tree, s: c.Tree)
-             (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
+  // -------------------------------------------------------------------------------------------------------------------
+
+  def renderC1[P](f: c.Tree)(s: c.Tree)(implicit P: c.WeakTypeTag[P]): c.Tree =
+    _renderC1(f, s, false)(P)
+
+  def renderDebugC1[P](f: c.Tree)(s: c.Tree)(implicit P: c.WeakTypeTag[P]): c.Tree =
+    _renderC1(f, s, true)(P)
+
+  private def _renderC1[P](renderFn: c.Tree, summoner: c.Tree, debug: Boolean)(implicit P: c.WeakTypeTag[P]): c.Tree =
+    _render[P, Children.Varargs](renderFn, None, summoner, debug)
+
+  // -------------------------------------------------------------------------------------------------------------------
+
+  def render2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]](f: c.Tree)(step: c.Tree, s: c.Tree)(implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
     _render2(f, step, s, false)(P, C)
 
-  def renderDebug2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]]
-                  (f: c.Tree)(step: c.Tree, s: c.Tree)
-                  (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
+  def renderDebug2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]](f: c.Tree)(step: c.Tree, s: c.Tree)(implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
     _render2(f, step, s, true)(P, C)
 
-  private def _render2[P, C <: Children]
-                      (f: c.Tree, step: c.Tree, s: c.Tree, debug: Boolean)
-                      (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
+  private def _render2[P, C <: Children](f: c.Tree, step: c.Tree, s: c.Tree, debug: Boolean)(implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
     _render[P, C](f, Some(step), s, debug)
 
   // ===================================================================================================================
@@ -183,6 +186,26 @@ class HookMacros(val c: Context) extends MacroUtils {
     log.enabled = debug
     log.header()
 
+    def giveUp: Tree = {
+      val self = c.prefix
+      stepOption match {
+        case Some(step) =>
+          q"""
+            val f = $step.squash($renderFn)
+            $self.render(f)($summoner)
+          """
+        case None =>
+          q"$self.render($renderFn)($summoner)"
+      }
+    }
+
+    def onFailure(msg: String): Tree = {
+      import Console._
+      log(RED_B + WHITE + "Giving up. " + msg + RESET)
+      c.warning(c.enclosingPosition, msg)
+      giveUp
+    }
+
     val rewriteAttempt =
       for {
         hookDefn <- hookMacros.parse(c.macroApplication)
@@ -190,38 +213,29 @@ class HookMacros(val c: Context) extends MacroUtils {
       } yield rewriter
 
     val result: Tree =
-      rewriteAttempt match {
+      try
+        rewriteAttempt match {
 
-        case Right(rewriter) =>
-          val ctx = hookMacros.rewriterCtx(
-            props        = q"props.unbox",
-            initChildren = q"val children = $PropsChildren.fromRawProps(props)",
-            children     = q"children",
-          )
-          val newBody = rewriter(ctx)
-          c.untypecheck(q"""
-            val rawComponent: $JsFn.RawComponent[${Box(P)}] = props => $newBody
-            $ScalaFn.fromBoxed($JsFn.fromJsFn[${Box(P)}, $C](rawComponent)($summoner))
-          """)
+          case Right(rewriter) =>
+            val ctx = hookMacros.rewriterCtx(
+              props        = q"props.unbox",
+              initChildren = q"val children = $PropsChildren.fromRawProps(props)",
+              children     = q"children",
+            )
+            val newBody = rewriter(ctx)
+            c.untypecheck(q"""
+              val rawComponent: $JsFn.RawComponent[${Box(P)}] = props => $newBody
+              $ScalaFn.fromBoxed($JsFn.fromJsFn[${Box(P)}, $C](rawComponent)($summoner))
+            """)
 
-        case Left(err) =>
-          val msg = err()
-          import Console._
-          log(RED_B + WHITE + "Giving up. " + msg + RESET)
-          c.warning(c.enclosingPosition, msg)
-
-          val self = c.prefix
-
-          stepOption match {
-            case Some(step) =>
-              q"""
-                val f = $step.squash($renderFn)
-                $self.render(f)($summoner)
-              """
-            case None =>
-              q"$self.render($renderFn)($summoner)"
-          }
-    }
+          case Left(err) =>
+            onFailure(err())
+        }
+      catch {
+        case err: Throwable =>
+          err.printStackTrace()
+          onFailure(err.getMessage())
+      }
 
     log.footer(showCode(result))
     result

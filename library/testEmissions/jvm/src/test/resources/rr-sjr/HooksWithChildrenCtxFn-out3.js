@@ -23,11 +23,11 @@ import * as $j_java$002elang$002eObject from "./java.lang.Object.js";
 import * as $j_scala$002eFunction1 from "./scala.Function1.js";
 import * as $j_scala$002escalajs$002eruntime$002eAnonFunction0 from "./scala.scalajs.runtime.AnonFunction0.js";
 
-function $c_Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$() {
+function $c_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$() {
   var _s = $RefreshSig$();
 
-  this.Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$__f_Component = null;
-  $n_Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$ = this;
+  this.Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$__f_Component = null;
+  $n_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$ = this;
 
   var rawComponent = props => {
     _s();
@@ -60,34 +60,34 @@ function $c_Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$() {
   var $$x1 = $j_japgolly$002escalajs$002ereact$002ecomponent$002eScalaFn$0024.$m_Ljapgolly_scalajs_react_component_ScalaFn$();
   var this$17 = $j_japgolly$002escalajs$002ereact$002ecomponent$002eJsFn$0024.$m_Ljapgolly_scalajs_react_component_JsFn$();
   var s = $j_japgolly$002escalajs$002ereact$002eCtorType$0024Summoner$0024.$m_Ljapgolly_scalajs_react_CtorType$Summoner$().summonPC__Ljapgolly_scalajs_react_internal_Singleton$Not__Ljapgolly_scalajs_react_CtorType$Summoner(null);
-  this.Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$__f_Component = $$x1.fromBoxed__Ljapgolly_scalajs_react_component_JsBaseComponentTemplate$ComponentWithRoot__Ljapgolly_scalajs_react_component_JsBaseComponentTemplate$ComponentWithRoot(this$17.force__O__Ljapgolly_scalajs_react_CtorType$Summoner__Ljapgolly_scalajs_react_component_JsBaseComponentTemplate$ComponentWithRoot(rawComponent, s));
+  this.Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$__f_Component = $$x1.fromBoxed__Ljapgolly_scalajs_react_component_JsBaseComponentTemplate$ComponentWithRoot__Ljapgolly_scalajs_react_component_JsBaseComponentTemplate$ComponentWithRoot(this$17.force__O__Ljapgolly_scalajs_react_CtorType$Summoner__Ljapgolly_scalajs_react_component_JsBaseComponentTemplate$ComponentWithRoot(rawComponent, s));
 }
 
-export { $c_Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$ };
-$c_Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$.prototype = new $j_java$002elang$002eObject.$h_O();
-$c_Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$.prototype.constructor = $c_Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$;
+export { $c_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$ };
+$c_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$.prototype = new $j_java$002elang$002eObject.$h_O();
+$c_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$.prototype.constructor = $c_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$;
 
-function $h_Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$() {}
+function $h_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$() {}
 
-export { $h_Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$ };
-$h_Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$.prototype = $c_Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$.prototype;
-var $d_Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$ = new $j_java$002elang$002eObject.$TypeData().initClass({
-  Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$: 0
-}, false, "japgolly.scalajs.react.test.emissions.HooksWithChildren$", {
-  Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$: 1,
+export { $h_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$ };
+$h_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$.prototype = $c_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$.prototype;
+var $d_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$ = new $j_java$002elang$002eObject.$TypeData().initClass({
+  Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$: 0
+}, false, "japgolly.scalajs.react.test.emissions.HooksWithChildrenCtxFn$", {
+  Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$: 1,
   O: 1
 });
-export { $d_Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$ };
-$c_Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$.prototype.$classData = $d_Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$;
-var $n_Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$;
+export { $d_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$ };
+$c_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$.prototype.$classData = $d_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$;
+var $n_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$;
 
-function $m_Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$() {
-  if (!$n_Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$) {
-    $n_Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$ = new $c_Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$();
+function $m_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$() {
+  if (!$n_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$) {
+    $n_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$ = new $c_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$();
   }
 
   ;
-  return $n_Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$;
+  return $n_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$;
 }
 
-export { $m_Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$ };
+export { $m_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$ };
