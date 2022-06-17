@@ -174,7 +174,7 @@ class HookMacros(val c: Context) extends MacroUtils {
   // ===================================================================================================================
 
   def _render[P, C <: Children]
-             (f: c.Tree, stepOption: Option[c.Tree], s: c.Tree, debug: Boolean)
+             (renderFn: c.Tree, stepOption: Option[c.Tree], summoner: c.Tree, debug: Boolean)
              (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree = {
 
     val hookMacros = new HookMacrosImpl
@@ -201,7 +201,7 @@ class HookMacros(val c: Context) extends MacroUtils {
           val newBody = rewriter(ctx)
           c.untypecheck(q"""
             val rawComponent: $JsFn.RawComponent[${Box(P)}] = props => $newBody
-            $ScalaFn.fromBoxed($JsFn.fromJsFn[${Box(P)}, $C](rawComponent)($s))
+            $ScalaFn.fromBoxed($JsFn.fromJsFn[${Box(P)}, $C](rawComponent)($summoner))
           """)
 
         case Left(err) =>
@@ -215,11 +215,11 @@ class HookMacros(val c: Context) extends MacroUtils {
           stepOption match {
             case Some(step) =>
               q"""
-                val f = $step.squash($f)
-                $self.render(f)($s)
+                val f = $step.squash($renderFn)
+                $self.render(f)($summoner)
               """
             case None =>
-              q"$self.render($f)($s)"
+              q"$self.render($renderFn)($summoner)"
           }
     }
 

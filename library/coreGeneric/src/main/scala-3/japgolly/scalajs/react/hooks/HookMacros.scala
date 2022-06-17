@@ -252,10 +252,10 @@ object HookMacros {
   import AbstractHookMacros.HookStep
 
   def _render1[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]]
-     (proxy: Expr[PrimaryProxy[P, C, Ctx, Step]],
-      f    : Expr[Ctx => VdomNode],
-      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
-      debug: Boolean,
+     (proxy   : Expr[PrimaryProxy[P, C, Ctx, Step]],
+      renderFn: Expr[Ctx => VdomNode],
+      summoner: Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+      debug   : Boolean,
      )(using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], Step: Type[Step]): Expr[Component[P, CT]] = {
 
     import quotes.reflect.*
@@ -264,19 +264,19 @@ object HookMacros {
 
     _render[P, C, CT](
       macroApplication = self.asTerm,
-      s                = s,
+      summoner         = summoner,
       debug            = debug,
-      renderStep       = HookStep("renderRR", Nil, List(List(f.asTerm), List(s.asTerm))),
-      giveUp           = () => '{ $self.render($f)($s) },
+      renderStep       = HookStep("renderRR", Nil, List(List(renderFn.asTerm), List(summoner.asTerm))),
+      giveUp           = () => '{ $self.render($renderFn)($summoner) },
     )
   }
 
   def _render2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]]
-     (proxy: Expr[SecondaryProxy[P, C, Ctx, CtxFn, Step]],
-      f    : Expr[CtxFn[VdomNode]],
-      step : Expr[Step],
-      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
-      debug: Boolean,
+     (proxy   : Expr[SecondaryProxy[P, C, Ctx, CtxFn, Step]],
+      renderFn: Expr[CtxFn[VdomNode]],
+      step    : Expr[Step],
+      summoner: Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+      debug   : Boolean,
      )(using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], CtxFn: Type[CtxFn], Step: Type[Step]): Expr[Component[P, CT]] = {
 
     import quotes.reflect.*
@@ -285,10 +285,10 @@ object HookMacros {
 
     _render[P, C, CT](
       macroApplication = self.asTerm,
-      s                = s,
+      summoner         = summoner,
       debug            = debug,
-      renderStep       = HookStep("renderRR", Nil, List(List(f.asTerm), List(step.asTerm, s.asTerm))),
-      giveUp           = () => '{ $self.render($step.squash($f)(_))($s) },
+      renderStep       = HookStep("renderRR", Nil, List(List(renderFn.asTerm), List(step.asTerm, summoner.asTerm))),
+      giveUp           = () => '{ $self.render($step.squash($renderFn)(_))($summoner) },
     )
   }
 
@@ -297,7 +297,7 @@ object HookMacros {
   private def _render[P, C <: Children, CT[-p, +u] <: CtorType[p, u]]
       (using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT])
      (macroApplication: q.reflect.Term,
-      s               : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+      summoner        : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
       debug           : Boolean,
       renderStep      : HookStep[q.reflect.Term, q.reflect.TypeTree],
       giveUp          : () => Expr[Component[P, CT]],
@@ -336,7 +336,7 @@ object HookMacros {
 
           '{
             val rawComponent: JsFn.RawComponent[Box[P]] = props => ${newBody('props)}
-            ScalaFn.fromBoxed(JsFn.fromJsFn[Box[P], C](rawComponent)($s))
+            ScalaFn.fromBoxed(JsFn.fromJsFn[Box[P], C](rawComponent)($summoner))
           }
 
         case Left(err) =>
