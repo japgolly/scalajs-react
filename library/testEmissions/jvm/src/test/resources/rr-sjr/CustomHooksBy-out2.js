@@ -82,7 +82,7 @@ $c_Ljapgolly_scalajs_react_test_emissions_CustomHooksBy$.prototype.japgolly$scal
   var hook2_raw = $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024.$m_Ljapgolly_scalajs_react_hooks_CustomHook$().apply$extension__F1__O__F1($m_Ljapgolly_scalajs_react_test_emissions_CustomHooksBy$().Ljapgolly_scalajs_react_test_emissions_CustomHooksBy$__f_customHook2, hook1.Ljapgolly_scalajs_react_hooks_Hooks$UseStateF$$anon$2__f_raw[0]);
   var hook2 = hook2_raw.apply__O__O(void 0);
   var props$1 = props.a;
-  var hook3_ctx = new $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024P2.$c_Ljapgolly_scalajs_react_hooks_HookCtx$P2(props$1, hook1, hook2);
+  var hook3_ctx = $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024P2.$ct_Ljapgolly_scalajs_react_hooks_HookCtx$P2__O__O__O__(new $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024P2.$c_Ljapgolly_scalajs_react_hooks_HookCtx$P2(), props$1, hook1, hook2);
   var $$x2 = $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024.$m_Ljapgolly_scalajs_react_hooks_CustomHook$();
   var $$x1 = $m_Ljapgolly_scalajs_react_test_emissions_CustomHooksBy$().Ljapgolly_scalajs_react_test_emissions_CustomHooksBy$__f_customHook3;
   var this$2 = hook3_ctx.Ljapgolly_scalajs_react_hooks_HookCtx$P2__f_hook2;

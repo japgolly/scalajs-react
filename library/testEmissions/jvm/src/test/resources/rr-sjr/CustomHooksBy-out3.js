@@ -9,7 +9,7 @@ import * as $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024Build
 import * as $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024Builder$0024Subsequent from "./japgolly.scalajs.react.hooks.CustomHook$Builder$Subsequent.js";
 import * as $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024I1 from "./japgolly.scalajs.react.hooks.HookCtx$I1.js";
 import * as $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024P2 from "./japgolly.scalajs.react.hooks.HookCtx$P2.js";
-import * as $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024$0024anon$00242 from "./japgolly.scalajs.react.hooks.Hooks$$anon$2.js";
+import * as $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseStateF from "./japgolly.scalajs.react.hooks.Hooks$UseStateF.js";
 import * as $j_japgolly$002escalajs$002ereact$002epackage$0024 from "./japgolly.scalajs.react.package$.js";
 import * as $j_japgolly$002escalajs$002ereact$002evdom$002eExports$0024 from "./japgolly.scalajs.react.vdom.Exports$.js";
 import * as $j_japgolly$002escalajs$002ereact$002evdom$002eHtmlTagOf$0024 from "./japgolly.scalajs.react.vdom.HtmlTagOf$.js";
@@ -70,7 +70,7 @@ function $c_Ljapgolly_scalajs_react_test_emissions_CustomHooksBy$() {
     var hook2_raw = $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024.$m_Ljapgolly_scalajs_react_hooks_CustomHook$().apply$extension__F1__O__F1(this$7$1.Ljapgolly_scalajs_react_test_emissions_CustomHooksBy$__f_customHook2, hook1.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0]);
     var hook2 = hook2_raw.apply__O__O(void 0);
     var props$1 = props.a;
-    var hook3_ctx = new $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024P2.$c_Ljapgolly_scalajs_react_hooks_HookCtx$P2(props$1, hook1, hook2);
+    var hook3_ctx = $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024P2.$ct_Ljapgolly_scalajs_react_hooks_HookCtx$P2__O__O__O__(new $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024P2.$c_Ljapgolly_scalajs_react_hooks_HookCtx$P2(), props$1, hook1, hook2);
     var $$x2 = $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024.$m_Ljapgolly_scalajs_react_hooks_CustomHook$();
     var $$x1 = this$7$1.Ljapgolly_scalajs_react_test_emissions_CustomHooksBy$__f_customHook3;
     var this$9 = hook3_ctx.Ljapgolly_scalajs_react_hooks_HookCtx$P2__f_hook2;

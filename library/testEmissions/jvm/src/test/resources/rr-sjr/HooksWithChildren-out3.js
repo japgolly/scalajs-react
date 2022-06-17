@@ -3,12 +3,12 @@
 import * as $i_react from "react";
 import * as $j_japgolly$002escalajs$002ereact$002eCtorType$0024Summoner$0024 from "./japgolly.scalajs.react.CtorType$Summoner$.js";
 import * as $j_japgolly$002escalajs$002ereact$002ePropsChildren$0024package$0024PropsChildren$0024 from "./japgolly.scalajs.react.PropsChildren$package$PropsChildren$.js";
-import * as $j_japgolly$002escalajs$002ereact$002eReusability from "./japgolly.scalajs.react.Reusability.js";
+import * as $j_japgolly$002escalajs$002ereact$002eReusable$0024 from "./japgolly.scalajs.react.Reusable$.js";
 import * as $j_japgolly$002escalajs$002ereact$002ecallback$002eCallbackTo from "./japgolly.scalajs.react.callback.CallbackTo.js";
 import * as $j_japgolly$002escalajs$002ereact$002ecomponent$002eJsFn$0024 from "./japgolly.scalajs.react.component.JsFn$.js";
 import * as $j_japgolly$002escalajs$002ereact$002ecomponent$002eScalaFn$0024 from "./japgolly.scalajs.react.component.ScalaFn$.js";
-import * as $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024$0024anon$00242 from "./japgolly.scalajs.react.hooks.Hooks$$anon$2.js";
 import * as $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseState$0024 from "./japgolly.scalajs.react.hooks.Hooks$UseState$.js";
+import * as $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseStateF from "./japgolly.scalajs.react.hooks.Hooks$UseStateF.js";
 import * as $j_japgolly$002escalajs$002ereact$002einternal$002eBox$0024 from "./japgolly.scalajs.react.internal.Box$.js";
 import * as $j_japgolly$002escalajs$002ereact$002evdom$002eAttr$0024EventCallback$0024 from "./japgolly.scalajs.react.vdom.Attr$EventCallback$.js";
 import * as $j_japgolly$002escalajs$002ereact$002evdom$002eExports$0024 from "./japgolly.scalajs.react.vdom.Exports$.js";
@@ -42,8 +42,8 @@ function $c_Ljapgolly_scalajs_react_test_emissions_HooksWithChildren$() {
     $j_japgolly$002escalajs$002ereact$002evdom$002eExports$0024.$m_Ljapgolly_scalajs_react_vdom_Exports$();
     var self = "button";
     var xs = $j_java$002elang$002eCharacter$0024.$m_sr_ScalaRunTime$().wrapRefArray__AO__sci_ArraySeq(new ($j_japgolly$002escalajs$002ereact$002evdom$002eTagMod.$d_Ljapgolly_scalajs_react_vdom_TagMod.getArrayOf().constr)([($j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$(), $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024.$m_Ljapgolly_scalajs_react_vdom_VdomNode$(), new $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024$0024anon$00241.$c_Ljapgolly_scalajs_react_vdom_VdomNode$$anon$1("Sum = ")), ($j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$(), $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024.$m_Ljapgolly_scalajs_react_vdom_VdomNode$(), new $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024$0024anon$00241.$c_Ljapgolly_scalajs_react_vdom_VdomNode$$anon$1(sum)), $j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$().Ljapgolly_scalajs_react_vdom_html＿$less$up$__f_$up.Ljapgolly_scalajs_react_vdom_HtmlAttrAndStyles$__f_onClick.$minus$minus$greater__F0__F1__Ljapgolly_scalajs_react_vdom_TagMod(new $j_scala$002escalajs$002eruntime$002eAnonFunction0.$c_sjsr_AnonFunction0((hook1$2 => () => {
-      $j_japgolly$002escalajs$002ereact$002eReusability.$m_Ljapgolly_scalajs_react_Reusable$();
-      var r = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024$0024anon$00242.$f_Ljapgolly_scalajs_react_hooks_Hooks$UseStateF__modState__Ljapgolly_scalajs_react_Reusable(hook1$2);
+      $j_japgolly$002escalajs$002ereact$002eReusable$0024.$m_Ljapgolly_scalajs_react_Reusable$();
+      var r = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseStateF.$f_Ljapgolly_scalajs_react_hooks_Hooks$UseStateF__modState__Ljapgolly_scalajs_react_Reusable(hook1$2);
       var ev$1 = r.value__O().apply__O__O(new $j_scala$002eFunction1.$c_sjsr_AnonFunction1(_$1 => {
         var _$1$1 = _$1 | 0;
 

@@ -9,6 +9,21 @@ import scala.reflect.macros.blackbox.Context
 class HookMacros(val c: Context) extends MacroUtils {
   import c.universe._
 
+  def render1[P, C <: Children]
+             (f: c.Tree)(s: c.Tree)
+             (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
+    _render1(f, s, false)(P, C)
+
+  def renderDebug1[P, C <: Children]
+                  (f: c.Tree)(s: c.Tree)
+                  (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
+    _render1(f, s, true)(P, C)
+
+  private def _render1[P, C <: Children]
+                      (f: c.Tree, s: c.Tree, debug: Boolean)
+                      (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
+    _render[P, C](f, None, s, debug)
+
   def render2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]]
              (f: c.Tree)(step: c.Tree, s: c.Tree)
              (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
@@ -18,6 +33,11 @@ class HookMacros(val c: Context) extends MacroUtils {
                   (f: c.Tree)(step: c.Tree, s: c.Tree)
                   (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
     _render2(f, step, s, true)(P, C)
+
+  private def _render2[P, C <: Children]
+                      (f: c.Tree, step: c.Tree, s: c.Tree, debug: Boolean)
+                      (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
+    _render[P, C](f, Some(step), s, debug)
 
   // ===================================================================================================================
 
@@ -153,9 +173,9 @@ class HookMacros(val c: Context) extends MacroUtils {
 
   // ===================================================================================================================
 
-  def _render2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]]
-              (f: c.Tree, step: c.Tree, s: c.Tree, debug: Boolean)
-              (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree = {
+  def _render[P, C <: Children]
+             (f: c.Tree, stepOption: Option[c.Tree], s: c.Tree, debug: Boolean)
+             (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree = {
 
     val hookMacros = new HookMacrosImpl
 
@@ -185,12 +205,22 @@ class HookMacros(val c: Context) extends MacroUtils {
           """)
 
         case Left(err) =>
-          c.warning(c.enclosingPosition, err())
+          val msg = err()
+          import Console._
+          log(RED_B + WHITE + "Giving up. " + msg + RESET)
+          c.warning(c.enclosingPosition, msg)
+
           val self = c.prefix
-          q"""
-            val f = $step.squash($f)
-            $self.render(f)($s)
-          """
+
+          stepOption match {
+            case Some(step) =>
+              q"""
+                val f = $step.squash($f)
+                $self.render(f)($s)
+              """
+            case None =>
+              q"$self.render($f)($s)"
+          }
     }
 
     log.footer(showCode(result))

@@ -11,8 +11,8 @@ import * as $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024Arg$0
 import * as $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024Builder$0024First from "./japgolly.scalajs.react.hooks.CustomHook$Builder$First.js";
 import * as $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024Builder$0024Subsequent from "./japgolly.scalajs.react.hooks.CustomHook$Builder$Subsequent.js";
 import * as $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024I1 from "./japgolly.scalajs.react.hooks.HookCtx$I1.js";
-import * as $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024$0024anon$00242 from "./japgolly.scalajs.react.hooks.Hooks$$anon$2.js";
 import * as $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseEffectArg$0024 from "./japgolly.scalajs.react.hooks.Hooks$UseEffectArg$.js";
+import * as $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseStateF from "./japgolly.scalajs.react.hooks.Hooks$UseStateF.js";
 import * as $j_japgolly$002escalajs$002ereact$002epackage$0024 from "./japgolly.scalajs.react.package$.js";
 import * as $j_japgolly$002escalajs$002ereact$002eutil$002eEffectCallback$0024callback$0024 from "./japgolly.scalajs.react.util.EffectCallback$callback$.js";
 import * as $j_japgolly$002escalajs$002ereact$002evdom$002eExports$0024 from "./japgolly.scalajs.react.vdom.Exports$.js";

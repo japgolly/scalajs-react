@@ -906,12 +906,17 @@ object HooksTest extends TestSuite {
       .useState(100)
       .useStateBy((p, s1) => p.pi + s1.value)
       .useStateBy($ => $.props.pi + $.hook1.value + $.hook2.value)
-      .render((p, s1, s2, s3) =>
+      .render { $ =>
+        val p = $.props
+        val s1 = $.hook1
+        val s2 = $.hook2
+        val s3 = $.hook3
         <.div(
           <.div(s"P=$p, s1=${s1.value}, s2=${s2.value}, s3=${s3.value}"),
           <.button(^.onClick --> (
             s1.modState(_ + 1) >> s2.modState(-_) >> s3.modState(_ * 10)
-          ))))
+          )))
+      }
 
     test(comp(PI(666))) { t =>
       t.assertText("P=PI(666), s1=100, s2=766, s3=1532")

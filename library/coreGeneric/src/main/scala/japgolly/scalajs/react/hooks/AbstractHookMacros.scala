@@ -370,8 +370,18 @@ trait AbstractHookMacros {
     step.name match {
 
       case "renderRR" | "renderRRDebug" =>
-        val List(List(renderFn), _) = step.args : @nowarn
-        Right(b => call(renderFn, b.args))
+        val List(List(fn0), _) = step.args : @nowarn
+        val fn = uninline(fn0)
+        fn match {
+          case FunctionLike(paramCount) =>
+            Right { b =>
+              val args = b.argsOrCtxArg(paramCount)
+              call(fn, args)
+            }
+
+          case _ =>
+            Left(() => s"Expected a function, found: ${showRaw(fn)}")
+        }
 
       case _ =>
         Left(() => s"Inlining of render method '${step.name}' not yet supported.")

@@ -18,6 +18,45 @@ import scala.scalajs.js
 
 object HookMacros {
 
+  type PrimaryProxy[P, C <: Children, Ctx, Step <: AbstractStep] =
+    ApiPrimaryWithRenderMacros[P, C, Ctx, Step]
+
+  type PrimaryApi[P, C <: Children, Ctx, Step <: AbstractStep] =
+    PrimaryWithRender[P, C, Ctx, Step]
+
+  // https://github.com/lampepfl/dotty/issues/15357
+  inline def render1Workaround[
+        P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]
+      ](inline proxy: PrimaryProxy[P, C, Ctx, Step],
+        inline f    : Ctx => VdomNode,
+        inline s    : CtorType.Summoner.Aux[Box[P], C, CT],
+       ): Component[P, CT] =
+    ${ render1[P, C, Ctx, Step, CT]('proxy, 'f, 's) }
+
+  inline def renderDebug1Workaround[
+        P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]
+      ](inline proxy: PrimaryProxy[P, C, Ctx, Step],
+        inline f    : Ctx => VdomNode,
+        inline s    : CtorType.Summoner.Aux[Box[P], C, CT],
+       ): Component[P, CT] =
+    ${ renderDebug1[P, C, Ctx, Step, CT]('proxy, 'f, 's) }
+
+  def render1[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]]
+     (proxy: Expr[PrimaryProxy[P, C, Ctx, Step]],
+      f    : Expr[Ctx => VdomNode],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+     )(using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], Step: Type[Step]): Expr[Component[P, CT]] =
+    _render1(proxy, f, s, false)
+
+  def renderDebug1[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]]
+     (proxy: Expr[PrimaryProxy[P, C, Ctx, Step]],
+      f    : Expr[Ctx => VdomNode],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+     )(using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], Step: Type[Step]): Expr[Component[P, CT]] =
+    _render1(proxy, f, s, true)
+
+  // ===================================================================================================================
+
   type SecondaryProxy[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]] =
     ApiSecondaryWithRenderMacros[P, C, Ctx, CtxFn, Step]
 
@@ -154,6 +193,7 @@ object HookMacros {
     }
 
     override val FunctionLike = new FunctionExtractor {
+      @tailrec
       override def unapply(function: Term) = function match {
 
         case Apply(TypeApply(f, args), _) if f.tpe.show.startsWith("scala.scalajs.js.Any.toFunction") =>
@@ -161,6 +201,13 @@ object HookMacros {
 
         case Block(List(DefDef(_, List(TermParamClause(params)), _, Some(_))), Closure(Ident(_), _)) =>
           Some(params.size)
+
+        case Block(Nil, expr) =>
+          unapply(expr)
+
+        case Block(stmts1, Block(stmts2, expr)) =>
+          val stmts = if (stmts2.isEmpty) stmts1 else stmts1 ::: stmts2
+          unapply(Block(stmts, expr))
 
         case i@ Ident(_) =>
           i.symbol.tree match {
@@ -202,6 +249,28 @@ object HookMacros {
 
   // ===================================================================================================================
 
+  import AbstractHookMacros.HookStep
+
+  def _render1[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]]
+     (proxy: Expr[PrimaryProxy[P, C, Ctx, Step]],
+      f    : Expr[Ctx => VdomNode],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+      debug: Boolean,
+     )(using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], Step: Type[Step]): Expr[Component[P, CT]] = {
+
+    import quotes.reflect.*
+
+    val self = proxy.asInstanceOf[Expr[PrimaryApi[P, C, Ctx, Step]]]
+
+    _render[P, C, CT](
+      macroApplication = self.asTerm,
+      s                = s,
+      debug            = debug,
+      renderStep       = HookStep("renderRR", Nil, List(List(f.asTerm), List(s.asTerm))),
+      giveUp           = () => '{ $self.render($f)($s) },
+    )
+  }
+
   def _render2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]]
      (proxy: Expr[SecondaryProxy[P, C, Ctx, CtxFn, Step]],
       f    : Expr[CtxFn[VdomNode]],
@@ -212,20 +281,36 @@ object HookMacros {
 
     import quotes.reflect.*
 
-    val hookMacros = HookMacrosImpl(q)
-    import hookMacros.log
-
-    log.enabled = debug // f.show.contains("DEBUG")
-    log.header()
-
     val self = proxy.asInstanceOf[Expr[SecondaryApi[P, C, Ctx, CtxFn, Step]]]
 
-    val macroApplication = self.asTerm
+    _render[P, C, CT](
+      macroApplication = self.asTerm,
+      s                = s,
+      debug            = debug,
+      renderStep       = HookStep("renderRR", Nil, List(List(f.asTerm), List(step.asTerm, s.asTerm))),
+      giveUp           = () => '{ $self.render($step.squash($f)(_))($s) },
+    )
+  }
 
-    log("self", macroApplication.show)
+  // ===================================================================================================================
 
-    val renderStep: hookMacros.HookStep =
-      AbstractHookMacros.HookStep("renderRR", Nil, List(List(f.asTerm), List(step.asTerm, s.asTerm)))
+  private def _render[P, C <: Children, CT[-p, +u] <: CtorType[p, u]]
+      (using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT])
+     (macroApplication: q.reflect.Term,
+      s               : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+      debug           : Boolean,
+      renderStep      : HookStep[q.reflect.Term, q.reflect.TypeTree],
+      giveUp          : () => Expr[Component[P, CT]],
+     ): Expr[Component[P, CT]] = {
+
+    import quotes.reflect.*
+
+    val hookMacros = HookMacrosImpl(q)
+
+    import hookMacros.log
+    log.enabled = debug
+    log.header()
+    // log("self", macroApplication.show)
 
     val rewriteAttempt =
       for {
@@ -255,8 +340,13 @@ object HookMacros {
           }
 
         case Left(err) =>
-          report.warning(err())
-          '{ $self.render($step.squash($f)(_))($s) }
+          val msg = err()
+          import Console._
+          log(RED_B + WHITE + "Giving up. " + msg + RESET)
+
+          report.warning(msg)
+
+          giveUp()
       }
 
     log.footer(result.show)
