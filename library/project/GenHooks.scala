@@ -60,14 +60,20 @@ object GenHooks {
            |""".stripMargin
 
       if (n <= 21) {
-        hookCtxCtorsI += s"    def apply[I, $Hns](input: I, $hookParams): I$n[I, $Hns] =\n      new I$n(input, $hookArgs)"
+        hookCtxCtorsI +=
+          s"""    @inline def apply[I, $Hns](input: I, $hookParams): I$n[I, $Hns] =
+             |      new I$n(input, $hookArgs)
+             |""".stripMargin
 
-        hookCtxCtorsP += s"  def apply[P, $Hns](props: P, $hookParams): P$n[P, $Hns] =\n    new P$n(props, $hookArgs)"
+        hookCtxCtorsP +=
+          s"""  @inline def apply[P, $Hns](props: P, $hookParams): P$n[P, $Hns] =
+             |    new P$n(props, $hookArgs)
+             |""".stripMargin
 
         hookCtxsI +=
-          s"""  class I$n[+I, $coHns](input: I, $ctxParams) extends I${n-1}(input$ctxSuperArgs) {
+          s"""  @inline class I$n[+I, $coHns](input: I, $ctxParams) extends I${n-1}(input$ctxSuperArgs) {
              |    override def toString = s"HookCtx.withInput(\\n  input = !input$ctxToStr)"
-             |    def apply$n[A](f: (I, $Hns) => A): A = f(input, $hookArgs)
+             |    @inline final def apply$n[A](f: (I, $Hns) => A): A = f(input, $hookArgs)
              |  }
              |
              |  implicit def reusabilityI$n[I, $Hns](implicit I: Reusability[I], $RHns): Reusability[I$n[I, $Hns]] =
@@ -75,9 +81,9 @@ object GenHooks {
              |""".stripMargin.replace('!', '$')
 
         hookCtxsP +=
-          s"""  class P$n[+P, $coHns](props: P, $ctxParams) extends P${n-1}(props$ctxSuperArgs) {
+          s"""  @inline class P$n[+P, $coHns](props: P, $ctxParams) extends P${n-1}(props$ctxSuperArgs) {
              |    override def toString = s"HookCtx(\\n  props = !props$ctxToStr)"
-             |    def apply$n[A](f: (P, $Hns) => A): A = f(props, $hookArgs)
+             |    @inline final def apply$n[A](f: (P, $Hns) => A): A = f(props, $hookArgs)
              |  }
              |
              |  implicit def reusabilityP$n[P, $Hns](implicit P: Reusability[P], $RHns): Reusability[P$n[P, $Hns]] =
@@ -85,12 +91,15 @@ object GenHooks {
              |""".stripMargin.replace('!', '$')
 
         if (n <= 20) {
-          hookCtxCtorsPC += s"    def apply[P, $Hns](props: P, propsChildren: PropsChildren, $hookParams): PC$n[P, $Hns] =\n      new PC$n(props, propsChildren, $hookArgs)"
+          hookCtxCtorsPC +=
+            s"""    @inline def apply[P, $Hns](props: P, propsChildren: PropsChildren, $hookParams): PC$n[P, $Hns] =
+             |        new PC$n(props, propsChildren, $hookArgs)
+             |""".stripMargin
 
           hookCtxsPC +=
-            s"""  class PC$n[+P, $coHns](props: P, propsChildren: PropsChildren, $ctxParams) extends PC${n-1}(props, propsChildren$ctxSuperArgs) {
+            s"""  @inline class PC$n[+P, $coHns](props: P, propsChildren: PropsChildren, $ctxParams) extends PC${n-1}(props, propsChildren$ctxSuperArgs) {
                |    override def toString = s"HookCtx.withChildren(\\n  props = !props,\\n  propsChildren = !propsChildren$ctxToStr)"
-               |    def apply$n[A](f: (P, PropsChildren, $Hns) => A): A = f(props, propsChildren, $hookArgs)
+               |    @inline final def apply$n[A](f: (P, PropsChildren, $Hns) => A): A = f(props, propsChildren, $hookArgs)
                |  }
                |
                |  implicit def reusabilityPC$n[P, $Hns](implicit P: Reusability[P], PC: Reusability[PropsChildren], $RHns): Reusability[PC$n[P, $Hns]] =
@@ -213,9 +222,9 @@ object GenHooks {
          |
          |object HookCtx {
          |
-         |${hookCtxCtorsP.result().mkString("\n\n")}
+         |${hookCtxCtorsP.result().mkString("\n")}
          |
-         |  abstract class P0[+P](final val props: P)
+         |  @inline abstract class P0[+P](final val props: P)
          |
          |  implicit def reusabilityP0[P](implicit P: Reusability[P]): Reusability[P0[P]] =
          |    Reusability.by(_.props)
@@ -225,13 +234,13 @@ object GenHooks {
          |
          |  object withChildren {
          |
-         |    def apply[P](props: P, propsChildren: PropsChildren): PC0[P] =
+         |    @inline def apply[P](props: P, propsChildren: PropsChildren): PC0[P] =
          |      new PC0(props, propsChildren)
          |
-         |${hookCtxCtorsPC.result().mkString("\n\n")}
+         |${hookCtxCtorsPC.result().mkString("\n")}
          |  }
          |
-         |  class PC0[+P](props: P, final val propsChildren: PropsChildren) extends P0(props)
+         |  @inline class PC0[+P](props: P, final val propsChildren: PropsChildren) extends P0(props)
          |
          |  implicit def reusabilityPC0[P](implicit P: Reusability[P], PC: Reusability[PropsChildren]): Reusability[PC0[P]] =
          |    Reusability((x, y) => P.test(x.props, y.props) && PC.test(x.propsChildren, y.propsChildren))
@@ -242,13 +251,13 @@ object GenHooks {
          |
          |  object withInput {
          |
-         |    def apply[I](input: I): I0[I] =
+         |    @inline def apply[I](input: I): I0[I] =
          |      new I0(input)
          |
-         |${hookCtxCtorsI.result().mkString("\n\n")}
+         |${hookCtxCtorsI.result().mkString("\n")}
          |  }
          |
-         |  class I0[+I](final val input: I)
+         |  @inline class I0[+I](final val input: I)
          |
          |  implicit def reusabilityI0[I](implicit I: Reusability[I]): Reusability[I0[I]] =
          |    Reusability.by(_.input)

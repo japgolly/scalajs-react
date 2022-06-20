@@ -3,10 +3,6 @@
 import * as $j_japgolly$002escalajs$002ereact$002eCtorType$0024Summoner$0024 from "./japgolly.scalajs.react.CtorType$Summoner$.js";
 import * as $j_japgolly$002escalajs$002ereact$002ecomponent$002eJsFn$0024 from "./japgolly.scalajs.react.component.JsFn$.js";
 import * as $j_japgolly$002escalajs$002ereact$002ecomponent$002eScalaFn$0024 from "./japgolly.scalajs.react.component.ScalaFn$.js";
-import * as $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024P1 from "./japgolly.scalajs.react.hooks.HookCtx$P1.js";
-import * as $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024P4 from "./japgolly.scalajs.react.hooks.HookCtx$P4.js";
-import * as $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024P7 from "./japgolly.scalajs.react.hooks.HookCtx$P7.js";
-import * as $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024P9 from "./japgolly.scalajs.react.hooks.HookCtx$P9.js";
 import * as $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024VarF from "./japgolly.scalajs.react.hooks.Hooks$VarF.js";
 import * as $j_japgolly$002escalajs$002ereact$002einternal$002eSingleton$0024 from "./japgolly.scalajs.react.internal.Singleton$.js";
 import * as $j_japgolly$002escalajs$002ereact$002eutil$002eDefaultEffects$0024 from "./japgolly.scalajs.react.util.DefaultEffects$.js";
@@ -16,7 +12,6 @@ import * as $j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$00
 import * as $j_java$002elang$002eNullPointerException from "./java.lang.NullPointerException.js";
 import * as $j_java$002elang$002eObject from "./java.lang.Object.js";
 import * as $j_scala$002eruntime$002eLazyInt from "./scala.runtime.LazyInt.js";
-import * as $j_scala$002escalajs$002eruntime$002eAnonFunction0 from "./scala.scalajs.runtime.AnonFunction0.js";
 
 function $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$__hook4_raw$lzycompute$1__sr_LazyInt__I($thiz, hook4_raw$lzy$1) {
   if (hook4_raw$lzy$1 === null) {
@@ -94,26 +89,19 @@ $c_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$.prototype.japgolly$sca
   var hook4_raw$lzy = new $j_scala$002eruntime$002eLazyInt.$c_sr_LazyInt();
   var hook5_raw$lzy = new $j_scala$002eruntime$002eLazyInt.$c_sr_LazyInt();
   var hook6_raw$lzy = new $j_scala$002eruntime$002eLazyInt.$c_sr_LazyInt();
-  var props$1 = props.a;
-  $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024P1.$ct_Ljapgolly_scalajs_react_hooks_HookCtx$P1__O__O__(new $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024P1.$c_Ljapgolly_scalajs_react_hooks_HookCtx$P1(), props$1, 1111);
-  var hook4 = new $j_scala$002escalajs$002eruntime$002eAnonFunction0.$c_sjsr_AnonFunction0(((this$2, hook4_raw$lzy$1) => () => $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$__hook4_raw$1__sr_LazyInt__I(this$2, hook4_raw$lzy$1))(this, hook4_raw$lzy));
-  var props$2 = props.a;
-  $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024P4.$ct_Ljapgolly_scalajs_react_hooks_HookCtx$P4__O__O__O__O__O__(new $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024P4.$c_Ljapgolly_scalajs_react_hooks_HookCtx$P4(), props$2, 1111, 2222, 3333, hook4);
-  var hook5 = new $j_scala$002escalajs$002eruntime$002eAnonFunction0.$c_sjsr_AnonFunction0(((this$2$1, hook5_raw$lzy$1) => () => $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$__hook5_raw$1__sr_LazyInt__I(this$2$1, hook5_raw$lzy$1))(this, hook5_raw$lzy));
-  var hook6 = new $j_scala$002escalajs$002eruntime$002eAnonFunction0.$c_sjsr_AnonFunction0(((this$3$1, hook6_raw$lzy$1) => () => $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$__hook6_raw$1__sr_LazyInt__I(this$3$1, hook6_raw$lzy$1))(this, hook6_raw$lzy));
-  var this$5 = $j_japgolly$002escalajs$002ereact$002eutil$002eDefaultEffects$0024.$m_Ljapgolly_scalajs_react_util_DefaultEffects$();
-  var hook7 = new $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024VarF.$c_Ljapgolly_scalajs_react_hooks_Hooks$VarF(7777, this$5.Ljapgolly_scalajs_react_util_DefaultEffects$__f_Sync);
-  var props$3 = props.a;
-  $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024P7.$ct_Ljapgolly_scalajs_react_hooks_HookCtx$P7__O__O__O__O__O__O__O__O__(new $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024P7.$c_Ljapgolly_scalajs_react_hooks_HookCtx$P7(), props$3, 1111, 2222, 3333, hook4, hook5, hook6, hook7);
-  var this$8 = $j_japgolly$002escalajs$002ereact$002eutil$002eDefaultEffects$0024.$m_Ljapgolly_scalajs_react_util_DefaultEffects$();
-  var hook8 = new $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024VarF.$c_Ljapgolly_scalajs_react_hooks_Hooks$VarF(8888, this$8.Ljapgolly_scalajs_react_util_DefaultEffects$__f_Sync);
-  var this$10 = $j_japgolly$002escalajs$002ereact$002eutil$002eDefaultEffects$0024.$m_Ljapgolly_scalajs_react_util_DefaultEffects$();
-  var hook9 = new $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024VarF.$c_Ljapgolly_scalajs_react_hooks_Hooks$VarF(9999, this$10.Ljapgolly_scalajs_react_util_DefaultEffects$__f_Sync);
+  props.a;
+  props.a;
+  var this$4 = $j_japgolly$002escalajs$002ereact$002eutil$002eDefaultEffects$0024.$m_Ljapgolly_scalajs_react_util_DefaultEffects$();
+  var hook7 = new $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024VarF.$c_Ljapgolly_scalajs_react_hooks_Hooks$VarF(7777, this$4.Ljapgolly_scalajs_react_util_DefaultEffects$__f_Sync);
+  props.a;
+  var this$7 = $j_japgolly$002escalajs$002ereact$002eutil$002eDefaultEffects$0024.$m_Ljapgolly_scalajs_react_util_DefaultEffects$();
+  var hook8 = new $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024VarF.$c_Ljapgolly_scalajs_react_hooks_Hooks$VarF(8888, this$7.Ljapgolly_scalajs_react_util_DefaultEffects$__f_Sync);
+  var this$9 = $j_japgolly$002escalajs$002ereact$002eutil$002eDefaultEffects$0024.$m_Ljapgolly_scalajs_react_util_DefaultEffects$();
+  var hook9 = new $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024VarF.$c_Ljapgolly_scalajs_react_hooks_Hooks$VarF(9999, this$9.Ljapgolly_scalajs_react_util_DefaultEffects$__f_Sync);
   console.log("aaaaa");
-  var props$4 = props.a;
-  new $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024P9.$c_Ljapgolly_scalajs_react_hooks_HookCtx$P9(props$4, 1111, 2222, 3333, hook4, hook5, hook6, hook7, hook8, hook9);
+  props.a;
   console.log("ccccc");
-  var sum = ((((((6666 + (hook4.apply__O() | 0) | 0) + (hook5.apply__O() | 0) | 0) + (hook6.apply__O() | 0) | 0) + (hook7.Ljapgolly_scalajs_react_hooks_Hooks$VarF__f_value | 0) | 0) + (hook8.Ljapgolly_scalajs_react_hooks_Hooks$VarF__f_value | 0) | 0) + (hook9.Ljapgolly_scalajs_react_hooks_Hooks$VarF__f_value | 0) | 0) + ("bbbbb".length | 0) | 0;
+  var sum = ((((((6666 + $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$__hook4_raw$1__sr_LazyInt__I(this, hook4_raw$lzy) | 0) + $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$__hook5_raw$1__sr_LazyInt__I(this, hook5_raw$lzy) | 0) + $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$__hook6_raw$1__sr_LazyInt__I(this, hook6_raw$lzy) | 0) + (hook7.Ljapgolly_scalajs_react_hooks_Hooks$VarF__f_value | 0) | 0) + (hook8.Ljapgolly_scalajs_react_hooks_Hooks$VarF__f_value | 0) | 0) + (hook9.Ljapgolly_scalajs_react_hooks_Hooks$VarF__f_value | 0) | 0) + ("bbbbb".length | 0) | 0;
   $j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$();
   $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024.$m_Ljapgolly_scalajs_react_vdom_VdomNode$();
   return new $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024$0024anon$00241.$c_Ljapgolly_scalajs_react_vdom_VdomNode$$anon$1(sum).Ljapgolly_scalajs_react_vdom_VdomNode$$anon$1__f_n$1;

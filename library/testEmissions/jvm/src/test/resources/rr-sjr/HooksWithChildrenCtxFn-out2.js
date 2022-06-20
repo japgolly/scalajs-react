@@ -4,7 +4,7 @@ var _s = $RefreshSig$();
 
 import * as $i_react from "react";
 import * as $j_japgolly$002escalajs$002ereact$002eCtorType$0024Summoner$0024 from "./japgolly.scalajs.react.CtorType$Summoner$.js";
-import * as $j_japgolly$002escalajs$002ereact$002ePropsChildren from "./japgolly.scalajs.react.PropsChildren.js";
+import * as $j_japgolly$002escalajs$002ereact$002ePropsChildren$0024 from "./japgolly.scalajs.react.PropsChildren$.js";
 import * as $j_japgolly$002escalajs$002ereact$002eReusable$0024 from "./japgolly.scalajs.react.Reusable$.js";
 import * as $j_japgolly$002escalajs$002ereact$002ecallback$002eCallbackTo from "./japgolly.scalajs.react.callback.CallbackTo.js";
 import * as $j_japgolly$002escalajs$002ereact$002ecomponent$002eJsFn$0024 from "./japgolly.scalajs.react.component.JsFn$.js";
@@ -48,13 +48,13 @@ $h_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$.prototype = $c
 $c_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$.prototype.japgolly$scalajs$react$test$emissions$HooksWithChildrenCtxFn$$$anonfun$Component$1__Ljapgolly_scalajs_react_internal_Box__sjs_js_$bar = _s(function (props) {
   _s();
 
-  var children = $j_japgolly$002escalajs$002ereact$002ePropsChildren.$m_Ljapgolly_scalajs_react_PropsChildren$().fromRawProps__sjs_js_Object__sjs_js_Any(props);
+  var children = $j_japgolly$002escalajs$002ereact$002ePropsChildren$0024.$m_Ljapgolly_scalajs_react_PropsChildren$().fromRawProps__sjs_js_Object__sjs_js_Any(props);
   var hook1_raw = $i_react.useState(() => {
     $m_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxFn$();
     return $j_japgolly$002escalajs$002ereact$002einternal$002eBox$0024.$m_Ljapgolly_scalajs_react_internal_Box$().apply__O__Ljapgolly_scalajs_react_internal_Box(123);
   });
   var hook1 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseState$0024.$m_Ljapgolly_scalajs_react_hooks_Hooks$UseState$().fromJsBoxed__sjs_js_Tuple2__Ljapgolly_scalajs_react_hooks_Hooks$UseStateF(hook1_raw);
-  var sum = ((props.a | 0) + (hook1.Ljapgolly_scalajs_react_hooks_Hooks$UseStateF$$anon$2__f_raw[0] | 0) | 0) + $j_japgolly$002escalajs$002ereact$002ePropsChildren.$m_Ljapgolly_scalajs_react_PropsChildren$().count$extension__sjs_js_Any__I(children) | 0;
+  var sum = ((props.a | 0) + (hook1.Ljapgolly_scalajs_react_hooks_Hooks$UseStateF$$anon$2__f_raw[0] | 0) | 0) + $j_japgolly$002escalajs$002ereact$002ePropsChildren$0024.$m_Ljapgolly_scalajs_react_PropsChildren$().count$extension__sjs_js_Any__I(children) | 0;
   var $$x1 = $j_japgolly$002escalajs$002ereact$002evdom$002eHtmlTagOf$0024.$m_Ljapgolly_scalajs_react_vdom_HtmlTagOf$();
   $j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$();
   $j_japgolly$002escalajs$002ereact$002evdom$002eExports$0024.$m_Ljapgolly_scalajs_react_vdom_Exports$();
