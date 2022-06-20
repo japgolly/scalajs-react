@@ -267,11 +267,11 @@ trait AbstractHookMacros {
       case ApplyLike(t, a) =>
          _parse(t, targs, a :: args, steps)
 
-      case TypeApplyLike(t, a) =>
+      case ta@ TypeApplyLike(t, a) =>
         if (targs.isEmpty)
           _parse(t, a, args, steps)
         else
-          Left(() => "Multiple type arg clauses found at " + showRaw(tree))
+          Left(() => "Multiple type arg clauses found at " + showRaw(ta))
 
       case SelectLike(t, name) =>
         if (name == withHooks) {
@@ -285,8 +285,8 @@ trait AbstractHookMacros {
           _parse(t, Nil, Nil, step :: steps)
         }
 
-      case _ =>
-        Left(() => "Don't know how to parse " + showRaw(tree))
+      case t =>
+        Left(() => "Don't know how to parse " + showRaw(t))
     }
 
   // -------------------------------------------------------------------------------------------------------------------
@@ -423,9 +423,8 @@ trait AbstractHookMacros {
     step.name match {
 
       case "renderRR" | "renderRRDebug" =>
-        val List(List(fn0), _) = step.args : @nowarn
-        val fn = uninline(fn0)
-        fn match {
+        val List(List(fn), _) = step.args : @nowarn
+        uninline(fn) match {
           case FunctionLike(paramCount) =>
             Right { b =>
               val args = b.argsOrCtxArg(paramCount)
