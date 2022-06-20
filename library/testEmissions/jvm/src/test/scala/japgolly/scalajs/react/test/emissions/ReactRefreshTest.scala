@@ -26,6 +26,7 @@ object ReactRefreshTest extends TestSuite {
     "sjr" - {
       "CustomHooks"                 - testScala(assertRR = false) // TODO:
       "CustomHooksBy"               - testScala(assertRR = false) // TODO:
+      "HooksPrimative"              - testScala(assertRR = false) // TODO:
       "HooksWithChildrenCtxFn"      - testScala()
       "HooksWithChildrenCtxObj"     - testScala()
       "HooksWithJsFns"              - testScala()

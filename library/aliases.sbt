@@ -14,5 +14,7 @@ addCommandAlias("TU",  "project testUtil")
 
 addCommandAlias("tcc", "compile; Test/clean; Test/compile")
 addCommandAlias("tt",  "tests/test")
+addCommandAlias("th",  "coreGeneric/compile; tests/testOnly *Hook*")
+addCommandAlias("thc", "coreGeneric/compile; tests/Test/clean; tests/testOnly *Hook*")
 addCommandAlias("te",  "testEmissions/test")
 addCommandAlias("tec", "testEmissionsJS/clean;testEmissions/test")

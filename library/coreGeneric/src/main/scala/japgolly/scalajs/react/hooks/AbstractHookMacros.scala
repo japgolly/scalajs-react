@@ -2,6 +2,7 @@ package japgolly.scalajs.react.hooks
 
 import japgolly.scalajs.react.Reusability
 import japgolly.scalajs.react.facade.React
+import japgolly.scalajs.react.hooks.Hooks
 import japgolly.scalajs.react.internal.{Box, MacroLogger}
 import japgolly.scalajs.react.vdom.VdomNode
 import scala.annotation.{nowarn, tailrec}
@@ -100,21 +101,17 @@ object AbstractHookMacros {
       } else
         Some(createHook(body))
 
-    final def createRawAndHook(raw: Term, hook: Ref => Term): Ref = {
-      val rawDef = valDef(raw, "_raw")
-      createHook(hook(rawDef))
-    }
+    final def createRaw(body: Term, isLazy: Boolean = false): Ref =
+      valDef(body, "_raw", isLazy = isLazy)
 
-    final def createRawAndHook(raw: Term, hook: Ref => Term, discard: Boolean): Option[Ref] = {
-      val rawDef = valDef(raw, "_raw")
-      createHook(hook(rawDef), discard = discard)
-    }
+    @inline final def isScala2 = bridge.isScala2
+    @inline final def isScala3 = bridge.isScala3
 
     final def stmts() =
       _stmts
 
-    final def valDef(body: Term, suffix: String): Ref = {
-      val x = bridge.valDef(hookName + suffix, body)
+    final def valDef(body: Term, suffix: String, isLazy: Boolean = false): Ref = {
+      val x = bridge.valDef(hookName + suffix, body, isLazy)
       this += x._1
       x._2
     }
@@ -128,8 +125,12 @@ object AbstractHookMacros {
       apply    : (Term, List[Term]) => Term,
       hookCtx  : (Boolean, List[Term]) => Term,
       refToTerm: Ref => Term,
-      valDef   : (String, Term) => (Stmt, Ref),
-    )
+      scalaVer : Int,
+      valDef   : (String, Term, Boolean) => (Stmt, Ref), // Bool = isLazy
+    ) {
+      @inline def isScala2 = scalaVer == 2
+      @inline def isScala3 = scalaVer == 3
+    }
 
     def init[Stmt, Term <: Stmt, Ref](ctx        : InitialCtx[Stmt, Term],
                                       bridg      : Bridge[Stmt, Term, Ref],
@@ -189,7 +190,7 @@ trait AbstractHookMacros {
   }
 
   protected def asTerm     [A]: Expr[A] => Term
-  protected def call          : (Term, List[Term]) => Term
+  protected def call          : (Term, List[Term], Boolean) => Term // Bool = betaReduce (i.e. inline args)
   protected def Expr       [A]: Term => Expr[A]
   protected def isUnit        : TypeTree => Boolean
   protected def refToTerm     : Ref => Term
@@ -205,6 +206,8 @@ trait AbstractHookMacros {
 
   protected def custom[I, O]: (Type[I], Type[O], Expr[CustomHook[I, O]], Expr[I]) => Expr[O]
   protected def customArg[C, A]: (Type[C], Type[A], Expr[CustomHook.Arg[C, A]], Expr[C]) => Expr[A]
+  protected def hooksVar[A]: (Type[A], Expr[A]) => Expr[Hooks.Var[A]]
+  protected def scalaFn0[A]: (Type[A], Expr[A]) => Expr[() => A]
   protected def useStateFn[S]: (Type[S], Expr[S]) => Expr[React.UseState[Box[S]]]
   protected def useStateFromJsBoxed[S]: (Type[S], Expr[React.UseState[Box[S]]]) => Expr[Hooks.UseState[S]]
   protected def useStateWithReuseFromJsBoxed[S]: (Type[S], Expr[React.UseState[Box[S]]], Expr[Reusability[S]], Expr[ClassTag[S]]) => Expr[Hooks.UseStateWithReuse[S]]
@@ -312,21 +315,22 @@ trait AbstractHookMacros {
   def rewriteStep(step: HookStep): Either[() => String, Rewriter => Option[Ref]] = {
     log("rewriteStep:" + step.name, step)
 
-    def by[A](fn: Term)(use: (Rewriter, Term => Term) => A): Either[() => String, Rewriter => A] =
+    def by[A](fn: Term, betaReduce: Rewriter => Boolean = null)(use: (Rewriter, Term => Term) => A): Either[() => String, Rewriter => A] =
       fn match {
         case FunctionLike(paramCount) =>
           Right { b =>
             val args = b.argsOrCtxArg(paramCount)
-            use(b, call(_, args))
+            val br = if (betaReduce eq null) true else betaReduce(b)
+            use(b, call(_, args, br))
           }
 
         case _ =>
           Left(() => s"Expected a function, found: ${showRaw(fn)}")
       }
 
-    def maybeBy[A](f: Term)(use: (Rewriter, Term => Term) => A): Either[() => String, Rewriter => A] =
+    def maybeBy[A](f: Term, betaReduce: Rewriter => Boolean = null)(use: (Rewriter, Term => Term) => A): Either[() => String, Rewriter => A] =
       if (step.name endsWith "By")
-        by(f)(use)
+        by(f, betaReduce = betaReduce)(use)
       else
         Right(use(_, identity))
 
@@ -359,10 +363,34 @@ trait AbstractHookMacros {
       case "customBy" =>
         val (List(o), List(List(h), List(_, _))) = step.sig : @nowarn
         by(h) { (b, withCtx) =>
-          b.createRawAndHook(
-            raw     = withCtx(h),
-            hook    = custom[Unit, X](unitType, o, _, unitTerm),
-            discard = isUnit(o))
+          val raw = b.createRaw(withCtx(h))
+          b.createHook(custom[Unit, X](unitType, o, raw, unitTerm), discard = isUnit(o))
+        }
+
+      case "localVal" | "localValBy" =>
+        val (List(_), List(List(valueFn), List(_))) = step.sig : @nowarn
+        maybeBy(valueFn) { (b, withCtx) =>
+          b.createHook(withCtx(valueFn))
+        }
+
+      case "localLazyVal" | "localLazyValBy" =>
+        val (List(tpe), List(List(valueFn), List(_))) = step.sig : @nowarn
+        // Here we avoid beta-reduction in Scala 3 because it causes a crash if props are referenced
+        maybeBy(valueFn, betaReduce = _.isScala2) { (b, withCtx) =>
+          val raw = b.createRaw(withCtx(valueFn), isLazy = true)
+          b.createHook(scalaFn0[X](tpe, raw))
+        }
+
+      case "localVar" | "localVarBy" =>
+        val (List(tpe), List(List(valueFn), List(_))) = step.sig : @nowarn
+        maybeBy(valueFn) { (b, withCtx) =>
+          b.createHook(hooksVar[X](tpe, withCtx(valueFn)))
+        }
+
+      case "unchecked" | "uncheckedBy" =>
+        val (List(tpe), List(List(valueFn), List(_, _))) = step.sig : @nowarn
+        maybeBy(valueFn) { (b, withCtx) =>
+          b.createHook(withCtx(valueFn), discard = isUnit(tpe))
         }
 
       // case "useMemo" | "useMemoBy" =>
@@ -373,17 +401,15 @@ trait AbstractHookMacros {
       case "useState" | "useStateBy" =>
         val (List(tpe), List(List(initialState), List(_))) = step.sig : @nowarn
         maybeBy(initialState) { (b, withCtx) =>
-          b.createRawAndHook(
-            raw  = useStateFn[X](tpe, withCtx(initialState)),
-            hook = useStateFromJsBoxed[X](tpe, _))
+          val raw = b.createRaw(useStateFn[X](tpe, withCtx(initialState)))
+          b.createHook(useStateFromJsBoxed[X](tpe, raw))
         }
 
       case "useStateWithReuse" | "useStateWithReuseBy" =>
         val (List(tpe), List(List(initialState), List(ct, reuse, _)))  = step.sig : @nowarn
         maybeBy(initialState) { (b, withCtx) =>
-          b.createRawAndHook(
-            raw  = useStateFn[X](tpe, withCtx(initialState)),
-            hook = useStateWithReuseFromJsBoxed[X](tpe, _, reuse, ct))
+          val raw = b.createRaw(useStateFn[X](tpe, withCtx(initialState)))
+          b.createHook(useStateWithReuseFromJsBoxed[X](tpe, raw, reuse, ct))
         }
 
       case _ =>
@@ -403,7 +429,7 @@ trait AbstractHookMacros {
           case FunctionLike(paramCount) =>
             Right { b =>
               val args = b.argsOrCtxArg(paramCount)
-              call(fn, args)
+              call(fn, args, true)
             }
 
           case _ =>

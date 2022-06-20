@@ -78,10 +78,10 @@ class HookMacros(val c: Context) extends MacroUtils {
     override protected def unitType      = c.universe.definitions.UnitTpe
     override protected def wrap          = (s, b) => Block(s.toList, b)
 
-    override protected def call = (function, args) => {
+    override protected def call = (function, args, betaReduce) => {
       import internal._
       function match {
-        case Function(params, body) =>
+        case Function(params, body) if betaReduce =>
 
           // From scala/test/files/run/macro-range/Common_1.scala
           class TreeSubstituter(from: List[Symbol], to: List[Tree]) extends Transformer {
@@ -111,7 +111,12 @@ class HookMacros(val c: Context) extends MacroUtils {
         apply     = Apply(_, _),
         hookCtx   = (c, as) => Apply(if (c) q"$HookCtx.withChildren" else HookCtx, as),
         refToTerm = r => Ident(r),
-        valDef    = (n, t) => { val r = TermName(n); (q"val $r = $t", r) },
+        scalaVer  = 2,
+        valDef    = (n, t, l) => {
+                      val r = TermName(n)
+                      val stmt = if (l) q"lazy val $r = $t" else q"val $r = $t"
+                      (stmt, r)
+                    },
       )
 
     override val ApplyLike = new ApplyExtractor {
@@ -160,6 +165,12 @@ class HookMacros(val c: Context) extends MacroUtils {
 
     override protected def customArg[Ctx, Arg] = (_, _, hookArg, ctx) =>
       q"$hookArg.convert($ctx)"
+
+    override protected def hooksVar[A] = (_, body) =>
+      q"$Hooks.Var($body)"
+
+    override protected def scalaFn0[A] = (_, body) =>
+      q"() => $body"
 
     override protected def useStateFn[S] = (tpe, body) =>
       q"$React.useStateFn(() => $Box[$tpe]($body))"

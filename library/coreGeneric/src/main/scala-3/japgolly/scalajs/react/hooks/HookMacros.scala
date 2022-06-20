@@ -161,10 +161,13 @@ object HookMacros {
         case _                => t
       }
 
-    override protected def call = (function, args) => {
+    override protected def call = (function, args, betaReduce) => {
       val f = extractFunction(function)
       val t = Apply(Select.unique(f, "apply"), args)
-      Term.betaReduce(t).getOrElse(t)
+      if (betaReduce)
+        Term.betaReduce(t).getOrElse(t)
+      else
+        t
     }
 
     @tailrec
@@ -198,7 +201,12 @@ object HookMacros {
                         Select.overloaded('{HookCtx}.asTerm, "apply", args.map(_.tpe), args)
                     },
         refToTerm = _.ref,
-        valDef    = (n, t) => { val r = untypedValDef(n, t.tpe, Flags.EmptyFlags)(t); (r.valDef, r) },
+        scalaVer  = 3,
+        valDef    = (n, t, l) => {
+                      val flags = if (l) Flags.Lazy else Flags.EmptyFlags
+                      val r = untypedValDef(n, t.tpe, flags)(t)
+                      (r.valDef, r)
+                    },
       )
 
     override val ApplyLike = new ApplyExtractor {
@@ -263,6 +271,12 @@ object HookMacros {
 
     override protected def customArg[Ctx, Arg] = implicit (tc, ta, hookArg, ctx) =>
       '{ $hookArg.convert($ctx) }
+
+    override protected def hooksVar[A] = implicit (tpe, body) =>
+      '{ Hooks.Var[$tpe]($body) }
+
+    override protected def scalaFn0[A] = implicit (tpe, body) =>
+      '{ () => $body }
 
     override protected def useStateFn[S] = implicit (tpe, body) =>
       '{ React.useStateFn(() => Box[$tpe]($body)) }

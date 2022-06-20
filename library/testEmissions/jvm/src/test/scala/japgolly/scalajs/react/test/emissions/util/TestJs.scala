@@ -78,8 +78,15 @@ object TestJs {
         .filterNot(_ startsWith "import ")
         .modify(_
           // Not sure why SJS sometimes emits one or the other of the following
+
           .replace("PropsChildren$", "PropsChildren")
-          .replace("$FirstStep.$", "$First.$") // Scala 3 only
+
+          // Scala 3 only for some reason
+          .replace("$FirstStep.$", "$First.$")
+
+          // From: $j_sjr_hooks_HookCtx$P3.$ct_Lsjr_hooks_HookCtx$P3__O__O__O__O__(new $j_sjr_hooks_HookCtx$P3.$c_Lsjr_hooks_HookCtx$P3(), props$0, hook1, hook2, hook3);
+          //   To: new $j_sjr_hooks_HookCtx$P3.$c_Lsjr_hooks_HookCtx$P3(props$0, hook1, hook2, hook3)
+          .replaceAll("""\$j_[a-zA-Z_]+?\$P\d+?\.\$[a-zA-Z_]+?\$P[0-9_O]+?\((new [a-zA-Z0-9$_.]+\()\), """, "$1")
         )
       )
 
