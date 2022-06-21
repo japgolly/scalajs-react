@@ -134,12 +134,19 @@ object HookMacros {
 
     implicit val q: Quotes
     import q.reflect.*
+    import scala.quoted.{Type => Tpe}
+
+    // TODO: Move into microlibs
+    extension (self: q.reflect.TypeTree) {
+      def asTypeOf[A]: Tpe[A] =
+        self.asType.asInstanceOf[Tpe[A]]
+    }
 
     override type Expr[A]  = scala.quoted.Expr[A]
     override type Ref      = UntypedValDef.WithQuotes[q.type]
     override type Stmt     = q.reflect.Statement
     override type Term     = q.reflect.Term
-    override type Type[A]  = scala.quoted.Type[A]
+    override type Type[A]  = Tpe[A]
     override type TypeTree = q.reflect.TypeTree
 
     override protected def asTerm    [A] = _.asTerm
@@ -150,7 +157,7 @@ object HookMacros {
     override protected def typeOfTerm    = _.tpe.asTypeTree
     override protected def uninline      = _uninline
     override protected def unitTerm      = '{ () }
-    override protected def unitType      = scala.quoted.Type.of[Unit]
+    override protected def unitType      = Tpe.of[Unit]
     override protected def wrap          = (s, b) => Block(s.toList, b)
 
     // TODO: Move into microlibs (and make tailrec and non-recursive versions)
@@ -184,10 +191,8 @@ object HookMacros {
         case _       => false
       }
 
-    override protected def Type[A] = t => {
-      val x: scala.quoted.Type[?] = t.asType
-      x.asInstanceOf[scala.quoted.Type[A]]
-    }
+    override protected def Type[A] =
+      _.asTypeOf[A]
 
     override protected val rewriterBridge: RewriterBridge =
       HookRewriter.Bridge[Stmt, Term, Ref](
@@ -272,11 +277,26 @@ object HookMacros {
     override protected def customArg[Ctx, Arg] = implicit (tc, ta, hookArg, ctx) =>
       '{ $hookArg.convert($ctx) }
 
+    override protected def hookDepsEmptyArray =
+      '{ new js.Array[Any] }
+
     override protected def hooksVar[A] = implicit (tpe, body) =>
       '{ Hooks.Var[$tpe]($body) }
 
     override protected def scalaFn0[A] = implicit (tpe, body) =>
       '{ () => $body }
+
+    override protected def useCallback[F <: js.Function] = implicit (f, deps, tpe) =>
+      '{ React.useCallback($f, $deps) }
+
+    override protected def useCallbackArgFromJs[A, J <: js.Function] = implicit (x, j, ta, tj) =>
+      '{ $x.fromJs($j) }
+
+    override protected def useCallbackArgToJs[A, J <: js.Function] = implicit (x, a, ta, tj) =>
+      '{ $x.toJs($a) }
+
+    override protected def useCallbackArgTypeJs[A, J <: js.Function] = x =>
+      TypeSelect(x.asTerm, "J").asTypeOf[J]
 
     override protected def useStateFn[S] = implicit (tpe, body) =>
       '{ React.useStateFn(() => Box[$tpe]($body)) }

@@ -1,12 +1,14 @@
 package japgolly.scalajs.react.hooks
 
-import japgolly.scalajs.react.Reusability
 import japgolly.scalajs.react.facade.React
+import japgolly.scalajs.react.facade.React.HookDeps
 import japgolly.scalajs.react.hooks.Hooks
 import japgolly.scalajs.react.internal.{Box, MacroLogger}
 import japgolly.scalajs.react.vdom.VdomNode
+import japgolly.scalajs.react.{Reusability, Reusable}
 import scala.annotation.{nowarn, tailrec}
 import scala.reflect.ClassTag
+import scala.scalajs.js
 
 /* Coverage
  * ========
@@ -204,15 +206,6 @@ trait AbstractHookMacros {
   protected def wrap          : (Vector[Stmt], Term) => Term
   protected val rewriterBridge: RewriterBridge
 
-  protected def custom[I, O]: (Type[I], Type[O], Expr[CustomHook[I, O]], Expr[I]) => Expr[O]
-  protected def customArg[C, A]: (Type[C], Type[A], Expr[CustomHook.Arg[C, A]], Expr[C]) => Expr[A]
-  protected def hooksVar[A]: (Type[A], Expr[A]) => Expr[Hooks.Var[A]]
-  protected def scalaFn0[A]: (Type[A], Expr[A]) => Expr[() => A]
-  protected def useStateFn[S]: (Type[S], Expr[S]) => Expr[React.UseState[Box[S]]]
-  protected def useStateFromJsBoxed[S]: (Type[S], Expr[React.UseState[Box[S]]]) => Expr[Hooks.UseState[S]]
-  protected def useStateWithReuseFromJsBoxed[S]: (Type[S], Expr[React.UseState[Box[S]]], Expr[Reusability[S]], Expr[ClassTag[S]]) => Expr[Hooks.UseStateWithReuse[S]]
-  protected def vdomRawNode: Expr[VdomNode] => Expr[React.Node]
-
   // -------------------------------------------------------------------------------------------------------------------
   // Concrete
 
@@ -393,6 +386,18 @@ trait AbstractHookMacros {
           b.createHook(withCtx(valueFn), discard = isUnit(tpe))
         }
 
+      case "useCallback" | "useCallbackBy" =>
+        val (List(tpeC), List(List(callbackFn), List(ucArg, _))) = step.sig : @nowarn
+        maybeBy(callbackFn) { (b, withCtx) =>
+          val a          = refToTerm(b.valDef(ucArg, "_arg")) // stablise for dependent types
+          type J         = js.Function
+          val tpeJ       = useCallbackArgTypeJs[X, J](a)
+          val callback   = withCtx(callbackFn)
+          val jsCallback = useCallbackArgToJs[X, J](a, callback, tpeC, tpeJ)
+          val raw        = b.createRaw(useCallback[J](jsCallback, hookDepsEmptyArray, tpeJ))
+          b.createHook(useCallbackArgFromJs[X, J](a, raw, tpeC, tpeJ))
+        }
+
       // case "useMemo" | "useMemoBy" =>
       //   val (List(d, a), List(List(deps), List(create), List(reuse, step))) = step.sig : @nowarn
       //   maybeBy(deps) { (b, withCtx) =>
@@ -416,6 +421,32 @@ trait AbstractHookMacros {
         Left(() => s"Inlining of hook method '${step.name}' not yet supported.")
     }
   }
+
+  protected def custom[I, O]: (Type[I], Type[O], Expr[CustomHook[I, O]], Expr[I]) => Expr[O]
+
+  protected def customArg[C, A]: (Type[C], Type[A], Expr[CustomHook.Arg[C, A]], Expr[C]) => Expr[A]
+
+  protected def hookDepsEmptyArray: Expr[HookDeps]
+
+  protected def hooksVar[A]: (Type[A], Expr[A]) => Expr[Hooks.Var[A]]
+
+  protected def scalaFn0[A]: (Type[A], Expr[A]) => Expr[() => A]
+
+  protected def useCallback[F <: js.Function]: (Expr[F], Expr[HookDeps], Type[F]) => Expr[F]
+
+  protected def useCallbackArgFromJs[A, J <: js.Function]: (Expr[Hooks.UseCallbackArg.To[A, J]], Expr[J], Type[A], Type[J]) => Expr[Reusable[A]]
+
+  protected def useCallbackArgToJs[A, J <: js.Function]: (Expr[Hooks.UseCallbackArg.To[A, J]], Expr[A], Type[A], Type[J]) => Expr[J]
+
+  protected def useCallbackArgTypeJs[A, J <: js.Function]: (Expr[Hooks.UseCallbackArg.To[A, J]]) => Type[J]
+
+  protected def useStateFn[S]: (Type[S], Expr[S]) => Expr[React.UseState[Box[S]]]
+
+  protected def useStateFromJsBoxed[S]: (Type[S], Expr[React.UseState[Box[S]]]) => Expr[Hooks.UseState[S]]
+
+  protected def useStateWithReuseFromJsBoxed[S]: (Type[S], Expr[React.UseState[Box[S]]], Expr[Reusability[S]], Expr[ClassTag[S]]) => Expr[Hooks.UseStateWithReuse[S]]
+
+  protected def vdomRawNode: Expr[VdomNode] => Expr[React.Node]
 
   // -------------------------------------------------------------------------------------------------------------------
   def rewriteRender(step: HookStep): Either[() => String, Rewriter => Term] = {

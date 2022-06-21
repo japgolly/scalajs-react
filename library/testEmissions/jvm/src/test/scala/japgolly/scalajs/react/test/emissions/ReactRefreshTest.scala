@@ -33,6 +33,7 @@ object ReactRefreshTest extends TestSuite {
       "HooksWithScalaFns"           - testScala()
       "JustPropsChildrenViaHookApi" - testScala(assertRR = false) // TODO:
       "JustPropsViaHookApi"         - testScala(assertRR = false) // TODO:
+      "UseCallback"                 - testScala()
       "UseState"                    - testScala()
       "UseStateWithReuse"           - testScala()
     }

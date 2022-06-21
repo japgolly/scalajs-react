@@ -3,8 +3,9 @@ package japgolly.scalajs.react.hooks
 import japgolly.microlibs.compiletime.MacroUtils
 import japgolly.scalajs.react.Children
 import japgolly.scalajs.react.hooks.Api._
-import japgolly.scalajs.react.internal.Box
+import japgolly.scalajs.react.internal.{Box, MacroLogger}
 import scala.reflect.macros.blackbox.Context
+import scala.scalajs.js
 
 class HookMacros(val c: Context) extends MacroUtils {
   import c.universe._
@@ -54,6 +55,7 @@ class HookMacros(val c: Context) extends MacroUtils {
   private def PropsChildren: Tree = q"_root_.japgolly.scalajs.react.PropsChildren"
   private def React        : Tree = q"_root_.japgolly.scalajs.react.facade.React"
   private def ScalaFn      : Tree = q"_root_.japgolly.scalajs.react.component.ScalaFn"
+  private def SJS          : Tree = q"_root_.scala.scalajs.js"
 
   private final class HookMacrosImpl extends AbstractHookMacros {
     import AbstractHookMacros._
@@ -69,7 +71,7 @@ class HookMacros(val c: Context) extends MacroUtils {
     override protected def Expr      [A] = identity
     override protected def isUnit        = _.tpe == unitType
     override protected def refToTerm     = Ident(_)
-    override protected def showCode      = c.universe.showCode(_)
+    override           def showCode      = c.universe.showCode(_).replace("_root_.", "").replace(".`package`.", ".")
     override protected def showRaw       = c.universe.showRaw(_)
     override protected def Type      [A] = _.tpe
     override protected def typeOfTerm    = t => c.universe.TypeTree(t.tpe)
@@ -160,17 +162,34 @@ class HookMacros(val c: Context) extends MacroUtils {
       }
     }
 
+    protected lazy val debugLog = MacroLogger(true)
+
     override protected def custom[I, O] = (_, _, hook, i) =>
       q"$hook.unsafeInit($i)"
 
     override protected def customArg[Ctx, Arg] = (_, _, hookArg, ctx) =>
       q"$hookArg.convert($ctx)"
 
+    override protected def hookDepsEmptyArray =
+      q"new $SJS.Array[Any]"
+
     override protected def hooksVar[A] = (_, body) =>
       q"$Hooks.Var($body)"
 
     override protected def scalaFn0[A] = (_, body) =>
       q"() => $body"
+
+    override protected def useCallback[F <: js.Function] = (f, deps, _) =>
+      q"$React.useCallback($f, $deps)"
+
+    override protected def useCallbackArgFromJs[A, J <: js.Function] = (x, j, _, _) =>
+      q"$x.fromJs($j)"
+
+    override protected def useCallbackArgToJs[A, J <: js.Function] = (x, a, _, _) =>
+      q"$x.toJs($a)"
+
+    override protected def useCallbackArgTypeJs[A, J <: js.Function] = _ =>
+      null // Not used in Scala 2 (i.e. in useCallbackArg{From,To}Js)
 
     override protected def useStateFn[S] = (tpe, body) =>
       q"$React.useStateFn(() => $Box[$tpe]($body))"
@@ -248,7 +267,7 @@ class HookMacros(val c: Context) extends MacroUtils {
           onFailure(err.getMessage())
       }
 
-    log.footer(showCode(result))
+    log.footer(hookMacros.showCode(result))
     result
   }
 }

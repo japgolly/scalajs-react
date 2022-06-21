@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# TODO: REMEMBER TO DELETE THIS
+# TODO: REMEMBER TO DELETE THIS
+# TODO: REMEMBER TO DELETE THIS
+# TODO: REMEMBER TO DELETE THIS
+# TODO: REMEMBER TO DELETE THIS
+
+cd "$(dirname "$0")"
+
+function create {
+  m=$1
+  t="$2"
+
+  d=$m/src/test/scala
+  mkdir -p $d
+  f=$d/TEMP.scala
+  [ -e $f ] || (echo "$t" > $f)
+  ls -l $f
+}
+
+# ======================================================================================================================
+
+create coreGeneric 'import japgolly.scalajs.react._
+import japgolly.scalajs.react.component.{ScalaFn => ScalaFnComponent}
+import japgolly.scalajs.react.vdom.html_<^._
+
+object TEMP {
+
+  final case class PI(pi: Int) {
+    def unary_- : PI = PI(-pi)
+    def *(n: Int): PI = PI(pi * n)
+    def +(n: Int): PI = PI(pi + n)
+    def +(n: PI): PI = PI(pi + n.pi)
+  }
+
+}
+'
+
+# ======================================================================================================================
+
+create coreBundleCallback 'import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.html_<^._
+
+object TEMP {
+
+  final class Counter {
+    var value = 0
+    def inc(by: Int = 1): Int = {
+      value += by
+      value
+    }
+    def incCB         : Callback = incCB(1)
+    def incCB(by: Int): Callback = Callback{ inc(by); () }
+  }
+
+  final case class PI(pi: Int) {
+    def unary_- : PI = PI(-pi)
+    def *(n: Int): PI = PI(pi * n)
+    def +(n: Int): PI = PI(pi + n)
+    def +(n: PI): PI = PI(pi + n.pi)
+  }
+
+}
+'

@@ -23,6 +23,7 @@ object Main {
       HooksWithScalaFns          .Component(0),
       JustPropsChildrenViaHookApi.Component(0)(<.div),
       JustPropsViaHookApi        .Component(0),
+      UseCallback                .Component(0),
       UseState                   .Component(0),
       UseStateWithReuse          .Component(0),
     )

@@ -15,16 +15,18 @@ import scala.scalajs.js.|
 
 object Hooks {
 
-  trait UseCallbackArg[S] {
+  trait UseCallbackArg[A] {
     type J <: js.Function
-    def toJs: S => J
-    def fromJs: J => Reusable[S]
+    def toJs: A => J
+    def fromJs: J => Reusable[A]
   }
 
   object UseCallbackArg extends UseCallbackArgInstances {
 
-    def apply[S, F <: js.Function](f: S => F)(g: F => Reusable[S]): UseCallbackArg[S] =
-      new UseCallbackArg[S] {
+    type To[A, F <: js.Function] = UseCallbackArg[A] { type J = F }
+
+    def apply[A, F <: js.Function](f: A => F)(g: F => Reusable[A]): UseCallbackArg[A] =
+      new UseCallbackArg[A] {
         override type J = F
         override def toJs = f
         override def fromJs = g
