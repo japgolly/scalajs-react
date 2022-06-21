@@ -2,6 +2,7 @@ package japgolly.scalajs.react.hooks
 
 import japgolly.scalajs.react.facade.React
 import japgolly.scalajs.react.facade.React.HookDeps
+import japgolly.scalajs.react.hooks.CustomHook.ReusableDepState
 import japgolly.scalajs.react.hooks.Hooks
 import japgolly.scalajs.react.internal.{Box, MacroLogger}
 import japgolly.scalajs.react.vdom.VdomNode
@@ -180,7 +181,7 @@ object AbstractHookMacros {
 trait AbstractHookMacros {
   import AbstractHookMacros.HookRewriter
 
-  type Expr[A]
+  type Expr[+A]
   type Ref
   type Stmt
   type Term <: Stmt
@@ -345,11 +346,31 @@ trait AbstractHookMacros {
       else
         Right(use(_, identity))
 
-    implicit def autoSomeRefs(r: Ref): Option[Ref] =
-      Some(r)
-
     import AutoTypeImplicits._
     trait X
+
+    def createUseCallbackHook[C](b: Rewriter, ucArg: Term, callback: Expr[C], hookDeps: Expr[HookDeps], tpeC: Type[C]): Ref = {
+      val a          = refToTerm(b.valDef(ucArg, "_arg")) // stablise for dependent types
+      type J         = js.Function
+      val tpeJ       = useCallbackArgTypeJs[C, J](a)
+      val jsCallback = b.valDef(useCallbackArgToJs[C, J](a, callback, tpeC, tpeJ), "_jscb")
+      val raw        = b.createRaw(useCallback[J](jsCallback, hookDeps, tpeJ))
+      val hook       = useCallbackArgFromJs[C, J](a, raw, tpeC, tpeJ)
+      b.createHook(hook)
+    }
+
+    def reusableDeps[D](b: Rewriter, depsExpr: Expr[D], reuse: Expr[Reusability[D]], tpeD: Type[D]): Expr[ReusableDepState[D]] = {
+      type DS       = ReusableDepState[D]
+      val tpeODS    = optionType(reusableDepStateType(tpeD))
+      val stateRaw  = b.valDef(useStateValue[Option[DS]](tpeODS, none(tpeODS)), "_state_raw")
+      val state     = b.valDef(useStateFromJsBoxed[Option[DS]](tpeODS, stateRaw), "_state")
+      val deps      = b.valDef(depsExpr, "_deps")
+      val depsState = b.valDef(reusableDepsLogic[D](deps, state, reuse, tpeD), "_deps_state")
+      depsState
+    }
+
+    implicit def autoSomeRefs(r: Ref): Option[Ref] =
+      Some(r)
 
     step.name match {
 
@@ -407,13 +428,18 @@ trait AbstractHookMacros {
       case "useCallback" | "useCallbackBy" =>
         val (List(tpeC), List(List(callbackFn), List(ucArg, _))) = step.sig : @nowarn
         maybeBy(callbackFn) { (b, withCtx) =>
-          val a          = refToTerm(b.valDef(ucArg, "_arg")) // stablise for dependent types
-          type J         = js.Function
-          val tpeJ       = useCallbackArgTypeJs[X, J](a)
-          val callback   = withCtx(callbackFn)
-          val jsCallback = useCallbackArgToJs[X, J](a, callback, tpeC, tpeJ)
-          val raw        = b.createRaw(useCallback[J](jsCallback, hookDepsEmptyArray, tpeJ))
-          b.createHook(useCallbackArgFromJs[X, J](a, raw, tpeC, tpeJ))
+          createUseCallbackHook[X](b, ucArg, withCtx(callbackFn), hookDepsEmptyArray, tpeC)
+        }
+
+      case "useCallbackWithDeps" | "useCallbackWithDepsBy" =>
+        val (List(tpeD, tpeC), List(List(depsFn), List(callbackFnFn), List(ucArg, reuse, _))) = step.sig : @nowarn
+        maybeBy(callbackFnFn) { (b, withCtx) =>
+          val rds        = reusableDeps[X](b, withCtx(depsFn), reuse, tpeD)
+          val deps       = reusableDepStateValue(rds, tpeD)
+          val callbackFn = withCtx(callbackFnFn)
+          val callback   = call(callbackFn, deps :: Nil, false)
+          val hookDeps   = hookDepsIntArray1(reusableDepStateRev(rds))
+          createUseCallbackHook[X](b, ucArg, callback, hookDeps, tpeC)
         }
 
       // case "useMemo" | "useMemoBy" =>
@@ -446,7 +472,21 @@ trait AbstractHookMacros {
 
   protected def hookDepsEmptyArray: Expr[HookDeps]
 
+  protected def hookDepsIntArray1: Expr[Int] => Expr[HookDeps]
+
   protected def hooksVar[A]: (Type[A], Expr[A]) => Expr[Hooks.Var[A]]
+
+  protected def none[A]: Type[Option[A]] => Expr[Option[A]]
+
+  protected def optionType[A]: Type[A] => Type[Option[A]]
+
+  protected def reusableDepsLogic[D]: (Expr[D], Expr[Hooks.UseState[Option[ReusableDepState[D]]]], Expr[Reusability[D]], Type[D]) => Expr[ReusableDepState[D]]
+
+  protected def reusableDepStateRev: Expr[ReusableDepState[Any]] => Expr[Int]
+
+  protected def reusableDepStateType[D]: Type[D] => Type[ReusableDepState[D]]
+
+  protected def reusableDepStateValue[D]: (Expr[ReusableDepState[D]], Type[D]) => Expr[D]
 
   protected def scalaFn0[A]: (Type[A], Expr[A]) => Expr[() => A]
 
@@ -459,6 +499,8 @@ trait AbstractHookMacros {
   protected def useCallbackArgTypeJs[A, J <: js.Function]: (Expr[Hooks.UseCallbackArg.To[A, J]]) => Type[J]
 
   protected def useStateFn[S]: (Type[S], Expr[S]) => Expr[React.UseState[Box[S]]]
+
+  protected def useStateValue[S]: (Type[S], Expr[S]) => Expr[React.UseState[Box[S]]]
 
   protected def useStateFromJsBoxed[S]: (Type[S], Expr[React.UseState[Box[S]]]) => Expr[Hooks.UseState[S]]
 

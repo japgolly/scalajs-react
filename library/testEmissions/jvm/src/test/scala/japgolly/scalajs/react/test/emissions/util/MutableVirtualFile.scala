@@ -91,10 +91,10 @@ class MutableVirtualFile(val filenameOption: Option[String], val originalContent
     set(content.trim + "\n")
 
   def descSize(): String = {
-    val bytes    = content.length
     val total    = content.linesIterator.size
     val nonblank = content.linesIterator.count(_.trim.nonEmpty)
-    s"$total lines, $nonblank non-blank, $bytes bytes"
+    val blank    = total - nonblank
+    s"$nonblank non-blank lines, $blank blank lines, $total total"
   }
 }
 

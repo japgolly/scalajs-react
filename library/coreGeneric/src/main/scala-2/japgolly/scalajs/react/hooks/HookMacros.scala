@@ -3,6 +3,7 @@ package japgolly.scalajs.react.hooks
 import japgolly.microlibs.compiletime.MacroUtils
 import japgolly.scalajs.react.Children
 import japgolly.scalajs.react.hooks.Api._
+import japgolly.scalajs.react.hooks.CustomHook.ReusableDepState
 import japgolly.scalajs.react.internal.{Box, MacroLogger}
 import scala.reflect.macros.blackbox.Context
 import scala.scalajs.js
@@ -49,6 +50,7 @@ class HookMacros(val c: Context) extends MacroUtils {
 
   private def Box          : Tree = q"_root_.japgolly.scalajs.react.internal.Box"
   private def Box(t: Type) : Type = appliedType(c.typeOf[Box[_]], t)
+  private def CustomHook   : Tree = q"_root_.japgolly.scalajs.react.hooks.CustomHook"
   private def HookCtx      : Tree = q"_root_.japgolly.scalajs.react.hooks.HookCtx"
   private def Hooks        : Tree = q"_root_.japgolly.scalajs.react.hooks.Hooks"
   private def JsFn         : Tree = q"_root_.japgolly.scalajs.react.component.JsFn"
@@ -60,7 +62,7 @@ class HookMacros(val c: Context) extends MacroUtils {
   private final class HookMacrosImpl extends AbstractHookMacros {
     import AbstractHookMacros._
 
-    override type Expr[A]  = Term
+    override type Expr[+A] = Term
     override type Ref      = TermName
     override type Stmt     = c.universe.Tree
     override type Term     = c.universe.Tree
@@ -171,10 +173,31 @@ class HookMacros(val c: Context) extends MacroUtils {
       q"$hookArg.convert($ctx)"
 
     override protected def hookDepsEmptyArray =
-      q"new $SJS.Array[Any]"
+      q"$SJS.Array[Any]()"
+
+    override protected def hookDepsIntArray1 = i =>
+      q"$SJS.Array[Int]($i)"
 
     override protected def hooksVar[A] = (_, body) =>
       q"$Hooks.Var($body)"
+
+    override protected def none[A] = _ =>
+      q"None"
+
+    override protected def optionType[A] = a =>
+      appliedType(c.typeOf[Option[_]], a)
+
+    override protected def reusableDepsLogic[D] = (d, s, r, tpeD) =>
+      q"$CustomHook.reusableDepsLogic[$tpeD]($d)($s)($r)"
+
+    override protected def reusableDepStateRev = rds =>
+      q"$rds.rev"
+
+    override protected def reusableDepStateType[D] =  d =>
+      appliedType(c.typeOf[ReusableDepState[_]], d)
+
+    override protected def reusableDepStateValue[D] = (rds, _) =>
+      q"$rds.value"
 
     override protected def scalaFn0[A] = (_, body) =>
       q"() => $body"
@@ -193,6 +216,9 @@ class HookMacros(val c: Context) extends MacroUtils {
 
     override protected def useStateFn[S] = (tpe, body) =>
       q"$React.useStateFn(() => $Box[$tpe]($body))"
+
+    override protected def useStateValue[S] = (tpe, body) =>
+      q"$React.useStateValue($Box[$tpe]($body))"
 
     override protected def useStateFromJsBoxed[S] = (tpe, raw) =>
       q"$Hooks.UseState.fromJsBoxed[$tpe]($raw)"

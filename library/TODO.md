@@ -1,14 +1,6 @@
 ```scala
 // Api.scala
 
-def useCallback                         [A](callback: A)(implicit a: UseCallbackArg[A], step: Step): step.Next[Reusable[A]]
-def useCallbackBy                       [A](callback: Ctx => A)(implicit a: UseCallbackArg[A], step: Step): step.Next[Reusable[A]]
-def useCallbackBy                       [A](callback: CtxFn[A])(implicit a: UseCallbackArg[A], step: Step): step.Next[Reusable[A]]
-
-def useCallbackWithDeps                 [D, A](deps: => D)(callback: D => A)(implicit a: UseCallbackArg[A], r: Reusability[D], step: Step): step.Next[Reusable[A]]
-def useCallbackWithDepsBy               [D, A](deps: Ctx => D)(callback: Ctx => D => A)(implicit a: UseCallbackArg[A], r: Reusability[D], step: Step): step.Next[Reusable[A]]
-def useCallbackWithDepsBy               [D, A](deps: CtxFn[D])(callback: CtxFn[D => A])(implicit a: UseCallbackArg[A], r: Reusability[D], step: Step): step.Next[Reusable[A]]
-
 def useContext                          [A](ctx: Context[A])(implicit step: Step): step.Next[A]
 def useContextBy                        [A](f: Ctx => Context[A])(implicit step: Step): step.Next[A]
 def useContextBy                        [A](f: CtxFn[Context[A]])(implicit step: Step): step.Next[A]

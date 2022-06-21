@@ -170,39 +170,39 @@ object CustomHook {
 
   // ===================================================================================================================
 
-  private final case class ReusableDepState[+A](value: A, rev: Int) {
+  final case class ReusableDepState[+A](value: A, rev: Int) {
     var skipTest = true
     val asTuple = (value, rev)
   }
 
+  def reusableDepsLogic[D](next: D)
+                          (depsState: Hooks.UseState[Option[ReusableDepState[D]]])
+                          (implicit r: Reusability[D]): ReusableDepState[D] =
+    depsState.value match {
+
+      // React is calling us again after the setState below
+      // Don't re-test reusability, we could end up in an infinite-loop (see #1027)
+      case Some(s) if s.skipTest =>
+        s.skipTest = false
+        s
+
+      // Previous result can be reused
+      case Some(prevState) if r.test(prevState.value, next) =>
+        prevState
+
+      // Not reusable
+      case o =>
+        val nextRev     = o.fold(1)(_.rev + 1)
+        val nextState   = ReusableDepState(next, nextRev)
+        val updateState = depsState.setState(Some(nextState)) // this causes a hook re-eval
+        DefaultEffects.Sync.runSync(updateState)
+        nextState
+    }
+
   def reusableDeps[D](implicit r: Reusability[D]): CustomHook[() => D, (D, Int)] =
     CustomHook[() => D]
       .useState[Option[ReusableDepState[D]]](None)
-      .buildReturning { (getDeps, depsState) =>
-        val next = getDeps()
-        val nextDepState =
-          depsState.value match {
-
-            // React is calling us again after the setState below
-            // Don't re-test reusability, we could end up in an infinite-loop (see #1027)
-            case Some(s) if s.skipTest =>
-              s.skipTest = false
-              s
-
-            // Previous result can be reused
-            case Some(prevState) if r.test(prevState.value, next) =>
-              prevState
-
-            // Not reusable
-            case o =>
-              val nextRev     = o.fold(1)(_.rev + 1)
-              val nextState   = ReusableDepState(next, nextRev)
-              val updateState = depsState.setState(Some(nextState)) // this causes a hook re-eval
-              DefaultEffects.Sync.runSync(updateState)
-              nextState
-          }
-        nextDepState.asTuple
-      }
+      .buildReturning((d, s) => reusableDepsLogic(d())(s).asTuple)
 
   def reusableByDeps[D, A](create: (D, Int) => A)(implicit r: Reusability[D]): CustomHook[() => D, Reusable[A]] =
     reusableDeps[D].map { case (d, rev) => Reusable.implicitly(rev).withValue(create(d, rev)) }

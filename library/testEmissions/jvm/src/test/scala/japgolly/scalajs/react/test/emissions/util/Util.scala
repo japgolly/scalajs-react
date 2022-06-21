@@ -40,37 +40,38 @@ import scala.io.AnsiColor._
 import japgolly.microlibs.testutil.TestUtilInternals._
 import japgolly.microlibs.testutil.LineDiff
       println()
-      val AE = List(actual, expect).map(_.split("\n"))
-      val List(as, es) = AE : @nowarn
-      val lim = as.length max es.length
-      val List(maxAllA,_) = AE.map(x => (0 :: x.iterator.map(_.length).toList).max) : @nowarn
-      // val mismtachingLines = (as.iterator.zip(es.iterator)).filter { case (a,e) => a !=* e }.toList
-      // val maxDiffA = (0 :: mismtachingLines.map(_._1.length)).max
-      // val maxLimitA = 80
-      // val maxA = if (maxAllA <= maxLimitA) maxAllA else if (maxLimitA >= maxDiffA) maxLimitA else maxDiffA
-      val maxLimitA = 100 // TODO: Make configurable by moving into config class
+      val EA = List(expect, actual).map(_.split("\n"))
+      val List(es, as) = EA : @nowarn
+      val lim = es.length max as.length
+      val List(maxAllE,_) = EA.map(x => (0 :: x.iterator.map(_.length).toList).max) : @nowarn
+      // val mismtachingLines = (es.iterator.zip(as.iterator)).filter { case (e,a) => e !=* a }.toList
+      // val maxDiffE = (0 :: mismtachingLines.map(_._1.length)).max
+      // val maxLimitE = 80
+      // val maxE = if (maxAllE <= maxLimitE) maxAllE else if (maxLimitE >= maxDiffE) maxLimitE else maxDiffE
+      val maxLimitE = 114 // TODO: Make configurable by moving into config class
       // TODO: Make colours configurable by moving into config class
       // TODO: Make diffing logic configurable by moving into config class
-      val maxA = maxAllA min maxLimitA
+      // TODO: Now I now why I keep finding the colours confusing! diff:red=del,green=add, assert:red=bad,green=good
+      val maxE = maxAllE min maxLimitE
       val maxL = lim.toString.length
-      if (maxL == 0 || maxA == 0)
+      if (maxL == 0 || maxE == 0)
         assertEqO(name, actual, expect)
       else {
         val nameSuffix = name.fold(RESET)(s":$RESET " + _)
-        val fmtWSA = RED_B + BLACK
         val fmtWSE = GREEN_B + BLACK
-        val fmtKOA = BLACK_B + BOLD_BRIGHT_RED
+        val fmtWSA = RED_B + BLACK
         val fmtKOE = BLACK_B + BOLD_BRIGHT_GREEN
-        val cmp    = if (as.length == es.length) "|" else if (as.length > es.length) ">" else "<"
-        println(s"${BRIGHT_YELLOW}assertMultiline$nameSuffix (${fmtKOA}actual$RESET $cmp ${fmtKOE}expect$RESET)")
+        val fmtKOA = BLACK_B + BOLD_BRIGHT_RED
+        val cmp    = if (as.length == es.length) "|" else if (es.length > as.length) ">" else "<"
+        println(s"${BRIGHT_YELLOW}assertMultiline$nameSuffix (${fmtKOE}expect$RESET $cmp ${fmtKOA}actual$RESET)")
 
         if (as.length == es.length) {
-          val fmtOK = s"${BRIGHT_BLACK}%${maxL}d: %-${maxA}s | | %s${RESET}\n"
-          val fmtWS = s"${WHITE}%${maxL}d: ${fmtWSA}%-${maxA}s${RESET}${WHITE} |≈| ${fmtWSE}%s${RESET}\n"
-          val fmtKO = s"${WHITE}%${maxL}d: ${fmtKOA}%-${maxA}s${RESET}${WHITE} |≠| ${fmtKOE}%s${RESET}\n"
+          val fmtOK = s"${BRIGHT_BLACK}%${maxL}d: %-${maxE}s | | %s${RESET}\n"
+          val fmtWS = s"${WHITE}%${maxL}d: ${fmtWSE}%-${maxE}s${RESET}${WHITE} |≈| ${fmtWSA}%s${RESET}\n"
+          val fmtKO = s"${WHITE}%${maxL}d: ${fmtKOE}%-${maxE}s${RESET}${WHITE} |≠| ${fmtKOA}%s${RESET}\n"
           def removeWhitespace(s: String) = s.filterNot(_.isWhitespace)
           for (i <- 0 until lim) {
-            val List(a, e) = AE.map(s => if (i >= s.length) "" else s(i)) : @nowarn
+            val List(e, a) = EA.map(s => if (i >= s.length) "" else s(i)) : @nowarn
 
             // val (fmt, a2, e2) =
             //   if (a == e)
@@ -90,14 +91,19 @@ import japgolly.microlibs.testutil.LineDiff
                 (fmtKO, false) // TODO: Make `true` configurable by moving into config class
 
             val l = i + 1
-            val w = maxA
-            @tailrec def go(x: String, y: String): Unit = {
-              printf(fmt, l, x.take(w), y.take(w))
+            val w = maxE
+            @tailrec def go(x: String, y: String, fmt2: Option[String]): Unit = {
+              fmt2 match {
+                case None    => printf(fmt, l, x.take(w), y.take(w))
+                case Some(f) => printf(f, x.take(w), y.take(w))
+              }
               val hasMore = (x.length max y.length) > w
-              if (hasMore && !truncate)
-                go(x.drop(w), y.drop(w))
+              if (hasMore && !truncate) {
+                def newFmt = fmt.replace(s"%${maxL}d:", " " * (maxL + 1))
+                go(x.drop(w), y.drop(w), fmt2.orElse(Some(newFmt)))
+              }
             }
-            go(a, e)
+            go(e, a, None)
           }
         } else {
           println(LineDiff(expect, actual).expectActualColoured)

@@ -7,6 +7,8 @@ import japgolly.scalajs.react.component.ScalaFn.Component
 import japgolly.scalajs.react.facade
 import japgolly.scalajs.react.facade.React
 import japgolly.scalajs.react.hooks.Api.*
+import japgolly.scalajs.react.hooks.CustomHook
+import japgolly.scalajs.react.hooks.CustomHook.ReusableDepState
 import japgolly.scalajs.react.hooks.HookCtx
 import japgolly.scalajs.react.internal.{Box, MacroLogger}
 import japgolly.scalajs.react.vdom.VdomNode
@@ -142,7 +144,7 @@ object HookMacros {
         self.asType.asInstanceOf[Tpe[A]]
     }
 
-    override type Expr[A]  = scala.quoted.Expr[A]
+    override type Expr[+A] = scala.quoted.Expr[A]
     override type Ref      = UntypedValDef.WithQuotes[q.type]
     override type Stmt     = q.reflect.Statement
     override type Term     = q.reflect.Term
@@ -152,7 +154,7 @@ object HookMacros {
     override protected def asTerm    [A] = _.asTerm
     override protected def Expr      [A] = _.asExprOf[Any].asInstanceOf[Expr[A]]
     override protected def refToTerm     = _.ref
-    override protected def showCode      = _.show(using q.reflect.Printer.TreeShortCode)
+    override           def showCode      = _.show(using q.reflect.Printer.TreeShortCode)
     override protected def showRaw       = _.show(using q.reflect.Printer.TreeStructure)
     override protected def typeOfTerm    = _.tpe.asTypeTree
     override protected def uninline      = _uninline
@@ -278,10 +280,33 @@ object HookMacros {
       '{ $hookArg.convert($ctx) }
 
     override protected def hookDepsEmptyArray =
-      '{ new js.Array[Any] }
+      '{ js.Array[Any]() }
+
+    override protected def hookDepsIntArray1 = i =>
+      '{ js.Array[Int]($i) }
 
     override protected def hooksVar[A] = implicit (tpe, body) =>
       '{ Hooks.Var[$tpe]($body) }
+
+    override protected def none[A] = implicit tpe =>
+      '{ None }
+
+    override protected def optionType[A] = {
+      case '[a] => Tpe.of[Option[a]].asInstanceOf[Type[Option[A]]]
+    }
+
+    override protected def reusableDepsLogic[D] = implicit (d, s, r, tpeD) =>
+      '{ CustomHook.reusableDepsLogic[D]($d)($s)($r) }
+
+    override protected def reusableDepStateRev = rds =>
+      '{ $rds.rev }
+
+    override protected def reusableDepStateType[D] = {
+      case '[d] => Tpe.of[ReusableDepState[d]].asInstanceOf[Type[ReusableDepState[D]]]
+    }
+
+    override protected def reusableDepStateValue[D] = implicit (rds, tpeD) =>
+      '{ $rds.value }
 
     override protected def scalaFn0[A] = implicit (tpe, body) =>
       '{ () => $body }
@@ -300,6 +325,9 @@ object HookMacros {
 
     override protected def useStateFn[S] = implicit (tpe, body) =>
       '{ React.useStateFn(() => Box[$tpe]($body)) }
+
+    override protected def useStateValue[S] = implicit (tpe, body) =>
+      '{ React.useStateValue(Box[$tpe]($body)) }
 
     override protected def useStateFromJsBoxed[S] = implicit (tpe, raw) =>
       '{ Hooks.UseState.fromJsBoxed[$tpe]($raw) }
@@ -439,7 +467,7 @@ object HookMacros {
           onFailure(err.getMessage())
       }
 
-    log.footer(result.show)
+    log.footer(hookMacros.showCode(result.asTerm))
     result
   }
 

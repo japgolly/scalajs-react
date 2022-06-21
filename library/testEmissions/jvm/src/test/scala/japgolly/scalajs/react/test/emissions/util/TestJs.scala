@@ -57,7 +57,7 @@ object TestJs {
           .replace("$less$up", "")
           .replace("japgolly_scalajs_react_", "sjr_")
           .replace("japgolly$scalajs$react$", "sjr$")
-          .replaceAll("\\$\\d+", "\\$0") // change `this$24` etc into just `this$0`
+          .replaceAll("(\\$(?:\\$x)?)\\d+", "$10") // change `this$24` etc into just `this$0`
           .replaceAll("scala_scalajs_runtime_(?=AnonFunction|WrappedVarArgs)", "")
         )
         .filterNot(objectInit)
