@@ -65,7 +65,10 @@ object AbstractHookMacros {
 
     // Don't make this an eager val. It depends on `val hookNo`
     protected def hookName =
-      "hook" + hookNo
+      if (hookNo < 0)
+        "render"
+      else
+        "hook" + hookNo
 
     final def +=(stmt: Stmt): Unit =
       _stmts :+= stmt
@@ -93,15 +96,19 @@ object AbstractHookMacros {
       bridge.refToTerm(ctx)
     }
 
-    final def createHook(body: Term): Ref =
+    final def createHook(body: Term): Ref = {
+      assert(hookNo > 0)
       valDef(body, "")
+    }
 
-    final def createHook(body: Term, discard: Boolean): Option[Ref] =
+    final def createHook(body: Term, discard: Boolean): Option[Ref] = {
+      assert(hookNo > 0)
       if (discard) {
         this += body
         None
       } else
         Some(createHook(body))
+    }
 
     final def createRaw(body: Term, isLazy: Boolean = false): Ref =
       valDef(body, "_raw", isLazy = isLazy)
@@ -134,9 +141,9 @@ object AbstractHookMacros {
       @inline def isScala3 = scalaVer == 3
     }
 
-    def init[Stmt, Term <: Stmt, Ref](ctx        : InitialCtx[Stmt, Term],
-                                      bridg      : Bridge[Stmt, Term, Ref],
-                                      useChildren: Boolean): HookRewriter[Stmt, Term, Ref] =
+    def start[Stmt, Term <: Stmt, Ref](ctx        : InitialCtx[Stmt, Term],
+                                       bridg      : Bridge[Stmt, Term, Ref],
+                                       useChildren: Boolean): HookRewriter[Stmt, Term, Ref] =
       new HookRewriter[Stmt, Term, Ref] {
         override           val bridge       = bridg
         override protected val hookNo       = 1
@@ -153,6 +160,16 @@ object AbstractHookMacros {
         override protected val initialCtx   = prev.initialCtx
         override protected def initialStmts = prev.stmts()
         override protected val prevHooks    = newHook.fold(prev.prevHooks)(prev.prevHooks :+ prev.bridge.refToTerm(_))
+        override protected val usesChildren = prev.usesChildren
+      }
+
+    def end[Stmt, Term <: Stmt, Ref](prev: HookRewriter[Stmt, Term, Ref]): HookRewriter[Stmt, Term, Ref] =
+      new HookRewriter[Stmt, Term, Ref] {
+        override           val bridge       = prev.bridge
+        override protected val hookNo       = -1
+        override protected val initialCtx   = prev.initialCtx
+        override protected def initialStmts = prev.stmts()
+        override protected val prevHooks    = prev.prevHooks
         override protected val usesChildren = prev.usesChildren
       }
   }
@@ -295,12 +312,13 @@ trait AbstractHookMacros {
       hookFns  <- traverseVector(hookSteps)(rewriteStep)
       renderFn <- rewriteRender(renderStep)
     } yield rctx => {
-      val r0   = HookRewriter.init(rctx, rewriterBridge, withPropsChildren)
+      val r0   = HookRewriter.start(rctx, rewriterBridge, withPropsChildren)
       val rH   = hookFns.foldLeft(r0)((r, hf) => HookRewriter.next(r)(hf(r)))
-      val vdom = renderFn(rH)
+      val rR   = HookRewriter.end(rH)
+      val vdom = renderFn(rR)
 
       import AutoTypeImplicits._
-      wrap(rH.stmts(), vdomRawNode(vdom))
+      wrap(rR.stmts(), vdomRawNode(vdom))
     }
   }
 
