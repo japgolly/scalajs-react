@@ -1,14 +1,6 @@
 ```scala
 // Api.scala
 
-def useContext                          [A](ctx: Context[A])(implicit step: Step): step.Next[A]
-def useContextBy                        [A](f: Ctx => Context[A])(implicit step: Step): step.Next[A]
-def useContextBy                        [A](f: CtxFn[Context[A]])(implicit step: Step): step.Next[A]
-
-def useDebugValue                       (desc: => Any)(implicit step: Step): step.Self
-def useDebugValueBy                     (desc: Ctx => Any)(implicit step: Step): step.Self
-def useDebugValueBy                     (f: CtxFn[Any])(implicit step: Step): step.Self
-
 def useEffect                           [A](effect: A)(implicit a: UseEffectArg[A], step: Step): step.Self
 def useEffectBy                         [A](init: Ctx => A)(implicit a: UseEffectArg[A], step: Step): step.Self
 def useEffectBy                         [A](init: CtxFn[A])(implicit a: UseEffectArg[A], step: Step): step.Self
@@ -31,10 +23,6 @@ def useLayoutEffectOnMountBy            [A](effect: CtxFn[A])(implicit a: UseEff
 def useLayoutEffectWithDeps             [D, A](deps: => D)(effect: D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self
 def useLayoutEffectWithDepsBy           [D, A](deps: Ctx => D)(effect: Ctx => D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self
 def useLayoutEffectWithDepsBy           [D, A](deps: CtxFn[D])(effect: CtxFn[D => A])(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self
-
-def useReducer                          [S, A](reducer: (S, A) => S, initialState: => S)(implicit step: Step): step.Next[UseReducer[S, A]]
-def useReducerBy                        [S, A](reducer: Ctx => (S, A) => S, initialState: Ctx => S)(implicit step: Step): step.Next[UseReducer[S, A]]
-def useReducerBy                        [S, A](reducer: CtxFn[(S, A) => S], initialState: CtxFn[S])(implicit step: Step): step.Next[UseReducer[S, A]]
 
 def useRef                              [A](initialValue: => A)(implicit step: Step): step.Next[UseRef[A]]
 def useRefBy                            [A](f: CtxFn[A])(implicit step: Step): step.Next[UseRef[A]]

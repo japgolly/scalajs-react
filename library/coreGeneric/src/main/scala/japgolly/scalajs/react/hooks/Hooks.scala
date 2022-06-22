@@ -131,9 +131,9 @@ object Hooks {
       unsafeCreate[Null, S, A](reducer, null, _ => initialState)
 
     def unsafeCreate[I, S, A](reducer: (S, A) => S, initialArg: I, init: I => S): UseReducer[S, A] =
-      _unsafeCreate(facade.React.useReducer[I, S, A](reducer, initialArg, init))
+      fromJs(facade.React.useReducer[I, S, A](reducer, initialArg, init))
 
-    private def _unsafeCreate[S, A](originalResult: facade.React.UseReducer[S, A]): UseReducer[S, A] = {
+    def fromJs[S, A](originalResult: facade.React.UseReducer[S, A]): UseReducer[S, A] = {
       val originalDispatch = Reusable.byRef(originalResult._2)
       UseReducer(originalResult, originalDispatch)
     }

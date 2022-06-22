@@ -326,8 +326,20 @@ object HookMacros {
     override protected def useCallbackArgTypeJs[A, J <: js.Function] = x =>
       TypeSelect(x.asTerm, "J").asTypeOf[J]
 
+    override protected def useContext[A] = implicit (ctx, tpe) =>
+      '{ React.useContext($ctx.raw) }
+
+    override protected def useDebugValue = desc =>
+      '{ React.useDebugValue[Null](null, _ => $desc) }
+
     override protected def useMemo[A] = implicit (a, d, tpeA) =>
       '{ React.useMemo(() => $a, $d) }
+
+    override protected def useReducer[S, A] = implicit (r, s, tpeS, tpeA) =>
+      '{ React.useReducer[Null, $tpeS, $tpeA](js.Any.fromFunction2($r), null, _ => $s) }
+
+    override protected def useReducerFromJs[S, A] = implicit (raw, tpeS, tpeA) =>
+      '{ Hooks.UseReducer.fromJs($raw) }
 
     override protected def useStateFn[S] = implicit (tpe, body) =>
       '{ React.useStateFn(() => Box[$tpe]($body)) }

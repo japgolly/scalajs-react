@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.hooks
 
+import japgolly.scalajs.react.React.Context
 import japgolly.scalajs.react.facade.React
 import japgolly.scalajs.react.facade.React.HookDeps
 import japgolly.scalajs.react.hooks.CustomHook.ReusableDepState
@@ -451,6 +452,18 @@ trait AbstractHookMacros {
           createUseCallbackHook[X](b, ucArg, callback, hookDeps, tpeC)
         }
 
+      case "useContext" | "useContextBy" =>
+        val (List(tpe), List(List(ctxFn), List(_))) = step.sig : @nowarn
+        maybeBy(ctxFn) { (b, withCtx) =>
+          b.createHook(useContext[X](withCtx(ctxFn), tpe))
+        }
+
+      case "useDebugValue" | "useDebugValueBy" =>
+        val (Nil, List(List(descFn), List(_))) = step.sig : @nowarn
+        maybeBy(descFn) { (b, withCtx) =>
+          b.createHook(useDebugValue(withCtx(descFn)), discard = true)
+        }
+
       case "useMemo" | "useMemoBy" =>
         val (List(tpeD, tpeA), List(List(depsFn), List(createFnFn), List(reuse, _))) = step.sig : @nowarn
         maybeBy(depsFn) { (b, withCtx) =>
@@ -464,17 +477,26 @@ trait AbstractHookMacros {
           }
         }
 
+      case "useReducer" | "useReducerBy" =>
+        val (List(tpeS, tpeA), List(List(reducerFn, initialStateFn), List(_))) = step.sig : @nowarn
+        maybeBy(reducerFn) { (b, withCtx) =>
+          val reducer      = withCtx(reducerFn)
+          val initialState = withCtx(initialStateFn)
+          val raw          = b.createRaw(useReducer[X, Y](reducer, initialState, tpeS, tpeA))
+          b.createHook(useReducerFromJs[X, Y](raw, tpeS, tpeA))
+        }
+
       case "useState" | "useStateBy" =>
-        val (List(tpe), List(List(initialState), List(_))) = step.sig : @nowarn
-        maybeBy(initialState) { (b, withCtx) =>
-          val raw = b.createRaw(useStateFn[X](tpe, withCtx(initialState)))
+        val (List(tpe), List(List(initialStateFn), List(_))) = step.sig : @nowarn
+        maybeBy(initialStateFn) { (b, withCtx) =>
+          val raw = b.createRaw(useStateFn[X](tpe, withCtx(initialStateFn)))
           b.createHook(useStateFromJsBoxed[X](tpe, raw))
         }
 
       case "useStateWithReuse" | "useStateWithReuseBy" =>
-        val (List(tpe), List(List(initialState), List(ct, reuse, _)))  = step.sig : @nowarn
-        maybeBy(initialState) { (b, withCtx) =>
-          val raw = b.createRaw(useStateFn[X](tpe, withCtx(initialState)))
+        val (List(tpe), List(List(initialStateFn), List(ct, reuse, _)))  = step.sig : @nowarn
+        maybeBy(initialStateFn) { (b, withCtx) =>
+          val raw = b.createRaw(useStateFn[X](tpe, withCtx(initialStateFn)))
           b.createHook(useStateWithReuseFromJsBoxed[X](tpe, raw, reuse, ct))
         }
 
@@ -517,7 +539,15 @@ trait AbstractHookMacros {
 
   protected def useCallbackArgTypeJs[A, J <: js.Function]: (Expr[Hooks.UseCallbackArg.To[A, J]]) => Type[J]
 
+  protected def useContext[A]: (Expr[Context[A]], Type[A]) => Expr[A]
+
+  protected def useDebugValue: Expr[Any] => Expr[Unit]
+
   protected def useMemo[A]: (Expr[A], Expr[HookDeps], Type[A]) => Expr[A]
+
+  protected def useReducer[S, A]: (Expr[(S, A) => S], Expr[S], Type[S], Type[A]) => Expr[React.UseReducer[S, A]]
+
+  protected def useReducerFromJs[S, A]: (Expr[React.UseReducer[S, A]], Type[S], Type[A]) => Expr[Hooks.UseReducer[S, A]]
 
   protected def useStateFn[S]: (Type[S], Expr[S]) => Expr[React.UseState[Box[S]]]
 

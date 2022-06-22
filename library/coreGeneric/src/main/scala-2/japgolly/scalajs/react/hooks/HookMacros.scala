@@ -218,8 +218,20 @@ class HookMacros(val c: Context) extends MacroUtils {
     override protected def useCallbackArgTypeJs[A, J <: js.Function] = _ =>
       null // Not used in Scala 2 (i.e. in useCallbackArg{From,To}Js)
 
+    override protected def useContext[A] = (ctx, _) =>
+      q"$React.useContext($ctx.raw)"
+
+    override protected def useDebugValue = desc =>
+      q"$React.useDebugValue[Null](null, _ => $desc)"
+
     override protected def useMemo[A] = (a, d, _) =>
       q"$React.useMemo(() => $a, $d)"
+
+    override protected def useReducer[S, A] = (r, s, tpeS, tpeA) =>
+      q"$React.useReducer[Null, $tpeS, $tpeA]($r, null, _ => $s)"
+
+    override protected def useReducerFromJs[S, A] = (raw, _, _) =>
+      q"$Hooks.UseReducer.fromJs($raw)"
 
     override protected def useStateFn[S] = (tpe, body) =>
       q"$React.useStateFn(() => $Box[$tpe]($body))"

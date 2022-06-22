@@ -17,6 +17,7 @@ object Main {
       CustomHooks                .Component(0),
       CustomHooksBy              .Component(0),
       HooksPrimative             .Component(),
+      HooksTrivial               .Component(0),
       HooksWithChildrenCtxFn     .Component(0)(<.div),
       HooksWithChildrenCtxObj    .Component(0)(<.div),
       HooksWithJsFns             .Component(0),
