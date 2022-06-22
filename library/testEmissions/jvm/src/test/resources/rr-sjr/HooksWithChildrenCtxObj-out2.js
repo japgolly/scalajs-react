@@ -39,17 +39,20 @@ $c_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxObj$.prototype.jap
   _s();
 
   var children = $j_japgolly$002escalajs$002ereact$002ePropsChildren$0024.$m_Ljapgolly_scalajs_react_PropsChildren$().fromRawProps__sjs_js_Object__sjs_js_Any(props);
-  var hook1_raw = $i_react.useState(() => {
+
+  var _＿japgolly_＿hook1_raw = $i_react.useState(() => {
     $m_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxObj$();
     return $j_japgolly$002escalajs$002ereact$002einternal$002eBox$0024.$m_Ljapgolly_scalajs_react_internal_Box$().apply__O__Ljapgolly_scalajs_react_internal_Box(123);
   });
-  var hook1 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseState$0024.$m_Ljapgolly_scalajs_react_hooks_Hooks$UseState$().fromJsBoxed__sjs_js_Tuple2__Ljapgolly_scalajs_react_hooks_Hooks$UseStateF(hook1_raw);
+
+  var _＿japgolly_＿hook1 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseState$0024.$m_Ljapgolly_scalajs_react_hooks_Hooks$UseState$().fromJsBoxed__sjs_js_Tuple2__Ljapgolly_scalajs_react_hooks_Hooks$UseStateF(_＿japgolly_＿hook1_raw);
+
   var props$1 = props.a;
-  var sum = ((props$1 | 0) + (hook1.Ljapgolly_scalajs_react_hooks_Hooks$UseStateF$$anon$2__f_raw[0] | 0) | 0) + $j_japgolly$002escalajs$002ereact$002ePropsChildren$0024.$m_Ljapgolly_scalajs_react_PropsChildren$().count$extension__sjs_js_Any__I(children) | 0;
+  var sum = ((props$1 | 0) + (_＿japgolly_＿hook1.Ljapgolly_scalajs_react_hooks_Hooks$UseStateF$$anon$2__f_raw[0] | 0) | 0) + $j_japgolly$002escalajs$002ereact$002ePropsChildren$0024.$m_Ljapgolly_scalajs_react_PropsChildren$().count$extension__sjs_js_Any__I(children) | 0;
   $j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$();
   $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024.$m_Ljapgolly_scalajs_react_vdom_VdomNode$();
   return new $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024$0024anon$00241.$c_Ljapgolly_scalajs_react_vdom_VdomNode$$anon$1(sum).Ljapgolly_scalajs_react_vdom_VdomNode$$anon$1__f_n$1;
-}, "cFmG9aM+zFKRZ0BlWulKs0faOP4=");
+}, "hmdkt3mZsFWuMhW4QTMYhjqDiVQ=");
 var $d_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxObj$ = new $j_java$002elang$002eObject.$TypeData().initClass({
   Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxObj$: 0
 }, false, "japgolly.scalajs.react.test.emissions.HooksWithChildrenCtxObj$", {

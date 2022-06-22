@@ -43,10 +43,14 @@ function $c_Ljapgolly_scalajs_react_test_emissions_HooksTrivial$() {
     return _s(props => {
       _s();
 
-      var hook1 = $i_react.useContext(this$3.Ljapgolly_scalajs_react_test_emissions_HooksTrivial$__f_ctx.Ljapgolly_scalajs_react_feature_Context$$anon$3__f_raw) | 0;
+      var _＿japgolly_＿hook1 = $i_react.useContext(this$3.Ljapgolly_scalajs_react_test_emissions_HooksTrivial$__f_ctx.Ljapgolly_scalajs_react_feature_Context$$anon$3__f_raw) | 0;
+
       props.a;
-      var hook2 = $i_react.useContext(this$3.Ljapgolly_scalajs_react_test_emissions_HooksTrivial$__f_ctx.Ljapgolly_scalajs_react_feature_Context$$anon$3__f_raw) | 0;
-      var hook3 = $i_react.useContext((props.a | 0, this$3.Ljapgolly_scalajs_react_test_emissions_HooksTrivial$__f_ctx.Ljapgolly_scalajs_react_feature_Context$$anon$3__f_raw)) | 0;
+
+      var _＿japgolly_＿hook2 = $i_react.useContext(this$3.Ljapgolly_scalajs_react_test_emissions_HooksTrivial$__f_ctx.Ljapgolly_scalajs_react_feature_Context$$anon$3__f_raw) | 0;
+
+      var _＿japgolly_＿hook3 = $i_react.useContext((props.a | 0, this$3.Ljapgolly_scalajs_react_test_emissions_HooksTrivial$__f_ctx.Ljapgolly_scalajs_react_feature_Context$$anon$3__f_raw)) | 0;
+
       $i_react.useDebugValue(null, new $j_scala$002eFunction1.$c_sjsr_AnonFunction1(_$20 => {
         if (_$20 !== null) {
           throw new $j_java$002elang$002eClassCastException.$c_jl_ClassCastException();
@@ -72,7 +76,8 @@ function $c_Ljapgolly_scalajs_react_test_emissions_HooksTrivial$() {
         ;
         return 987;
       }));
-      var hook7_raw = $i_react.useReducer($j_scala$002escalajs$002ejs$002eAny$0024.$m_sjs_js_Any$().fromFunction2__F2__sjs_js_Function2($p_Ljapgolly_scalajs_react_test_emissions_HooksTrivial$__add__I__F2(this$3, 0)), null, _$21 => {
+
+      var _＿japgolly_＿hook7_raw = $i_react.useReducer($j_scala$002escalajs$002ejs$002eAny$0024.$m_sjs_js_Any$().fromFunction2__F2__sjs_js_Function2($p_Ljapgolly_scalajs_react_test_emissions_HooksTrivial$__add__I__F2(this$3, 0)), null, _$21 => {
         if (_$21 !== null) {
           throw new $j_java$002elang$002eClassCastException.$c_jl_ClassCastException();
         }
@@ -80,11 +85,14 @@ function $c_Ljapgolly_scalajs_react_test_emissions_HooksTrivial$() {
         ;
         return 100;
       });
-      var hook7 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseReducer$0024.$m_Ljapgolly_scalajs_react_hooks_Hooks$UseReducer$().fromJs__sjs_js_Tuple2__Ljapgolly_scalajs_react_hooks_Hooks$UseReducer(hook7_raw);
+
+      var _＿japgolly_＿hook7 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseReducer$0024.$m_Ljapgolly_scalajs_react_hooks_Hooks$UseReducer$().fromJs__sjs_js_Tuple2__Ljapgolly_scalajs_react_hooks_Hooks$UseReducer(_＿japgolly_＿hook7_raw);
+
       var $$x2 = $i_react;
       var $$x1 = $j_scala$002escalajs$002ejs$002eAny$0024.$m_sjs_js_Any$();
       var p = props.a | 0;
-      var hook8_raw = $$x2.useReducer($$x1.fromFunction2__F2__sjs_js_Function2($p_Ljapgolly_scalajs_react_test_emissions_HooksTrivial$__add__I__F2(this$3, p)), null, ((props$2$1, hook1$2, hook2$2, hook3$2, hook7$2) => _$21$2 => {
+
+      var _＿japgolly_＿hook8_raw = $$x2.useReducer($$x1.fromFunction2__F2__sjs_js_Function2($p_Ljapgolly_scalajs_react_test_emissions_HooksTrivial$__add__I__F2(this$3, p)), null, ((props$2$1, _＿japgolly_＿hook1$2, _＿japgolly_＿hook2$2, _＿japgolly_＿hook3$2, _＿japgolly_＿hook7$2) => _$21$2 => {
         if (_$21$2 !== null) {
           throw new $j_java$002elang$002eClassCastException.$c_jl_ClassCastException();
         }
@@ -93,31 +101,38 @@ function $c_Ljapgolly_scalajs_react_test_emissions_HooksTrivial$() {
 
         var _$16 = props$2$1.a | 0;
 
-        return (((_$16 + hook1$2 | 0) + hook2$2 | 0) + hook3$2 | 0) + (hook7$2.Ljapgolly_scalajs_react_hooks_Hooks$UseReducer__f_raw[0] | 0) | 0;
-      })(props, hook1, hook2, hook3, hook7));
-      var hook8 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseReducer$0024.$m_Ljapgolly_scalajs_react_hooks_Hooks$UseReducer$().fromJs__sjs_js_Tuple2__Ljapgolly_scalajs_react_hooks_Hooks$UseReducer(hook8_raw);
+        return (((_$16 + _＿japgolly_＿hook1$2 | 0) + _＿japgolly_＿hook2$2 | 0) + _＿japgolly_＿hook3$2 | 0) + (_＿japgolly_＿hook7$2.Ljapgolly_scalajs_react_hooks_Hooks$UseReducer__f_raw[0] | 0) | 0;
+      })(props, _＿japgolly_＿hook1, _＿japgolly_＿hook2, _＿japgolly_＿hook3, _＿japgolly_＿hook7));
+
+      var _＿japgolly_＿hook8 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseReducer$0024.$m_Ljapgolly_scalajs_react_hooks_Hooks$UseReducer$().fromJs__sjs_js_Tuple2__Ljapgolly_scalajs_react_hooks_Hooks$UseReducer(_＿japgolly_＿hook8_raw);
+
       var props$3 = props.a;
-      var hook9_ctx = new $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024P5.$c_Ljapgolly_scalajs_react_hooks_HookCtx$P5(props$3, hook1, hook2, hook3, hook7, hook8);
+
+      var _＿japgolly_＿hook9_ctx = new $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024P5.$c_Ljapgolly_scalajs_react_hooks_HookCtx$P5(props$3, _＿japgolly_＿hook1, _＿japgolly_＿hook2, _＿japgolly_＿hook3, _＿japgolly_＿hook7, _＿japgolly_＿hook8);
+
       var $$x4 = $i_react;
       var $$x3 = $j_scala$002escalajs$002ejs$002eAny$0024.$m_sjs_js_Any$();
-      var this$8 = hook9_ctx.Ljapgolly_scalajs_react_hooks_HookCtx$P4__f_hook4;
-      var hook9_raw = $$x4.useReducer($$x3.fromFunction2__F2__sjs_js_Function2($p_Ljapgolly_scalajs_react_test_emissions_HooksTrivial$__add__I__F2(this$3, this$8.Ljapgolly_scalajs_react_hooks_Hooks$UseReducer__f_raw[0] | 0)), null, (hook9_ctx$2 => _$21$3 => {
+      var this$8 = _＿japgolly_＿hook9_ctx.Ljapgolly_scalajs_react_hooks_HookCtx$P4__f_hook4;
+
+      var _＿japgolly_＿hook9_raw = $$x4.useReducer($$x3.fromFunction2__F2__sjs_js_Function2($p_Ljapgolly_scalajs_react_test_emissions_HooksTrivial$__add__I__F2(this$3, this$8.Ljapgolly_scalajs_react_hooks_Hooks$UseReducer__f_raw[0] | 0)), null, (_＿japgolly_＿hook9_ctx$2 => _$21$3 => {
         if (_$21$3 !== null) {
           throw new $j_java$002elang$002eClassCastException.$c_jl_ClassCastException();
         }
 
         ;
-        var $$x6 = hook9_ctx$2.Ljapgolly_scalajs_react_hooks_HookCtx$P0__f_props;
-        var this$9 = hook9_ctx$2.Ljapgolly_scalajs_react_hooks_HookCtx$P4__f_hook4;
+        var $$x6 = _＿japgolly_＿hook9_ctx$2.Ljapgolly_scalajs_react_hooks_HookCtx$P0__f_props;
+        var this$9 = _＿japgolly_＿hook9_ctx$2.Ljapgolly_scalajs_react_hooks_HookCtx$P4__f_hook4;
         var $$x5 = this$9.Ljapgolly_scalajs_react_hooks_Hooks$UseReducer__f_raw[0];
-        var this$10 = hook9_ctx$2.Ljapgolly_scalajs_react_hooks_HookCtx$P5__f_hook5;
+        var this$10 = _＿japgolly_＿hook9_ctx$2.Ljapgolly_scalajs_react_hooks_HookCtx$P5__f_hook5;
         return (($$x6 | 0) + ($$x5 | 0) | 0) + (this$10.Ljapgolly_scalajs_react_hooks_Hooks$UseReducer__f_raw[0] | 0) | 0;
-      })(hook9_ctx));
-      var hook9 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseReducer$0024.$m_Ljapgolly_scalajs_react_hooks_Hooks$UseReducer$().fromJs__sjs_js_Tuple2__Ljapgolly_scalajs_react_hooks_Hooks$UseReducer(hook9_raw);
+      })(_＿japgolly_＿hook9_ctx));
+
+      var _＿japgolly_＿hook9 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseReducer$0024.$m_Ljapgolly_scalajs_react_hooks_Hooks$UseReducer$().fromJs__sjs_js_Tuple2__Ljapgolly_scalajs_react_hooks_Hooks$UseReducer(_＿japgolly_＿hook9_raw);
+
       props.a | 0;
-      var sum = ((((hook1 + hook2 | 0) + hook3 | 0) + (hook7.Ljapgolly_scalajs_react_hooks_Hooks$UseReducer__f_raw[0] | 0) | 0) + (hook8.Ljapgolly_scalajs_react_hooks_Hooks$UseReducer__f_raw[0] | 0) | 0) + (hook9.Ljapgolly_scalajs_react_hooks_Hooks$UseReducer__f_raw[0] | 0) | 0;
+      var sum = ((((_＿japgolly_＿hook1 + _＿japgolly_＿hook2 | 0) + _＿japgolly_＿hook3 | 0) + (_＿japgolly_＿hook7.Ljapgolly_scalajs_react_hooks_Hooks$UseReducer__f_raw[0] | 0) | 0) + (_＿japgolly_＿hook8.Ljapgolly_scalajs_react_hooks_Hooks$UseReducer__f_raw[0] | 0) | 0) + (_＿japgolly_＿hook9.Ljapgolly_scalajs_react_hooks_Hooks$UseReducer__f_raw[0] | 0) | 0;
       return ($j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$(), $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024.$m_Ljapgolly_scalajs_react_vdom_VdomNode$(), new $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024$0024anon$00241.$c_Ljapgolly_scalajs_react_vdom_VdomNode$$anon$1(sum)).Ljapgolly_scalajs_react_vdom_VdomNode$$anon$1__f_n$1;
-    }, "zl82e0xbdVDV2cVfnLQXAL1/XBw=");
+    }, "hviLnwV7rVkoQrGLOuNFxEV4+eM=");
   })(this);
 
   var $$x7 = $j_japgolly$002escalajs$002ereact$002ecomponent$002eScalaFn$0024.$m_Ljapgolly_scalajs_react_component_ScalaFn$();

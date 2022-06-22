@@ -63,12 +63,16 @@ function $c_Ljapgolly_scalajs_react_test_emissions_CustomHooks$() {
   }));
 
   var rawComponent = (this$6$1 => props => {
-    var hook1_arg = $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024Arg$0024.$m_Ljapgolly_scalajs_react_hooks_CustomHook$Arg$().exactId__F1().apply__O__O(props.a) | 0;
-    var hook1 = this$6$1.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook1.apply__O__O(hook1_arg);
+    var _＿japgolly_＿hook1_arg = $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024Arg$0024.$m_Ljapgolly_scalajs_react_hooks_CustomHook$Arg$().exactId__F1().apply__O__O(props.a) | 0;
+
+    var _＿japgolly_＿hook1 = this$6$1.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook1.apply__O__O(_＿japgolly_＿hook1_arg);
+
     this$6$1.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook2.apply__O__O(void 0);
-    var hook3 = this$6$1.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook3.apply__O__O(void 0);
+
+    var _＿japgolly_＿hook3 = this$6$1.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook3.apply__O__O(void 0);
+
     var p = props.a | 0;
-    var sum = (p + (hook1.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0] | 0) | 0) + (hook3.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0] | 0) | 0;
+    var sum = (p + (_＿japgolly_＿hook1.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0] | 0) | 0) + (_＿japgolly_＿hook3.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0] | 0) | 0;
     var this$17 = $j_japgolly$002escalajs$002ereact$002evdom$002eHtmlTagOf$0024.$m_Ljapgolly_scalajs_react_vdom_HtmlTagOf$();
     $j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$();
     $j_japgolly$002escalajs$002ereact$002evdom$002eExports$0024.$m_Ljapgolly_scalajs_react_vdom_Exports$();

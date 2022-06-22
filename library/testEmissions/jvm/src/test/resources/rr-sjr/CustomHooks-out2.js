@@ -75,11 +75,16 @@ $h_Ljapgolly_scalajs_react_test_emissions_CustomHooks$.prototype = $c_Ljapgolly_
 $c_Ljapgolly_scalajs_react_test_emissions_CustomHooks$.prototype.japgolly$scalajs$react$test$emissions$CustomHooks$$$anonfun$Component$1__Ljapgolly_scalajs_react_internal_Box__sjs_js_$bar = function (props) {
   var this$1 = $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024Arg$0024.$m_Ljapgolly_scalajs_react_hooks_CustomHook$Arg$().exactId__F1();
   var v1 = props.a | 0;
-  var hook1_arg = this$1.apply__O__O(v1) | 0;
-  var hook1 = $m_Ljapgolly_scalajs_react_test_emissions_CustomHooks$().Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook1.apply__O__O(hook1_arg);
+
+  var _＿japgolly_＿hook1_arg = this$1.apply__O__O(v1) | 0;
+
+  var _＿japgolly_＿hook1 = $m_Ljapgolly_scalajs_react_test_emissions_CustomHooks$().Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook1.apply__O__O(_＿japgolly_＿hook1_arg);
+
   $m_Ljapgolly_scalajs_react_test_emissions_CustomHooks$().Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook2.apply__O__O(void 0);
-  var hook3 = $m_Ljapgolly_scalajs_react_test_emissions_CustomHooks$().Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook3.apply__O__O(void 0);
-  var sum = ((props.a | 0) + (hook1.Ljapgolly_scalajs_react_hooks_Hooks$UseStateF$$anon$2__f_raw[0] | 0) | 0) + (hook3.Ljapgolly_scalajs_react_hooks_Hooks$UseStateF$$anon$2__f_raw[0] | 0) | 0;
+
+  var _＿japgolly_＿hook3 = $m_Ljapgolly_scalajs_react_test_emissions_CustomHooks$().Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook3.apply__O__O(void 0);
+
+  var sum = ((props.a | 0) + (_＿japgolly_＿hook1.Ljapgolly_scalajs_react_hooks_Hooks$UseStateF$$anon$2__f_raw[0] | 0) | 0) + (_＿japgolly_＿hook3.Ljapgolly_scalajs_react_hooks_Hooks$UseStateF$$anon$2__f_raw[0] | 0) | 0;
   var $$x1 = $j_japgolly$002escalajs$002ereact$002evdom$002eHtmlTagOf$0024.$m_Ljapgolly_scalajs_react_vdom_HtmlTagOf$();
   $j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$();
   $j_japgolly$002escalajs$002ereact$002evdom$002eExports$0024.$m_Ljapgolly_scalajs_react_vdom_Exports$();

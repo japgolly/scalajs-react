@@ -13,39 +13,39 @@ import * as $j_java$002elang$002eNullPointerException from "./java.lang.NullPoin
 import * as $j_java$002elang$002eObject from "./java.lang.Object.js";
 import * as $j_scala$002eruntime$002eLazyInt from "./scala.runtime.LazyInt.js";
 
-function $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$__hook5_raw$lzyINIT1$1__sr_LazyInt__I($thiz, hook5_raw$lzy1$1) {
-  if (hook5_raw$lzy1$1 === null) {
+function $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$___＿japgolly_＿hook5_raw$lzyINIT1$1__sr_LazyInt__I($thiz, _＿japgolly_＿hook5_raw$lzy1$1) {
+  if (_＿japgolly_＿hook5_raw$lzy1$1 === null) {
     throw new $j_java$002elang$002eNullPointerException.$c_jl_NullPointerException();
   }
 
   ;
-  return hook5_raw$lzy1$1.sr_LazyInt__f__initialized ? hook5_raw$lzy1$1.sr_LazyInt__f__value : hook5_raw$lzy1$1.initialize__I__I(5555);
+  return _＿japgolly_＿hook5_raw$lzy1$1.sr_LazyInt__f__initialized ? _＿japgolly_＿hook5_raw$lzy1$1.sr_LazyInt__f__value : _＿japgolly_＿hook5_raw$lzy1$1.initialize__I__I(5555);
 }
 
-export { $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$__hook5_raw$lzyINIT1$1__sr_LazyInt__I };
+export { $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$___＿japgolly_＿hook5_raw$lzyINIT1$1__sr_LazyInt__I };
 
-function $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$__hook5_raw$1__sr_LazyInt__I($thiz, hook5_raw$lzy1$2) {
-  return hook5_raw$lzy1$2.sr_LazyInt__f__initialized ? hook5_raw$lzy1$2.sr_LazyInt__f__value : $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$__hook5_raw$lzyINIT1$1__sr_LazyInt__I($thiz, hook5_raw$lzy1$2);
+function $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$___＿japgolly_＿hook5_raw$1__sr_LazyInt__I($thiz, _＿japgolly_＿hook5_raw$lzy1$2) {
+  return _＿japgolly_＿hook5_raw$lzy1$2.sr_LazyInt__f__initialized ? _＿japgolly_＿hook5_raw$lzy1$2.sr_LazyInt__f__value : $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$___＿japgolly_＿hook5_raw$lzyINIT1$1__sr_LazyInt__I($thiz, _＿japgolly_＿hook5_raw$lzy1$2);
 }
 
-export { $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$__hook5_raw$1__sr_LazyInt__I };
+export { $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$___＿japgolly_＿hook5_raw$1__sr_LazyInt__I };
 
-function $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$__hook6_raw$lzyINIT1$1__sr_LazyInt__I($thiz, hook6_raw$lzy1$1) {
-  if (hook6_raw$lzy1$1 === null) {
+function $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$___＿japgolly_＿hook6_raw$lzyINIT1$1__sr_LazyInt__I($thiz, _＿japgolly_＿hook6_raw$lzy1$1) {
+  if (_＿japgolly_＿hook6_raw$lzy1$1 === null) {
     throw new $j_java$002elang$002eNullPointerException.$c_jl_NullPointerException();
   }
 
   ;
-  return hook6_raw$lzy1$1.sr_LazyInt__f__initialized ? hook6_raw$lzy1$1.sr_LazyInt__f__value : hook6_raw$lzy1$1.initialize__I__I(6666);
+  return _＿japgolly_＿hook6_raw$lzy1$1.sr_LazyInt__f__initialized ? _＿japgolly_＿hook6_raw$lzy1$1.sr_LazyInt__f__value : _＿japgolly_＿hook6_raw$lzy1$1.initialize__I__I(6666);
 }
 
-export { $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$__hook6_raw$lzyINIT1$1__sr_LazyInt__I };
+export { $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$___＿japgolly_＿hook6_raw$lzyINIT1$1__sr_LazyInt__I };
 
-function $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$__hook6_raw$1__sr_LazyInt__I($thiz, hook6_raw$lzy1$2) {
-  return hook6_raw$lzy1$2.sr_LazyInt__f__initialized ? hook6_raw$lzy1$2.sr_LazyInt__f__value : $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$__hook6_raw$lzyINIT1$1__sr_LazyInt__I($thiz, hook6_raw$lzy1$2);
+function $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$___＿japgolly_＿hook6_raw$1__sr_LazyInt__I($thiz, _＿japgolly_＿hook6_raw$lzy1$2) {
+  return _＿japgolly_＿hook6_raw$lzy1$2.sr_LazyInt__f__initialized ? _＿japgolly_＿hook6_raw$lzy1$2.sr_LazyInt__f__value : $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$___＿japgolly_＿hook6_raw$lzyINIT1$1__sr_LazyInt__I($thiz, _＿japgolly_＿hook6_raw$lzy1$2);
 }
 
-export { $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$__hook6_raw$1__sr_LazyInt__I };
+export { $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$___＿japgolly_＿hook6_raw$1__sr_LazyInt__I };
 
 function $c_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$() {
   this.Ljapgolly_scalajs_react_test_emissions_HooksPrimative$__f_Component = null;
@@ -53,25 +53,34 @@ function $c_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$() {
 
   var rawComponent = (this$1 => props => {
     new $j_scala$002eruntime$002eLazyInt.$c_sr_LazyInt();
-    var hook5_raw$lzy1 = new $j_scala$002eruntime$002eLazyInt.$c_sr_LazyInt();
-    var hook6_raw$lzy1 = new $j_scala$002eruntime$002eLazyInt.$c_sr_LazyInt();
+
+    var _＿japgolly_＿hook5_raw$lzy1 = new $j_scala$002eruntime$002eLazyInt.$c_sr_LazyInt();
+
+    var _＿japgolly_＿hook6_raw$lzy1 = new $j_scala$002eruntime$002eLazyInt.$c_sr_LazyInt();
+
     props.a;
     props.a;
-    var hook5_raw$lzy1$2 = hook5_raw$lzy1;
-    var hook6_raw$lzy1$2 = hook6_raw$lzy1;
+    var _＿japgolly_＿hook5_raw$lzy1$2 = _＿japgolly_＿hook5_raw$lzy1;
+    var _＿japgolly_＿hook6_raw$lzy1$2 = _＿japgolly_＿hook6_raw$lzy1;
     var this$5 = $j_japgolly$002escalajs$002ereact$002eutil$002eDefaultEffects$0024.$m_Ljapgolly_scalajs_react_util_DefaultEffects$();
-    var hook7 = new $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024VarF.$c_Ljapgolly_scalajs_react_hooks_Hooks$VarF(7777, this$5.Ljapgolly_scalajs_react_util_DefaultEffects$__f_Sync);
+
+    var _＿japgolly_＿hook7 = new $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024VarF.$c_Ljapgolly_scalajs_react_hooks_Hooks$VarF(7777, this$5.Ljapgolly_scalajs_react_util_DefaultEffects$__f_Sync);
+
     props.a;
     var this$8 = $j_japgolly$002escalajs$002ereact$002eutil$002eDefaultEffects$0024.$m_Ljapgolly_scalajs_react_util_DefaultEffects$();
-    var hook8 = new $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024VarF.$c_Ljapgolly_scalajs_react_hooks_Hooks$VarF(8888, this$8.Ljapgolly_scalajs_react_util_DefaultEffects$__f_Sync);
+
+    var _＿japgolly_＿hook8 = new $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024VarF.$c_Ljapgolly_scalajs_react_hooks_Hooks$VarF(8888, this$8.Ljapgolly_scalajs_react_util_DefaultEffects$__f_Sync);
+
     var this$10 = $j_japgolly$002escalajs$002ereact$002eutil$002eDefaultEffects$0024.$m_Ljapgolly_scalajs_react_util_DefaultEffects$();
-    var hook9 = new $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024VarF.$c_Ljapgolly_scalajs_react_hooks_Hooks$VarF(9999, this$10.Ljapgolly_scalajs_react_util_DefaultEffects$__f_Sync);
+
+    var _＿japgolly_＿hook9 = new $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024VarF.$c_Ljapgolly_scalajs_react_hooks_Hooks$VarF(9999, this$10.Ljapgolly_scalajs_react_util_DefaultEffects$__f_Sync);
+
     console.log("aaaaa");
     props.a;
     props.a;
     console.log("ccccc");
     props.a;
-    var sum = (((((11110 + $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$__hook5_raw$1__sr_LazyInt__I(this$1, hook5_raw$lzy1$2) | 0) + $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$__hook6_raw$1__sr_LazyInt__I(this$1, hook6_raw$lzy1$2) | 0) + (hook7.Ljapgolly_scalajs_react_hooks_Hooks$VarF__f_value | 0) | 0) + (hook8.Ljapgolly_scalajs_react_hooks_Hooks$VarF__f_value | 0) | 0) + (hook9.Ljapgolly_scalajs_react_hooks_Hooks$VarF__f_value | 0) | 0) + ("bbbbb".length | 0) | 0;
+    var sum = (((((11110 + $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$___＿japgolly_＿hook5_raw$1__sr_LazyInt__I(this$1, _＿japgolly_＿hook5_raw$lzy1$2) | 0) + $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$___＿japgolly_＿hook6_raw$1__sr_LazyInt__I(this$1, _＿japgolly_＿hook6_raw$lzy1$2) | 0) + (_＿japgolly_＿hook7.Ljapgolly_scalajs_react_hooks_Hooks$VarF__f_value | 0) | 0) + (_＿japgolly_＿hook8.Ljapgolly_scalajs_react_hooks_Hooks$VarF__f_value | 0) | 0) + (_＿japgolly_＿hook9.Ljapgolly_scalajs_react_hooks_Hooks$VarF__f_value | 0) | 0) + ("bbbbb".length | 0) | 0;
     return ($j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$(), $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024.$m_Ljapgolly_scalajs_react_vdom_VdomNode$(), new $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024$0024anon$00241.$c_Ljapgolly_scalajs_react_vdom_VdomNode$$anon$1(sum)).Ljapgolly_scalajs_react_vdom_VdomNode$$anon$1__f_n$1;
   })(this);
 

@@ -79,24 +79,34 @@ function $c_Ljapgolly_scalajs_react_test_emissions_HooksWithScalaFns$() {
     return _s(props => {
       _s();
 
-      var hook1_raw = $i_react.useState(() => $j_japgolly$002escalajs$002ereact$002einternal$002eBox$0024.$m_Ljapgolly_scalajs_react_internal_Box$().apply__O__Ljapgolly_scalajs_react_internal_Box(123));
-      var hook1 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseState$0024.$m_Ljapgolly_scalajs_react_hooks_Hooks$UseState$().fromJsBoxed__sjs_js_Tuple2__Ljapgolly_scalajs_react_hooks_Hooks$UseStateF(hook1_raw);
-      var hook2_raw = $i_react.useState(((this$2$2, props$2, hook1$2) => () => {
+      var _＿japgolly_＿hook1_raw = $i_react.useState(() => $j_japgolly$002escalajs$002ereact$002einternal$002eBox$0024.$m_Ljapgolly_scalajs_react_internal_Box$().apply__O__Ljapgolly_scalajs_react_internal_Box(123));
+
+      var _＿japgolly_＿hook1 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseState$0024.$m_Ljapgolly_scalajs_react_hooks_Hooks$UseState$().fromJsBoxed__sjs_js_Tuple2__Ljapgolly_scalajs_react_hooks_Hooks$UseStateF(_＿japgolly_＿hook1_raw);
+
+      var _＿japgolly_＿hook2_raw = $i_react.useState(((this$2$2, props$2, _＿japgolly_＿hook1$2) => () => {
         var $$x3 = $j_japgolly$002escalajs$002ereact$002einternal$002eBox$0024.$m_Ljapgolly_scalajs_react_internal_Box$();
         var p = props$2.a | 0;
-        return $$x3.apply__O__Ljapgolly_scalajs_react_internal_Box($p_Ljapgolly_scalajs_react_test_emissions_HooksWithScalaFns$__state1__I__Ljapgolly_scalajs_react_hooks_Hooks$UseStateF__I(this$2$2, p, hook1$2));
-      })(this$3$1, props, hook1));
-      var hook2 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseState$0024.$m_Ljapgolly_scalajs_react_hooks_Hooks$UseState$().fromJsBoxed__sjs_js_Tuple2__Ljapgolly_scalajs_react_hooks_Hooks$UseStateF(hook2_raw);
+        return $$x3.apply__O__Ljapgolly_scalajs_react_internal_Box($p_Ljapgolly_scalajs_react_test_emissions_HooksWithScalaFns$__state1__I__Ljapgolly_scalajs_react_hooks_Hooks$UseStateF__I(this$2$2, p, _＿japgolly_＿hook1$2));
+      })(this$3$1, props, _＿japgolly_＿hook1));
+
+      var _＿japgolly_＿hook2 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseState$0024.$m_Ljapgolly_scalajs_react_hooks_Hooks$UseState$().fromJsBoxed__sjs_js_Tuple2__Ljapgolly_scalajs_react_hooks_Hooks$UseStateF(_＿japgolly_＿hook2_raw);
+
       var props$1 = props.a;
-      var hook3_ctx = new $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024P2.$c_Ljapgolly_scalajs_react_hooks_HookCtx$P2(props$1, hook1, hook2);
-      var hook3_raw = $i_react.useState(((this$3$2, hook3_ctx$2) => () => $j_japgolly$002escalajs$002ereact$002einternal$002eBox$0024.$m_Ljapgolly_scalajs_react_internal_Box$().apply__O__Ljapgolly_scalajs_react_internal_Box(this$3$2.Ljapgolly_scalajs_react_test_emissions_HooksWithScalaFns$__f_state2.apply__O__O(hook3_ctx$2)))(this$3$1, hook3_ctx));
-      var hook3 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseState$0024.$m_Ljapgolly_scalajs_react_hooks_Hooks$UseState$().fromJsBoxed__sjs_js_Tuple2__Ljapgolly_scalajs_react_hooks_Hooks$UseStateF(hook3_raw);
-      var hook4_raw = $i_react.useState(((this$4$1, props$3, hook1$3, hook2$2, hook3$2) => () => $j_japgolly$002escalajs$002ereact$002einternal$002eBox$0024.$m_Ljapgolly_scalajs_react_internal_Box$().apply__O__Ljapgolly_scalajs_react_internal_Box(this$4$1.Ljapgolly_scalajs_react_test_emissions_HooksWithScalaFns$__f_state3.apply__O__O__O__O__O(props$3.a, hook1$3, hook2$2, hook3$2)))(this$3$1, props, hook1, hook2, hook3));
-      var hook4 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseState$0024.$m_Ljapgolly_scalajs_react_hooks_Hooks$UseState$().fromJsBoxed__sjs_js_Tuple2__Ljapgolly_scalajs_react_hooks_Hooks$UseStateF(hook4_raw);
+
+      var _＿japgolly_＿hook3_ctx = $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024P2.$ct_Ljapgolly_scalajs_react_hooks_HookCtx$P2__O__O__O__(new $j_japgolly$002escalajs$002ereact$002ehooks$002eHookCtx$0024P2.$c_Ljapgolly_scalajs_react_hooks_HookCtx$P2(), props$1, _＿japgolly_＿hook1, _＿japgolly_＿hook2);
+
+      var _＿japgolly_＿hook3_raw = $i_react.useState(((this$3$2, _＿japgolly_＿hook3_ctx$2) => () => $j_japgolly$002escalajs$002ereact$002einternal$002eBox$0024.$m_Ljapgolly_scalajs_react_internal_Box$().apply__O__Ljapgolly_scalajs_react_internal_Box(this$3$2.Ljapgolly_scalajs_react_test_emissions_HooksWithScalaFns$__f_state2.apply__O__O(_＿japgolly_＿hook3_ctx$2)))(this$3$1, _＿japgolly_＿hook3_ctx));
+
+      var _＿japgolly_＿hook3 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseState$0024.$m_Ljapgolly_scalajs_react_hooks_Hooks$UseState$().fromJsBoxed__sjs_js_Tuple2__Ljapgolly_scalajs_react_hooks_Hooks$UseStateF(_＿japgolly_＿hook3_raw);
+
+      var _＿japgolly_＿hook4_raw = $i_react.useState(((this$4$1, props$3, _＿japgolly_＿hook1$3, _＿japgolly_＿hook2$2, _＿japgolly_＿hook3$2) => () => $j_japgolly$002escalajs$002ereact$002einternal$002eBox$0024.$m_Ljapgolly_scalajs_react_internal_Box$().apply__O__Ljapgolly_scalajs_react_internal_Box(this$4$1.Ljapgolly_scalajs_react_test_emissions_HooksWithScalaFns$__f_state3.apply__O__O__O__O__O(props$3.a, _＿japgolly_＿hook1$3, _＿japgolly_＿hook2$2, _＿japgolly_＿hook3$2)))(this$3$1, props, _＿japgolly_＿hook1, _＿japgolly_＿hook2, _＿japgolly_＿hook3));
+
+      var _＿japgolly_＿hook4 = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseState$0024.$m_Ljapgolly_scalajs_react_hooks_Hooks$UseState$().fromJsBoxed__sjs_js_Tuple2__Ljapgolly_scalajs_react_hooks_Hooks$UseStateF(_＿japgolly_＿hook4_raw);
+
       var p$1 = props.a | 0;
-      var this$6 = $p_Ljapgolly_scalajs_react_test_emissions_HooksWithScalaFns$__render__I__Ljapgolly_scalajs_react_hooks_Hooks$UseStateF__Ljapgolly_scalajs_react_hooks_Hooks$UseStateF__Ljapgolly_scalajs_react_hooks_Hooks$UseStateF__Ljapgolly_scalajs_react_hooks_Hooks$UseStateF__Ljapgolly_scalajs_react_vdom_TagOf(this$3$1, p$1, hook1, hook2, hook3, hook4);
+      var this$6 = $p_Ljapgolly_scalajs_react_test_emissions_HooksWithScalaFns$__render__I__Ljapgolly_scalajs_react_hooks_Hooks$UseStateF__Ljapgolly_scalajs_react_hooks_Hooks$UseStateF__Ljapgolly_scalajs_react_hooks_Hooks$UseStateF__Ljapgolly_scalajs_react_hooks_Hooks$UseStateF__Ljapgolly_scalajs_react_vdom_TagOf(this$3$1, p$1, _＿japgolly_＿hook1, _＿japgolly_＿hook2, _＿japgolly_＿hook3, _＿japgolly_＿hook4);
       return this$6.rawElement__Ljapgolly_scalajs_react_facade_React$Element();
-    }, "tiTMmuZfNiWpuBAqwIr3FRuMfVQ=");
+    }, "UNYENwiB2yOK0bLd6y904SSaSxQ=");
   })(this);
 
   var $$x4 = $j_japgolly$002escalajs$002ereact$002ecomponent$002eScalaFn$0024.$m_Ljapgolly_scalajs_react_component_ScalaFn$();

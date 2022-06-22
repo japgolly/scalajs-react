@@ -54,6 +54,9 @@ object AbstractHookMacros {
   // ===================================================================================================================
   // Hook Rewriter
 
+  // Avoid shadowing in Scala 2.
+  final val hookValPrefix = "__japgolly__"
+
   sealed trait HookRewriter[Stmt, Term <: Stmt, Ref] {
               val bridge      : HookRewriter.Bridge[Stmt, Term, Ref]
     protected val hookNo      : Int
@@ -68,9 +71,9 @@ object AbstractHookMacros {
     // Don't make this an eager val. It depends on `val hookNo`
     protected def hookName =
       if (hookNo < 0)
-        "render"
+        hookValPrefix + "render"
       else
-        "hook" + hookNo
+        hookValPrefix + "hook" + hookNo
 
     final def +=(stmt: Stmt): Unit =
       _stmts :+= stmt
