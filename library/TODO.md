@@ -32,10 +32,6 @@ def useLayoutEffectWithDeps             [D, A](deps: => D)(effect: D => A)(impli
 def useLayoutEffectWithDepsBy           [D, A](deps: Ctx => D)(effect: Ctx => D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self
 def useLayoutEffectWithDepsBy           [D, A](deps: CtxFn[D])(effect: CtxFn[D => A])(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self
 
-def useMemo                             [D, A](deps: => D)(create: D => A)(implicit r: Reusability[D], step: Step): step.Next[Reusable[A]]
-def useMemoBy                           [D, A](deps: Ctx => D)(create: Ctx => D => A)(implicit r: Reusability[D], step: Step): step.Next[Reusable[A]]
-def useMemoBy                           [D, A](deps: CtxFn[D])(create: CtxFn[D => A])(implicit r: Reusability[D], step: Step): step.Next[Reusable[A]]
-
 def useReducer                          [S, A](reducer: (S, A) => S, initialState: => S)(implicit step: Step): step.Next[UseReducer[S, A]]
 def useReducerBy                        [S, A](reducer: Ctx => (S, A) => S, initialState: Ctx => S)(implicit step: Step): step.Next[UseReducer[S, A]]
 def useReducerBy                        [S, A](reducer: CtxFn[(S, A) => S], initialState: CtxFn[S])(implicit step: Step): step.Next[UseReducer[S, A]]

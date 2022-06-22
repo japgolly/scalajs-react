@@ -56,6 +56,7 @@ class HookMacros(val c: Context) extends MacroUtils {
   private def JsFn         : Tree = q"_root_.japgolly.scalajs.react.component.JsFn"
   private def PropsChildren: Tree = q"_root_.japgolly.scalajs.react.PropsChildren"
   private def React        : Tree = q"_root_.japgolly.scalajs.react.facade.React"
+  private def Reusable     : Tree = q"_root_.japgolly.scalajs.react.Reusable"
   private def ScalaFn      : Tree = q"_root_.japgolly.scalajs.react.component.ScalaFn"
   private def SJS          : Tree = q"_root_.scala.scalajs.js"
 
@@ -199,6 +200,9 @@ class HookMacros(val c: Context) extends MacroUtils {
     override protected def reusableDepStateValue[D] = (rds, _) =>
       q"$rds.value"
 
+    override protected def reusableValueByInt[A] = (i, a, _) =>
+      q"$Reusable.implicitly($i).withValue($a)"
+
     override protected def scalaFn0[A] = (_, body) =>
       q"() => $body"
 
@@ -213,6 +217,9 @@ class HookMacros(val c: Context) extends MacroUtils {
 
     override protected def useCallbackArgTypeJs[A, J <: js.Function] = _ =>
       null // Not used in Scala 2 (i.e. in useCallbackArg{From,To}Js)
+
+    override protected def useMemo[A] = (a, d, _) =>
+      q"$React.useMemo(() => $a, $d)"
 
     override protected def useStateFn[S] = (tpe, body) =>
       q"$React.useStateFn(() => $Box[$tpe]($body))"
@@ -262,14 +269,15 @@ class HookMacros(val c: Context) extends MacroUtils {
       giveUp
     }
 
-    val rewriteAttempt =
-      for {
-        hookDefn <- hookMacros.parse(c.macroApplication)
-        rewriter <- hookMacros.rewriteComponent(hookDefn)
-      } yield rewriter
-
     val result: Tree =
-      try
+      try {
+
+        val rewriteAttempt =
+          for {
+            hookDefn <- hookMacros.parse(c.macroApplication)
+            rewriter <- hookMacros.rewriteComponent(hookDefn)
+          } yield rewriter
+
         rewriteAttempt match {
 
           case Right(rewriter) =>
@@ -287,7 +295,8 @@ class HookMacros(val c: Context) extends MacroUtils {
           case Left(err) =>
             onFailure(err())
         }
-      catch {
+
+      } catch {
         case err: Throwable =>
           err.printStackTrace()
           onFailure(err.getMessage())

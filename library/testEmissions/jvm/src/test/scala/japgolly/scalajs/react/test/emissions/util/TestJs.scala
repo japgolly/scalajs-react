@@ -81,6 +81,14 @@ object TestJs {
 
           .replace("PropsChildren$", "PropsChildren")
 
+          .replace(
+            "$j_java_lang_Character$.$m_s_reflect_ManifestFactory$IntManifest$()",
+            "$j_scala_reflect_ManifestFactory$IntManifest$.$m_s_reflect_ManifestFactory$IntManifest$()")
+
+          .replace(
+            "$j_sjr_hooks_Api$Primary.$m_Lsjr_hooks_CustomHook$()",
+            "$j_sjr_hooks_CustomHook$.$m_Lsjr_hooks_CustomHook$()")
+
           // Scala 3 only for some reason
           .replace("$FirstStep.$", "$First.$")
 

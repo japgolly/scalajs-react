@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.hooks
 
 import japgolly.microlibs.compiletime.MacroEnv.*
-import japgolly.scalajs.react.{Children, CtorType, PropsChildren, Reusability}
+import japgolly.scalajs.react.{Children, CtorType, PropsChildren, Reusable, Reusability}
 import japgolly.scalajs.react.component.{JsFn, ScalaFn}
 import japgolly.scalajs.react.component.ScalaFn.Component
 import japgolly.scalajs.react.facade
@@ -308,6 +308,9 @@ object HookMacros {
     override protected def reusableDepStateValue[D] = implicit (rds, tpeD) =>
       '{ $rds.value }
 
+    override protected def reusableValueByInt[A] = implicit (i, a, tpeA) =>
+      '{ Reusable.implicitly($i).withValue($a) }
+
     override protected def scalaFn0[A] = implicit (tpe, body) =>
       '{ () => $body }
 
@@ -322,6 +325,9 @@ object HookMacros {
 
     override protected def useCallbackArgTypeJs[A, J <: js.Function] = x =>
       TypeSelect(x.asTerm, "J").asTypeOf[J]
+
+    override protected def useMemo[A] = implicit (a, d, tpeA) =>
+      '{ React.useMemo(() => $a, $d) }
 
     override protected def useStateFn[S] = implicit (tpe, body) =>
       '{ React.useStateFn(() => Box[$tpe]($body)) }
@@ -430,14 +436,15 @@ object HookMacros {
       giveUp()
     }
 
-    val rewriteAttempt =
-      for {
-        hookDefn <- hookMacros.parse(macroApplication)
-        rewriter <- hookMacros.rewriteComponent(hookDefn + renderStep)
-      } yield rewriter
-
     val result: Expr[Component[P, CT]] =
-      try
+      try {
+
+        val rewriteAttempt =
+          for {
+            hookDefn <- hookMacros.parse(macroApplication)
+            rewriter <- hookMacros.rewriteComponent(hookDefn + renderStep)
+          } yield rewriter
+
         rewriteAttempt match {
 
           case Right(rewriter) =>
@@ -461,7 +468,8 @@ object HookMacros {
           case Left(err) =>
             onFailure(err())
         }
-      catch {
+
+      } catch {
         case err: Throwable =>
           // err.printStackTrace()
           onFailure(err.getMessage())
