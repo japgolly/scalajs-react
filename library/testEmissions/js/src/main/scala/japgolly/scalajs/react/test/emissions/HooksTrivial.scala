@@ -2,7 +2,6 @@ package japgolly.scalajs.react.test.emissions
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
-import org.scalajs.dom.console
 
 object HooksTrivial {
 
@@ -23,8 +22,12 @@ object HooksTrivial {
     .useReducerBy((p, _, _, _, _) => add(p), _ + _ + _ + _ + _.value)
     .useReducerBy($ => add($.hook4.value), $ => $.props + $.hook4.value + $.hook5.value)
 
-    .renderRR { (_, a, b, c, d, e, f) =>
-      val sum = a + b + c + d.value + e.value + f.value
+    .useState(123)
+    .useStateBy((p, a, _, _, _, _, f, _) => p + a + f.value)
+    .useStateBy($ => $.props + $.hook1 + $.hook6.value)
+
+    .renderRR { (_, a, b, c, d, e, f, g, h, i) =>
+      val sum = a + b + c + d.value + e.value + f.value + g.value + h.value + i.value
       sum
     }
 }

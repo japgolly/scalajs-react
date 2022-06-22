@@ -15,7 +15,6 @@ object Main {
   private val Component = ScalaFnComponent[Unit] { _ =>
     <.div(
       CustomHooks                .Component(0),
-      CustomHooksBy              .Component(0),
       HooksPrimative             .Component(),
       HooksTrivial               .Component(0),
       HooksWithChildrenCtxFn     .Component(0)(<.div),
@@ -26,7 +25,6 @@ object Main {
       JustPropsViaHookApi        .Component(0),
       UseCallback                .Component(0),
       UseMemo                    .Component(0),
-      UseState                   .Component(0),
       UseStateWithReuse          .Component(0),
     )
   }

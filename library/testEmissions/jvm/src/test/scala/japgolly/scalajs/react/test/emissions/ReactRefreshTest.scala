@@ -25,7 +25,6 @@ object ReactRefreshTest extends TestSuite {
 
     "sjr" - {
       "CustomHooks"                 - testScala(assertRR = false) // TODO:
-      "CustomHooksBy"               - testScala(assertRR = false) // TODO:
       "HooksPrimative"              - testScala(assertRR = false) // TODO:
       "HooksTrivial"                - testScala()
       "HooksWithChildrenCtxFn"      - testScala()
@@ -36,7 +35,6 @@ object ReactRefreshTest extends TestSuite {
       "JustPropsViaHookApi"         - testScala(assertRR = false) // TODO:
       "UseCallback"                 - testScala()
       "UseMemo"                     - testScala()
-      "UseState"                    - testScala()
       "UseStateWithReuse"           - testScala()
     }
   }

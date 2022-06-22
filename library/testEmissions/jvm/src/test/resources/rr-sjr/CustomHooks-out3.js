@@ -7,6 +7,7 @@ import * as $j_japgolly$002escalajs$002ereact$002ecallback$002eTrampoline$0024De
 import * as $j_japgolly$002escalajs$002ereact$002ecomponent$002eJsFn$0024 from "./japgolly.scalajs.react.component.JsFn$.js";
 import * as $j_japgolly$002escalajs$002ereact$002ecomponent$002eScalaFn$0024 from "./japgolly.scalajs.react.component.ScalaFn$.js";
 import * as $j_japgolly$002escalajs$002ereact$002ehooks$002eApi$0024Primary from "./japgolly.scalajs.react.hooks.Api$Primary.js";
+import * as $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024 from "./japgolly.scalajs.react.hooks.CustomHook$.js";
 import * as $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024Arg$0024 from "./japgolly.scalajs.react.hooks.CustomHook$Arg$.js";
 import * as $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024Builder$0024First from "./japgolly.scalajs.react.hooks.CustomHook$Builder$First.js";
 import * as $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024Builder$0024Subsequent from "./japgolly.scalajs.react.hooks.CustomHook$Builder$Subsequent.js";
@@ -32,6 +33,9 @@ function $c_Ljapgolly_scalajs_react_test_emissions_CustomHooks$() {
   this.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook1 = null;
   this.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook2 = null;
   this.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook3 = null;
+  this.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook4 = null;
+  this.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook5 = null;
+  this.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook6 = null;
   this.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_Component = null;
   $n_Ljapgolly_scalajs_react_test_emissions_CustomHooks$ = this;
   var this$3 = $j_japgolly$002escalajs$002ereact$002epackage$0024.$m_Ljapgolly_scalajs_react_package$().Ljapgolly_scalajs_react_internal_CoreGeneralF__f_CustomHook.apply__Ljapgolly_scalajs_react_hooks_CustomHook$Builder$First();
@@ -61,31 +65,82 @@ function $c_Ljapgolly_scalajs_react_test_emissions_CustomHooks$() {
     var _$3$1 = _$3;
     return _$3$1.Ljapgolly_scalajs_react_hooks_HookCtx$I1__f_hook1;
   }));
+  var this$12 = $j_japgolly$002escalajs$002ereact$002epackage$0024.$m_Ljapgolly_scalajs_react_package$().Ljapgolly_scalajs_react_internal_CoreGeneralF__f_CustomHook.apply__Ljapgolly_scalajs_react_hooks_CustomHook$Builder$First();
+  var initialState$2 = new $j_scala$002eFunction1.$c_sjsr_AnonFunction1(_$4 => {
+    var _$4$1 = _$4 | 0;
 
-  var rawComponent = (this$6$1 => props => {
+    return 1 + _$4$1 | 0;
+  });
+  var step$3 = new $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024Builder$0024First.$c_Ljapgolly_scalajs_react_hooks_CustomHook$Builder$FirstStep();
+  this.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook4 = $j_japgolly$002escalajs$002ereact$002ehooks$002eApi$0024Primary.$f_Ljapgolly_scalajs_react_hooks_Api$Primary__useStateBy__F1__Ljapgolly_scalajs_react_hooks_Api$AbstractStep__O(this$12, initialState$2, step$3).buildReturning__F1__F1(new $j_scala$002eFunction1.$c_sjsr_AnonFunction1(_$5 => {
+    var _$5$1 = _$5;
+    return _$5$1.Ljapgolly_scalajs_react_hooks_HookCtx$I1__f_hook1;
+  }));
+  var this$14 = $j_japgolly$002escalajs$002ereact$002epackage$0024.$m_Ljapgolly_scalajs_react_package$().Ljapgolly_scalajs_react_internal_CoreGeneralF__f_CustomHook.apply__Ljapgolly_scalajs_react_hooks_CustomHook$Builder$First();
+  var initialState$3 = new $j_scala$002eFunction1.$c_sjsr_AnonFunction1(_$6 => {
+    var _$6$1 = _$6 | 0;
+
+    return _$6$1 << 1;
+  });
+  var step$4 = new $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024Builder$0024First.$c_Ljapgolly_scalajs_react_hooks_CustomHook$Builder$FirstStep();
+  this.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook5 = $j_japgolly$002escalajs$002ereact$002ehooks$002eApi$0024Primary.$f_Ljapgolly_scalajs_react_hooks_Api$Primary__useStateBy__F1__Ljapgolly_scalajs_react_hooks_Api$AbstractStep__O(this$14, initialState$3, step$4).buildReturning__F1__F1(new $j_scala$002eFunction1.$c_sjsr_AnonFunction1(_$7 => {
+    var _$7$1 = _$7;
+    return _$7$1.Ljapgolly_scalajs_react_hooks_HookCtx$I1__f_hook1;
+  }));
+  var this$16 = $j_japgolly$002escalajs$002ereact$002epackage$0024.$m_Ljapgolly_scalajs_react_package$().Ljapgolly_scalajs_react_internal_CoreGeneralF__f_CustomHook.apply__Ljapgolly_scalajs_react_hooks_CustomHook$Builder$First();
+  var initialState$4 = new $j_scala$002eFunction1.$c_sjsr_AnonFunction1(_$8 => {
+    var _$8$1 = _$8 | 0;
+
+    return Math.imul(3, _$8$1);
+  });
+  var step$5 = new $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024Builder$0024First.$c_Ljapgolly_scalajs_react_hooks_CustomHook$Builder$FirstStep();
+  this.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook6 = $j_japgolly$002escalajs$002ereact$002ehooks$002eApi$0024Primary.$f_Ljapgolly_scalajs_react_hooks_Api$Primary__useStateBy__F1__Ljapgolly_scalajs_react_hooks_Api$AbstractStep__O(this$16, initialState$4, step$5).buildReturning__F1__F1(new $j_scala$002eFunction1.$c_sjsr_AnonFunction1(_$9 => {
+    var _$9$1 = _$9;
+    return _$9$1.Ljapgolly_scalajs_react_hooks_HookCtx$I1__f_hook1;
+  }));
+
+  var rawComponent = (this$12$1 => props => {
     var _＿japgolly_＿hook1_arg = $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024Arg$0024.$m_Ljapgolly_scalajs_react_hooks_CustomHook$Arg$().exactId__F1().apply__O__O(props.a) | 0;
 
-    var _＿japgolly_＿hook1 = this$6$1.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook1.apply__O__O(_＿japgolly_＿hook1_arg);
+    var _＿japgolly_＿hook1 = this$12$1.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook1.apply__O__O(_＿japgolly_＿hook1_arg);
 
-    this$6$1.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook2.apply__O__O(void 0);
+    this$12$1.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook2.apply__O__O(void 0);
 
-    var _＿japgolly_＿hook3 = this$6$1.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook3.apply__O__O(void 0);
+    var _＿japgolly_＿hook3 = this$12$1.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook3.apply__O__O(void 0);
 
     var p = props.a | 0;
-    var sum = (p + (_＿japgolly_＿hook1.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0] | 0) | 0) + (_＿japgolly_＿hook3.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0] | 0) | 0;
-    var this$17 = $j_japgolly$002escalajs$002ereact$002evdom$002eHtmlTagOf$0024.$m_Ljapgolly_scalajs_react_vdom_HtmlTagOf$();
+
+    var _＿japgolly_＿hook4_raw = $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024.$m_Ljapgolly_scalajs_react_hooks_CustomHook$().apply$extension__F1__O__F1(this$12$1.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook4, -1 + p | 0);
+
+    var _＿japgolly_＿hook4 = _＿japgolly_＿hook4_raw.apply__O__O(void 0);
+
+    props.a | 0;
+
+    var _＿japgolly_＿hook5_raw = $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024.$m_Ljapgolly_scalajs_react_hooks_CustomHook$().apply$extension__F1__O__F1(this$12$1.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook5, _＿japgolly_＿hook4.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0]);
+
+    var _＿japgolly_＿hook5 = _＿japgolly_＿hook5_raw.apply__O__O(void 0);
+
+    props.a;
+
+    var _＿japgolly_＿hook6_raw = $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024.$m_Ljapgolly_scalajs_react_hooks_CustomHook$().apply$extension__F1__O__F1(this$12$1.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook6, _＿japgolly_＿hook5.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0]);
+
+    var _＿japgolly_＿hook6 = _＿japgolly_＿hook6_raw.apply__O__O(void 0);
+
+    var p$2 = props.a | 0;
+    var sum = ((((p$2 + (_＿japgolly_＿hook1.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0] | 0) | 0) + (_＿japgolly_＿hook3.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0] | 0) | 0) + (_＿japgolly_＿hook4.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0] | 0) | 0) + (_＿japgolly_＿hook5.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0] | 0) | 0) + (_＿japgolly_＿hook6.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0] | 0) | 0;
+    var this$24 = $j_japgolly$002escalajs$002ereact$002evdom$002eHtmlTagOf$0024.$m_Ljapgolly_scalajs_react_vdom_HtmlTagOf$();
     $j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$();
     $j_japgolly$002escalajs$002ereact$002evdom$002eExports$0024.$m_Ljapgolly_scalajs_react_vdom_Exports$();
     var self = "div";
     var xs = $j_java$002elang$002eCharacter$0024.$m_sr_ScalaRunTime$().wrapRefArray__AO__sci_ArraySeq(new ($j_japgolly$002escalajs$002ereact$002evdom$002eTagMod.$d_Ljapgolly_scalajs_react_vdom_TagMod.getArrayOf().constr)([($j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$(), $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024.$m_Ljapgolly_scalajs_react_vdom_VdomNode$(), new $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024$0024anon$00241.$c_Ljapgolly_scalajs_react_vdom_VdomNode$$anon$1("Sum = ")), ($j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$(), $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024.$m_Ljapgolly_scalajs_react_vdom_VdomNode$(), new $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024$0024anon$00241.$c_Ljapgolly_scalajs_react_vdom_VdomNode$$anon$1(sum))]));
-    var this$18 = $j_japgolly$002escalajs$002ereact$002evdom$002eTagLite.$f_Ljapgolly_scalajs_react_vdom_TagLite__apply__T__sci_Seq__Ljapgolly_scalajs_react_vdom_TagOf(this$17, self, xs);
-    return this$18.rawElement__Ljapgolly_scalajs_react_facade_React$Element();
+    var this$25 = $j_japgolly$002escalajs$002ereact$002evdom$002eTagLite.$f_Ljapgolly_scalajs_react_vdom_TagLite__apply__T__sci_Seq__Ljapgolly_scalajs_react_vdom_TagOf(this$24, self, xs);
+    return this$25.rawElement__Ljapgolly_scalajs_react_facade_React$Element();
   })(this);
 
   var $$x1 = $j_japgolly$002escalajs$002ereact$002ecomponent$002eScalaFn$0024.$m_Ljapgolly_scalajs_react_component_ScalaFn$();
-  var this$19 = $j_japgolly$002escalajs$002ereact$002ecomponent$002eJsFn$0024.$m_Ljapgolly_scalajs_react_component_JsFn$();
+  var this$26 = $j_japgolly$002escalajs$002ereact$002ecomponent$002eJsFn$0024.$m_Ljapgolly_scalajs_react_component_JsFn$();
   var s = $j_japgolly$002escalajs$002ereact$002eCtorType$0024Summoner$0024.$m_Ljapgolly_scalajs_react_CtorType$Summoner$().summonP__Ljapgolly_scalajs_react_internal_Singleton$Not__Ljapgolly_scalajs_react_CtorType$Summoner(null);
-  this.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_Component = $$x1.fromBoxed__Ljapgolly_scalajs_react_component_JsBaseComponentTemplate$ComponentWithRoot__Ljapgolly_scalajs_react_component_JsBaseComponentTemplate$ComponentWithRoot(this$19.force__O__Ljapgolly_scalajs_react_CtorType$Summoner__Ljapgolly_scalajs_react_component_JsBaseComponentTemplate$ComponentWithRoot(rawComponent, s));
+  this.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_Component = $$x1.fromBoxed__Ljapgolly_scalajs_react_component_JsBaseComponentTemplate$ComponentWithRoot__Ljapgolly_scalajs_react_component_JsBaseComponentTemplate$ComponentWithRoot(this$26.force__O__Ljapgolly_scalajs_react_CtorType$Summoner__Ljapgolly_scalajs_react_component_JsBaseComponentTemplate$ComponentWithRoot(rawComponent, s));
 }
 
 export { $c_Ljapgolly_scalajs_react_test_emissions_CustomHooks$ };
