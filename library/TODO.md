@@ -1,8 +1,6 @@
 ```scala
 // Api.scala
 
-def useForceUpdate                      (implicit step: Step): step.Next[Reusable[DefaultEffects.Sync[Unit]]]
-
 def useRef                              [A](initialValue: => A)(implicit step: Step): step.Next[UseRef[A]]
 def useRefBy                            [A](f: CtxFn[A])(implicit step: Step): step.Next[UseRef[A]]
 def useRefBy                            [A](initialValue: Ctx => A)(implicit step: Step): step.Next[UseRef[A]]

@@ -230,6 +230,12 @@ class HookMacros(val c: Context) extends MacroUtils {
     override protected def useEffectArgToJs[A] = (arg, a, _) =>
       q"$arg.toJs($a)"
 
+    override protected def useForceUpdate1 =
+      q"$React.useStateValue(0)"
+
+    override protected def useForceUpdate2 = s =>
+      q"$CustomHook.useForceUpdateRaw($s)"
+
     override protected def useLayoutEffect = (a, d) =>
       q"$React.useLayoutEffect($a, $d)"
 

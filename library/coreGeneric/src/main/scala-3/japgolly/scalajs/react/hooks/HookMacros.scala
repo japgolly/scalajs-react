@@ -11,6 +11,7 @@ import japgolly.scalajs.react.hooks.CustomHook
 import japgolly.scalajs.react.hooks.CustomHook.ReusableDepState
 import japgolly.scalajs.react.hooks.HookCtx
 import japgolly.scalajs.react.internal.{Box, MacroLogger}
+import japgolly.scalajs.react.util.DefaultEffects
 import japgolly.scalajs.react.vdom.VdomNode
 import scala.annotation._
 import scala.language.`3.1`
@@ -337,6 +338,12 @@ object HookMacros {
 
     override protected def useEffectArgToJs[A] = implicit (arg, a, tpeA) =>
       '{ $arg.toJs($a) }
+
+    override protected def useForceUpdate1 =
+      '{ React.useStateValue(0) }
+
+    override protected def useForceUpdate2 = s =>
+      '{ CustomHook.useForceUpdateRaw($s) }
 
     override protected def useLayoutEffect = implicit (a, d) =>
       '{ React.useLayoutEffect($a, $d) }

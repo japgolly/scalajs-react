@@ -1,10 +1,12 @@
 package japgolly.scalajs.react.hooks
 
 import japgolly.microlibs.types.NaturalComposition
+import japgolly.scalajs.react.facade
 import japgolly.scalajs.react.internal.ShouldComponentUpdateComponent
 import japgolly.scalajs.react.util.DefaultEffects
 import japgolly.scalajs.react.vdom.VdomNode
 import japgolly.scalajs.react.{PropsChildren, Reusability, Reusable}
+import scala.scalajs.js
 
 final class CustomHook[I, O] private[CustomHook] (val unsafeInit: I => O) extends AnyVal {
 
@@ -220,6 +222,11 @@ object CustomHook {
         val s = $.hook1
         Reusable.implicitly(s.value).withLazyValue(s.modState.map(_(inc)).value)
       })
+  }
+
+  def useForceUpdateRaw(s: facade.React.UseState[Int]): Reusable[DefaultEffects.Sync[Unit]] = {
+    @inline def inc: js.Function1[Int, Int] = _ + 1
+    Reusable.implicitly(s._1).withLazyValue(DefaultEffects.Sync.delay(s._2(inc)))
   }
 
 }

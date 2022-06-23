@@ -26,8 +26,10 @@ object HooksTrivial {
     .useStateBy((p, a, _, _, _, _, f, _) => p + a + f.value)
     .useStateBy($ => $.props + $.hook1 + $.hook6.value)
 
-    .renderRR { (_, a, b, c, d, e, f, g, h, i) =>
+    .useForceUpdate
+
+    .renderRR { (_, a, b, c, d, e, f, g, h, i, forceUpdate) =>
       val sum = a + b + c + d.value + e.value + f.value + g.value + h.value + i.value
-      sum
+      <.div(sum, ^.onClick --> forceUpdate)
     }
 }

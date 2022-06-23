@@ -6,6 +6,7 @@ import japgolly.scalajs.react.facade.React.HookDeps
 import japgolly.scalajs.react.hooks.CustomHook.ReusableDepState
 import japgolly.scalajs.react.hooks.Hooks
 import japgolly.scalajs.react.internal.{Box, MacroLogger}
+import japgolly.scalajs.react.util.DefaultEffects
 import japgolly.scalajs.react.vdom.VdomNode
 import japgolly.scalajs.react.{Reusability, Reusable}
 import scala.annotation.{nowarn, tailrec}
@@ -501,6 +502,12 @@ trait AbstractHookMacros {
           None
         }
 
+      case "useForceUpdate" =>
+        Right { b =>
+          val s = b.valDef(useForceUpdate1, "_state")
+          b.createHook(useForceUpdate2(s))
+        }
+
       case "useMemo" | "useMemoBy" =>
         val (List(tpeD, tpeA), List(List(depsFn), List(createFnFn), List(reuse, _))) = step.sig : @nowarn
         maybeBy(depsFn) { (b, withCtx) =>
@@ -586,6 +593,10 @@ trait AbstractHookMacros {
   protected def useEffect: (Expr[React.UseEffectArg], Expr[HookDeps]) => Expr[Unit]
 
   protected def useEffectArgToJs[A]: (Expr[Hooks.UseEffectArg[A]], Expr[A], Type[A]) => Expr[React.UseEffectArg]
+
+  protected def useForceUpdate1: Expr[React.UseState[Int]]
+
+  protected def useForceUpdate2: Expr[React.UseState[Int]] => Expr[Reusable[DefaultEffects.Sync[Unit]]]
 
   protected def useLayoutEffect: (Expr[React.UseEffectArg], Expr[HookDeps]) => Expr[Unit]
 
