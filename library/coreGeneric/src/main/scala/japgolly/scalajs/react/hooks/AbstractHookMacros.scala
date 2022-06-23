@@ -467,6 +467,40 @@ trait AbstractHookMacros {
           b.createHook(useDebugValue(withCtx(descFn)), discard = true)
         }
 
+      case "useEffect"
+         | "useEffectBy"
+         | "useEffectOnMount"
+         | "useEffectOnMountBy"
+         | "useLayoutEffect"
+         | "useLayoutEffectBy"
+         | "useLayoutEffectOnMount"
+         | "useLayoutEffectOnMountBy" =>
+        val (List(tpe), List(List(effectFn), List(arg, _))) = step.sig : @nowarn
+        maybeBy(effectFn) { (b, withCtx) =>
+          val hook        = if (step.name.contains("Layout")) useLayoutEffect else useEffect
+          val hookDeps    = if (step.name.contains("Mount")) hookDepsEmptyArray else hookDepsUndefined
+          val effect      = withCtx(effectFn)
+          val effectJs    = useEffectArgToJs[X](arg, effect, tpe)
+          b.createHook(hook(effectJs, hookDeps), discard = true)
+          None
+        }
+
+      case "useEffectWithDeps"
+         | "useEffectWithDepsBy"
+         | "useLayoutEffectWithDeps"
+         | "useLayoutEffectWithDepsBy" =>
+        val (List(tpeD, tpeA), List(List(depsFn), List(effectFnFn), List(arg, reuse, _))) = step.sig : @nowarn
+        maybeBy(effectFnFn) { (b, withCtx) =>
+          val hook        = if (step.name.contains("Layout")) useLayoutEffect else useEffect
+          val (deps, rev) = reusableDeps[X](b, withCtx(depsFn), reuse, tpeD)
+          val hookDeps    = hookDepsIntArray1(rev)
+          val effectFn    = withCtx(effectFnFn)
+          val effect      = call(effectFn, deps :: Nil, false)
+          val effectJs    = useEffectArgToJs[X](arg, effect, tpeA)
+          b.createHook(hook(effectJs, hookDeps), discard = true)
+          None
+        }
+
       case "useMemo" | "useMemoBy" =>
         val (List(tpeD, tpeA), List(List(depsFn), List(createFnFn), List(reuse, _))) = step.sig : @nowarn
         maybeBy(depsFn) { (b, withCtx) =>
@@ -516,6 +550,9 @@ trait AbstractHookMacros {
 
   protected def hookDepsIntArray1: Expr[Int] => Expr[HookDeps]
 
+  protected def hookDepsUndefined: Expr[HookDeps] =
+    unitTerm.asInstanceOf[Expr[HookDeps]]
+
   protected def hooksVar[A]: (Type[A], Expr[A]) => Expr[Hooks.Var[A]]
 
   protected def none[A]: Type[Option[A]] => Expr[Option[A]]
@@ -545,6 +582,12 @@ trait AbstractHookMacros {
   protected def useContext[A]: (Expr[Context[A]], Type[A]) => Expr[A]
 
   protected def useDebugValue: Expr[Any] => Expr[Unit]
+
+  protected def useEffect: (Expr[React.UseEffectArg], Expr[HookDeps]) => Expr[Unit]
+
+  protected def useEffectArgToJs[A]: (Expr[Hooks.UseEffectArg[A]], Expr[A], Type[A]) => Expr[React.UseEffectArg]
+
+  protected def useLayoutEffect: (Expr[React.UseEffectArg], Expr[HookDeps]) => Expr[Unit]
 
   protected def useMemo[A]: (Expr[A], Expr[HookDeps], Type[A]) => Expr[A]
 

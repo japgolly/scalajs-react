@@ -1,28 +1,7 @@
 ```scala
 // Api.scala
 
-def useEffect                           [A](effect: A)(implicit a: UseEffectArg[A], step: Step): step.Self
-def useEffectBy                         [A](init: Ctx => A)(implicit a: UseEffectArg[A], step: Step): step.Self
-def useEffectBy                         [A](init: CtxFn[A])(implicit a: UseEffectArg[A], step: Step): step.Self
-def useEffectOnMount                    [A](effect: A)(implicit a: UseEffectArg[A], step: Step): step.Self
-def useEffectOnMountBy                  [A](effect: Ctx => A)(implicit a: UseEffectArg[A], step: Step): step.Self
-def useEffectOnMountBy                  [A](effect: CtxFn[A])(implicit a: UseEffectArg[A], step: Step): step.Self
 def useForceUpdate                      (implicit step: Step): step.Next[Reusable[DefaultEffects.Sync[Unit]]]
-
-def useEffectWithDeps                   [D, A](deps: => D)(effect: D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self
-def useEffectWithDepsBy                 [D, A](deps: Ctx => D)(effect: Ctx => D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self
-def useEffectWithDepsBy                 [D, A](deps: CtxFn[D])(effect: CtxFn[D => A])(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self
-
-def useLayoutEffect                     [A](effect: A)(implicit a: UseEffectArg[A], step: Step): step.Self
-def useLayoutEffectBy                   [A](init: Ctx => A)(implicit a: UseEffectArg[A], step: Step): step.Self
-def useLayoutEffectBy                   [A](init: CtxFn[A])(implicit a: UseEffectArg[A], step: Step): step.Self
-def useLayoutEffectOnMount              [A](effect: A)(implicit a: UseEffectArg[A], step: Step): step.Self
-def useLayoutEffectOnMountBy            [A](effect: Ctx => A)(implicit a: UseEffectArg[A], step: Step): step.Self
-def useLayoutEffectOnMountBy            [A](effect: CtxFn[A])(implicit a: UseEffectArg[A], step: Step): step.Self
-
-def useLayoutEffectWithDeps             [D, A](deps: => D)(effect: D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self
-def useLayoutEffectWithDepsBy           [D, A](deps: Ctx => D)(effect: Ctx => D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self
-def useLayoutEffectWithDepsBy           [D, A](deps: CtxFn[D])(effect: CtxFn[D => A])(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self
 
 def useRef                              [A](initialValue: => A)(implicit step: Step): step.Next[UseRef[A]]
 def useRefBy                            [A](f: CtxFn[A])(implicit step: Step): step.Next[UseRef[A]]

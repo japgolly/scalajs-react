@@ -332,6 +332,15 @@ object HookMacros {
     override protected def useDebugValue = desc =>
       '{ React.useDebugValue[Null](null, _ => $desc) }
 
+    override protected def useEffect = implicit (a, d) =>
+      '{ React.useEffect($a, $d) }
+
+    override protected def useEffectArgToJs[A] = implicit (arg, a, tpeA) =>
+      '{ $arg.toJs($a) }
+
+    override protected def useLayoutEffect = implicit (a, d) =>
+      '{ React.useLayoutEffect($a, $d) }
+
     override protected def useMemo[A] = implicit (a, d, tpeA) =>
       '{ React.useMemo(() => $a, $d) }
 

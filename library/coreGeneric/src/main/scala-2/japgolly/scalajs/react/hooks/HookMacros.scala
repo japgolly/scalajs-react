@@ -224,6 +224,15 @@ class HookMacros(val c: Context) extends MacroUtils {
     override protected def useDebugValue = desc =>
       q"$React.useDebugValue[Null](null, _ => $desc)"
 
+    override protected def useEffect = (a, d) =>
+      q"$React.useEffect($a, $d)"
+
+    override protected def useEffectArgToJs[A] = (arg, a, _) =>
+      q"$arg.toJs($a)"
+
+    override protected def useLayoutEffect = (a, d) =>
+      q"$React.useLayoutEffect($a, $d)"
+
     override protected def useMemo[A] = (a, d, _) =>
       q"$React.useMemo(() => $a, $d)"
 
