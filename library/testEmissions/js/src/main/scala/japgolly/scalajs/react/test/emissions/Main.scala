@@ -26,6 +26,7 @@ object Main {
       UseCallback                .Component(0),
       UseEffect                  .Component(0),
       UseMemo                    .Component(0),
+      UseRef                     .Component(0),
       UseStateWithReuse          .Component(0),
     )
   }

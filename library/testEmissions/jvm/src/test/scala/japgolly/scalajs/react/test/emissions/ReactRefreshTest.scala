@@ -36,6 +36,7 @@ object ReactRefreshTest extends TestSuite {
       "UseCallback"                 - testScala()
       "UseEffect"                   - testScala()
       "UseMemo"                     - testScala()
+      "UseRef"                      - testScala()
       "UseStateWithReuse"           - testScala()
     }
   }

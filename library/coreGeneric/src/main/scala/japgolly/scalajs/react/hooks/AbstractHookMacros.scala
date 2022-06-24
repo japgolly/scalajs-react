@@ -1,17 +1,19 @@
 package japgolly.scalajs.react.hooks
 
 import japgolly.scalajs.react.React.Context
+import japgolly.scalajs.react.component.{Js => JsComponent, Scala => ScalaComponent}
 import japgolly.scalajs.react.facade.React
 import japgolly.scalajs.react.facade.React.HookDeps
 import japgolly.scalajs.react.hooks.CustomHook.ReusableDepState
 import japgolly.scalajs.react.hooks.Hooks
 import japgolly.scalajs.react.internal.{Box, MacroLogger}
 import japgolly.scalajs.react.util.DefaultEffects
-import japgolly.scalajs.react.vdom.VdomNode
-import japgolly.scalajs.react.{Reusability, Reusable}
+import japgolly.scalajs.react.vdom.{TopNode, VdomNode}
+import japgolly.scalajs.react.{CtorType, Ref, Reusability, Reusable}
 import scala.annotation.{nowarn, tailrec}
 import scala.reflect.ClassTag
 import scala.scalajs.js
+import scala.scalajs.js.|
 
 /* Coverage
  * ========
@@ -51,6 +53,15 @@ object AbstractHookMacros {
   final case class HookStep[Term, TypeTree](name: String, targs: List[TypeTree], args: List[List[Term]]) {
     def sig = (targs, args)
   }
+
+  @inline def helperRefToComponentInject[P, S, B, CT[-p, +u] <: CtorType[p, u]](c: ScalaComponent.Component[P, S, B, CT], r: Ref.ToScalaComponent[P, S, B]): Ref.WithScalaComponent[P, S, B, CT] =
+    Ref.ToComponent.inject(c, r)
+
+  def helperRefToJsComponent[F[_], A[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]](
+      ref: Ref.Simple[JsComponent.RawMounted[P0, S0] with R],
+      arg: Ref.WithJsComponentArg[F, A, P1, S1, CT1, R, P0, S0]
+     ): Ref.WithJsComponent[F, A, P1, S1, CT1, R, P0, S0] =
+    arg.wrap(ref.map(JsComponent.mounted[P0, S0](_).addFacade[R]))
 
   // ===================================================================================================================
   // Hook Rewriter
@@ -352,8 +363,13 @@ trait AbstractHookMacros {
         Right(use(_, identity))
 
     import AutoTypeImplicits._
+    type F[A] = List[A]
     trait X
     trait Y
+    trait Z
+    type JX = js.Object with X
+    type JY = js.Object with Y
+    type JZ = js.Object with Z
 
     def createUseCallbackHook[C](b: Rewriter, ucArg: Term, callback: Expr[C], hookDeps: Expr[HookDeps], tpeC: Type[C]): Ref = {
       val a          = refToTerm(b.valDef(ucArg, "_arg")) // stablise for dependent types
@@ -384,8 +400,17 @@ trait AbstractHookMacros {
       reusableValueByInt[A](rev, value, tpeA)
     }
 
+    // This is `def unsafeCreateSimple[A](): Ref.Simple[A]` in `Hooks`
+    def simpleRef[A](b: Rewriter, tpe: Type[A]): Expr[Ref.Simple[A]] = {
+      val raw = b.createRaw(useRefOrNull[A](tpe))
+      refFromJs(raw, tpe)
+    }
+
     implicit def autoSomeRefs(r: Ref): Option[Ref] =
       Some(r)
+
+    def fail =
+      Left(() => s"Inlining of hook method '${step.name}' not yet supported.")
 
     step.name match {
 
@@ -530,6 +555,84 @@ trait AbstractHookMacros {
           b.createHook(useReducerFromJs[X, Y](raw, tpeS, tpeA))
         }
 
+      case "useRef" | "useRefBy" =>
+        val (List(tpe), List(List(valueFn), List(_))) = step.sig : @nowarn
+        maybeBy(valueFn) { (b, withCtx) =>
+          val value = withCtx(valueFn)
+          val raw = b.createRaw(useRef[X](value, tpe))
+          b.createHook(useRefFromJs[X](raw, tpe))
+        }
+
+      case "useRefToAnyVdom" =>
+        Right { b =>
+          b.createHook(simpleRef[TopNode](b, topNodeType))
+        }
+
+      case "useRefToJsComponent" =>
+        step.sig match {
+          case (List(tpeP, tpeS), List(_)) =>
+            type P = JX
+            type S = JY
+            Right { b =>
+              val tpeM = jsComponentRawMountedType[P, S](tpeP, tpeS)
+              val ref  = simpleRef[JsComponent.RawMounted[P, S]](b, tpeM)
+              b.createHook(refMapJsMounted[P, S](ref, tpeP, tpeS))
+            }
+
+          case (List(tpeF, tpeA, tpeP1, tpeS1, tpeCT1, tpeR, tpeP0, tpeS0), List(List(arg), List(_))) =>
+            type P    = JX
+            type S    = JY
+            type R    = js.Object with JsComponent.RawMounted[P, S]
+            Right { b =>
+              val tpeM = jsComponentRawMountedTypeWithFacade[P, S, R](tpeP0, tpeS0, tpeR)
+              val ref  = simpleRef[JsComponent.RawMounted[P, S] with R](b, tpeM)
+              val hook = refWithJsComponentArgHelper[F, F, P, S, CtorType, R, P, S, CtorType](ref, arg, tpeF, tpeA, tpeP1, tpeS1, tpeCT1, tpeR, tpeP0, tpeS0)
+              b.createHook(hook)
+            }
+
+          case _ => fail
+        }
+
+      case "useRefToJsComponentWithMountedFacade" =>
+        val (List(tpeP, tpeS, tpeF), List(List(_))) = step.sig : @nowarn
+        type P = JX
+        type S = JY
+        type F = JZ
+        Right { b =>
+          val tpeM = jsComponentRawMountedTypeWithFacade[P, S, F](tpeP, tpeS, tpeF)
+          val ref  = simpleRef[JsComponent.RawMounted[P, S] with F](b, tpeM)
+          val hook = refMapJsMountedWithFacade[P, S, F](ref, tpeP, tpeS, tpeF)
+          b.createHook(hook)
+        }
+
+      case "useRefToScalaComponent" =>
+        def build[P, S, B](b: Rewriter, tpeP: Type[P], tpeS: Type[S], tpeB: Type[B]) = {
+          val tpeM = scalaComponentRawMountedType[P, S, B](tpeP, tpeS, tpeB)
+          val ref  = simpleRef[ScalaComponent.RawMounted[P, S, B]](b, tpeM)
+          refMapMountedImpure(ref, tpeP, tpeS, tpeB)
+        }
+        step.sig match {
+          case (List(tpeP, tpeS, tpeB), List(List(_))) =>
+            Right { b =>
+              b.createHook(build[X, Y, Z](b, tpeP, tpeS, tpeB))
+            }
+
+          case (List(tpeP, tpeS, tpeB, tpeCT), List(List(comp), List(_))) =>
+            Right { b =>
+              val ref = build[X, Y, Z](b, tpeP, tpeS, tpeB)
+              b.createHook(refToComponentInject[X, Y, Z, CtorType](comp, ref, tpeP, tpeS, tpeB, tpeCT))
+            }
+
+          case _ => fail
+        }
+
+      case "useRefToVdom" =>
+        val (List(tpe), List(List(ct, _))) = step.sig : @nowarn
+        Right { b =>
+          val sup = simpleRef[TopNode](b, topNodeType)
+          b.createHook(refNarrowOption[TopNode, TopNode](sup, ct, topNodeType, tpe))
+        }
+
       case "useState" | "useStateBy" =>
         val (List(tpe), List(List(initialStateFn), List(_))) = step.sig : @nowarn
         maybeBy(initialStateFn) { (b, withCtx) =>
@@ -545,7 +648,7 @@ trait AbstractHookMacros {
         }
 
       case _ =>
-        Left(() => s"Inlining of hook method '${step.name}' not yet supported.")
+        fail
     }
   }
 
@@ -562,9 +665,30 @@ trait AbstractHookMacros {
 
   protected def hooksVar[A]: (Type[A], Expr[A]) => Expr[Hooks.Var[A]]
 
+  protected def jsComponentRawMountedType[P <: js.Object, S <: js.Object]: (Type[P], Type[S]) => Type[JsComponent.RawMounted[P, S]]
+
+  protected def jsComponentRawMountedTypeWithFacade[P <: js.Object, S <: js.Object, F]: (Type[P], Type[S], Type[F]) => Type[JsComponent.RawMounted[P, S] with F]
+
   protected def none[A]: Type[Option[A]] => Expr[Option[A]]
 
   protected def optionType[A]: Type[A] => Type[Option[A]]
+
+  protected def refFromJs[A]: (Expr[React.RefHandle[A | Null]], Type[A]) => Expr[Ref.Simple[A]]
+
+  protected def refMapJsMounted[P <: js.Object, S <: js.Object]: (Expr[Ref.Simple[JsComponent.RawMounted[P, S]]], Type[P], Type[S]) => Expr[Ref.ToJsComponent[P, S, JsComponent.RawMounted[P, S]]]
+
+  protected def refMapJsMountedWithFacade[P <: js.Object, S <: js.Object, F <: js.Object]: (Expr[Ref.Simple[JsComponent.RawMounted[P, S] with F]], Type[P], Type[S], Type[F]) => Expr[Ref.ToJsComponent[P, S, JsComponent.RawMounted[P, S] with F]]
+
+  protected def refMapMountedImpure[P, S, B]: (Expr[Ref.Simple[ScalaComponent.RawMounted[P, S, B]]], Type[P], Type[S], Type[B]) => Expr[Ref.ToScalaComponent[P, S, B]]
+
+  protected def refWithJsComponentArgHelper[F[_], A[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]]:
+    (Expr[Ref.Simple[JsComponent.RawMounted[P0, S0] with R]], Expr[Ref.WithJsComponentArg[F, A, P1, S1, CT1, R, P0, S0]],
+     TypeTree, TypeTree, Type[P1], Type[S1], TypeTree, Type[R], Type[P0], Type[S0]
+    ) => Expr[Ref.WithJsComponent[F, A, P1, S1, CT1, R, P0, S0]]
+
+  protected def refNarrowOption[A, B <: A]: (Expr[Ref.Simple[A]], Expr[ClassTag[B]], Type[A], Type[B]) => Expr[Ref.Full[A, A, B]]
+
+  protected def refToComponentInject[P, S, B, CT[-p, +u] <: CtorType[p, u]]: (Expr[ScalaComponent.Component[P, S, B, CT]], Expr[Ref.ToScalaComponent[P, S, B]], Type[P], Type[S], Type[B], TypeTree) => Expr[Ref.WithScalaComponent[P, S, B, CT]]
 
   protected def reusableDepsLogic[D]: (Expr[D], Expr[Hooks.UseState[Option[ReusableDepState[D]]]], Expr[Reusability[D]], Type[D]) => Expr[ReusableDepState[D]]
 
@@ -575,6 +699,10 @@ trait AbstractHookMacros {
   protected def reusableDepStateValue[D]: (Expr[ReusableDepState[D]], Type[D]) => Expr[D]
 
   protected def reusableValueByInt[A]: (Expr[Int], Expr[A], Type[A]) => Expr[Reusable[A]]
+
+  protected def topNodeType: Type[TopNode]
+
+  protected def scalaComponentRawMountedType[P, S, B]: (Type[P], Type[S], Type[B]) => Type[ScalaComponent.RawMounted[P, S, B]]
 
   protected def scalaFn0[A]: (Type[A], Expr[A]) => Expr[() => A]
 
@@ -605,6 +733,12 @@ trait AbstractHookMacros {
   protected def useReducer[S, A]: (Expr[(S, A) => S], Expr[S], Type[S], Type[A]) => Expr[React.UseReducer[S, A]]
 
   protected def useReducerFromJs[S, A]: (Expr[React.UseReducer[S, A]], Type[S], Type[A]) => Expr[Hooks.UseReducer[S, A]]
+
+  protected def useRef[A]: (Expr[A], Type[A]) => Expr[React.RefHandle[A]]
+
+  protected def useRefOrNull[A]: Type[A] => Expr[React.RefHandle[A | Null]]
+
+  protected def useRefFromJs[A]: (Expr[React.RefHandle[A]], Type[A]) => Expr[Hooks.UseRef[A]]
 
   protected def useStateFn[S]: (Type[S], Expr[S]) => Expr[React.UseState[Box[S]]]
 

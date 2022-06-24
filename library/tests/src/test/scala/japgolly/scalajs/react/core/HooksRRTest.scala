@@ -7,11 +7,14 @@ import japgolly.scalajs.react.test.DomTester
 import japgolly.scalajs.react.test.ReactTestUtils._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
+import scala.scalajs.js
+import org.scalajs.dom.Node
 import org.scalajs.dom.html.Input
 import utest._
 
-// Copy of HooksTest but using renderRR
-// TODO: Remove tests that don't use renderRR
+// Based off of HooksTest but
+//   - uses renderRR
+//   - includes compilation tests for trivial useRef hooks missing from HooksTest
 object HooksRRTest extends TestSuite {
 
   // TODO: https://github.com/lampepfl/dotty/issues/12663
@@ -1322,6 +1325,37 @@ object HooksRRTest extends TestSuite {
   }
 
   // ===================================================================================================================
+  // Not included in HooksTest
+
+  private trait JsP extends js.Object
+  private trait JsS extends js.Object
+  private trait JsF extends js.Object
+
+  private def testUseRefCompilation(): Unit = {
+    val jsComp = JsComponent.force[Null, Children.None, Null](null)
+
+    ScalaFnComponent.withHooks[Unit]
+      .useRefToAnyVdom
+      .useRefToJsComponent(jsComp)
+      .useRefToJsComponent[JsP, JsS]
+      .useRefToJsComponentWithMountedFacade[JsP, JsS, JsF]
+      .useRefToScalaComponent(ReusableCallbackComponent)
+      .useRefToScalaComponent[Int, Long, String]
+      .renderRR { (_, any, js, jsPS, jsPSF, scala, scalaPSB) =>
+
+        // Assert types of results
+        any : Ref.Simple[Node]
+        jsComp.withRef(js)()
+        jsPS : Ref.ToJsComponent[JsP, JsS, JsComponent.RawMounted[JsP, JsS]]
+        jsPSF : Ref.ToJsComponent[JsP, JsS, JsComponent.RawMounted[JsP, JsS] with JsF]
+        ReusableCallbackComponent.withRef(scala)(Reusable.never(Callback.empty))
+        scalaPSB : Ref.ToScalaComponent[Int, Long, String]
+
+        "ok"
+      }
+  }
+
+  // ===================================================================================================================
 
   override def tests = Tests {
     "noHooks" - {
@@ -1368,6 +1402,7 @@ object HooksRRTest extends TestSuite {
       "depsBy" - testUseMemoBy()
     }
     "useRef" - {
+      "compilation" - testUseRefCompilation()
       "manual" - testUseRefManual()
       "manualBy" - testUseRefManualBy()
       "vdom" - testUseRefVdom()

@@ -1,11 +1,10 @@
 package japgolly.scalajs.react.hooks
 
 import japgolly.microlibs.types.NaturalComposition
-import japgolly.scalajs.react.facade
 import japgolly.scalajs.react.internal.ShouldComponentUpdateComponent
 import japgolly.scalajs.react.util.DefaultEffects
 import japgolly.scalajs.react.vdom.VdomNode
-import japgolly.scalajs.react.{PropsChildren, Reusability, Reusable}
+import japgolly.scalajs.react.{PropsChildren, Reusability, Reusable, facade}
 import scala.scalajs.js
 
 final class CustomHook[I, O] private[CustomHook] (val unsafeInit: I => O) extends AnyVal {

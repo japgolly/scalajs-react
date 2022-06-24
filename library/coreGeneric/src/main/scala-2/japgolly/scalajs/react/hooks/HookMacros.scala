@@ -1,12 +1,18 @@
 package japgolly.scalajs.react.hooks
 
 import japgolly.microlibs.compiletime.MacroUtils
-import japgolly.scalajs.react.Children
+import japgolly.scalajs.react.component.{Js => JsComponent, Scala => ScalaComponent}
 import japgolly.scalajs.react.hooks.Api._
 import japgolly.scalajs.react.hooks.CustomHook.ReusableDepState
 import japgolly.scalajs.react.internal.{Box, MacroLogger}
+import japgolly.scalajs.react.vdom.TopNode
+import japgolly.scalajs.react.{Children, CtorType}
 import scala.reflect.macros.blackbox.Context
 import scala.scalajs.js
+
+object HookMacros {
+  type With[A, B] = A with B
+}
 
 class HookMacros(val c: Context) extends MacroUtils {
   import c.universe._
@@ -48,16 +54,19 @@ class HookMacros(val c: Context) extends MacroUtils {
 
   private implicit def autoTagToType[A](t: c.WeakTypeTag[A]): Type = t.tpe
 
+  private def AHM          : Tree = q"_root_.japgolly.scalajs.react.hooks.AbstractHookMacros"
   private def Box          : Tree = q"_root_.japgolly.scalajs.react.internal.Box"
   private def Box(t: Type) : Type = appliedType(c.typeOf[Box[_]], t)
   private def CustomHook   : Tree = q"_root_.japgolly.scalajs.react.hooks.CustomHook"
   private def HookCtx      : Tree = q"_root_.japgolly.scalajs.react.hooks.HookCtx"
   private def Hooks        : Tree = q"_root_.japgolly.scalajs.react.hooks.Hooks"
+  private def JsComp       : Tree = q"_root_.japgolly.scalajs.react.component.Js"
   private def JsFn         : Tree = q"_root_.japgolly.scalajs.react.component.JsFn"
   private def PropsChildren: Tree = q"_root_.japgolly.scalajs.react.PropsChildren"
   private def React        : Tree = q"_root_.japgolly.scalajs.react.facade.React"
   private def Reusable     : Tree = q"_root_.japgolly.scalajs.react.Reusable"
   private def ScalaFn      : Tree = q"_root_.japgolly.scalajs.react.component.ScalaFn"
+  private def ScalaRef     : Tree = q"_root_.japgolly.scalajs.react.Ref"
   private def SJS          : Tree = q"_root_.scala.scalajs.js"
 
   private final class HookMacrosImpl extends AbstractHookMacros {
@@ -182,11 +191,41 @@ class HookMacros(val c: Context) extends MacroUtils {
     override protected def hooksVar[A] = (_, body) =>
       q"$Hooks.Var($body)"
 
+    override protected def jsComponentRawMountedType[P <: js.Object, S <: js.Object] = (tpeP, tpeS) =>
+      appliedType(c.typeOf[JsComponent.RawMounted[_, _]], tpeP, tpeS)
+
+    override protected def jsComponentRawMountedTypeWithFacade[P <: js.Object, S <: js.Object, F] = (tpeP, tpeS, tpeF) =>
+      appliedType(c.typeOf[HookMacros.With[_, _]],
+        appliedType(c.typeOf[JsComponent.RawMounted[_, _]], tpeP, tpeS),
+        tpeF)
+
     override protected def none[A] = _ =>
       q"None"
 
     override protected def optionType[A] = a =>
       appliedType(c.typeOf[Option[_]], a)
+
+    override protected def refFromJs[A] = (ref, _) =>
+      q"$ScalaRef.fromJs($ref)"
+
+    override protected def refMapJsMounted[P <: js.Object, S <: js.Object] = (ref, _, _) =>
+      q"$ref.map($JsComp.mounted(_))"
+
+    override protected def refMapJsMountedWithFacade[P <: js.Object, S <: js.Object, F <: js.Object] = (ref, tpeP, tpeS, tpeF) =>
+      q"$ref.map(JsComponent.mounted[$tpeP, $tpeS](_).addFacade[$tpeF])"
+
+    override protected def refMapMountedImpure[P, S, B] = (ref, _, _, _) =>
+      q"$ref.map(_.mountedImpure)"
+
+    override protected def refWithJsComponentArgHelper[F[_], A[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]] =
+      (r, a, _, _, _, _, _, _, _, _) =>
+        q"$AHM.helperRefToJsComponent($r, $a)"
+
+    override protected def refNarrowOption[A, B <: A] = (ref, ct, _, tpeB) =>
+      q"$ref.narrowOption[$tpeB]($ct)"
+
+    override protected def refToComponentInject[P, S, B, CT[-p, +u] <: CtorType[p, u]] = (c, r, _, _, _, _) =>
+      q"$AHM.helperRefToComponentInject($c, $r)"
 
     override protected def reusableDepsLogic[D] = (d, s, r, tpeD) =>
       q"$CustomHook.reusableDepsLogic[$tpeD]($d)($s)($r)"
@@ -202,6 +241,12 @@ class HookMacros(val c: Context) extends MacroUtils {
 
     override protected def reusableValueByInt[A] = (i, a, _) =>
       q"$Reusable.implicitly($i).withValue($a)"
+
+    override protected def topNodeType =
+      c.typeOf[TopNode]
+
+    override protected def scalaComponentRawMountedType[P, S, B] = (tpeS, tpeP, tpeB) =>
+      appliedType(c.typeOf[ScalaComponent.RawMounted[_, _, _]], tpeS, tpeP, tpeB)
 
     override protected def scalaFn0[A] = (_, body) =>
       q"() => $body"
@@ -247,6 +292,17 @@ class HookMacros(val c: Context) extends MacroUtils {
 
     override protected def useReducerFromJs[S, A] = (raw, _, _) =>
       q"$Hooks.UseReducer.fromJs($raw)"
+
+    override protected def useRef[A] = (a, _) =>
+      q"$React.useRef($a)"
+
+    override protected def useRefOrNull[A] = (tpe) => {
+      val t = appliedType(c.typeOf[js.|[_, _]], tpe, definitions.NullTpe)
+      q"$React.useRef[$t](null)"
+    }
+
+    override protected def useRefFromJs[A] = (ref, _) =>
+      q"$Hooks.UseRef.fromJs($ref)"
 
     override protected def useStateFn[S] = (tpe, body) =>
       q"$React.useStateFn(() => $Box[$tpe]($body))"

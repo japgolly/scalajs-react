@@ -208,8 +208,11 @@ object Hooks {
   type UseRef[A] = UseRefF[D.Sync, A]
 
   object UseRef {
+    def fromJs[A](ref: facade.React.RefHandle[A]): UseRef[A] =
+      new UseRefF(ref)(D.Sync)
+
     def unsafeCreate[A](initialValue: A): UseRef[A] =
-      new UseRefF(facade.React.useRef(initialValue))(D.Sync)
+      fromJs(facade.React.useRef(initialValue))
 
     def unsafeCreateSimple[A](): Ref.Simple[A] =
       Ref.fromJs(facade.React.useRef[A | Null](null))

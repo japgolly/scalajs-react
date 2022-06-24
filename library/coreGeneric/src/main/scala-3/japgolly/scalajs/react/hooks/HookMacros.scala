@@ -1,8 +1,8 @@
 package japgolly.scalajs.react.hooks
 
 import japgolly.microlibs.compiletime.MacroEnv.*
-import japgolly.scalajs.react.{Children, CtorType, PropsChildren, Reusable, Reusability}
-import japgolly.scalajs.react.component.{JsFn, ScalaFn}
+import japgolly.scalajs.react.{Children, CtorType, PropsChildren, Ref => ScalaRef, Reusable, Reusability}
+import japgolly.scalajs.react.component.{Js => JsComponent, JsFn, Scala => ScalaComponent, ScalaFn}
 import japgolly.scalajs.react.component.ScalaFn.Component
 import japgolly.scalajs.react.facade
 import japgolly.scalajs.react.facade.React
@@ -12,7 +12,7 @@ import japgolly.scalajs.react.hooks.CustomHook.ReusableDepState
 import japgolly.scalajs.react.hooks.HookCtx
 import japgolly.scalajs.react.internal.{Box, MacroLogger}
 import japgolly.scalajs.react.util.DefaultEffects
-import japgolly.scalajs.react.vdom.VdomNode
+import japgolly.scalajs.react.vdom.{TopNode, VdomNode}
 import scala.annotation._
 import scala.language.`3.1`
 import scala.quoted.*
@@ -141,7 +141,7 @@ object HookMacros {
 
     // TODO: Move into microlibs
     extension (self: q.reflect.TypeTree) {
-      def asTypeOf[A]: Tpe[A] =
+      def asTypeOf[A <: AnyKind]: Tpe[A] =
         self.asType.asInstanceOf[Tpe[A]]
     }
 
@@ -289,11 +289,45 @@ object HookMacros {
     override protected def hooksVar[A] = implicit (tpe, body) =>
       '{ Hooks.Var[$tpe]($body) }
 
+    override protected def jsComponentRawMountedType[P <: js.Object, S <: js.Object] = implicit (tpeP, tpeS) =>
+      Tpe.of[JsComponent.RawMounted[P, S]]
+
+    override protected def jsComponentRawMountedTypeWithFacade[P <: js.Object, S <: js.Object, F] = implicit (tpeP, tpeS, tpeF) =>
+      Tpe.of[JsComponent.RawMounted[P, S] with F]
+
     override protected def none[A] = implicit tpe =>
       '{ None }
 
     override protected def optionType[A] = {
       case '[a] => Tpe.of[Option[a]].asInstanceOf[Type[Option[A]]]
+    }
+
+    override protected def refFromJs[A] = implicit (ref, tpe) =>
+      '{ ScalaRef.fromJs($ref) }
+
+    override protected def refMapJsMounted[P <: js.Object, S <: js.Object] = implicit (ref, tpeP, tpeS) =>
+      '{ $ref.map(JsComponent.mounted(_)) }
+
+    override protected def refMapJsMountedWithFacade[P <: js.Object, S <: js.Object, F <: js.Object] = implicit (ref, tpeP, tpeS, tpeF) =>
+      '{ $ref.map(JsComponent.mounted[P, S](_).addFacade[F]) }
+
+    override protected def refMapMountedImpure[P, S, B] = implicit (ref, tpeS, tpeP, tpeB) =>
+      '{ $ref.map(_.mountedImpure) }
+
+    override protected def refWithJsComponentArgHelper[F[_], A[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]] =
+      implicit (r, a, ttF, ttA, tpeP1, tpeS1, ttCT1, tpeR, tpeP0, tpeS0) => {
+        implicit val tpeF = ttF.asTypeOf[F]
+        implicit val tpeA = ttA.asTypeOf[A]
+        implicit val tpeC = ttCT1.asTypeOf[CT1]
+        '{ AbstractHookMacros.helperRefToJsComponent($r, $a) }
+      }
+
+    override protected def refNarrowOption[A, B <: A] = implicit (ref, ct, tpeA, tpeB) =>
+      '{ $ref.narrowOption[$tpeB]($ct) }
+
+    override protected def refToComponentInject[P, S, B, CT[-p, +u] <: CtorType[p, u]] = implicit (c, r, tpeS, tpeP, tpeB, ttCT) => {
+      implicit val tpeCT = ttCT.asTypeOf[CT]
+      '{ AbstractHookMacros.helperRefToComponentInject($c, $r) }
     }
 
     override protected def reusableDepsLogic[D] = implicit (d, s, r, tpeD) =>
@@ -311,6 +345,12 @@ object HookMacros {
 
     override protected def reusableValueByInt[A] = implicit (i, a, tpeA) =>
       '{ Reusable.implicitly($i).withValue($a) }
+
+    override protected def topNodeType =
+      Tpe.of[TopNode]
+
+    override protected def scalaComponentRawMountedType[P, S, B] = implicit (tpeS, tpeP, tpeB) =>
+      Tpe.of[ScalaComponent.RawMounted[P, S, B]]
 
     override protected def scalaFn0[A] = implicit (tpe, body) =>
       '{ () => $body }
@@ -356,6 +396,15 @@ object HookMacros {
 
     override protected def useReducerFromJs[S, A] = implicit (raw, tpeS, tpeA) =>
       '{ Hooks.UseReducer.fromJs($raw) }
+
+    override protected def useRef[A] = implicit (a, tpe) =>
+      '{ React.useRef($a) }
+
+    override protected def useRefOrNull[A] = implicit (tpe) =>
+      '{ React.useRef[$tpe | Null](null) }
+
+    override protected def useRefFromJs[A] = implicit (ref, tpe) =>
+      '{ Hooks.UseRef.fromJs($ref) }
 
     override protected def useStateFn[S] = implicit (tpe, body) =>
       '{ React.useStateFn(() => Box[$tpe]($body)) }
