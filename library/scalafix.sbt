@@ -8,7 +8,7 @@ ThisBuild / scalacOptions ++= {
 ThisBuild / semanticdbEnabled := true
 
 // NOTE: Upgrade downstream-tests/scalafix.sbt too!
-ThisBuild / semanticdbVersion := "4.5.5"
+ThisBuild / semanticdbVersion := "4.5.9"
 
 ThisBuild / scalafixScalaBinaryVersion := "2.13"
 
