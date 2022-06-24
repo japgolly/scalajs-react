@@ -22,7 +22,7 @@ object CompileTimeConfig {
     def getModule[A: Type](key: Expr[String])(using Quotes): Option[Expr[A]] = {
       import quotes.reflect.*
       val value: Option[String] =
-        CompileTimeInfo.quoted.sysPropOrEnvVar(key).valueOrError
+        CompileTimeInfo.quoted.sysPropOrEnvVar(key).valueOrAbort
       value.map(fqcn => loadModuleOrError[A](Expr.inlineConst(fqcn)))
     }
 
@@ -32,7 +32,7 @@ object CompileTimeConfig {
     }
 
     def loadModuleOrError[A: Type](fqcnExpr: Expr[String])(using Quotes): Expr[A] = {
-      val fqcn = fqcnExpr.valueOrError
+      val fqcn = fqcnExpr.valueOrAbort
       loadModule(fqcn) match {
         case Right(e) => e
         case Left(e) => fail(s"$fqcn $e")

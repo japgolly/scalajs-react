@@ -14,7 +14,7 @@ object CssUnits {
     n.asTerm match {
       case Inlined(_, _, Literal(c)) =>
         val v = c.value
-        val s = if v == 0 then "0" else v.toString + suffix.valueOrError
+        val s = if v == 0 then "0" else v.toString + suffix.valueOrAbort
         Expr.inlineConst(s)
 
       case _ =>
