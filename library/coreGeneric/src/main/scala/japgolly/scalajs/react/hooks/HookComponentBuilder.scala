@@ -4,7 +4,7 @@ import japgolly.scalajs.react.component.ScalaFn
 import japgolly.scalajs.react.component.ScalaFn.Component
 import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.vdom.VdomNode
-import japgolly.scalajs.react.{Children, CtorType, PropsChildren, Reusability}
+import japgolly.scalajs.react.{Children, CtorType, PropsChildren, Reusable, Reusability}
 
 object HookComponentBuilder {
 
@@ -121,6 +121,12 @@ object HookComponentBuilder {
 
       def render(f: (P, PropsChildren) => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
         ScalaFn.withChildren(f)
+
+      def renderReusable[A](f: (P, PropsChildren) => Reusable[A])(implicit s: CtorType.Summoner[Box[P], Children.Varargs], v: A => VdomNode): Component[P, s.CT] =
+        renderReusable($ => f($.props, $.propsChildren))
+
+      def renderWithReuse(f: (P, PropsChildren) => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs], r: Reusability[Ctx]): Component[P, s.CT] =
+        renderWithReuse($ => f($.props, $.propsChildren))
 
       override def renderWithReuseBy[A](reusableInputs: Ctx => A)(f: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs], r: Reusability[A]): Component[P, s.CT] =
         customBy(ctx => CustomHook.shouldComponentUpdate(f).apply(() => reusableInputs(ctx)))

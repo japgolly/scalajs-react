@@ -1235,6 +1235,39 @@ object HooksTest extends TestSuite {
     }
   }
 
+  private def testRenderWithReuseNeverPC(): Unit = {
+    implicit val reusability: Reusability[PI] = Reusability.never
+
+    implicit val v: Reusability[japgolly.scalajs.react.hooks.HookCtx.PC0[PI]] =
+      japgolly.scalajs.react.hooks.HookCtx.reusabilityPC0
+
+    var renders = 0
+    val comp = ScalaFnComponent.withHooks[PI]
+      .withPropsChildren
+      .renderWithReuse { (p, c) =>
+        renders += 1
+        <.div(s"P=$p, R=$renders", c)
+      }
+
+    val wrapper = ScalaComponent.builder[PI]
+      .initialStateFromProps(identity)
+      .renderS { ($, s) =>
+        <.div(
+          comp(s)("."),
+          <.button(^.onClick --> $.modState(_ + 0)),
+          <.button(^.onClick --> $.modState(_ + 1)),
+        )
+      }
+      .build
+
+    withRenderedIntoBody(wrapper(PI(3))) { (_, root) =>
+      val t = new DomTester(root)
+      t.assertText("P=PI(3), R=1.")
+      t.clickButton(2); t.assertText("P=PI(4), R=2.")
+      t.clickButton(1); t.assertText("P=PI(4), R=3.")
+    }
+  }
+
   private def testRenderWithReuseAndUseRef(): Unit = {
     val comp = ScalaFnComponent.withHooks[Unit]
       .useRef(100)
@@ -1259,9 +1292,10 @@ object HooksTest extends TestSuite {
   private def testRenderWithReuseAndUseRefToVdom(): Unit = {
     var text = "uninitialised"
     val comp = ScalaFnComponent.withHooks[Unit]
+      .withPropsChildren
       .useRefToVdom[Input]
       .useState("x")
-      .renderWithReuse { (_, inputRef, s) =>
+      .renderWithReuse { (_, c, inputRef, s) =>
 
         def onChange(e: ReactEventFromInput): Callback =
           s.setState(e.target.value)
@@ -1276,11 +1310,12 @@ object HooksTest extends TestSuite {
 
         <.div(
           <.input.text.withRef(inputRef)(^.value := s.value, ^.onChange ==> onChange),
-          <.button(^.onClick --> btn)
+          <.button(^.onClick --> btn),
+          c
         )
       }
 
-    test(comp()) { t =>
+    test(comp("!")) { t =>
       t.assertInputText("x")
       t.clickButton()
       assertEq(text, "x")
@@ -1394,10 +1429,11 @@ object HooksTest extends TestSuite {
     }
 
     "renderWithReuse" - {
-      "main" - testRenderWithReuse()
-      "never" - testRenderWithReuseNever()
-      "useRef" - testRenderWithReuseAndUseRef()
-      "useRefToVdom" - testRenderWithReuseAndUseRefToVdom()
+      "main"         - testRenderWithReuse() // P, Secondary
+      "never"        - testRenderWithReuseNever() // P, Primary
+      "neverC"       - testRenderWithReuseNeverPC() // PC, Primary
+      "useRef"       - testRenderWithReuseAndUseRef() // P, Secondary
+      "useRefToVdom" - testRenderWithReuseAndUseRefToVdom() // PC, Secondary
     }
   }
 }
