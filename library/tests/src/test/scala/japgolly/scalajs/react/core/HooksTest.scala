@@ -1272,7 +1272,9 @@ object HooksTest extends TestSuite {
     val comp = ScalaFnComponent.withHooks[Unit]
       .useRef(100)
       .useState(0)
-      .renderWithReuse { (_, ref, s) =>
+      .renderWithReuse { $ =>
+        val ref = $.hook1
+        val s = $.hook2
         <.div(
           ref.value,
           <.button(^.onClick --> ref.mod(_ + 1)),
@@ -1296,6 +1298,47 @@ object HooksTest extends TestSuite {
       .useRefToVdom[Input]
       .useState("x")
       .renderWithReuse { (_, c, inputRef, s) =>
+
+        def onChange(e: ReactEventFromInput): Callback =
+          s.setState(e.target.value)
+
+        def btn: Callback =
+          for {
+            i <- inputRef.get.asCBO
+            // _ <- Callback.log(s"i.value = [${i.value}]")
+          } yield {
+            text = i.value
+          }
+
+        <.div(
+          <.input.text.withRef(inputRef)(^.value := s.value, ^.onChange ==> onChange),
+          <.button(^.onClick --> btn),
+          c
+        )
+      }
+
+    test(comp("!")) { t =>
+      t.assertInputText("x")
+      t.clickButton()
+      assertEq(text, "x")
+
+      t.setInputText("hehe")
+      t.assertInputText("hehe")
+      t.clickButton()
+      assertEq(text, "hehe")
+    }
+  }
+
+  private def testRenderWithReuseAndUseRefToVdomO(): Unit = {
+    var text = "uninitialised"
+    val comp = ScalaFnComponent.withHooks[Unit]
+      .withPropsChildren
+      .useRefToVdom[Input]
+      .useState("x")
+      .renderWithReuse { $ =>
+        val c        = $.propsChildren
+        val inputRef = $.hook1
+        val s        = $.hook2
 
         def onChange(e: ReactEventFromInput): Callback =
           s.setState(e.target.value)
@@ -1429,11 +1472,12 @@ object HooksTest extends TestSuite {
     }
 
     "renderWithReuse" - {
-      "main"         - testRenderWithReuse() // P, Secondary
-      "never"        - testRenderWithReuseNever() // P, Primary
-      "neverC"       - testRenderWithReuseNeverPC() // PC, Primary
-      "useRef"       - testRenderWithReuseAndUseRef() // P, Secondary
-      "useRefToVdom" - testRenderWithReuseAndUseRefToVdom() // PC, Secondary
+      "main"          - testRenderWithReuse() // P, Secondary, CtxFn
+      "never"         - testRenderWithReuseNever() // P, Primary
+      "neverC"        - testRenderWithReuseNeverPC() // PC, Primary
+      "useRef"        - testRenderWithReuseAndUseRef() // P, Secondary, CtxObj
+      "useRefToVdom"  - testRenderWithReuseAndUseRefToVdom() // PC, Secondary, CtxFn
+      "useRefToVdomO" - testRenderWithReuseAndUseRefToVdomO() // PC, Secondary, CtxObj
     }
   }
 }

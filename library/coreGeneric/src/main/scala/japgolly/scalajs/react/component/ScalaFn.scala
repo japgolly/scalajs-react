@@ -33,10 +33,10 @@ object ScalaFn {
     withHooks[P].renderWithReuseBy(reusableInputs)(render)(s, r)
 
   def withChildrenAndReuse[P](render: (P, PropsChildren) => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs], rp: Reusability[P], rc: Reusability[PropsChildren]): Component[P, s.CT] =
-    withHooks[P].withPropsChildren.renderWithReuse(i => render(i.props, i.propsChildren))
+    withHooks[P].withPropsChildren.renderWithReuse(render)
 
   def withChildrenAndReuse[P, A](reusableInputs: (P, PropsChildren) => A)(render: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs], r: Reusability[A]): Component[P, s.CT] =
-    withHooks[P].withPropsChildren.renderWithReuseBy(i => reusableInputs(i.props, i.propsChildren))(render)
+    withHooks[P].withPropsChildren.renderWithReuseBy(reusableInputs)(render)
 
   // ===================================================================================================================
 
