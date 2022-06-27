@@ -1187,7 +1187,7 @@ object HooksRRTest extends TestSuite {
       .useState(20)
       .useCallback(Callback(extState += 1))
       .useForceUpdate
-      .renderWithReuse { (p, s, incES, fu) =>
+      .renderRRWithReuse { (p, s, incES, fu) =>
         renders += 1
         <.div(
           s"P=$p, S=${s.value}, ES=$extState, R=$renders",
@@ -1216,7 +1216,7 @@ object HooksRRTest extends TestSuite {
     implicit val reusability: Reusability[PI] = Reusability.never
     var renders = 0
     val comp = ScalaFnComponent.withHooks[PI]
-      .renderWithReuse { p =>
+      .renderRRWithReuse { p =>
         renders += 1
         <.div(s"P=$p, R=$renders")
       }
@@ -1240,11 +1240,46 @@ object HooksRRTest extends TestSuite {
     }
   }
 
+  private def testRenderWithReuseNeverPC(): Unit = {
+    implicit val reusability: Reusability[PI] = Reusability.never
+
+    implicit val v: Reusability[japgolly.scalajs.react.hooks.HookCtx.PC0[PI]] =
+      japgolly.scalajs.react.hooks.HookCtx.reusabilityPC0
+
+    var renders = 0
+    val comp = ScalaFnComponent.withHooks[PI]
+      .withPropsChildren
+      .renderRRWithReuse { (p, c) =>
+        renders += 1
+        <.div(s"P=$p, R=$renders", c)
+      }
+
+    val wrapper = ScalaComponent.builder[PI]
+      .initialStateFromProps(identity)
+      .renderS { ($, s) =>
+        <.div(
+          comp(s)("."),
+          <.button(^.onClick --> $.modState(_ + 0)),
+          <.button(^.onClick --> $.modState(_ + 1)),
+        )
+      }
+      .build
+
+    withRenderedIntoBody(wrapper(PI(3))) { (_, root) =>
+      val t = new DomTester(root)
+      t.assertText("P=PI(3), R=1.")
+      t.clickButton(2); t.assertText("P=PI(4), R=2.")
+      t.clickButton(1); t.assertText("P=PI(4), R=3.")
+    }
+  }
+
   private def testRenderWithReuseAndUseRef(): Unit = {
     val comp = ScalaFnComponent.withHooks[Unit]
       .useRef(100)
       .useState(0)
-      .renderWithReuse { (_, ref, s) =>
+      .renderRRWithReuse { $ =>
+        val ref = $.hook1
+        val s = $.hook2
         <.div(
           ref.value,
           <.button(^.onClick --> ref.mod(_ + 1)),
@@ -1264,9 +1299,10 @@ object HooksRRTest extends TestSuite {
   private def testRenderWithReuseAndUseRefToVdom(): Unit = {
     var text = "uninitialised"
     val comp = ScalaFnComponent.withHooks[Unit]
+      .withPropsChildren
       .useRefToVdom[Input]
       .useState("x")
-      .renderWithReuse { (_, inputRef, s) =>
+      .renderRRWithReuse { (_, c, inputRef, s) =>
 
         def onChange(e: ReactEventFromInput): Callback =
           s.setState(e.target.value)
@@ -1281,11 +1317,53 @@ object HooksRRTest extends TestSuite {
 
         <.div(
           <.input.text.withRef(inputRef)(^.value := s.value, ^.onChange ==> onChange),
-          <.button(^.onClick --> btn)
+          <.button(^.onClick --> btn),
+          c
         )
       }
 
-    test(comp()) { t =>
+    test(comp("!")) { t =>
+      t.assertInputText("x")
+      t.clickButton()
+      assertEq(text, "x")
+
+      t.setInputText("hehe")
+      t.assertInputText("hehe")
+      t.clickButton()
+      assertEq(text, "hehe")
+    }
+  }
+
+  private def testRenderWithReuseAndUseRefToVdomO(): Unit = {
+    var text = "uninitialised"
+    val comp = ScalaFnComponent.withHooks[Unit]
+      .withPropsChildren
+      .useRefToVdom[Input]
+      .useState("x")
+      .renderRRWithReuse { $ =>
+        val c        = $.propsChildren
+        val inputRef = $.hook1
+        val s        = $.hook2
+
+        def onChange(e: ReactEventFromInput): Callback =
+          s.setState(e.target.value)
+
+        def btn: Callback =
+          for {
+            i <- inputRef.get.asCBO
+            // _ <- Callback.log(s"i.value = [${i.value}]")
+          } yield {
+            text = i.value
+          }
+
+        <.div(
+          <.input.text.withRef(inputRef)(^.value := s.value, ^.onChange ==> onChange),
+          <.button(^.onClick --> btn),
+          c
+        )
+      }
+
+    test(comp("!")) { t =>
       t.assertInputText("x")
       t.clickButton()
       assertEq(text, "x")
@@ -1431,10 +1509,12 @@ object HooksRRTest extends TestSuite {
     }
 
     "renderWithReuse" - {
-      "main" - testRenderWithReuse()
-      "never" - testRenderWithReuseNever()
-      "useRef" - testRenderWithReuseAndUseRef()
-      "useRefToVdom" - testRenderWithReuseAndUseRefToVdom()
+      "main"          - testRenderWithReuse() // P, Secondary, CtxFn
+      "never"         - testRenderWithReuseNever() // P, Primary
+      "neverC"        - testRenderWithReuseNeverPC() // PC, Primary
+      "useRef"        - testRenderWithReuseAndUseRef() // P, Secondary, CtxObj
+      "useRefToVdom"  - testRenderWithReuseAndUseRefToVdom() // PC, Secondary, CtxFn
+      "useRefToVdomO" - testRenderWithReuseAndUseRefToVdomO() // PC, Secondary, CtxObj
     }
   }
 }

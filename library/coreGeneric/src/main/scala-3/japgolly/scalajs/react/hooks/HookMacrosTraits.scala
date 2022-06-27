@@ -1,7 +1,6 @@
 package japgolly.scalajs.react.hooks
 
 import japgolly.microlibs.compiletime.MacroEnv.*
-import japgolly.scalajs.react.{Children, CtorType, PropsChildren, Reusability}
 import japgolly.scalajs.react.component.{JsFn, ScalaFn}
 import japgolly.scalajs.react.component.ScalaFn.Component
 import japgolly.scalajs.react.facade
@@ -10,6 +9,7 @@ import japgolly.scalajs.react.hooks.Api.*
 import japgolly.scalajs.react.hooks.HookCtx
 import japgolly.scalajs.react.internal.{Box, MacroLogger}
 import japgolly.scalajs.react.vdom.VdomNode
+import japgolly.scalajs.react.{Children, CtorType, PropsChildren, Reusable, Reusability}
 import scala.annotation._
 import scala.quoted.*
 import scala.reflect.ClassTag
@@ -27,6 +27,15 @@ object ApiPrimaryWithRenderMacros {
 
     inline def renderRRDebug(inline f: Ctx => VdomNode)(implicit inline s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
       HookMacros.renderDebug1Workaround[P, C, Ctx, Step, s.CT](self, f, s)
+
+    inline def renderRRReusable[A](f: Ctx => Reusable[A])(implicit s: CtorType.Summoner[Box[P], C], v: A => VdomNode): Component[P, s.CT] =
+      renderReusable(f) // TODO: use macro
+
+    inline def renderRRWithReuse(f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], C], r: Reusability[Ctx]): Component[P, s.CT] =
+      renderWithReuse(f) // TODO: use macro
+
+    inline def renderRRWithReuseBy[A](reusableInputs: Ctx => A)(f: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], C], r: Reusability[A]): Component[P, s.CT] =
+      renderWithReuseBy(reusableInputs)(f) // TODO: use macro
   }
 }
 
@@ -45,6 +54,15 @@ object ComponentPCMacros {
 
     inline def renderRRDebug(inline f: (P, PropsChildren) => VdomNode)(implicit inline s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
       HookMacros.renderDebugC1Workaround[P, s.CT](self, f, s)
+
+    inline def renderRRReusable[A](f: (P, PropsChildren) => Reusable[A])(implicit s: CtorType.Summoner[Box[P], Children.Varargs], v: A => VdomNode): Component[P, s.CT] =
+      renderReusable(f) // TODO: use macro
+
+    inline def renderRRWithReuse(f: (P, PropsChildren) => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs], r: Reusability[Ctx]): Component[P, s.CT] =
+      renderWithReuse(f) // TODO: use macro
+
+    inline def renderRRWithReuseBy[A](reusableInputs: (P, PropsChildren) => A)(f: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs], r: Reusability[A]): Component[P, s.CT] =
+      renderWithReuseBy(reusableInputs)(f) // TODO: use macro
   }
 }
 
@@ -71,5 +89,14 @@ object ApiSecondaryWithRenderMacros {
 
     inline def renderRRDebug(inline f: Ctx => VdomNode)(implicit inline s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
       HookMacros.renderDebug1Workaround[P, C, Ctx, Step, s.CT](self, f, s)
+
+    inline def renderRRReusable[A](f: CtxFn[Reusable[A]])(implicit step: Step, s: CtorType.Summoner[Box[P], C], v: A => VdomNode): Component[P, s.CT] =
+      renderReusable(step.squash(f)(_)) // TODO: use macro
+
+    inline def renderRRWithReuse(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C], r: Reusability[Ctx]): Component[P, s.CT] =
+      renderWithReuse(step.squash(f)(_)) // TODO: use macro
+
+    inline def renderRRWithReuseBy[A](reusableInputs: CtxFn[A])(f: A => VdomNode)(implicit step: Step, s: CtorType.Summoner[Box[P], C], r: Reusability[A]): Component[P, s.CT] =
+      renderWithReuseBy(step.squash(reusableInputs)(_))(f) // TODO: use macro
   }
 }
