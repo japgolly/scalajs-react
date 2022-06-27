@@ -62,8 +62,8 @@ function $c_Ljapgolly_scalajs_react_test_emissions_HooksTrivial$() {
 
       var _＿japgolly_＿hook3 = $i_react.useContext((props.a | 0, this$3.Ljapgolly_scalajs_react_test_emissions_HooksTrivial$__f_ctx.Ljapgolly_scalajs_react_feature_Context$$anon$3__f_raw)) | 0;
 
-      $i_react.useDebugValue(null, new $j_scala$002eFunction1.$c_sjsr_AnonFunction1(_$20 => {
-        if (_$20 !== null) {
+      $i_react.useDebugValue(null, new $j_scala$002eFunction1.$c_sjsr_AnonFunction1(_$25 => {
+        if (_$25 !== null) {
           throw new $j_java$002elang$002eClassCastException.$c_jl_ClassCastException();
         }
 
@@ -71,16 +71,16 @@ function $c_Ljapgolly_scalajs_react_test_emissions_HooksTrivial$() {
         return "aaaaa";
       }));
       props.a;
-      $i_react.useDebugValue(null, new $j_scala$002eFunction1.$c_sjsr_AnonFunction1(_$20$2 => {
-        if (_$20$2 !== null) {
+      $i_react.useDebugValue(null, new $j_scala$002eFunction1.$c_sjsr_AnonFunction1(_$25$2 => {
+        if (_$25$2 !== null) {
           throw new $j_java$002elang$002eClassCastException.$c_jl_ClassCastException();
         }
 
         ;
         return 321654;
       }));
-      $i_react.useDebugValue(null, new $j_scala$002eFunction1.$c_sjsr_AnonFunction1(_$20$3 => {
-        if (_$20$3 !== null) {
+      $i_react.useDebugValue(null, new $j_scala$002eFunction1.$c_sjsr_AnonFunction1(_$25$3 => {
+        if (_$25$3 !== null) {
           throw new $j_java$002elang$002eClassCastException.$c_jl_ClassCastException();
         }
 
@@ -88,8 +88,8 @@ function $c_Ljapgolly_scalajs_react_test_emissions_HooksTrivial$() {
         return 987;
       }));
 
-      var _＿japgolly_＿hook7_raw = $i_react.useReducer($j_scala$002escalajs$002ejs$002eAny$0024.$m_sjs_js_Any$().fromFunction2__F2__sjs_js_Function2($p_Ljapgolly_scalajs_react_test_emissions_HooksTrivial$__add__I__F2(this$3, 0)), null, _$21 => {
-        if (_$21 !== null) {
+      var _＿japgolly_＿hook7_raw = $i_react.useReducer($j_scala$002escalajs$002ejs$002eAny$0024.$m_sjs_js_Any$().fromFunction2__F2__sjs_js_Function2($p_Ljapgolly_scalajs_react_test_emissions_HooksTrivial$__add__I__F2(this$3, 0)), null, _$26 => {
+        if (_$26 !== null) {
           throw new $j_java$002elang$002eClassCastException.$c_jl_ClassCastException();
         }
 
@@ -103,8 +103,8 @@ function $c_Ljapgolly_scalajs_react_test_emissions_HooksTrivial$() {
       var $$x1 = $j_scala$002escalajs$002ejs$002eAny$0024.$m_sjs_js_Any$();
       var p = props.a | 0;
 
-      var _＿japgolly_＿hook8_raw = $$x2.useReducer($$x1.fromFunction2__F2__sjs_js_Function2($p_Ljapgolly_scalajs_react_test_emissions_HooksTrivial$__add__I__F2(this$3, p)), null, ((props$2$1, _＿japgolly_＿hook1$2, _＿japgolly_＿hook2$2, _＿japgolly_＿hook3$2, _＿japgolly_＿hook7$2) => _$21$2 => {
-        if (_$21$2 !== null) {
+      var _＿japgolly_＿hook8_raw = $$x2.useReducer($$x1.fromFunction2__F2__sjs_js_Function2($p_Ljapgolly_scalajs_react_test_emissions_HooksTrivial$__add__I__F2(this$3, p)), null, ((props$2$1, _＿japgolly_＿hook1$2, _＿japgolly_＿hook2$2, _＿japgolly_＿hook3$2, _＿japgolly_＿hook7$2) => _$26$2 => {
+        if (_$26$2 !== null) {
           throw new $j_java$002elang$002eClassCastException.$c_jl_ClassCastException();
         }
 
@@ -125,8 +125,8 @@ function $c_Ljapgolly_scalajs_react_test_emissions_HooksTrivial$() {
       var $$x3 = $j_scala$002escalajs$002ejs$002eAny$0024.$m_sjs_js_Any$();
       var this$8 = _＿japgolly_＿hook9_ctx.Ljapgolly_scalajs_react_hooks_HookCtx$P4__f_hook4;
 
-      var _＿japgolly_＿hook9_raw = $$x4.useReducer($$x3.fromFunction2__F2__sjs_js_Function2($p_Ljapgolly_scalajs_react_test_emissions_HooksTrivial$__add__I__F2(this$3, this$8.Ljapgolly_scalajs_react_hooks_Hooks$UseReducer__f_raw[0] | 0)), null, (_＿japgolly_＿hook9_ctx$2 => _$21$3 => {
-        if (_$21$3 !== null) {
+      var _＿japgolly_＿hook9_raw = $$x4.useReducer($$x3.fromFunction2__F2__sjs_js_Function2($p_Ljapgolly_scalajs_react_test_emissions_HooksTrivial$__add__I__F2(this$3, this$8.Ljapgolly_scalajs_react_hooks_Hooks$UseReducer__f_raw[0] | 0)), null, (_＿japgolly_＿hook9_ctx$2 => _$26$3 => {
+        if (_$26$3 !== null) {
           throw new $j_java$002elang$002eClassCastException.$c_jl_ClassCastException();
         }
 
