@@ -14,8 +14,6 @@ object ReactRefreshTest extends TestSuite {
 
   override def tests = Tests {
 
-    "version" - validateReactRefreshVersion()
-
     "js" - {
       "fn"           - testJs()
       "hooks"        - testJs()
@@ -33,12 +31,17 @@ object ReactRefreshTest extends TestSuite {
       "HooksWithScalaFns"           - testScala()
       "JustPropsChildrenViaHookApi" - testScala(assertRR = false) // TODO:
       "JustPropsViaHookApi"         - testScala(assertRR = false) // TODO:
+      "RenderReusable"              - testScala(expectedInstalls = 6)
+      "RenderWithReuse"             - testScala(expectedInstalls = 6)
+      "RenderWithReuseBy"           - testScala(expectedInstalls = 6)
       "UseCallback"                 - testScala()
       "UseEffect"                   - testScala()
       "UseMemo"                     - testScala()
       "UseRef"                      - testScala()
       "UseStateWithReuse"           - testScala()
     }
+
+    "version" - validateReactRefreshVersion()
   }
 
   // ===================================================================================================================
@@ -112,6 +115,7 @@ object ReactRefreshTest extends TestSuite {
                           hack              : TestJs.Hack = null,
                           onCmp             : TestJs.Hack = TestJs.Hack.forComparison,
                           onShow            : TestJs.Hack = TestJs.Hack.humanReadable,
+                          expectedInstalls  : Int         = 1,
                           expectedFrags     : Seq[String] = Seq.empty)
                          (implicit tp       : TestPath) =
   testScala(
@@ -124,6 +128,7 @@ object ReactRefreshTest extends TestSuite {
     hack               = hack,
     onCmp              = onCmp,
     onShow             = onShow,
+    expectedInstalls   = expectedInstalls,
     expectedFrags      = expectedFrags,
   )
 
@@ -137,6 +142,7 @@ object ReactRefreshTest extends TestSuite {
                           hack              : TestJs.Hack = null,
                           onCmp             : TestJs.Hack = TestJs.Hack.forComparison,
                           onShow            : TestJs.Hack = TestJs.Hack.humanReadable,
+                          expectedInstalls  : Int         = 1,
                           expectedFrags     : Seq[String] = Seq.empty)
                          (implicit tp       : TestPath) = {
     preTest()
@@ -174,7 +180,7 @@ object ReactRefreshTest extends TestSuite {
         babel.assertChanged()
 
       if (assertRR)
-        babel.assertRR(true)
+        babel.assertRR(true, expectedInstalls)
 
       if (assertRR == false)
         babel.assertRR(false)

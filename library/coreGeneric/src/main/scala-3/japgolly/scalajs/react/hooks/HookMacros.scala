@@ -10,7 +10,7 @@ import japgolly.scalajs.react.hooks.Api.*
 import japgolly.scalajs.react.hooks.CustomHook
 import japgolly.scalajs.react.hooks.CustomHook.ReusableDepState
 import japgolly.scalajs.react.hooks.HookCtx
-import japgolly.scalajs.react.internal.{Box, MacroLogger}
+import japgolly.scalajs.react.internal.{Box, MacroLogger, ShouldComponentUpdateComponent}
 import japgolly.scalajs.react.util.DefaultEffects
 import japgolly.scalajs.react.vdom.{TopNode, VdomNode}
 import scala.annotation._
@@ -20,8 +20,7 @@ import scala.reflect.ClassTag
 import scala.scalajs.js
 
 object HookMacros {
-
-  // -------------------------------------------------------------------------------------------------------------------
+  import AbstractHookMacros.HookStep
 
   type PrimaryProxy[P, C <: Children, Ctx, Step <: AbstractStep] =
     ApiPrimaryWithRenderMacros[P, C, Ctx, Step]
@@ -29,86 +28,124 @@ object HookMacros {
   type PrimaryApi[P, C <: Children, Ctx, Step <: AbstractStep] =
     PrimaryWithRender[P, C, Ctx, Step]
 
-  // https://github.com/lampepfl/dotty/issues/15357
-  inline def render1Workaround[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
-      inline proxy: PrimaryProxy[P, C, Ctx, Step],
-      inline f    : Ctx => VdomNode,
-      inline s    : CtorType.Summoner.Aux[Box[P], C, CT]): Component[P, CT] =
-    ${ render1[P, C, Ctx, Step, CT]('proxy, 'f, 's) }
-
-  inline def renderDebug1Workaround[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
-      inline proxy: PrimaryProxy[P, C, Ctx, Step],
-      inline f    : Ctx => VdomNode,
-      inline s    : CtorType.Summoner.Aux[Box[P], C, CT]): Component[P, CT] =
-    ${ renderDebug1[P, C, Ctx, Step, CT]('proxy, 'f, 's) }
-
-  def render1[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
-      proxy: Expr[PrimaryProxy[P, C, Ctx, Step]],
-      f    : Expr[Ctx => VdomNode],
-      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]])
-      (using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], Step: Type[Step]): Expr[Component[P, CT]] =
-    _render1(proxy, f, s, false)
-
-  def renderDebug1[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
-      proxy: Expr[PrimaryProxy[P, C, Ctx, Step]],
-      f    : Expr[Ctx => VdomNode],
-      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]])
-     (using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], Step: Type[Step]): Expr[Component[P, CT]] =
-    _render1(proxy, f, s, true)
-
-  // -------------------------------------------------------------------------------------------------------------------
-
-  // https://github.com/lampepfl/dotty/issues/15357
-  inline def renderC1Workaround[P, CT[-p, +u] <: CtorType[p, u]](
-      inline proxy: ComponentPCMacros[P],
-      inline f    : (P, PropsChildren) => VdomNode,
-      inline s    : CtorType.Summoner.Aux[Box[P], Children.Varargs, CT]): Component[P, CT] =
-    ${ renderC1[P, CT]('proxy, 'f, 's) }
-
-  inline def renderDebugC1Workaround[P, CT[-p, +u] <: CtorType[p, u]](
-      inline proxy: ComponentPCMacros[P],
-      inline f    : (P, PropsChildren) => VdomNode,
-      inline s    : CtorType.Summoner.Aux[Box[P], Children.Varargs, CT]): Component[P, CT] =
-    ${ renderDebugC1[P, CT]('proxy, 'f, 's) }
-
-  def renderC1[P, CT[-p, +u] <: CtorType[p, u]](
-      proxy: Expr[ComponentPCMacros[P]],
-      f    : Expr[(P, PropsChildren) => VdomNode],
-      s    : Expr[CtorType.Summoner.Aux[Box[P], Children.Varargs, CT]])
-      (using q: Quotes, P: Type[P], CT: Type[CT]): Expr[Component[P, CT]] =
-    _renderC1(proxy, f, s, false)
-
-  def renderDebugC1[P, CT[-p, +u] <: CtorType[p, u]](
-      proxy: Expr[ComponentPCMacros[P]],
-      f    : Expr[(P, PropsChildren) => VdomNode],
-      s    : Expr[CtorType.Summoner.Aux[Box[P], Children.Varargs, CT]])
-      (using q: Quotes, P: Type[P], CT: Type[CT]): Expr[Component[P, CT]] =
-    _renderC1(proxy, f, s, true)
-
-  // -------------------------------------------------------------------------------------------------------------------
-
   type SecondaryProxy[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]] =
     ApiSecondaryWithRenderMacros[P, C, Ctx, CtxFn, Step]
 
   type SecondaryApi[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]] =
     PrimaryWithRender[P, C, Ctx, Step] with Secondary[Ctx, CtxFn, Step]
 
-  // https://github.com/lampepfl/dotty/issues/15357
-  inline def render2Workaround[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
+  // Note: *Workaround methods exist due to https://github.com/lampepfl/dotty/issues/15357
+
+  // ===================================================================================================================
+  // render
+
+  inline def render1[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: PrimaryProxy[P, C, Ctx, Step],
+      inline f    : Ctx => VdomNode,
+      inline s    : CtorType.Summoner.Aux[Box[P], C, CT]): Component[P, CT] =
+    ${ render1Workaround[P, C, Ctx, Step, CT]('proxy, 'f, 's) }
+
+  inline def renderDebug1[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: PrimaryProxy[P, C, Ctx, Step],
+      inline f    : Ctx => VdomNode,
+      inline s    : CtorType.Summoner.Aux[Box[P], C, CT]): Component[P, CT] =
+    ${ renderDebug1Workaround[P, C, Ctx, Step, CT]('proxy, 'f, 's) }
+
+  def render1Workaround[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[PrimaryProxy[P, C, Ctx, Step]],
+      f    : Expr[Ctx => VdomNode],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]])
+      (using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], Step: Type[Step]): Expr[Component[P, CT]] =
+    _render1(proxy, f, s, false)
+
+  def renderDebug1Workaround[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[PrimaryProxy[P, C, Ctx, Step]],
+      f    : Expr[Ctx => VdomNode],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]])
+     (using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], Step: Type[Step]): Expr[Component[P, CT]] =
+    _render1(proxy, f, s, true)
+
+  def _render1[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
+      proxy   : Expr[PrimaryProxy[P, C, Ctx, Step]],
+      renderFn: Expr[Ctx => VdomNode],
+      summoner: Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+      debug   : Boolean)
+      (using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], Step: Type[Step]): Expr[Component[P, CT]] = {
+    import quotes.reflect.*
+    val self = proxy.asInstanceOf[Expr[PrimaryApi[P, C, Ctx, Step]]]
+    apply[P, C, CT](
+      macroApplication = self.asTerm,
+      ctxType          = TypeTree.of[Ctx],
+      summoner         = summoner,
+      debug            = debug,
+      renderStep       = HookStep("renderRR", Nil, List(List(renderFn.asTerm), List(summoner.asTerm))),
+      giveUp           = () => '{ $self.render($renderFn)($summoner) },
+    )
+  }
+
+  // -------------------------------------------------------------------------------------------------------------------
+
+  inline def render1C[P, CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: ComponentPCMacros[P],
+      inline f    : (P, PropsChildren) => VdomNode,
+      inline s    : CtorType.Summoner.Aux[Box[P], Children.Varargs, CT]): Component[P, CT] =
+    ${ render1CWorkaround[P, CT]('proxy, 'f, 's) }
+
+  inline def renderDebug1C[P, CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: ComponentPCMacros[P],
+      inline f    : (P, PropsChildren) => VdomNode,
+      inline s    : CtorType.Summoner.Aux[Box[P], Children.Varargs, CT]): Component[P, CT] =
+    ${ renderDebug1CWorkaround[P, CT]('proxy, 'f, 's) }
+
+  def render1CWorkaround[P, CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[ComponentPCMacros[P]],
+      f    : Expr[(P, PropsChildren) => VdomNode],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], Children.Varargs, CT]])
+      (using q: Quotes, P: Type[P], CT: Type[CT]): Expr[Component[P, CT]] =
+    _render1C(proxy, f, s, false)
+
+  def renderDebug1CWorkaround[P, CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[ComponentPCMacros[P]],
+      f    : Expr[(P, PropsChildren) => VdomNode],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], Children.Varargs, CT]])
+      (using q: Quotes, P: Type[P], CT: Type[CT]): Expr[Component[P, CT]] =
+    _render1C(proxy, f, s, true)
+
+  def _render1C[P, CT[-p, +u] <: CtorType[p, u]](
+      proxy   : Expr[ComponentPCMacros[P]],
+      renderFn: Expr[(P, PropsChildren) => VdomNode],
+      summoner: Expr[CtorType.Summoner.Aux[Box[P], Children.Varargs, CT]],
+      debug   : Boolean)
+      (using q: Quotes, P: Type[P], CT: Type[CT]): Expr[Component[P, CT]] = {
+    import quotes.reflect.*
+    val self = proxy.asInstanceOf[Expr[HookComponentBuilder.ComponentPC.First[P]]]
+    apply[P, Children.Varargs, CT](
+      macroApplication = self.asTerm,
+      ctxType          = TypeTree.of[HookCtx.PC0[P]],
+      summoner         = summoner,
+      debug            = debug,
+      renderStep       = HookStep("renderRR", Nil, List(List(renderFn.asTerm), List(summoner.asTerm))),
+      giveUp           = () => '{ $self.render($renderFn)($summoner) },
+    )
+  }
+
+  // -------------------------------------------------------------------------------------------------------------------
+
+  inline def render2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
       inline proxy: SecondaryProxy[P, C, Ctx, CtxFn, Step],
       inline f    : CtxFn[VdomNode],
       inline step : Step,
       inline s    : CtorType.Summoner.Aux[Box[P], C, CT]): Component[P, CT] =
-    ${ render2[P, C, Ctx, CtxFn, Step, CT]('proxy, 'f, 'step, 's) }
+    ${ render2Workaround[P, C, Ctx, CtxFn, Step, CT]('proxy, 'f, 'step, 's) }
 
-  inline def renderDebug2Workaround[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
+  inline def renderDebug2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
       inline proxy: SecondaryProxy[P, C, Ctx, CtxFn, Step],
       inline f    : CtxFn[VdomNode],
       inline step : Step,
       inline s    : CtorType.Summoner.Aux[Box[P], C, CT]): Component[P, CT] =
-    ${ renderDebug2[P, C, Ctx, CtxFn, Step, CT]('proxy, 'f, 'step, 's) }
+    ${ renderDebug2Workaround[P, C, Ctx, CtxFn, Step, CT]('proxy, 'f, 'step, 's) }
 
-  def render2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
+  def render2Workaround[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
       proxy: Expr[SecondaryProxy[P, C, Ctx, CtxFn, Step]],
       f    : Expr[CtxFn[VdomNode]],
       step : Expr[Step],
@@ -116,13 +153,524 @@ object HookMacros {
       (using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], CtxFn: Type[CtxFn], Step: Type[Step]): Expr[Component[P, CT]] =
     _render2(proxy, f, step, s, false)
 
-  def renderDebug2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
+  def renderDebug2Workaround[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
       proxy: Expr[SecondaryProxy[P, C, Ctx, CtxFn, Step]],
       f    : Expr[CtxFn[VdomNode]],
       step : Expr[Step],
       s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]])
       (using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], CtxFn: Type[CtxFn], Step: Type[Step]): Expr[Component[P, CT]] =
     _render2(proxy, f, step, s, true)
+
+  def _render2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
+      proxy   : Expr[SecondaryProxy[P, C, Ctx, CtxFn, Step]],
+      renderFn: Expr[CtxFn[VdomNode]],
+      step    : Expr[Step],
+      summoner: Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+      debug   : Boolean)
+      (using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], CtxFn: Type[CtxFn], Step: Type[Step]): Expr[Component[P, CT]] = {
+    import quotes.reflect.*
+    val self = proxy.asInstanceOf[Expr[SecondaryApi[P, C, Ctx, CtxFn, Step]]]
+    apply[P, C, CT](
+      macroApplication = self.asTerm,
+      ctxType          = TypeTree.of[Ctx],
+      summoner         = summoner,
+      debug            = debug,
+      renderStep       = HookStep("renderRR", Nil, List(List(renderFn.asTerm), List(step.asTerm, summoner.asTerm))),
+      giveUp           = () => '{ $self.render($step.squash($renderFn)(_))($summoner) },
+    )
+  }
+
+  // ===================================================================================================================
+  // renderReusable
+
+  inline def renderReusable1[P, C <: Children, A, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: PrimaryProxy[P, C, Ctx, Step],
+      inline f    : Ctx => Reusable[A],
+      inline s    : CtorType.Summoner.Aux[Box[P], C, CT],
+      inline v    : A => VdomNode): Component[P, CT] =
+    ${ renderReusable1Workaround[P, C, A, Ctx, Step, CT]('proxy, 'f, 's, 'v) }
+
+  inline def renderReusableDebug1[P, C <: Children, A, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: PrimaryProxy[P, C, Ctx, Step],
+      inline f    : Ctx => Reusable[A],
+      inline s    : CtorType.Summoner.Aux[Box[P], C, CT],
+      inline v    : A => VdomNode): Component[P, CT] =
+    ${ renderReusableDebug1Workaround[P, C, A, Ctx, Step, CT]('proxy, 'f, 's, 'v) }
+
+  def renderReusable1Workaround[P, C <: Children, A, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[PrimaryProxy[P, C, Ctx, Step]],
+      f    : Expr[Ctx => Reusable[A]],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+      v    : Expr[A => VdomNode])
+      (using q: Quotes, P: Type[P], C: Type[C], A: Type[A], CT: Type[CT], Ctx: Type[Ctx], Step: Type[Step]): Expr[Component[P, CT]] =
+    _renderReusable1(proxy, f, s, v, false)
+
+  def renderReusableDebug1Workaround[P, C <: Children, A, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[PrimaryProxy[P, C, Ctx, Step]],
+      f    : Expr[Ctx => Reusable[A]],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+      v    : Expr[A => VdomNode])
+     (using q: Quotes, P: Type[P], C: Type[C], A: Type[A], CT: Type[CT], Ctx: Type[Ctx], Step: Type[Step]): Expr[Component[P, CT]] =
+    _renderReusable1(proxy, f, s, v, true)
+
+  def _renderReusable1[P, C <: Children, A, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
+      proxy   : Expr[PrimaryProxy[P, C, Ctx, Step]],
+      f       : Expr[Ctx => Reusable[A]],
+      summoner: Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+      v       : Expr[A => VdomNode],
+      debug   : Boolean)
+      (using q: Quotes, P: Type[P], C: Type[C], A: Type[A], CT: Type[CT], Ctx: Type[Ctx], Step: Type[Step]): Expr[Component[P, CT]] = {
+    import quotes.reflect.*
+    val self = proxy.asInstanceOf[Expr[PrimaryApi[P, C, Ctx, Step]]]
+    apply[P, C, CT](
+      macroApplication = self.asTerm,
+      ctxType          = TypeTree.of[Ctx],
+      summoner         = summoner,
+      debug            = debug,
+      renderStep       = HookStep("renderRRReusable", List(TypeTree.of[A]), List(List(f.asTerm), List(summoner.asTerm, v.asTerm))),
+      giveUp           = () => '{ $self.renderReusable($f)($summoner, $v) },
+    )
+  }
+
+  // -------------------------------------------------------------------------------------------------------------------
+
+  inline def renderReusable1C[P, A, CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: ComponentPCMacros[P],
+      inline f    : (P, PropsChildren) => Reusable[A],
+      inline s    : CtorType.Summoner.Aux[Box[P], Children.Varargs, CT],
+      inline v    : A => VdomNode): Component[P, CT] =
+    ${ renderReusable1CWorkaround[P, A, CT]('proxy, 'f, 's, 'v) }
+
+  inline def renderReusableDebug1C[P, A, CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: ComponentPCMacros[P],
+      inline f    : (P, PropsChildren) => Reusable[A],
+      inline s    : CtorType.Summoner.Aux[Box[P], Children.Varargs, CT],
+      inline v    : A => VdomNode): Component[P, CT] =
+    ${ renderReusableDebug1CWorkaround[P, A, CT]('proxy, 'f, 's, 'v) }
+
+  def renderReusable1CWorkaround[P, A, CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[ComponentPCMacros[P]],
+      f    : Expr[(P, PropsChildren) => Reusable[A]],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], Children.Varargs, CT]],
+      v    : Expr[A => VdomNode])
+      (using q: Quotes, P: Type[P], A: Type[A], CT: Type[CT]): Expr[Component[P, CT]] =
+    _renderReusable1C(proxy, f, s, v, false)
+
+  def renderReusableDebug1CWorkaround[P, A, CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[ComponentPCMacros[P]],
+      f    : Expr[(P, PropsChildren) => Reusable[A]],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], Children.Varargs, CT]],
+      v    : Expr[A => VdomNode])
+      (using q: Quotes, P: Type[P], A: Type[A], CT: Type[CT]): Expr[Component[P, CT]] =
+    _renderReusable1C(proxy, f, s, v, true)
+
+  def _renderReusable1C[P, A, CT[-p, +u] <: CtorType[p, u]](
+      proxy   : Expr[ComponentPCMacros[P]],
+      f       : Expr[(P, PropsChildren) => Reusable[A]],
+      summoner: Expr[CtorType.Summoner.Aux[Box[P], Children.Varargs, CT]],
+      v       : Expr[A => VdomNode],
+      debug   : Boolean)
+      (using q: Quotes, P: Type[P], A: Type[A], CT: Type[CT]): Expr[Component[P, CT]] = {
+    import quotes.reflect.*
+    val self = proxy.asInstanceOf[Expr[HookComponentBuilder.ComponentPC.First[P]]]
+    apply[P, Children.Varargs, CT](
+      macroApplication = self.asTerm,
+      ctxType          = TypeTree.of[HookCtx.PC0[P]],
+      summoner         = summoner,
+      debug            = debug,
+      renderStep       = HookStep("renderRRReusable", List(TypeTree.of[A]), List(List(f.asTerm), List(summoner.asTerm, v.asTerm))),
+      giveUp           = () => '{ $self.renderReusable($f)($summoner, $v) },
+    )
+  }
+
+  // -------------------------------------------------------------------------------------------------------------------
+
+  inline def renderReusable2[P, C <: Children, A, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: SecondaryProxy[P, C, Ctx, CtxFn, Step],
+      inline f    : CtxFn[Reusable[A]],
+      inline step : Step,
+      inline s    : CtorType.Summoner.Aux[Box[P], C, CT],
+      inline v    : A => VdomNode): Component[P, CT] =
+    ${ renderReusable2Workaround[P, C, A, Ctx, CtxFn, Step, CT]('proxy, 'f, 'step, 's, 'v) }
+
+  inline def renderReusableDebug2[P, C <: Children, A, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: SecondaryProxy[P, C, Ctx, CtxFn, Step],
+      inline f    : CtxFn[Reusable[A]],
+      inline step : Step,
+      inline s    : CtorType.Summoner.Aux[Box[P], C, CT],
+      inline v    : A => VdomNode): Component[P, CT] =
+    ${ renderReusableDebug2Workaround[P, C, A, Ctx, CtxFn, Step, CT]('proxy, 'f, 'step, 's, 'v) }
+
+  def renderReusable2Workaround[P, C <: Children, A, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[SecondaryProxy[P, C, Ctx, CtxFn, Step]],
+      f    : Expr[CtxFn[Reusable[A]]],
+      step : Expr[Step],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+      v    : Expr[A => VdomNode])
+      (using q: Quotes, P: Type[P], C: Type[C], A: Type[A], CT: Type[CT], Ctx: Type[Ctx], CtxFn: Type[CtxFn], Step: Type[Step]): Expr[Component[P, CT]] =
+    _renderReusable2(proxy, f, step, s, v, false)
+
+  def renderReusableDebug2Workaround[P, C <: Children, A, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[SecondaryProxy[P, C, Ctx, CtxFn, Step]],
+      f    : Expr[CtxFn[Reusable[A]]],
+      step : Expr[Step],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+      v    : Expr[A => VdomNode])
+      (using q: Quotes, P: Type[P], C: Type[C], A: Type[A], CT: Type[CT], Ctx: Type[Ctx], CtxFn: Type[CtxFn], Step: Type[Step]): Expr[Component[P, CT]] =
+    _renderReusable2(proxy, f, step, s, v, true)
+
+  def _renderReusable2[P, C <: Children, A, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
+      proxy   : Expr[SecondaryProxy[P, C, Ctx, CtxFn, Step]],
+      f       : Expr[CtxFn[Reusable[A]]],
+      step    : Expr[Step],
+      summoner: Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+      v       : Expr[A => VdomNode],
+      debug   : Boolean)
+      (using q: Quotes, P: Type[P], C: Type[C], A: Type[A], CT: Type[CT], Ctx: Type[Ctx], CtxFn: Type[CtxFn], Step: Type[Step]): Expr[Component[P, CT]] = {
+    import quotes.reflect.*
+    val self = proxy.asInstanceOf[Expr[SecondaryApi[P, C, Ctx, CtxFn, Step]]]
+    apply[P, C, CT](
+      macroApplication = self.asTerm,
+      ctxType          = TypeTree.of[Ctx],
+      summoner         = summoner,
+      debug            = debug,
+      renderStep       = HookStep("renderRRReusable", List(TypeTree.of[A]), List(List(f.asTerm), List(step.asTerm, summoner.asTerm, v.asTerm))),
+      giveUp           = () => '{ $self.renderReusable($step.squash($f)(_))($summoner, $v) },
+    )
+  }
+
+  // ===================================================================================================================
+  // renderWithReuse
+
+  inline def renderWithReuse1[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: PrimaryProxy[P, C, Ctx, Step],
+      inline f    : Ctx => VdomNode,
+      inline s    : CtorType.Summoner.Aux[Box[P], C, CT],
+      inline r    : Reusability[Ctx]): Component[P, CT] =
+    ${ renderWithReuse1Workaround[P, C, Ctx, Step, CT]('proxy, 'f, 's, 'r) }
+
+  inline def renderWithReuseDebug1[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: PrimaryProxy[P, C, Ctx, Step],
+      inline f    : Ctx => VdomNode,
+      inline s    : CtorType.Summoner.Aux[Box[P], C, CT],
+      inline r    : Reusability[Ctx]): Component[P, CT] =
+    ${ renderWithReuseDebug1Workaround[P, C, Ctx, Step, CT]('proxy, 'f, 's, 'r) }
+
+  def renderWithReuse1Workaround[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[PrimaryProxy[P, C, Ctx, Step]],
+      f    : Expr[Ctx => VdomNode],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+      r    : Expr[Reusability[Ctx]])
+      (using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], Step: Type[Step]): Expr[Component[P, CT]] =
+    _renderWithReuse1(proxy, f, s, r, false)
+
+  def renderWithReuseDebug1Workaround[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[PrimaryProxy[P, C, Ctx, Step]],
+      f    : Expr[Ctx => VdomNode],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+      r    : Expr[Reusability[Ctx]])
+     (using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], Step: Type[Step]): Expr[Component[P, CT]] =
+    _renderWithReuse1(proxy, f, s, r, true)
+
+  def _renderWithReuse1[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
+      proxy   : Expr[PrimaryProxy[P, C, Ctx, Step]],
+      renderFn: Expr[Ctx => VdomNode],
+      summoner: Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+      r       : Expr[Reusability[Ctx]],
+      debug   : Boolean)
+      (using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], Step: Type[Step]): Expr[Component[P, CT]] = {
+    import quotes.reflect.*
+    val self = proxy.asInstanceOf[Expr[PrimaryApi[P, C, Ctx, Step]]]
+    apply[P, C, CT](
+      macroApplication = self.asTerm,
+      ctxType          = TypeTree.of[Ctx],
+      summoner         = summoner,
+      debug            = debug,
+      renderStep       = HookStep("renderRRWithReuse", Nil, List(List(renderFn.asTerm), List(summoner.asTerm, r.asTerm))),
+      giveUp           = () => '{ $self.renderWithReuse($renderFn)($summoner, $r) },
+    )
+  }
+
+  // -------------------------------------------------------------------------------------------------------------------
+
+  inline def renderWithReuse1C[P, CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: ComponentPCMacros[P],
+      inline f    : (P, PropsChildren) => VdomNode,
+      inline s    : CtorType.Summoner.Aux[Box[P], Children.Varargs, CT],
+      inline r    : Reusability[HookCtx.PC0[P]]): Component[P, CT] =
+    ${ renderWithReuse1CWorkaround[P, CT]('proxy, 'f, 's, 'r) }
+
+  inline def renderWithReuseDebug1C[P, CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: ComponentPCMacros[P],
+      inline f    : (P, PropsChildren) => VdomNode,
+      inline s    : CtorType.Summoner.Aux[Box[P], Children.Varargs, CT],
+      inline r    : Reusability[HookCtx.PC0[P]]): Component[P, CT] =
+    ${ renderWithReuseDebug1CWorkaround[P, CT]('proxy, 'f, 's, 'r) }
+
+  def renderWithReuse1CWorkaround[P, CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[ComponentPCMacros[P]],
+      f    : Expr[(P, PropsChildren) => VdomNode],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], Children.Varargs, CT]],
+      r    : Expr[Reusability[HookCtx.PC0[P]]])
+      (using q: Quotes, P: Type[P], CT: Type[CT]): Expr[Component[P, CT]] =
+    _renderWithReuse1C(proxy, f, s, r, false)
+
+  def renderWithReuseDebug1CWorkaround[P, CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[ComponentPCMacros[P]],
+      f    : Expr[(P, PropsChildren) => VdomNode],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], Children.Varargs, CT]],
+      r    : Expr[Reusability[HookCtx.PC0[P]]])
+      (using q: Quotes, P: Type[P], CT: Type[CT]): Expr[Component[P, CT]] =
+    _renderWithReuse1C(proxy, f, s, r, true)
+
+  def _renderWithReuse1C[P, CT[-p, +u] <: CtorType[p, u]](
+      proxy   : Expr[ComponentPCMacros[P]],
+      renderFn: Expr[(P, PropsChildren) => VdomNode],
+      summoner: Expr[CtorType.Summoner.Aux[Box[P], Children.Varargs, CT]],
+      r       : Expr[Reusability[HookCtx.PC0[P]]],
+      debug   : Boolean)
+      (using q: Quotes, P: Type[P], CT: Type[CT]): Expr[Component[P, CT]] = {
+    import quotes.reflect.*
+    val self = proxy.asInstanceOf[Expr[HookComponentBuilder.ComponentPC.First[P]]]
+    apply[P, Children.Varargs, CT](
+      macroApplication = self.asTerm,
+      ctxType          = TypeTree.of[HookCtx.PC0[P]],
+      summoner         = summoner,
+      debug            = debug,
+      renderStep       = HookStep("renderRRWithReuse", Nil, List(List(renderFn.asTerm), List(summoner.asTerm, r.asTerm))),
+      giveUp           = () => '{ $self.renderWithReuse($renderFn)($summoner, $r) },
+    )
+  }
+
+  // -------------------------------------------------------------------------------------------------------------------
+
+  inline def renderWithReuse2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: SecondaryProxy[P, C, Ctx, CtxFn, Step],
+      inline f    : CtxFn[VdomNode],
+      inline step : Step,
+      inline s    : CtorType.Summoner.Aux[Box[P], C, CT],
+      inline r    : Reusability[Ctx]): Component[P, CT] =
+    ${ renderWithReuse2Workaround[P, C, Ctx, CtxFn, Step, CT]('proxy, 'f, 'step, 's, 'r) }
+
+  inline def renderWithReuseDebug2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: SecondaryProxy[P, C, Ctx, CtxFn, Step],
+      inline f    : CtxFn[VdomNode],
+      inline step : Step,
+      inline s    : CtorType.Summoner.Aux[Box[P], C, CT],
+      inline r    : Reusability[Ctx]): Component[P, CT] =
+    ${ renderWithReuseDebug2Workaround[P, C, Ctx, CtxFn, Step, CT]('proxy, 'f, 'step, 's, 'r) }
+
+  def renderWithReuse2Workaround[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[SecondaryProxy[P, C, Ctx, CtxFn, Step]],
+      f    : Expr[CtxFn[VdomNode]],
+      step : Expr[Step],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+      r    : Expr[Reusability[Ctx]])
+      (using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], CtxFn: Type[CtxFn], Step: Type[Step]): Expr[Component[P, CT]] =
+    _renderWithReuse2(proxy, f, step, s, r, false)
+
+  def renderWithReuseDebug2Workaround[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[SecondaryProxy[P, C, Ctx, CtxFn, Step]],
+      f    : Expr[CtxFn[VdomNode]],
+      step : Expr[Step],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+      r    : Expr[Reusability[Ctx]])
+      (using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], CtxFn: Type[CtxFn], Step: Type[Step]): Expr[Component[P, CT]] =
+    _renderWithReuse2(proxy, f, step, s, r, true)
+
+  def _renderWithReuse2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
+      proxy   : Expr[SecondaryProxy[P, C, Ctx, CtxFn, Step]],
+      renderFn: Expr[CtxFn[VdomNode]],
+      step    : Expr[Step],
+      summoner: Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+      r       : Expr[Reusability[Ctx]],
+      debug   : Boolean)
+      (using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], CtxFn: Type[CtxFn], Step: Type[Step]): Expr[Component[P, CT]] = {
+    import quotes.reflect.*
+    val self = proxy.asInstanceOf[Expr[SecondaryApi[P, C, Ctx, CtxFn, Step]]]
+    apply[P, C, CT](
+      macroApplication = self.asTerm,
+      ctxType          = TypeTree.of[Ctx],
+      summoner         = summoner,
+      debug            = debug,
+      renderStep       = HookStep("renderRRWithReuse", Nil, List(List(renderFn.asTerm), List(step.asTerm, summoner.asTerm, r.asTerm))),
+      giveUp           = () => '{ $self.renderWithReuse($step.squash($renderFn)(_))($summoner, $r) },
+    )
+  }
+
+  // ===================================================================================================================
+  // renderWithReuseBy
+
+  inline def renderWithReuseBy1[P, C <: Children, A, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: PrimaryProxy[P, C, Ctx, Step],
+      inline i    : Ctx => A,
+      inline f    : A => VdomNode,
+      inline s    : CtorType.Summoner.Aux[Box[P], C, CT],
+      inline r    : Reusability[A]): Component[P, CT] =
+    ${ renderWithReuseBy1Workaround[P, C, A, Ctx, Step, CT]('proxy, 'i, 'f, 's, 'r) }
+
+  inline def renderWithReuseByDebug1[P, C <: Children, A, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: PrimaryProxy[P, C, Ctx, Step],
+      inline i    : Ctx => A,
+      inline f    : A => VdomNode,
+      inline s    : CtorType.Summoner.Aux[Box[P], C, CT],
+      inline r    : Reusability[A]): Component[P, CT] =
+    ${ renderWithReuseByDebug1Workaround[P, C, A, Ctx, Step, CT]('proxy, 'i, 'f, 's, 'r) }
+
+  def renderWithReuseBy1Workaround[P, C <: Children, A, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[PrimaryProxy[P, C, Ctx, Step]],
+      i    : Expr[Ctx => A],
+      f    : Expr[A => VdomNode],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+      r    : Expr[Reusability[A]])
+      (using q: Quotes, P: Type[P], C: Type[C], A: Type[A], CT: Type[CT], Ctx: Type[Ctx], Step: Type[Step]): Expr[Component[P, CT]] =
+    _renderWithReuseBy1(proxy, i, f, s, r, false)
+
+  def renderWithReuseByDebug1Workaround[P, C <: Children, A, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[PrimaryProxy[P, C, Ctx, Step]],
+      i    : Expr[Ctx => A],
+      f    : Expr[A => VdomNode],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+      r    : Expr[Reusability[A]])
+     (using q: Quotes, P: Type[P], C: Type[C], A: Type[A], CT: Type[CT], Ctx: Type[Ctx], Step: Type[Step]): Expr[Component[P, CT]] =
+    _renderWithReuseBy1(proxy, i, f, s, r, true)
+
+  def _renderWithReuseBy1[P, C <: Children, A, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
+      proxy   : Expr[PrimaryProxy[P, C, Ctx, Step]],
+      i       : Expr[Ctx => A],
+      f       : Expr[A => VdomNode],
+      summoner: Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+      r       : Expr[Reusability[A]],
+      debug   : Boolean)
+      (using q: Quotes, P: Type[P], C: Type[C], A: Type[A], CT: Type[CT], Ctx: Type[Ctx], Step: Type[Step]): Expr[Component[P, CT]] = {
+    import quotes.reflect.*
+    val self = proxy.asInstanceOf[Expr[PrimaryApi[P, C, Ctx, Step]]]
+    apply[P, C, CT](
+      macroApplication = self.asTerm,
+      ctxType          = TypeTree.of[Ctx],
+      summoner         = summoner,
+      debug            = debug,
+      renderStep       = HookStep("renderRRWithReuseBy", List(TypeTree.of[A]), List(List(i.asTerm), List(f.asTerm), List(summoner.asTerm, r.asTerm))),
+      giveUp           = () => '{ $self.renderWithReuseBy($i)($f)($summoner, $r) },
+    )
+  }
+
+  // -------------------------------------------------------------------------------------------------------------------
+
+  inline def renderWithReuseBy1C[P, A, CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: ComponentPCMacros[P],
+      inline i    : (P, PropsChildren) => A,
+      inline f    : A => VdomNode,
+      inline s    : CtorType.Summoner.Aux[Box[P], Children.Varargs, CT],
+      inline r    : Reusability[A]): Component[P, CT] =
+    ${ renderWithReuseBy1CWorkaround[P, A, CT]('proxy, 'i, 'f, 's, 'r) }
+
+  inline def renderWithReuseByDebug1C[P, A, CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: ComponentPCMacros[P],
+      inline i    : (P, PropsChildren) => A,
+      inline f    : A => VdomNode,
+      inline s    : CtorType.Summoner.Aux[Box[P], Children.Varargs, CT],
+      inline r    : Reusability[A]): Component[P, CT] =
+    ${ renderWithReuseByDebug1CWorkaround[P, A, CT]('proxy, 'i, 'f, 's, 'r) }
+
+  def renderWithReuseBy1CWorkaround[P, A, CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[ComponentPCMacros[P]],
+      i    : Expr[(P, PropsChildren) => A],
+      f    : Expr[A => VdomNode],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], Children.Varargs, CT]],
+      r    : Expr[Reusability[A]])
+      (using q: Quotes, P: Type[P], A: Type[A], CT: Type[CT]): Expr[Component[P, CT]] =
+    _renderWithReuseBy1C(proxy, i, f, s, r, false)
+
+  def renderWithReuseByDebug1CWorkaround[P, A, CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[ComponentPCMacros[P]],
+      i    : Expr[(P, PropsChildren) => A],
+      f    : Expr[A => VdomNode],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], Children.Varargs, CT]],
+      r    : Expr[Reusability[A]])
+      (using q: Quotes, P: Type[P], A: Type[A], CT: Type[CT]): Expr[Component[P, CT]] =
+    _renderWithReuseBy1C(proxy, i, f, s, r, true)
+
+  def _renderWithReuseBy1C[P, A, CT[-p, +u] <: CtorType[p, u]](
+      proxy   : Expr[ComponentPCMacros[P]],
+      i       : Expr[(P, PropsChildren) => A],
+      f       : Expr[A => VdomNode],
+      summoner: Expr[CtorType.Summoner.Aux[Box[P], Children.Varargs, CT]],
+      r       : Expr[Reusability[A]],
+      debug   : Boolean)
+      (using q: Quotes, P: Type[P], A: Type[A], CT: Type[CT]): Expr[Component[P, CT]] = {
+    import quotes.reflect.*
+    val self = proxy.asInstanceOf[Expr[HookComponentBuilder.ComponentPC.First[P]]]
+    apply[P, Children.Varargs, CT](
+      macroApplication = self.asTerm,
+      ctxType          = TypeTree.of[HookCtx.PC0[P]],
+      summoner         = summoner,
+      debug            = debug,
+      renderStep       = HookStep("renderRRWithReuseBy", List(TypeTree.of[A]), List(List(i.asTerm), List(f.asTerm), List(summoner.asTerm, r.asTerm))),
+      giveUp           = () => '{ $self.renderWithReuseBy($i)($f)($summoner, $r) },
+    )
+  }
+
+  // -------------------------------------------------------------------------------------------------------------------
+
+  inline def renderWithReuseBy2[P, C <: Children, A, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: SecondaryProxy[P, C, Ctx, CtxFn, Step],
+      inline i    : CtxFn[A],
+      inline f    : A => VdomNode,
+      inline step : Step,
+      inline s    : CtorType.Summoner.Aux[Box[P], C, CT],
+      inline r    : Reusability[A]): Component[P, CT] =
+    ${ renderWithReuseBy2Workaround[P, C, A, Ctx, CtxFn, Step, CT]('proxy, 'i, 'f, 'step, 's, 'r) }
+
+  inline def renderWithReuseByDebug2[P, C <: Children, A, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
+      inline proxy: SecondaryProxy[P, C, Ctx, CtxFn, Step],
+      inline i    : CtxFn[A],
+      inline f    : A => VdomNode,
+      inline step : Step,
+      inline s    : CtorType.Summoner.Aux[Box[P], C, CT],
+      inline r    : Reusability[A]): Component[P, CT] =
+    ${ renderWithReuseByDebug2Workaround[P, C, A, Ctx, CtxFn, Step, CT]('proxy, 'i, 'f, 'step, 's, 'r) }
+
+  def renderWithReuseBy2Workaround[P, C <: Children, A, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[SecondaryProxy[P, C, Ctx, CtxFn, Step]],
+      i    : Expr[CtxFn[A]],
+      f    : Expr[A => VdomNode],
+      step : Expr[Step],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+      r    : Expr[Reusability[A]])
+      (using q: Quotes, P: Type[P], C: Type[C], A: Type[A], CT: Type[CT], Ctx: Type[Ctx], CtxFn: Type[CtxFn], Step: Type[Step]): Expr[Component[P, CT]] =
+    _renderWithReuseBy2(proxy, i, f, step, s, r, false)
+
+  def renderWithReuseByDebug2Workaround[P, C <: Children, A, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
+      proxy: Expr[SecondaryProxy[P, C, Ctx, CtxFn, Step]],
+      i    : Expr[CtxFn[A]],
+      f    : Expr[A => VdomNode],
+      step : Expr[Step],
+      s    : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+      r    : Expr[Reusability[A]])
+      (using q: Quotes, P: Type[P], C: Type[C], A: Type[A], CT: Type[CT], Ctx: Type[Ctx], CtxFn: Type[CtxFn], Step: Type[Step]): Expr[Component[P, CT]] =
+    _renderWithReuseBy2(proxy, i, f, step, s, r, true)
+
+  def _renderWithReuseBy2[P, C <: Children, A, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
+      proxy   : Expr[SecondaryProxy[P, C, Ctx, CtxFn, Step]],
+      i       : Expr[CtxFn[A]],
+      f       : Expr[A => VdomNode],
+      step    : Expr[Step],
+      summoner: Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
+      r       : Expr[Reusability[A]],
+      debug   : Boolean)
+      (using q: Quotes, P: Type[P], C: Type[C], A: Type[A], CT: Type[CT], Ctx: Type[Ctx], CtxFn: Type[CtxFn], Step: Type[Step]): Expr[Component[P, CT]] = {
+    import quotes.reflect.*
+    val self = proxy.asInstanceOf[Expr[SecondaryApi[P, C, Ctx, CtxFn, Step]]]
+    apply[P, C, CT](
+      macroApplication = self.asTerm,
+      ctxType          = TypeTree.of[Ctx],
+      summoner         = summoner,
+      debug            = debug,
+      renderStep       = HookStep("renderRRWithReuseBy", List(TypeTree.of[A]), List(List(i.asTerm), List(f.asTerm), List(summoner.asTerm, r.asTerm))),
+      giveUp           = () => '{ $self.renderWithReuseBy($step.squash($i)(_))($f)($summoner, $r) },
+    )
+  }
 
   // ===================================================================================================================
 
@@ -141,6 +689,12 @@ object HookMacros {
 
     // TODO: Move into microlibs
     extension (self: q.reflect.TypeTree) {
+      @targetName("typeTree_asTypeOf")
+      def asTypeOf[A <: AnyKind]: Tpe[A] =
+        self.asType.asInstanceOf[Tpe[A]]
+    }
+    extension (self: q.reflect.TypeRepr) {
+      @targetName("typeRepr_asTypeOf")
       def asTypeOf[A <: AnyKind]: Tpe[A] =
         self.asType.asInstanceOf[Tpe[A]]
     }
@@ -420,78 +974,33 @@ object HookMacros {
 
     override protected def vdomRawNode = vdom =>
       '{ $vdom.rawNode }
+
+    override protected def reusabilityReusable[A] = implicit tpe =>
+      '{ Reusable.reusableReusability[A] }
+
+    override protected def reusableMap[A, B] = implicit (r, f, tpeA, tpeB) =>
+      '{ $r.map($f) }
+
+    override protected def reusableType[A] = {
+      case '[a] => Tpe.of[Reusable[a]].asInstanceOf[Type[Reusable[A]]]
+    }
+
+    override protected def reusableValue[A] = implicit (r, tpe) =>
+      '{ $r.value }
+
+    override protected def shouldComponentUpdateComponent = (rev, render) =>
+      '{ ShouldComponentUpdateComponent($rev, () => $render) }
+
+    override protected def vdomNodeType =
+      Tpe.of[VdomNode]
   }
 
   // ===================================================================================================================
 
-  import AbstractHookMacros.HookStep
-
-  def _render1[P, C <: Children, Ctx, Step <: AbstractStep, CT[-p, +u] <: CtorType[p, u]](
-      proxy   : Expr[PrimaryProxy[P, C, Ctx, Step]],
-      renderFn: Expr[Ctx => VdomNode],
-      summoner: Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
-      debug   : Boolean)
-      (using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], Step: Type[Step]): Expr[Component[P, CT]] = {
-
-    import quotes.reflect.*
-
-    val self = proxy.asInstanceOf[Expr[PrimaryApi[P, C, Ctx, Step]]]
-
-    _render[P, C, CT](
-      macroApplication = self.asTerm,
-      summoner         = summoner,
-      debug            = debug,
-      renderStep       = HookStep("renderRR", Nil, List(List(renderFn.asTerm), List(summoner.asTerm))),
-      giveUp           = () => '{ $self.render($renderFn)($summoner) },
-    )
-  }
-
-  def _renderC1[P, CT[-p, +u] <: CtorType[p, u]](
-      proxy   : Expr[ComponentPCMacros[P]],
-      renderFn: Expr[(P, PropsChildren) => VdomNode],
-      summoner: Expr[CtorType.Summoner.Aux[Box[P], Children.Varargs, CT]],
-      debug   : Boolean)
-      (using q: Quotes, P: Type[P], CT: Type[CT]): Expr[Component[P, CT]] = {
-
-    import quotes.reflect.*
-
-    val self = proxy.asInstanceOf[Expr[HookComponentBuilder.ComponentPC.First[P]]]
-
-    _render[P, Children.Varargs, CT](
-      macroApplication = self.asTerm,
-      summoner         = summoner,
-      debug            = debug,
-      renderStep       = HookStep("renderRR", Nil, List(List(renderFn.asTerm), List(summoner.asTerm))),
-      giveUp           = () => '{ $self.render($renderFn)($summoner) },
-    )
-  }
-
-  def _render2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn], CT[-p, +u] <: CtorType[p, u]](
-      proxy   : Expr[SecondaryProxy[P, C, Ctx, CtxFn, Step]],
-      renderFn: Expr[CtxFn[VdomNode]],
-      step    : Expr[Step],
-      summoner: Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
-      debug   : Boolean)
-      (using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT], Ctx: Type[Ctx], CtxFn: Type[CtxFn], Step: Type[Step]): Expr[Component[P, CT]] = {
-
-    import quotes.reflect.*
-
-    val self = proxy.asInstanceOf[Expr[SecondaryApi[P, C, Ctx, CtxFn, Step]]]
-
-    _render[P, C, CT](
-      macroApplication = self.asTerm,
-      summoner         = summoner,
-      debug            = debug,
-      renderStep       = HookStep("renderRR", Nil, List(List(renderFn.asTerm), List(step.asTerm, summoner.asTerm))),
-      giveUp           = () => '{ $self.render($step.squash($renderFn)(_))($summoner) },
-    )
-  }
-
-  // ===================================================================================================================
-
-  private def _render[P, C <: Children, CT[-p, +u] <: CtorType[p, u]](
+  private def apply[P, C <: Children, CT[-p, +u] <: CtorType[p, u]](
       using q: Quotes, P: Type[P], C: Type[C], CT: Type[CT])(
       macroApplication: q.reflect.Term,
+      ctxType         : q.reflect.TypeTree,
       summoner        : Expr[CtorType.Summoner.Aux[Box[P], C, CT]],
       debug           : Boolean,
       renderStep      : HookStep[q.reflect.Term, q.reflect.TypeTree],
@@ -533,6 +1042,7 @@ object HookMacros {
                 props        = '{ $props.unbox }.asTerm,
                 initChildren = children.valDef,
                 children     = children.ref.asTerm,
+                ctxType      = ctxType,
               )
               rewriter(ctx)
             }

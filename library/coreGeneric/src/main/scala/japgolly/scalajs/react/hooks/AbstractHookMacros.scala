@@ -15,8 +15,8 @@ import scala.reflect.ClassTag
 import scala.scalajs.js
 import scala.scalajs.js.|
 
-/* Coverage
- * ========
+/* Coverage: render
+ * ================
  *
  *   - P
  *     - behaviour tested in HooksRRTest.testProps()
@@ -41,8 +41,91 @@ import scala.scalajs.js.|
  *   - CtxFn(P, PC)
  *     - behaviour tested in HooksRRTest.testPropsChildrenCtxFn()
  *     - react-refresh integration tested in HooksWithChildrenCtxFn
+ *
+ *
+ * Coverage: renderReusable
+ * ========================
+ *
+ *   - P
+ *     - behaviour tested in HooksRRTest.xxxxx()
+ *     - react-refresh integration tested in RenderReusable.P
+ *
+ *   - CtxObj(P)
+ *     - behaviour tested in HooksRRTest.xxxxx()
+ *     - react-refresh integration tested in RenderReusable.CtxObj_P
+ *
+ *   - CtxFn(P)
+ *     - behaviour tested in HooksRRTest.xxxxx()
+ *     - react-refresh integration tested in RenderReusable.CtxFn_P
+ *
+ *   - (P, PC)
+ *     - behaviour tested in HooksRRTest.xxxxx()
+ *     - react-refresh integration tested in RenderReusable.P_PC
+ *
+ *   - CtxObj(P, PC)
+ *     - behaviour tested in HooksRRTest.xxxxx()
+ *     - react-refresh integration tested in RenderReusable.CtxObj_P_PC
+ *
+ *   - CtxFn(P, PC)
+ *     - behaviour tested in HooksRRTest.xxxxx()
+ *     - react-refresh integration tested in RenderReusable.CtxFn_P_PC
+ *
+ *
+ * Coverage: renderWithReuse
+ * =========================
+ *
+ *   - P
+ *     - behaviour tested in HooksRRTest.testRenderWithReuseNever()
+ *     - react-refresh integration tested in RenderWithReuse.P
+ *
+ *   - CtxObj(P)
+ *     - behaviour tested in HooksRRTest.testRenderWithReuseAndUseRef()
+ *     - react-refresh integration tested in RenderWithReuse.CtxObj_P
+ *
+ *   - CtxFn(P)
+ *     - behaviour tested in HooksRRTest.testRenderWithReuse()
+ *     - react-refresh integration tested in RenderWithReuse.CtxFn_P
+ *
+ *   - (P, PC)
+ *     - behaviour tested in HooksRRTest.testRenderWithReuseNeverPC()
+ *     - react-refresh integration tested in RenderWithReuse.P_PC
+ *
+ *   - CtxObj(P, PC)
+ *     - behaviour tested in HooksRRTest.testRenderWithReuseAndUseRefToVdomO()
+ *     - react-refresh integration tested in RenderWithReuse.CtxObj_P_PC
+ *
+ *   - CtxFn(P, PC)
+ *     - behaviour tested in HooksRRTest.testRenderWithReuseAndUseRefToVdom()
+ *     - react-refresh integration tested in RenderWithReuse.CtxFn_P_PC
+ *
+ *
+ * Coverage: renderWithReuseBy
+ * ===========================
+ *
+ *   - P
+ *     - behaviour tested in HooksRRTest.testRenderWithReuseByNever()
+ *     - react-refresh integration tested in RenderWithReuseBy.P
+ *
+ *   - CtxObj(P)
+ *     - behaviour tested in HooksRRTest.testRenderWithReuseByAndUseRef()
+ *     - react-refresh integration tested in RenderWithReuseBy.CtxObj_P
+ *
+ *   - CtxFn(P)
+ *     - behaviour tested in HooksRRTest.testRenderWithReuseBy()
+ *     - react-refresh integration tested in RenderWithReuseBy.CtxFn_P
+ *
+ *   - (P, PC)
+ *     - behaviour tested in HooksRRTest.testRenderWithReuseByNeverPC()
+ *     - react-refresh integration tested in RenderWithReuseBy.P_PC
+ *
+ *   - CtxObj(P, PC)
+ *     - behaviour tested in HooksRRTest.testRenderWithReuseByAndUseRefToVdomO()
+ *     - react-refresh integration tested in RenderWithReuseBy.CtxObj_P_PC
+ *
+ *   - CtxFn(P, PC)
+ *     - behaviour tested in HooksRRTest.testRenderWithReuseByAndUseRefToVdom()
+ *     - react-refresh integration tested in RenderWithReuseBy.CtxFn_P_PC
  */
-
 object AbstractHookMacros {
 
   final case class HookDefn[Term, TypeTree](steps: Vector[HookStep[Term, TypeTree]]) {
@@ -51,6 +134,7 @@ object AbstractHookMacros {
   }
 
   final case class HookStep[Term, TypeTree](name: String, targs: List[TypeTree], args: List[List[Term]]) {
+    def desc = name
     def sig = (targs, args)
   }
 
@@ -69,13 +153,13 @@ object AbstractHookMacros {
   // Avoid shadowing in Scala 2.
   final val hookValPrefix = "__japgolly__"
 
-  sealed trait HookRewriter[Stmt, Term <: Stmt, Ref] {
+  sealed trait HookRewriter[Stmt, Term <: Stmt, Type, Ref] {
               val bridge      : HookRewriter.Bridge[Stmt, Term, Ref]
     protected val hookNo      : Int
-    protected val initialCtx  : HookRewriter.InitialCtx[Stmt, Term]
+    protected val initialCtx  : HookRewriter.InitialCtx[Stmt, Term, Type]
     protected def initialStmts: Vector[Stmt]
-    protected val prevHooks   : List[Term]
-    protected val usesChildren: Boolean
+    protected val prevHooks   : List[Term] // excludes discarded hooks
+              val usesChildren: Boolean
 
     private var _stmts: Vector[Stmt] =
       initialStmts
@@ -92,13 +176,13 @@ object AbstractHookMacros {
 
     final def args: List[Term] =
       if (usesChildren)
-        initialCtx.props :: initialCtx.children :: prevHooks
+        props :: children :: prevHooks
       else
-        initialCtx.props :: prevHooks
+        props :: prevHooks
 
     final def argsOrCtxArg(paramCount: Int): List[Term] = {
       val takesHookCtx = (
-        prevHooks.nonEmpty // HookCtx only provided when previous hook results exist
+        ctxContainsHookResults // HookCtx only provided when previous hook results exist
         && paramCount == 1 // Function argument takes a single param
       )
       if (takesHookCtx)
@@ -106,6 +190,9 @@ object AbstractHookMacros {
       else
         args
     }
+
+    @inline final def children =
+      initialCtx.children
 
     final lazy val ctxArg: Term = {
       val create = bridge.hookCtx(usesChildren, args)
@@ -130,8 +217,20 @@ object AbstractHookMacros {
     final def createRaw(body: Term, isLazy: Boolean = false): Ref =
       valDef(body, "_raw", isLazy = isLazy)
 
-    @inline final def isScala2 = bridge.isScala2
-    @inline final def isScala3 = bridge.isScala3
+    final def ctxContainsHookResults: Boolean =
+      prevHooks.nonEmpty
+
+    @inline final def ctxType =
+      initialCtx.ctxType
+
+    @inline final def isScala2 =
+      bridge.isScala2
+
+    @inline final def isScala3 =
+      bridge.isScala3
+
+    @inline final def props =
+      initialCtx.props
 
     final def stmts() =
       _stmts
@@ -145,7 +244,7 @@ object AbstractHookMacros {
 
   object HookRewriter {
 
-    final case class InitialCtx[Stmt, Term](props: Term, initChildren: Stmt, children: Term)
+    final case class InitialCtx[Stmt, Term, Type](props: Term, initChildren: Stmt, children: Term, ctxType: Type)
 
     final case class Bridge[Stmt, Term, Ref](
       apply    : (Term, List[Term]) => Term,
@@ -158,36 +257,36 @@ object AbstractHookMacros {
       @inline def isScala3 = scalaVer == 3
     }
 
-    def start[Stmt, Term <: Stmt, Ref](ctx        : InitialCtx[Stmt, Term],
-                                       bridg      : Bridge[Stmt, Term, Ref],
-                                       useChildren: Boolean): HookRewriter[Stmt, Term, Ref] =
-      new HookRewriter[Stmt, Term, Ref] {
+    def start[Stmt, Term <: Stmt, Type, Ref](ctx        : InitialCtx[Stmt, Term, Type],
+                                             bridg      : Bridge[Stmt, Term, Ref],
+                                             useChildren: Boolean): HookRewriter[Stmt, Term, Type, Ref] =
+      new HookRewriter[Stmt, Term, Type, Ref] {
         override           val bridge       = bridg
         override protected val hookNo       = 1
         override protected val initialCtx   = ctx
         override protected def initialStmts = if (useChildren) Vector(ctx.initChildren) else Vector.empty
         override protected val prevHooks    = Nil
-        override protected val usesChildren = useChildren
+        override           val usesChildren = useChildren
       }
 
-    def next[Stmt, Term <: Stmt, Ref](prev: HookRewriter[Stmt, Term, Ref])(newHook: Option[Ref]): HookRewriter[Stmt, Term, Ref] =
-      new HookRewriter[Stmt, Term, Ref] {
+    def next[Stmt, Term <: Stmt, Type, Ref](prev: HookRewriter[Stmt, Term, Type, Ref])(newHook: Option[Ref]): HookRewriter[Stmt, Term, Type, Ref] =
+      new HookRewriter[Stmt, Term, Type, Ref] {
         override           val bridge       = prev.bridge
         override protected val hookNo       = prev.hookNo + 1
         override protected val initialCtx   = prev.initialCtx
         override protected def initialStmts = prev.stmts()
         override protected val prevHooks    = newHook.fold(prev.prevHooks)(prev.prevHooks :+ prev.bridge.refToTerm(_))
-        override protected val usesChildren = prev.usesChildren
+        override           val usesChildren = prev.usesChildren
       }
 
-    def end[Stmt, Term <: Stmt, Ref](prev: HookRewriter[Stmt, Term, Ref]): HookRewriter[Stmt, Term, Ref] =
-      new HookRewriter[Stmt, Term, Ref] {
+    def end[Stmt, Term <: Stmt, Type, Ref](prev: HookRewriter[Stmt, Term, Type, Ref]): HookRewriter[Stmt, Term, Type, Ref] =
+      new HookRewriter[Stmt, Term, Type, Ref] {
         override           val bridge       = prev.bridge
         override protected val hookNo       = -1
         override protected val initialCtx   = prev.initialCtx
         override protected def initialStmts = prev.stmts()
         override protected val prevHooks    = prev.prevHooks
-        override protected val usesChildren = prev.usesChildren
+        override           val usesChildren = prev.usesChildren
       }
   }
 }
@@ -246,15 +345,15 @@ trait AbstractHookMacros {
 
   final type HookDefn       = AbstractHookMacros.HookDefn[Term, TypeTree]
   final type HookStep       = AbstractHookMacros.HookStep[Term, TypeTree]
-  final type Rewriter       = HookRewriter[Stmt, Term, Ref]
+  final type Rewriter       = HookRewriter[Stmt, Term, TypeTree, Ref]
   final type RewriterBridge = HookRewriter.Bridge[Stmt, Term, Ref]
-  final type RewriterCtx    = HookRewriter.InitialCtx[Stmt, Term]
+  final type RewriterCtx    = HookRewriter.InitialCtx[Stmt, Term, TypeTree]
 
   final implicit val log: MacroLogger =
     MacroLogger()
 
-  final def rewriterCtx(props: Term, initChildren: Stmt, children: Term): RewriterCtx =
-    HookRewriter.InitialCtx(props, initChildren, children)
+  final def rewriterCtx(props: Term, initChildren: Stmt, children: Term, ctxType: TypeTree): RewriterCtx =
+    HookRewriter.InitialCtx(props, initChildren, children, ctxType)
 
   protected object AutoTypeImplicits {
     @inline implicit def autoTerm[A](e: Expr[A]): Term = asTerm(e)
@@ -326,7 +425,7 @@ trait AbstractHookMacros {
     val renderStep        = h.steps.last
 
     for {
-      hookFns  <- traverseVector(hookSteps)(rewriteStep)
+      hookFns  <- traverseVector(hookSteps)(rewriteStep(_))
       renderFn <- rewriteRender(renderStep)
     } yield rctx => {
       val r0   = HookRewriter.start(rctx, rewriterBridge, withPropsChildren)
@@ -340,27 +439,45 @@ trait AbstractHookMacros {
   }
 
   // -------------------------------------------------------------------------------------------------------------------
-  def rewriteStep(step: HookStep): Either[() => String, Rewriter => Option[Ref]] = {
+  // Rewriting util
+
+  private def by[A](fn: Term, betaReduce: Rewriter => Boolean = null)(use: (Rewriter, Term => Term) => A)
+                   (implicit step: HookStep): Either[() => String, Rewriter => A] =
+    uninline(fn) match {
+      case FunctionLike(paramCount) =>
+        Right { b =>
+          val args = b.argsOrCtxArg(paramCount)
+          val br = if (betaReduce eq null) true else betaReduce(b)
+          use(b, call(_, args, br))
+        }
+
+      case _ =>
+        Left(() => s"Expected a function in ${step.desc}, found: ${showRaw(fn)}")
+    }
+
+  private def maybeBy[A](f: Term, betaReduce: Rewriter => Boolean = null)(use: (Rewriter, Term => Term) => A)
+                        (implicit step: HookStep): Either[() => String, Rewriter => A] =
+    if (step.name endsWith "By")
+      by(f, betaReduce = betaReduce)(use)
+    else
+      Right(use(_, identity))
+
+  private def reusableDeps[D](b: Rewriter, depsExpr: Expr[D], reuse: Expr[Reusability[D]], tpeD: Type[D], depsVal: Boolean = true): (Expr[D], Expr[Int]) = {
+    import AutoTypeImplicits._
+    type DS      = ReusableDepState[D]
+    val tpeODS   = optionType(reusableDepStateType(tpeD))
+    val stateRaw = b.valDef(useStateValue[Option[DS]](tpeODS, none(tpeODS)), "_state_raw")
+    val state    = b.valDef(useStateFromJsBoxed[Option[DS]](tpeODS, stateRaw), "_state")
+    val newDeps  = if (depsVal) autoRefToExpr[D](b.valDef(depsExpr, "_deps")) else depsExpr
+    val rds      = b.valDef(reusableDepsLogic[D](newDeps, state, reuse, tpeD), "_deps_state")
+    val deps     = reusableDepStateValue(rds, tpeD)
+    val rev      = reusableDepStateRev(rds)
+    (deps, rev)
+  }
+
+  // -------------------------------------------------------------------------------------------------------------------
+  def rewriteStep(implicit step: HookStep): Either[() => String, Rewriter => Option[Ref]] = {
     log("rewriteStep:" + step.name, step)
-
-    def by[A](fn: Term, betaReduce: Rewriter => Boolean = null)(use: (Rewriter, Term => Term) => A): Either[() => String, Rewriter => A] =
-      fn match {
-        case FunctionLike(paramCount) =>
-          Right { b =>
-            val args = b.argsOrCtxArg(paramCount)
-            val br = if (betaReduce eq null) true else betaReduce(b)
-            use(b, call(_, args, br))
-          }
-
-        case _ =>
-          Left(() => s"Expected a function, found: ${showRaw(fn)}")
-      }
-
-    def maybeBy[A](f: Term, betaReduce: Rewriter => Boolean = null)(use: (Rewriter, Term => Term) => A): Either[() => String, Rewriter => A] =
-      if (step.name endsWith "By")
-        by(f, betaReduce = betaReduce)(use)
-      else
-        Right(use(_, identity))
 
     import AutoTypeImplicits._
     type F[A] = List[A]
@@ -381,18 +498,6 @@ trait AbstractHookMacros {
       b.createHook(hook)
     }
 
-    def reusableDeps[D](b: Rewriter, depsExpr: Expr[D], reuse: Expr[Reusability[D]], tpeD: Type[D]): (Expr[D], Expr[Int]) = {
-      type DS      = ReusableDepState[D]
-      val tpeODS   = optionType(reusableDepStateType(tpeD))
-      val stateRaw = b.valDef(useStateValue[Option[DS]](tpeODS, none(tpeODS)), "_state_raw")
-      val state    = b.valDef(useStateFromJsBoxed[Option[DS]](tpeODS, stateRaw), "_state")
-      val newDeps  = b.valDef(depsExpr, "_deps")
-      val rds      = b.valDef(reusableDepsLogic[D](newDeps, state, reuse, tpeD), "_deps_state")
-      val deps     = reusableDepStateValue(rds, tpeD)
-      val rev      = reusableDepStateRev(rds)
-      (deps, rev)
-    }
-
     def reusableByDeps[D, A](b: Rewriter, depsExpr: Expr[D], reuse: Expr[Reusability[D]], tpeD: Type[D], tpeA: Type[A])
                             (create: (Expr[D], Expr[Int]) => Expr[A]): Expr[Reusable[A]] = {
       val (deps, rev) = reusableDeps[D](b, depsExpr, reuse, tpeD)
@@ -410,7 +515,7 @@ trait AbstractHookMacros {
       Some(r)
 
     def fail =
-      Left(() => s"Inlining of hook method '${step.name}' not yet supported.")
+      Left(() => s"Inlining of '${step.desc}' not yet supported.")
 
     step.name match {
 
@@ -751,26 +856,103 @@ trait AbstractHookMacros {
   protected def vdomRawNode: Expr[VdomNode] => Expr[React.Node]
 
   // -------------------------------------------------------------------------------------------------------------------
-  def rewriteRender(step: HookStep): Either[() => String, Rewriter => Term] = {
+  private def rewriteRender(implicit step: HookStep): Either[() => String, Rewriter => Term] = {
     log("rewriteRender:" + step.name, step)
-    step.name match {
 
-      case "renderRR" | "renderRRDebug" =>
-        val List(List(fn), _) = step.args : @nowarn
+    def withParamCount(fn: Term): Either[() => String, Int] =
         uninline(fn) match {
-          case FunctionLike(paramCount) =>
-            Right { b =>
-              val args = b.argsOrCtxArg(paramCount)
-              call(fn, args, true)
-            }
+          case FunctionLike(paramCount) => Right(paramCount)
+          case f                        => Left(() => s"Expected a function in ${step.desc}, found: ${showRaw(f)}")
+        }
 
-          case _ =>
-            Left(() => s"Expected a function, found: ${showRaw(fn)}")
+    import AutoTypeImplicits._
+
+    def shouldComponentUpdate[D](b: Rewriter, depsExpr: Expr[D], render: Expr[D => VdomNode], reuse: Expr[Reusability[D]], tpe: Type[D]): Expr[VdomNode] = {
+      val (deps, rev) = reusableDeps[D](b, depsExpr, reuse, tpe, depsVal = false)
+      val body        = call(render, deps :: Nil, true)
+      shouldComponentUpdateComponent(rev, body)
+    }
+
+    trait Ctx
+    trait D
+
+    def fail =
+      Left(() => s"Inlining of '${step.desc}' not yet supported.")
+
+    step.name.stripSuffix("Debug") match {
+
+      case "renderRR" =>
+        val List(List(fn), _) = step.args : @nowarn
+        withParamCount(fn).map { paramCount => b =>
+          val args = b.argsOrCtxArg(paramCount)
+          call(fn, args, true)
+        }
+
+      case "renderRRReusable" =>
+        val (List(tpe), List(List(renderFn), implicits)) = step.sig : @nowarn
+        val implicitCount = implicits.size
+        withParamCount(renderFn).map { paramCount => b =>
+          val mkVdom      = implicits.last
+          val reusableA   = call(renderFn, b.argsOrCtxArg(paramCount), true)
+          val tpeV        = vdomNodeType
+          val tpeRV       = reusableType[VdomNode](tpeV)
+          val reusableV   = reusableMap[D, VdomNode](reusableA, mkVdom, tpe, tpeV)
+          val reuse       = reusabilityReusable[VdomNode](tpeV)
+          val (deps, rev) = reusableDeps[Reusable[VdomNode]](b, reusableV, reuse, tpeRV)
+          val body        = reusableValue[VdomNode](deps, tpeV)
+          shouldComponentUpdateComponent(rev, body)
+        }
+
+      case "renderRRWithReuse" =>
+        val List(List(renderFn), implicits) = step.args : @nowarn
+        val implicitCount = implicits.size
+        withParamCount(renderFn).map { paramCount => b =>
+          val reuse       = implicits.last
+          val ctx         = if (paramCount == 1 && !b.ctxContainsHookResults) b.props else b.ctxArg
+          val (deps, rev) = reusableDeps[Ctx](b, ctx, reuse, b.ctxType, depsVal = false)
+          // log(s"paramCount = $paramCount, implicitCount = $implicitCount, usesChildren = ${b.usesChildren}, ctxContainsHookResults = ${b.ctxContainsHookResults}")
+          val renderArgs: List[Term] =
+            if (implicitCount == 3)
+              b.argsOrCtxArg(paramCount)
+            else if (b.usesChildren && paramCount == 2)
+              b.props :: b.children :: Nil
+            else if (b.ctxContainsHookResults)
+              deps :: Nil
+            else
+              b.props :: Nil
+          val body = call(renderFn, renderArgs, true)
+          shouldComponentUpdateComponent(rev, body)
+        }
+
+      case "renderRRWithReuseBy" =>
+        val List(tpe) = step.targs : @nowarn
+        val List(List(reusableInputs), List(renderFn), implicits) = step.args : @nowarn
+        by(reusableInputs) { (b, withCtx) =>
+          val reuse = implicits.last
+          val deps: Expr[D] =
+            if (b.ctxContainsHookResults)
+              withCtx(reusableInputs)
+            else if (b.usesChildren)
+              call(reusableInputs, b.props :: b.children :: Nil, true)
+            else
+              call(reusableInputs, b.props :: Nil, true)
+          shouldComponentUpdate[D](b, deps, renderFn, reuse, tpe)
         }
 
       case _ =>
-        Left(() => s"Inlining of render method '${step.name}' not yet supported.")
+        fail
     }
   }
 
+  protected def reusabilityReusable[A]: Type[A] => Expr[Reusability[Reusable[A]]]
+
+  protected def reusableMap[A, B]: (Expr[Reusable[A]], Expr[A => B], Type[A], Type[B]) => Expr[Reusable[B]]
+
+  protected def reusableType[A]: Type[A] => Type[Reusable[A]]
+
+  protected def reusableValue[A]: (Expr[Reusable[A]], Type[A]) => Expr[A]
+
+  protected def shouldComponentUpdateComponent: (Expr[Int], Expr[VdomNode]) => Expr[VdomNode]
+
+  protected def vdomNodeType: Type[VdomNode]
 }

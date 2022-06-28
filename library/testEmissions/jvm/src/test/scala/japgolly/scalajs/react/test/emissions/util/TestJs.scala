@@ -81,20 +81,23 @@ object TestJs {
 
           .replace("PropsChildren$", "PropsChildren")
 
-          .replace(
-            "$j_java_lang_Character$.$m_s_reflect_ManifestFactory$IntManifest$()",
-            "$j_scala_reflect_ManifestFactory$IntManifest$.$m_s_reflect_ManifestFactory$IntManifest$()")
-
-          .replace(
-            "$j_sjr_hooks_Api$Primary.$m_Lsjr_hooks_CustomHook$()",
-            "$j_sjr_hooks_CustomHook$.$m_Lsjr_hooks_CustomHook$()")
-
           // Scala 3 only for some reason
           .replace("$FirstStep.$", "$First.$")
 
-          // From: $j_sjr_hooks_HookCtx$P3.$ct_Lsjr_hooks_HookCtx$P3__O__O__O__O__(new $j_sjr_hooks_HookCtx$P3.$c_Lsjr_hooks_HookCtx$P3(), props$0, hook1, hook2, hook3);
-          //   To: new $j_sjr_hooks_HookCtx$P3.$c_Lsjr_hooks_HookCtx$P3(props$0, hook1, hook2, hook3)
-          .replaceAll("""\$j_[a-zA-Z_]+?\$P\d+?\.\$[a-zA-Z_]+?\$P[0-9_O]+?\((new [a-zA-Z0-9$_.]+\()\), """, "$1")
+          // idk if it's a Scala.js bug/undefined-behaviour or what, but there are often strange differences like the
+          // following for the same source code:
+          //
+          //                         $j_java_lang_Character$.$m_s_reflect_ManifestFactory$IntManifest$()
+          //   $j_scala_reflect_ManifestFactory$IntManifest$.$m_s_reflect_ManifestFactory$IntManifest$()
+          //
+          //   $j_sjr_Reusability.$m_Lsjr_Reusable$()
+          //   $j_sjr_Reusable$.$m_Lsjr_Reusable$()
+          //
+          // etc
+          .replaceAll(
+            """\$j_[a-zA-Z_$]+\.(\$[mfp]_)""",
+            "$1"
+          )
         )
       )
 

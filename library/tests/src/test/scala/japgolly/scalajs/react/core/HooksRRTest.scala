@@ -7,10 +7,12 @@ import japgolly.scalajs.react.test.DomTester
 import japgolly.scalajs.react.test.ReactTestUtils._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
+import scala.annotation._
 import scala.scalajs.js
 import org.scalajs.dom.Node
 import org.scalajs.dom.html.Input
 import utest._
+
 
 // Based off of HooksTest but
 //   - uses renderRR
@@ -1409,6 +1411,7 @@ object HooksRRTest extends TestSuite {
   private trait JsS extends js.Object
   private trait JsF extends js.Object
 
+  @nowarn("msg=pure.expression")
   private def testUseRefCompilation(): Unit = {
     val jsComp = JsComponent.force[Null, Children.None, Null](null)
 
@@ -1431,6 +1434,202 @@ object HooksRRTest extends TestSuite {
 
         "ok"
       }
+  }
+
+  private def testRenderWithReuseBy(): Unit = {
+    implicit val reusability: Reusability[PI] = Reusability.by[PI, Int](_.pi >> 1)
+    var renders = 0
+    var extState = 5
+    val comp = ScalaFnComponent.withHooks[PI]
+      .useState(20)
+      .useCallback(Callback(extState += 1))
+      .useForceUpdate
+      .renderRRWithReuseBy((_, _, _, _)) { case (p, s, incES, fu) =>
+        renders += 1
+        <.div(
+          s"P=$p, S=${s.value}, ES=$extState, R=$renders",
+          <.button(^.onClick --> s.modState(_ + 1)),
+          <.button(^.onClick --> (incES >> fu)),
+        )
+      }
+
+    val wrapper = ScalaComponent.builder[PI].render_P(comp(_)).build
+
+    withRenderedIntoBody(wrapper(PI(3))) { (m, root) =>
+      val t = new DomTester(root)
+      t.assertText("P=PI(3), S=20, ES=5, R=1")
+      replaceProps(wrapper, m)(PI(2)); t.assertText("P=PI(3), S=20, ES=5, R=1")
+      t.clickButton(1); t.assertText("P=PI(2), S=21, ES=5, R=2")
+      replaceProps(wrapper, m)(PI(2)); t.assertText("P=PI(2), S=21, ES=5, R=2")
+      replaceProps(wrapper, m)(PI(3)); t.assertText("P=PI(2), S=21, ES=5, R=2")
+      replaceProps(wrapper, m)(PI(4)); t.assertText("P=PI(4), S=21, ES=5, R=3")
+      t.clickButton(2); t.assertText("P=PI(4), S=21, ES=6, R=4")
+      replaceProps(wrapper, m)(PI(5)); t.assertText("P=PI(4), S=21, ES=6, R=4")
+    }
+  }
+
+  // See https://github.com/japgolly/scalajs-react/issues/1027
+  private def testRenderWithReuseByNever(): Unit = {
+    implicit val reusability: Reusability[PI] = Reusability.never
+    var renders = 0
+    val comp = ScalaFnComponent.withHooks[PI]
+      .renderRRWithReuseBy(ctx => ctx) { p =>
+        renders += 1
+        <.div(s"P=$p, R=$renders")
+      }
+
+    val wrapper = ScalaComponent.builder[PI]
+      .initialStateFromProps(identity)
+      .renderS { ($, s) =>
+        <.div(
+          comp(s),
+          <.button(^.onClick --> $.modState(_ + 0)),
+          <.button(^.onClick --> $.modState(_ + 1)),
+        )
+      }
+      .build
+
+    withRenderedIntoBody(wrapper(PI(3))) { (_, root) =>
+      val t = new DomTester(root)
+      t.assertText("P=PI(3), R=1")
+      t.clickButton(2); t.assertText("P=PI(4), R=2")
+      t.clickButton(1); t.assertText("P=PI(4), R=3")
+    }
+  }
+
+  private def testRenderWithReuseByNeverPC(): Unit = {
+    implicit val reusability: Reusability[PI] = Reusability.never
+
+    implicit val v: Reusability[japgolly.scalajs.react.hooks.HookCtx.PC0[PI]] =
+      japgolly.scalajs.react.hooks.HookCtx.reusabilityPC0
+
+    var renders = 0
+    val comp = ScalaFnComponent.withHooks[PI]
+      .withPropsChildren
+      .renderRRWithReuseBy((_, _)) { case (p, c) =>
+        renders += 1
+        <.div(s"P=$p, R=$renders", c)
+      }
+
+    val wrapper = ScalaComponent.builder[PI]
+      .initialStateFromProps(identity)
+      .renderS { ($, s) =>
+        <.div(
+          comp(s)("."),
+          <.button(^.onClick --> $.modState(_ + 0)),
+          <.button(^.onClick --> $.modState(_ + 1)),
+        )
+      }
+      .build
+
+    withRenderedIntoBody(wrapper(PI(3))) { (_, root) =>
+      val t = new DomTester(root)
+      t.assertText("P=PI(3), R=1.")
+      t.clickButton(2); t.assertText("P=PI(4), R=2.")
+      t.clickButton(1); t.assertText("P=PI(4), R=3.")
+    }
+  }
+
+  private def testRenderWithReuseByAndUseRef(): Unit = {
+    val comp = ScalaFnComponent.withHooks[Unit]
+      .useRef(100)
+      .useState(0)
+      .renderRRWithReuseBy(ctx => ctx) { $ =>
+        val ref = $.hook1
+        val s = $.hook2
+        <.div(
+          ref.value,
+          <.button(^.onClick --> ref.mod(_ + 1)),
+          <.button(^.onClick --> s.modState(_ + 1)),
+        )
+      }
+
+    test(comp()) { t =>
+      t.assertText("100")
+      t.clickButton(1); t.assertText("100")
+      t.clickButton(2); t.assertText("101")
+      t.clickButton(1); t.assertText("101")
+      t.clickButton(2); t.assertText("102")
+    }
+  }
+
+  private def testRenderWithReuseByAndUseRefToVdom(): Unit = {
+    var text = "uninitialised"
+    val comp = ScalaFnComponent.withHooks[Unit]
+      .withPropsChildren
+      .useRefToVdom[Input]
+      .useState("x")
+      .renderRRWithReuseBy((_, _, _, _)) { case (_, c, inputRef, s) =>
+
+        def onChange(e: ReactEventFromInput): Callback =
+          s.setState(e.target.value)
+
+        def btn: Callback =
+          for {
+            i <- inputRef.get.asCBO
+            // _ <- Callback.log(s"i.value = [${i.value}]")
+          } yield {
+            text = i.value
+          }
+
+        <.div(
+          <.input.text.withRef(inputRef)(^.value := s.value, ^.onChange ==> onChange),
+          <.button(^.onClick --> btn),
+          c
+        )
+      }
+
+    test(comp("!")) { t =>
+      t.assertInputText("x")
+      t.clickButton()
+      assertEq(text, "x")
+
+      t.setInputText("hehe")
+      t.assertInputText("hehe")
+      t.clickButton()
+      assertEq(text, "hehe")
+    }
+  }
+
+  private def testRenderWithReuseByAndUseRefToVdomO(): Unit = {
+    var text = "uninitialised"
+    val comp = ScalaFnComponent.withHooks[Unit]
+      .withPropsChildren
+      .useRefToVdom[Input]
+      .useState("x")
+      .renderRRWithReuseBy(ctx => ctx) { $ =>
+        val c        = $.propsChildren
+        val inputRef = $.hook1
+        val s        = $.hook2
+
+        def onChange(e: ReactEventFromInput): Callback =
+          s.setState(e.target.value)
+
+        def btn: Callback =
+          for {
+            i <- inputRef.get.asCBO
+            // _ <- Callback.log(s"i.value = [${i.value}]")
+          } yield {
+            text = i.value
+          }
+
+        <.div(
+          <.input.text.withRef(inputRef)(^.value := s.value, ^.onChange ==> onChange),
+          <.button(^.onClick --> btn),
+          c
+        )
+      }
+
+    test(comp("!")) { t =>
+      t.assertInputText("x")
+      t.clickButton()
+      assertEq(text, "x")
+
+      t.setInputText("hehe")
+      t.assertInputText("hehe")
+      t.clickButton()
+      assertEq(text, "hehe")
+    }
   }
 
   // ===================================================================================================================
@@ -1515,6 +1714,15 @@ object HooksRRTest extends TestSuite {
       "useRef"        - testRenderWithReuseAndUseRef() // P, Secondary, CtxObj
       "useRefToVdom"  - testRenderWithReuseAndUseRefToVdom() // PC, Secondary, CtxFn
       "useRefToVdomO" - testRenderWithReuseAndUseRefToVdomO() // PC, Secondary, CtxObj
+    }
+
+    "renderWithReuseBy" - {
+      "main"          - testRenderWithReuseBy() // P, Secondary, CtxFn
+      "never"         - testRenderWithReuseByNever() // P, Primary
+      "neverC"        - testRenderWithReuseByNeverPC() // PC, Primary
+      "useRef"        - testRenderWithReuseByAndUseRef() // P, Secondary, CtxObj
+      "useRefToVdom"  - testRenderWithReuseByAndUseRefToVdom() // PC, Secondary, CtxFn
+      "useRefToVdomO" - testRenderWithReuseByAndUseRefToVdomO() // PC, Secondary, CtxObj
     }
   }
 }

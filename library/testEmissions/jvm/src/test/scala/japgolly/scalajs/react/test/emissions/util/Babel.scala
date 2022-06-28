@@ -13,7 +13,7 @@ final case class Babel(before        : String,
       fail("React Refresh Babel plugin didn't make any changes")
     }
 
-  def assertRR(expectInstalled: Boolean = true)(implicit l: Line): Unit = {
+  def assertRR(expectInstalled: Boolean = true, expectedInstallations: Int = 1)(implicit l: Line): Unit = {
 
     // Presense
     locally {
@@ -27,7 +27,7 @@ final case class Babel(before        : String,
     // Count installations
     locally {
       val actual = Util.countRR(after)
-      val expect = if (expectInstalled) 1 else 0
+      val expect = if (expectInstalled) expectedInstallations else 0
       if (actual !=* expect) {
         showBadOutput()
         assertEq("RR installations", actual, expect)

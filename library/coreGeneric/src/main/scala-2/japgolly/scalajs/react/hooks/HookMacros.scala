@@ -4,9 +4,10 @@ import japgolly.microlibs.compiletime.MacroUtils
 import japgolly.scalajs.react.component.{Js => JsComponent, Scala => ScalaComponent}
 import japgolly.scalajs.react.hooks.Api._
 import japgolly.scalajs.react.hooks.CustomHook.ReusableDepState
+import japgolly.scalajs.react.hooks.HookCtx.PC0
 import japgolly.scalajs.react.internal.{Box, MacroLogger}
-import japgolly.scalajs.react.vdom.TopNode
-import japgolly.scalajs.react.{Children, CtorType}
+import japgolly.scalajs.react.vdom.{TopNode, VdomNode}
+import japgolly.scalajs.react.{Children, CtorType, Reusable}
 import scala.reflect.macros.blackbox.Context
 import scala.scalajs.js
 
@@ -15,59 +16,202 @@ object HookMacros {
 }
 
 class HookMacros(val c: Context) extends MacroUtils {
-  import c.universe._
+  import c.universe.{WeakTypeTag => WT, _}
+
+  private def typeTreeOf[A](implicit a: WT[A]): TypeTree =
+    TypeTree(a.tpe)
+
+  // ===================================================================================================================
+  // render
+
+  def render1[P: WT, C <: Children: WT, Ctx: WT](f: c.Tree)(s: c.Tree): c.Tree =
+    _render1[P, C, Ctx](f, s, false)
+
+  def renderDebug1[P: WT, C <: Children: WT, Ctx: WT](f: c.Tree)(s: c.Tree): c.Tree =
+    _render1[P, C, Ctx](f, s, true)
+
+  private def _render1[P: WT, C <: Children: WT, Ctx: WT](f: c.Tree, s: c.Tree, debug: Boolean): c.Tree =
+    apply[P, C](s, typeTreeOf[Ctx], debug) {
+      q"$self.render($f)($s)"
+    }
 
   // -------------------------------------------------------------------------------------------------------------------
 
-  def render1[P, C <: Children](f: c.Tree)(s: c.Tree)(implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
-    _render1(f, s, false)(P, C)
+  def renderC1[P: WT](f: c.Tree)(s: c.Tree): c.Tree =
+    _renderC1[P](f, s, false)
 
-  def renderDebug1[P, C <: Children](f: c.Tree)(s: c.Tree)(implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
-    _render1(f, s, true)(P, C)
+  def renderDebugC1[P: WT](f: c.Tree)(s: c.Tree): c.Tree =
+    _renderC1[P](f, s, true)
 
-  private def _render1[P, C <: Children](f: c.Tree, s: c.Tree, debug: Boolean)(implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
-    _render[P, C](f, None, s, debug)
-
-  // -------------------------------------------------------------------------------------------------------------------
-
-  def renderC1[P](f: c.Tree)(s: c.Tree)(implicit P: c.WeakTypeTag[P]): c.Tree =
-    _renderC1(f, s, false)(P)
-
-  def renderDebugC1[P](f: c.Tree)(s: c.Tree)(implicit P: c.WeakTypeTag[P]): c.Tree =
-    _renderC1(f, s, true)(P)
-
-  private def _renderC1[P](renderFn: c.Tree, summoner: c.Tree, debug: Boolean)(implicit P: c.WeakTypeTag[P]): c.Tree =
-    _render[P, Children.Varargs](renderFn, None, summoner, debug)
+  private def _renderC1[P: WT](f: c.Tree, s: c.Tree, debug: Boolean): c.Tree =
+    apply[P, Children.Varargs](s, typeTreeOf[PC0[P]], debug) {
+      q"$self.render($f)($s)"
+    }
 
   // -------------------------------------------------------------------------------------------------------------------
 
-  def render2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]](f: c.Tree)(step: c.Tree, s: c.Tree)(implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
-    _render2(f, step, s, false)(P, C)
+  def render2[P: WT, C <: Children: WT, Ctx: WT, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]](f: c.Tree)(step: c.Tree, s: c.Tree): c.Tree =
+    _render2[P, C, Ctx](f, step, s, false)
 
-  def renderDebug2[P, C <: Children, Ctx, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]](f: c.Tree)(step: c.Tree, s: c.Tree)(implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
-    _render2(f, step, s, true)(P, C)
+  def renderDebug2[P: WT, C <: Children: WT, Ctx: WT, CtxFn[_], Step <: SubsequentStep[Ctx, CtxFn]](f: c.Tree)(step: c.Tree, s: c.Tree): c.Tree =
+    _render2[P, C, Ctx](f, step, s, true)
 
-  private def _render2[P, C <: Children](f: c.Tree, step: c.Tree, s: c.Tree, debug: Boolean)(implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree =
-    _render[P, C](f, Some(step), s, debug)
+  private def _render2[P: WT, C <: Children: WT, Ctx: WT](f: c.Tree, step: c.Tree, s: c.Tree, debug: Boolean): c.Tree =
+    apply[P, C](s, typeTreeOf[Ctx], debug) {
+      q"""
+        val f = $step.squash($f)
+        $self.render(f)($s)
+      """
+    }
+
+  // ===================================================================================================================
+  // renderReusable
+
+  def renderWithReuse1[P: WT, C <: Children: WT, Ctx: WT](f: c.Tree)(s: c.Tree, r: c.Tree): c.Tree =
+    _renderWithReuse1[P, C, Ctx](f, s, r, false)
+
+  def renderWithReuseDebug1[P: WT, C <: Children: WT, Ctx: WT](f: c.Tree)(s: c.Tree, r: c.Tree): c.Tree =
+    _renderWithReuse1[P, C, Ctx](f, s, r, true)
+
+  private def _renderWithReuse1[P: WT, C <: Children: WT, Ctx: WT](f: c.Tree, s: c.Tree, r: c.Tree, debug: Boolean): c.Tree =
+    apply[P, C](s, typeTreeOf[Ctx], debug) {
+      q"$self.renderWithReuse($f)($s, $r)"
+    }
+
+  // -------------------------------------------------------------------------------------------------------------------
+
+  def renderWithReuse1C[P: WT](f: c.Tree)(s: c.Tree, r: c.Tree): c.Tree =
+    _renderWithReuse1C[P, Children.Varargs](f, s, r, false)
+
+  def renderWithReuseDebug1C[P: WT](f: c.Tree)(s: c.Tree, r: c.Tree): c.Tree =
+    _renderWithReuse1C[P, Children.Varargs](f, s, r, true)
+
+  private def _renderWithReuse1C[P: WT, C <: Children: WT](f: c.Tree, s: c.Tree, r: c.Tree, debug: Boolean): c.Tree =
+    apply[P, C](s, typeTreeOf[PC0[P]], debug) {
+      q"$self.renderWithReuse($f)($s, $r)"
+    }
+
+  // -------------------------------------------------------------------------------------------------------------------
+
+  def renderWithReuse2[P: WT, C <: Children: WT, Ctx: WT](f: c.Tree)(step: c.Tree, s: c.Tree, r: c.Tree): c.Tree =
+    _renderWithReuse2[P, C, Ctx](f, step, s, r, false)
+
+  def renderWithReuseDebug2[P: WT, C <: Children: WT, Ctx: WT](f: c.Tree)(step: c.Tree, s: c.Tree, r: c.Tree): c.Tree =
+    _renderWithReuse2[P, C, Ctx](f, step, s, r, true)
+
+  private def _renderWithReuse2[P: WT, C <: Children: WT, Ctx: WT](f: c.Tree, step: c.Tree, s: c.Tree, r: c.Tree, debug: Boolean): c.Tree =
+    apply[P, C](s, typeTreeOf[Ctx], debug) {
+      q"""
+        val f = $step.squash($f)
+        $self.renderWithReuse(f)($s, $r)
+      """
+    }
+
+  // ===================================================================================================================
+  // renderWithReuse
+
+  def renderReusable1[P: WT, C <: Children: WT, A: WT, Ctx: WT](f: c.Tree)(s: c.Tree, v: c.Tree): c.Tree =
+    _renderReusable1[P, C, A, Ctx](f, s, v, false)
+
+  def renderReusableDebug1[P: WT, C <: Children: WT, A: WT, Ctx: WT](f: c.Tree)(s: c.Tree, v: c.Tree): c.Tree =
+    _renderReusable1[P, C, A, Ctx](f, s, v, true)
+
+  private def _renderReusable1[P: WT, C <: Children: WT, A: WT, Ctx: WT](f: c.Tree, s: c.Tree, v: c.Tree, debug: Boolean): c.Tree =
+    apply[P, C](s, typeTreeOf[Ctx], debug) {
+      q"$self.renderReusable($f)($s, $v)"
+    }
+
+  // -------------------------------------------------------------------------------------------------------------------
+
+  def renderReusable1C[P: WT, A: WT](f: c.Tree)(s: c.Tree, v: c.Tree): c.Tree =
+    _renderReusable1C[P, Children.Varargs, A](f, s, v, false)
+
+  def renderReusableDebug1C[P: WT, A: WT](f: c.Tree)(s: c.Tree, v: c.Tree): c.Tree =
+    _renderReusable1C[P, Children.Varargs, A](f, s, v, true)
+
+  private def _renderReusable1C[P: WT, C <: Children: WT, A: WT](f: c.Tree, s: c.Tree, v: c.Tree, debug: Boolean): c.Tree =
+    apply[P, C](s, typeTreeOf[PC0[P]], debug) {
+      q"$self.renderReusable($f)($s, $v)"
+    }
+
+  // -------------------------------------------------------------------------------------------------------------------
+
+  def renderReusable2[P: WT, C <: Children: WT, A: WT, Ctx: WT](f: c.Tree)(step: c.Tree, s: c.Tree, v: c.Tree): c.Tree =
+    _renderReusable2[P, C, A, Ctx](f, step, s, v, false)
+
+  def renderReusableDebug2[P: WT, C <: Children: WT, A: WT, Ctx: WT](f: c.Tree)(step: c.Tree, s: c.Tree, v: c.Tree): c.Tree =
+    _renderReusable2[P, C, A, Ctx](f, step, s, v, true)
+
+  private def _renderReusable2[P: WT, C <: Children: WT, A: WT, Ctx: WT](f: c.Tree, step: c.Tree, s: c.Tree, v: c.Tree, debug: Boolean): c.Tree =
+    apply[P, C](s, typeTreeOf[Ctx], debug) {
+      q"""
+        val f = $step.squash($f)
+        $self.renderReusable(f)($s, $v)
+      """
+    }
+
+  // ===================================================================================================================
+  // renderWithReuseBy
+
+  def renderWithReuseBy1[P: WT, C <: Children: WT, A: WT, Ctx: WT](reusableInputs: c.Tree)(f: c.Tree)(s: c.Tree, r: c.Tree): c.Tree =
+    _renderWithReuseBy1[P, C, A, Ctx](reusableInputs, f, s, r, false)
+
+  def renderWithReuseByDebug1[P: WT, C <: Children: WT, A: WT, Ctx: WT](reusableInputs: c.Tree)(f: c.Tree)(s: c.Tree, r: c.Tree): c.Tree =
+    _renderWithReuseBy1[P, C, A, Ctx](reusableInputs, f, s, r, true)
+
+  private def _renderWithReuseBy1[P: WT, C <: Children: WT, A: WT, Ctx: WT](i: c.Tree, f: c.Tree, s: c.Tree, r: c.Tree, debug: Boolean): c.Tree =
+    apply[P, C](s, typeTreeOf[Ctx], debug) {
+      q"$self.renderWithReuseBy($i)($f)($s, $r)"
+    }
+
+  // -------------------------------------------------------------------------------------------------------------------
+
+  def renderWithReuseBy1C[P: WT, A: WT](reusableInputs: c.Tree)(f: c.Tree)(s: c.Tree, r: c.Tree): c.Tree =
+    _renderWithReuseBy1C[P, Children.Varargs, A](reusableInputs, f, s, r, false)
+
+  def renderWithReuseByDebug1C[P: WT, A: WT](reusableInputs: c.Tree)(f: c.Tree)(s: c.Tree, r: c.Tree): c.Tree =
+    _renderWithReuseBy1C[P, Children.Varargs, A](reusableInputs, f, s, r, true)
+
+  private def _renderWithReuseBy1C[P: WT, C <: Children: WT, A: WT](i: c.Tree, f: c.Tree, s: c.Tree, r: c.Tree, debug: Boolean): c.Tree =
+    apply[P, C](s, typeTreeOf[PC0[P]], debug) {
+      q"$self.renderWithReuseBy($i)($f)($s, $r)"
+    }
+
+  // -------------------------------------------------------------------------------------------------------------------
+
+  def renderWithReuseBy2[P: WT, C <: Children: WT, A: WT, Ctx: WT](reusableInputs: c.Tree)(f: c.Tree)(step: c.Tree, s: c.Tree, r: c.Tree): c.Tree =
+    _renderWithReuseBy2[P, C, A, Ctx](reusableInputs, f, step, s, r, false)
+
+  def renderWithReuseByDebug2[P: WT, C <: Children: WT, A: WT, Ctx: WT](reusableInputs: c.Tree)(f: c.Tree)(step: c.Tree, s: c.Tree, r: c.Tree): c.Tree =
+    _renderWithReuseBy2[P, C, A, Ctx](reusableInputs, f, step, s, r, true)
+
+  private def _renderWithReuseBy2[P: WT, C <: Children: WT, A: WT, Ctx: WT](i: c.Tree, f: c.Tree, step: c.Tree, s: c.Tree, r: c.Tree, debug: Boolean): c.Tree =
+    apply[P, C](s, typeTreeOf[Ctx], debug) {
+      q"""
+        val f = $step.squash($f)
+        $self.renderWithReuseBy($i)(f)($s, $r)
+      """
+    }
 
   // ===================================================================================================================
 
   private implicit def autoTagToType[A](t: c.WeakTypeTag[A]): Type = t.tpe
 
-  private def AHM          : Tree = q"_root_.japgolly.scalajs.react.hooks.AbstractHookMacros"
-  private def Box          : Tree = q"_root_.japgolly.scalajs.react.internal.Box"
-  private def Box(t: Type) : Type = appliedType(c.typeOf[Box[_]], t)
-  private def CustomHook   : Tree = q"_root_.japgolly.scalajs.react.hooks.CustomHook"
-  private def HookCtx      : Tree = q"_root_.japgolly.scalajs.react.hooks.HookCtx"
-  private def Hooks        : Tree = q"_root_.japgolly.scalajs.react.hooks.Hooks"
-  private def JsComp       : Tree = q"_root_.japgolly.scalajs.react.component.Js"
-  private def JsFn         : Tree = q"_root_.japgolly.scalajs.react.component.JsFn"
-  private def PropsChildren: Tree = q"_root_.japgolly.scalajs.react.PropsChildren"
-  private def React        : Tree = q"_root_.japgolly.scalajs.react.facade.React"
-  private def Reusable     : Tree = q"_root_.japgolly.scalajs.react.Reusable"
-  private def ScalaFn      : Tree = q"_root_.japgolly.scalajs.react.component.ScalaFn"
-  private def ScalaRef     : Tree = q"_root_.japgolly.scalajs.react.Ref"
-  private def SJS          : Tree = q"_root_.scala.scalajs.js"
+  private def AHM             : Tree = q"_root_.japgolly.scalajs.react.hooks.AbstractHookMacros"
+  private def Box             : Tree = q"_root_.japgolly.scalajs.react.internal.Box"
+  private def Box(t: Type)    : Type = appliedType(c.typeOf[Box[_]], t)
+  private def CustomHook      : Tree = q"_root_.japgolly.scalajs.react.hooks.CustomHook"
+  private def HookCtx         : Tree = q"_root_.japgolly.scalajs.react.hooks.HookCtx"
+  private def Hooks           : Tree = q"_root_.japgolly.scalajs.react.hooks.Hooks"
+  private def JsComp          : Tree = q"_root_.japgolly.scalajs.react.component.Js"
+  private def JsFn            : Tree = q"_root_.japgolly.scalajs.react.component.JsFn"
+  private def PropsChildren   : Tree = q"_root_.japgolly.scalajs.react.PropsChildren"
+  private def React           : Tree = q"_root_.japgolly.scalajs.react.facade.React"
+  private def Reusable        : Tree = q"_root_.japgolly.scalajs.react.Reusable"
+  private def ScalaFn         : Tree = q"_root_.japgolly.scalajs.react.component.ScalaFn"
+  private def ScalaRef        : Tree = q"_root_.japgolly.scalajs.react.Ref"
+  private def ShouldCompUpdate: Tree = q"_root_.japgolly.scalajs.react.internal.ShouldComponentUpdateComponent"
+  private def SJS             : Tree = q"_root_.scala.scalajs.js"
 
   private final class HookMacrosImpl extends AbstractHookMacros {
     import AbstractHookMacros._
@@ -318,32 +462,38 @@ class HookMacros(val c: Context) extends MacroUtils {
 
     override protected def vdomRawNode = vdom =>
       q"$vdom.rawNode"
+
+    override protected def reusabilityReusable[A] = tpe =>
+      q"$Reusable.reusableReusability[$tpe]"
+
+    override protected def reusableMap[A, B] = (r, f, _, _) =>
+      q"$r.map($f)"
+
+    override protected def reusableType[A] = tpe =>
+      appliedType(c.typeOf[Reusable[_]], tpe)
+
+    override protected def reusableValue[A] = (r, _) =>
+      q"$r.value"
+
+    override protected def shouldComponentUpdateComponent = (rev, render) =>
+      q"$ShouldCompUpdate($rev, () => $render)"
+
+    override protected def vdomNodeType =
+      c.typeOf[VdomNode]
   }
 
   // ===================================================================================================================
 
-  def _render[P, C <: Children]
-             (renderFn: c.Tree, stepOption: Option[c.Tree], summoner: c.Tree, debug: Boolean)
-             (implicit P: c.WeakTypeTag[P], C: c.WeakTypeTag[C]): c.Tree = {
+  private def self = c.prefix
+
+  private def apply[P, C <: Children](summoner: c.Tree, ctxType: TypeTree, debug: Boolean)(giveUp: Tree)
+                                     (implicit P: WT[P], C: WT[C]): c.Tree = {
 
     val hookMacros = new HookMacrosImpl
 
     import hookMacros.log
     log.enabled = debug
     log.header()
-
-    def giveUp: Tree = {
-      val self = c.prefix
-      stepOption match {
-        case Some(step) =>
-          q"""
-            val f = $step.squash($renderFn)
-            $self.render(f)($summoner)
-          """
-        case None =>
-          q"$self.render($renderFn)($summoner)"
-      }
-    }
 
     def onFailure(msg: String): Tree = {
       import Console._
@@ -368,6 +518,7 @@ class HookMacros(val c: Context) extends MacroUtils {
               props        = q"props.unbox",
               initChildren = q"val children = $PropsChildren.fromRawProps(props)",
               children     = q"children",
+              ctxType      = ctxType,
             )
             val newBody = rewriter(ctx)
             c.untypecheck(q"""
