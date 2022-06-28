@@ -21,8 +21,8 @@ import * as $j_japgolly$002escalajs$002ereact$002evdom$002eVdomElement from "./j
 import * as $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024 from "./japgolly.scalajs.react.vdom.VdomNode$.js";
 import * as $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024$0024anon$00241 from "./japgolly.scalajs.react.vdom.VdomNode$$anon$1.js";
 import * as $j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024 from "./japgolly.scalajs.react.vdom.html_$less$up$.js";
-import * as $j_java$002elang$002eCharacter$0024 from "./java.lang.Character$.js";
 import * as $j_java$002elang$002eObject from "./java.lang.Object.js";
+import * as $j_scala$002eArray$0024 from "./scala.Array$.js";
 import * as $j_scala$002eFunction1 from "./scala.Function1.js";
 import * as $j_scala$002escalajs$002eruntime$002eAnonFunction0 from "./scala.scalajs.runtime.AnonFunction0.js";
 import * as $j_scala$002escalajs$002eruntime$002eWrappedVarArgs from "./scala.scalajs.runtime.WrappedVarArgs.js";
@@ -47,7 +47,7 @@ function $c_Ljapgolly_scalajs_react_test_emissions_CustomHooks$() {
     return x$2.Ljapgolly_scalajs_react_hooks_HookCtx$I1__f_hook1;
   }));
   var this$6 = $j_japgolly$002escalajs$002ereact$002epackage$0024.$m_Ljapgolly_scalajs_react_package$().Ljapgolly_scalajs_react_internal_CoreGeneralF__f_CustomHook.apply__Ljapgolly_scalajs_react_hooks_CustomHook$Builder$First();
-  var effect = new $j_japgolly$002escalajs$002ereact$002ecallback$002eCallbackTo.$c_Ljapgolly_scalajs_react_callback_CallbackTo($j_japgolly$002escalajs$002ereact$002epackage$0024.$m_Ljapgolly_scalajs_react_package$().Ljapgolly_scalajs_react_package$__f_Callback.log__O__sci_Seq__Ljapgolly_scalajs_react_callback_Trampoline("hello", $j_java$002elang$002eCharacter$0024.$m_sci_Nil$()));
+  var effect = new $j_japgolly$002escalajs$002ereact$002ecallback$002eCallbackTo.$c_Ljapgolly_scalajs_react_callback_CallbackTo($j_japgolly$002escalajs$002ereact$002epackage$0024.$m_Ljapgolly_scalajs_react_package$().Ljapgolly_scalajs_react_package$__f_Callback.log__O__sci_Seq__Ljapgolly_scalajs_react_callback_Trampoline("hello", $j_scala$002eArray$0024.$m_sci_Nil$()));
   var a = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseEffectArg$0024.$m_Ljapgolly_scalajs_react_hooks_Hooks$UseEffectArg$().unit__Ljapgolly_scalajs_react_util_Effect$Dispatch__F1($j_japgolly$002escalajs$002ereact$002eutil$002eEffectCallback$0024callback$0024.$m_Ljapgolly_scalajs_react_util_EffectCallback$callback$());
   var step$1 = new $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024Builder$0024First.$c_Ljapgolly_scalajs_react_hooks_CustomHook$Builder$FirstStep();
   this.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook2 = $j_japgolly$002escalajs$002ereact$002ehooks$002eApi$0024Primary.$f_Ljapgolly_scalajs_react_hooks_Api$Primary__useEffect__O__F1__Ljapgolly_scalajs_react_hooks_Api$AbstractStep__O(this$6, effect, a, step$1).build__F1();

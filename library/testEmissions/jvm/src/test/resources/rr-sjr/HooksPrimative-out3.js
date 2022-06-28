@@ -51,7 +51,7 @@ function $c_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$() {
   this.Ljapgolly_scalajs_react_test_emissions_HooksPrimative$__f_Component = null;
   $n_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$ = this;
 
-  var rawComponent = (this$1 => props => {
+  var rawComponent = props => {
     new $j_scala$002eruntime$002eLazyInt.$c_sr_LazyInt();
 
     var _＿japgolly_＿hook5_raw$lzy1 = new $j_scala$002eruntime$002eLazyInt.$c_sr_LazyInt();
@@ -80,9 +80,9 @@ function $c_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$() {
     props.a;
     console.log("ccccc");
     props.a;
-    var sum = (((((11110 + $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$___＿japgolly_＿hook5_raw$1__sr_LazyInt__I(this$1, _＿japgolly_＿hook5_raw$lzy1$2) | 0) + $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$___＿japgolly_＿hook6_raw$1__sr_LazyInt__I(this$1, _＿japgolly_＿hook6_raw$lzy1$2) | 0) + (_＿japgolly_＿hook7.Ljapgolly_scalajs_react_hooks_Hooks$VarF__f_value | 0) | 0) + (_＿japgolly_＿hook8.Ljapgolly_scalajs_react_hooks_Hooks$VarF__f_value | 0) | 0) + (_＿japgolly_＿hook9.Ljapgolly_scalajs_react_hooks_Hooks$VarF__f_value | 0) | 0) + ("bbbbb".length | 0) | 0;
+    var sum = (((((11110 + $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$___＿japgolly_＿hook5_raw$1__sr_LazyInt__I(this, _＿japgolly_＿hook5_raw$lzy1$2) | 0) + $p_Ljapgolly_scalajs_react_test_emissions_HooksPrimative$___＿japgolly_＿hook6_raw$1__sr_LazyInt__I(this, _＿japgolly_＿hook6_raw$lzy1$2) | 0) + (_＿japgolly_＿hook7.Ljapgolly_scalajs_react_hooks_Hooks$VarF__f_value | 0) | 0) + (_＿japgolly_＿hook8.Ljapgolly_scalajs_react_hooks_Hooks$VarF__f_value | 0) | 0) + (_＿japgolly_＿hook9.Ljapgolly_scalajs_react_hooks_Hooks$VarF__f_value | 0) | 0) + ("bbbbb".length | 0) | 0;
     return ($j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$(), $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024.$m_Ljapgolly_scalajs_react_vdom_VdomNode$(), new $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024$0024anon$00241.$c_Ljapgolly_scalajs_react_vdom_VdomNode$$anon$1(sum)).Ljapgolly_scalajs_react_vdom_VdomNode$$anon$1__f_n$1;
-  })(this);
+  };
 
   var $$x1 = $j_japgolly$002escalajs$002ereact$002ecomponent$002eScalaFn$0024.$m_Ljapgolly_scalajs_react_component_ScalaFn$();
   var this$14 = $j_japgolly$002escalajs$002ereact$002ecomponent$002eJsFn$0024.$m_Ljapgolly_scalajs_react_component_JsFn$();

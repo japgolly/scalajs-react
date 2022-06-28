@@ -14,8 +14,8 @@ import * as $j_japgolly$002escalajs$002ereact$002eutil$002eEffectCallback$0024ca
 import * as $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024 from "./japgolly.scalajs.react.vdom.VdomNode$.js";
 import * as $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024$0024anon$00241 from "./japgolly.scalajs.react.vdom.VdomNode$$anon$1.js";
 import * as $j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024 from "./japgolly.scalajs.react.vdom.html_$less$up$.js";
-import * as $j_java$002elang$002eCharacter$0024 from "./java.lang.Character$.js";
 import * as $j_java$002elang$002eObject from "./java.lang.Object.js";
+import * as $j_scala$002eArray$0024 from "./scala.Array$.js";
 import * as $j_scala$002escalajs$002eruntime$002eAnonFunction0 from "./scala.scalajs.runtime.AnonFunction0.js";
 import * as $j_scala$002escalajs$002eruntime$002eCompat$0024 from "./scala.scalajs.runtime.Compat$.js";
 
@@ -31,10 +31,10 @@ function $c_Ljapgolly_scalajs_react_test_emissions_UseCallback$() {
     var _＿japgolly_＿hook1_arg = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseCallbackArg$0024.$m_Ljapgolly_scalajs_react_hooks_Hooks$UseCallbackArg$().callback__Ljapgolly_scalajs_react_util_Effect$Dispatch__Ljapgolly_scalajs_react_hooks_Hooks$UseCallbackArg($j_japgolly$002escalajs$002ereact$002eutil$002eEffectCallback$0024callback$0024.$m_Ljapgolly_scalajs_react_util_EffectCallback$callback$());
 
     var $$x1 = _＿japgolly_＿hook1_arg.Ljapgolly_scalajs_react_hooks_Hooks$$anon$1__f_f$1;
-    var optionalParams$proxy1 = $j_java$002elang$002eCharacter$0024.$m_sr_ScalaRunTime$().genericWrapArray__O__sci_ArraySeq(new $j_java$002elang$002eObject.$ac_O([]));
-    var f$proxy3 = new $j_scala$002escalajs$002eruntime$002eAnonFunction0.$c_sjsr_AnonFunction0((optionalParams$proxy1$2 => () => {
-      console.log("aaaaaaaaaaaaaa", ...$j_scala$002escalajs$002eruntime$002eCompat$0024.$m_sjsr_Compat$().toJSVarArgsImpl__sci_Seq__sjs_js_Array(optionalParams$proxy1$2));
-    })(optionalParams$proxy1));
+    var optionalParams$proxy1 = $j_scala$002eArray$0024.$m_sr_ScalaRunTime$().genericWrapArray__O__sci_ArraySeq(new $j_java$002elang$002eObject.$ac_O([]));
+    var f$proxy3 = new $j_scala$002escalajs$002eruntime$002eAnonFunction0.$c_sjsr_AnonFunction0(() => {
+      console.log("aaaaaaaaaaaaaa", ...$j_scala$002escalajs$002eruntime$002eCompat$0024.$m_sjsr_Compat$().toJSVarArgsImpl__sci_Seq__sjs_js_Array(optionalParams$proxy1));
+    });
 
     var _＿japgolly_＿hook1_jscb = $$x1.apply__O__O(new $j_japgolly$002escalajs$002ereact$002ecallback$002eCallbackTo.$c_Ljapgolly_scalajs_react_callback_CallbackTo(($j_japgolly$002escalajs$002ereact$002ecallback$002eTrampoline$0024.$m_Ljapgolly_scalajs_react_callback_Trampoline$(), new $j_japgolly$002escalajs$002ereact$002ecallback$002eTrampoline$0024Delay.$c_Ljapgolly_scalajs_react_callback_Trampoline$Delay(f$proxy3))));
 
@@ -48,10 +48,10 @@ function $c_Ljapgolly_scalajs_react_test_emissions_UseCallback$() {
 
     var $$x2 = _＿japgolly_＿hook2_arg.Ljapgolly_scalajs_react_hooks_Hooks$$anon$1__f_f$1;
     var message$proxy1 = "bbbbbbbbbbbbbb" + props$1;
-    var optionalParams$proxy2 = $j_java$002elang$002eCharacter$0024.$m_sr_ScalaRunTime$().genericWrapArray__O__sci_ArraySeq(new $j_java$002elang$002eObject.$ac_O([]));
-    var f$proxy6 = new $j_scala$002escalajs$002eruntime$002eAnonFunction0.$c_sjsr_AnonFunction0(((message$proxy1$2, optionalParams$proxy2$2) => () => {
-      console.log(message$proxy1$2, ...$j_scala$002escalajs$002eruntime$002eCompat$0024.$m_sjsr_Compat$().toJSVarArgsImpl__sci_Seq__sjs_js_Array(optionalParams$proxy2$2));
-    })(message$proxy1, optionalParams$proxy2));
+    var optionalParams$proxy2 = $j_scala$002eArray$0024.$m_sr_ScalaRunTime$().genericWrapArray__O__sci_ArraySeq(new $j_java$002elang$002eObject.$ac_O([]));
+    var f$proxy6 = new $j_scala$002escalajs$002eruntime$002eAnonFunction0.$c_sjsr_AnonFunction0(() => {
+      console.log(message$proxy1, ...$j_scala$002escalajs$002eruntime$002eCompat$0024.$m_sjsr_Compat$().toJSVarArgsImpl__sci_Seq__sjs_js_Array(optionalParams$proxy2));
+    });
 
     var _＿japgolly_＿hook2_jscb = $$x2.apply__O__O(new $j_japgolly$002escalajs$002ereact$002ecallback$002eCallbackTo.$c_Ljapgolly_scalajs_react_callback_CallbackTo(($j_japgolly$002escalajs$002ereact$002ecallback$002eTrampoline$0024.$m_Ljapgolly_scalajs_react_callback_Trampoline$(), new $j_japgolly$002escalajs$002ereact$002ecallback$002eTrampoline$0024Delay.$c_Ljapgolly_scalajs_react_callback_Trampoline$Delay(f$proxy6))));
 
@@ -64,10 +64,10 @@ function $c_Ljapgolly_scalajs_react_test_emissions_UseCallback$() {
     var $$x3 = _＿japgolly_＿hook3_arg.Ljapgolly_scalajs_react_hooks_Hooks$$anon$1__f_f$1;
     var p = props.a | 0;
     var message$proxy2 = "cccccccccccccc" + p;
-    var optionalParams$proxy3 = $j_java$002elang$002eCharacter$0024.$m_sr_ScalaRunTime$().genericWrapArray__O__sci_ArraySeq(new $j_java$002elang$002eObject.$ac_O([]));
-    var f$proxy9 = new $j_scala$002escalajs$002eruntime$002eAnonFunction0.$c_sjsr_AnonFunction0(((message$proxy2$2, optionalParams$proxy3$2) => () => {
-      console.log(message$proxy2$2, ...$j_scala$002escalajs$002eruntime$002eCompat$0024.$m_sjsr_Compat$().toJSVarArgsImpl__sci_Seq__sjs_js_Array(optionalParams$proxy3$2));
-    })(message$proxy2, optionalParams$proxy3));
+    var optionalParams$proxy3 = $j_scala$002eArray$0024.$m_sr_ScalaRunTime$().genericWrapArray__O__sci_ArraySeq(new $j_java$002elang$002eObject.$ac_O([]));
+    var f$proxy9 = new $j_scala$002escalajs$002eruntime$002eAnonFunction0.$c_sjsr_AnonFunction0(() => {
+      console.log(message$proxy2, ...$j_scala$002escalajs$002eruntime$002eCompat$0024.$m_sjsr_Compat$().toJSVarArgsImpl__sci_Seq__sjs_js_Array(optionalParams$proxy3));
+    });
 
     var _＿japgolly_＿hook3_jscb = $$x3.apply__O__O(new $j_japgolly$002escalajs$002ereact$002ecallback$002eCallbackTo.$c_Ljapgolly_scalajs_react_callback_CallbackTo(($j_japgolly$002escalajs$002ereact$002ecallback$002eTrampoline$0024.$m_Ljapgolly_scalajs_react_callback_Trampoline$(), new $j_japgolly$002escalajs$002ereact$002ecallback$002eTrampoline$0024Delay.$c_Ljapgolly_scalajs_react_callback_Trampoline$Delay(f$proxy9))));
 
@@ -100,9 +100,9 @@ function $c_Ljapgolly_scalajs_react_test_emissions_UseCallback$() {
   _s(rawComponent, "iraUe4+KkOLn6ddQAIouaX7EXxE=");
 
   var $$x4 = $j_japgolly$002escalajs$002ereact$002ecomponent$002eScalaFn$0024.$m_Ljapgolly_scalajs_react_component_ScalaFn$();
-  var this$21 = $j_japgolly$002escalajs$002ereact$002ecomponent$002eJsFn$0024.$m_Ljapgolly_scalajs_react_component_JsFn$();
+  var this$20 = $j_japgolly$002escalajs$002ereact$002ecomponent$002eJsFn$0024.$m_Ljapgolly_scalajs_react_component_JsFn$();
   var s = $j_japgolly$002escalajs$002ereact$002eCtorType$0024Summoner$0024.$m_Ljapgolly_scalajs_react_CtorType$Summoner$().summonP__Ljapgolly_scalajs_react_internal_Singleton$Not__Ljapgolly_scalajs_react_CtorType$Summoner(null);
-  this.Ljapgolly_scalajs_react_test_emissions_UseCallback$__f_Component = $$x4.fromBoxed__Ljapgolly_scalajs_react_component_JsBaseComponentTemplate$ComponentWithRoot__Ljapgolly_scalajs_react_component_JsBaseComponentTemplate$ComponentWithRoot(this$21.force__O__Ljapgolly_scalajs_react_CtorType$Summoner__Ljapgolly_scalajs_react_component_JsBaseComponentTemplate$ComponentWithRoot(rawComponent, s));
+  this.Ljapgolly_scalajs_react_test_emissions_UseCallback$__f_Component = $$x4.fromBoxed__Ljapgolly_scalajs_react_component_JsBaseComponentTemplate$ComponentWithRoot__Ljapgolly_scalajs_react_component_JsBaseComponentTemplate$ComponentWithRoot(this$20.force__O__Ljapgolly_scalajs_react_CtorType$Summoner__Ljapgolly_scalajs_react_component_JsBaseComponentTemplate$ComponentWithRoot(rawComponent, s));
 }
 
 export { $c_Ljapgolly_scalajs_react_test_emissions_UseCallback$ };

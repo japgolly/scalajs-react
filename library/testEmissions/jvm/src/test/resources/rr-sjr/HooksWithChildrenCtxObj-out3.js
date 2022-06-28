@@ -35,9 +35,9 @@ function $c_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxObj$() {
   _s(rawComponent, "5jozhEwtxvMwDXdJFU53ltHZ+8U=");
 
   var $$x1 = $j_japgolly$002escalajs$002ereact$002ecomponent$002eScalaFn$0024.$m_Ljapgolly_scalajs_react_component_ScalaFn$();
-  var this$7 = $j_japgolly$002escalajs$002ereact$002ecomponent$002eJsFn$0024.$m_Ljapgolly_scalajs_react_component_JsFn$();
+  var this$6 = $j_japgolly$002escalajs$002ereact$002ecomponent$002eJsFn$0024.$m_Ljapgolly_scalajs_react_component_JsFn$();
   var s = $j_japgolly$002escalajs$002ereact$002eCtorType$0024Summoner$0024.$m_Ljapgolly_scalajs_react_CtorType$Summoner$().summonPC__Ljapgolly_scalajs_react_internal_Singleton$Not__Ljapgolly_scalajs_react_CtorType$Summoner(null);
-  this.Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxObj$__f_Component = $$x1.fromBoxed__Ljapgolly_scalajs_react_component_JsBaseComponentTemplate$ComponentWithRoot__Ljapgolly_scalajs_react_component_JsBaseComponentTemplate$ComponentWithRoot(this$7.force__O__Ljapgolly_scalajs_react_CtorType$Summoner__Ljapgolly_scalajs_react_component_JsBaseComponentTemplate$ComponentWithRoot(rawComponent, s));
+  this.Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxObj$__f_Component = $$x1.fromBoxed__Ljapgolly_scalajs_react_component_JsBaseComponentTemplate$ComponentWithRoot__Ljapgolly_scalajs_react_component_JsBaseComponentTemplate$ComponentWithRoot(this$6.force__O__Ljapgolly_scalajs_react_CtorType$Summoner__Ljapgolly_scalajs_react_component_JsBaseComponentTemplate$ComponentWithRoot(rawComponent, s));
 }
 
 export { $c_Ljapgolly_scalajs_react_test_emissions_HooksWithChildrenCtxObj$ };

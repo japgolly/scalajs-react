@@ -23,8 +23,8 @@ import * as $j_japgolly$002escalajs$002ereact$002evdom$002eTagMod from "./japgol
 import * as $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024 from "./japgolly.scalajs.react.vdom.VdomNode$.js";
 import * as $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024$0024anon$00241 from "./japgolly.scalajs.react.vdom.VdomNode$$anon$1.js";
 import * as $j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024 from "./japgolly.scalajs.react.vdom.html_$less$up$.js";
-import * as $j_java$002elang$002eCharacter$0024 from "./java.lang.Character$.js";
 import * as $j_java$002elang$002eObject from "./java.lang.Object.js";
+import * as $j_scala$002eArray$0024 from "./scala.Array$.js";
 import * as $j_scala$002eFunction1 from "./scala.Function1.js";
 import * as $j_scala$002escalajs$002eruntime$002eAnonFunction0 from "./scala.scalajs.runtime.AnonFunction0.js";
 import * as $j_scala$002escalajs$002eruntime$002eCompat$0024 from "./scala.scalajs.runtime.Compat$.js";
@@ -50,10 +50,10 @@ function $c_Ljapgolly_scalajs_react_test_emissions_CustomHooks$() {
     return _$2$1.Ljapgolly_scalajs_react_hooks_HookCtx$I1__f_hook1;
   }));
   var this$8 = $j_japgolly$002escalajs$002ereact$002epackage$0024.$m_Ljapgolly_scalajs_react_package$().Ljapgolly_scalajs_react_internal_CoreGeneralF__f_CustomHook.apply__Ljapgolly_scalajs_react_hooks_CustomHook$Builder$First();
-  var optionalParams$proxy1 = $j_java$002elang$002eCharacter$0024.$m_sr_ScalaRunTime$().genericWrapArray__O__sci_ArraySeq(new $j_java$002elang$002eObject.$ac_O([]));
-  var f$proxy3 = new $j_scala$002escalajs$002eruntime$002eAnonFunction0.$c_sjsr_AnonFunction0((optionalParams$proxy1$2 => () => {
-    console.log("hello", ...$j_scala$002escalajs$002eruntime$002eCompat$0024.$m_sjsr_Compat$().toJSVarArgsImpl__sci_Seq__sjs_js_Array(optionalParams$proxy1$2));
-  })(optionalParams$proxy1));
+  var optionalParams$proxy1 = $j_scala$002eArray$0024.$m_sr_ScalaRunTime$().genericWrapArray__O__sci_ArraySeq(new $j_java$002elang$002eObject.$ac_O([]));
+  var f$proxy3 = new $j_scala$002escalajs$002eruntime$002eAnonFunction0.$c_sjsr_AnonFunction0(() => {
+    console.log("hello", ...$j_scala$002escalajs$002eruntime$002eCompat$0024.$m_sjsr_Compat$().toJSVarArgsImpl__sci_Seq__sjs_js_Array(optionalParams$proxy1));
+  });
   var effect = new $j_japgolly$002escalajs$002ereact$002ecallback$002eCallbackTo.$c_Ljapgolly_scalajs_react_callback_CallbackTo(($j_japgolly$002escalajs$002ereact$002ecallback$002eTrampoline$0024.$m_Ljapgolly_scalajs_react_callback_Trampoline$(), new $j_japgolly$002escalajs$002ereact$002ecallback$002eTrampoline$0024Delay.$c_Ljapgolly_scalajs_react_callback_Trampoline$Delay(f$proxy3)));
   var a = $j_japgolly$002escalajs$002ereact$002ehooks$002eHooks$0024UseEffectArg$0024.$m_Ljapgolly_scalajs_react_hooks_Hooks$UseEffectArg$().unit__Ljapgolly_scalajs_react_util_Effect$Dispatch__F1($j_japgolly$002escalajs$002ereact$002eutil$002eEffectCallback$0024callback$0024.$m_Ljapgolly_scalajs_react_util_EffectCallback$callback$());
   var step$1 = new $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024Builder$0024First.$c_Ljapgolly_scalajs_react_hooks_CustomHook$Builder$FirstStep();
@@ -99,30 +99,30 @@ function $c_Ljapgolly_scalajs_react_test_emissions_CustomHooks$() {
     return _$9$1.Ljapgolly_scalajs_react_hooks_HookCtx$I1__f_hook1;
   }));
 
-  var rawComponent = (this$12$1 => props => {
+  var rawComponent = props => {
     var _＿japgolly_＿hook1_arg = $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024Arg$0024.$m_Ljapgolly_scalajs_react_hooks_CustomHook$Arg$().exactId__F1().apply__O__O(props.a) | 0;
 
-    var _＿japgolly_＿hook1 = this$12$1.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook1.apply__O__O(_＿japgolly_＿hook1_arg);
+    var _＿japgolly_＿hook1 = this.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook1.apply__O__O(_＿japgolly_＿hook1_arg);
 
-    this$12$1.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook2.apply__O__O(void 0);
+    this.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook2.apply__O__O(void 0);
 
-    var _＿japgolly_＿hook3 = this$12$1.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook3.apply__O__O(void 0);
+    var _＿japgolly_＿hook3 = this.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook3.apply__O__O(void 0);
 
     var p = props.a | 0;
 
-    var _＿japgolly_＿hook4_raw = $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024.$m_Ljapgolly_scalajs_react_hooks_CustomHook$().apply$extension__F1__O__F1(this$12$1.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook4, -1 + p | 0);
+    var _＿japgolly_＿hook4_raw = $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024.$m_Ljapgolly_scalajs_react_hooks_CustomHook$().apply$extension__F1__O__F1(this.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook4, -1 + p | 0);
 
     var _＿japgolly_＿hook4 = _＿japgolly_＿hook4_raw.apply__O__O(void 0);
 
     props.a | 0;
 
-    var _＿japgolly_＿hook5_raw = $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024.$m_Ljapgolly_scalajs_react_hooks_CustomHook$().apply$extension__F1__O__F1(this$12$1.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook5, _＿japgolly_＿hook4.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0]);
+    var _＿japgolly_＿hook5_raw = $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024.$m_Ljapgolly_scalajs_react_hooks_CustomHook$().apply$extension__F1__O__F1(this.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook5, _＿japgolly_＿hook4.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0]);
 
     var _＿japgolly_＿hook5 = _＿japgolly_＿hook5_raw.apply__O__O(void 0);
 
     props.a;
 
-    var _＿japgolly_＿hook6_raw = $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024.$m_Ljapgolly_scalajs_react_hooks_CustomHook$().apply$extension__F1__O__F1(this$12$1.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook6, _＿japgolly_＿hook5.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0]);
+    var _＿japgolly_＿hook6_raw = $j_japgolly$002escalajs$002ereact$002ehooks$002eCustomHook$0024.$m_Ljapgolly_scalajs_react_hooks_CustomHook$().apply$extension__F1__O__F1(this.Ljapgolly_scalajs_react_test_emissions_CustomHooks$__f_customHook6, _＿japgolly_＿hook5.Ljapgolly_scalajs_react_hooks_Hooks$$anon$2__f_raw[0]);
 
     var _＿japgolly_＿hook6 = _＿japgolly_＿hook6_raw.apply__O__O(void 0);
 
@@ -132,10 +132,10 @@ function $c_Ljapgolly_scalajs_react_test_emissions_CustomHooks$() {
     $j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$();
     $j_japgolly$002escalajs$002ereact$002evdom$002eExports$0024.$m_Ljapgolly_scalajs_react_vdom_Exports$();
     var self = "div";
-    var xs = $j_java$002elang$002eCharacter$0024.$m_sr_ScalaRunTime$().wrapRefArray__AO__sci_ArraySeq(new ($j_japgolly$002escalajs$002ereact$002evdom$002eTagMod.$d_Ljapgolly_scalajs_react_vdom_TagMod.getArrayOf().constr)([($j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$(), $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024.$m_Ljapgolly_scalajs_react_vdom_VdomNode$(), new $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024$0024anon$00241.$c_Ljapgolly_scalajs_react_vdom_VdomNode$$anon$1("Sum = ")), ($j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$(), $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024.$m_Ljapgolly_scalajs_react_vdom_VdomNode$(), new $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024$0024anon$00241.$c_Ljapgolly_scalajs_react_vdom_VdomNode$$anon$1(sum))]));
+    var xs = $j_scala$002eArray$0024.$m_sr_ScalaRunTime$().wrapRefArray__AO__sci_ArraySeq(new ($j_japgolly$002escalajs$002ereact$002evdom$002eTagMod.$d_Ljapgolly_scalajs_react_vdom_TagMod.getArrayOf().constr)([($j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$(), $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024.$m_Ljapgolly_scalajs_react_vdom_VdomNode$(), new $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024$0024anon$00241.$c_Ljapgolly_scalajs_react_vdom_VdomNode$$anon$1("Sum = ")), ($j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024.$m_Ljapgolly_scalajs_react_vdom_html＿$less$up$(), $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024.$m_Ljapgolly_scalajs_react_vdom_VdomNode$(), new $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024$0024anon$00241.$c_Ljapgolly_scalajs_react_vdom_VdomNode$$anon$1(sum))]));
     var this$25 = $j_japgolly$002escalajs$002ereact$002evdom$002eTagLite.$f_Ljapgolly_scalajs_react_vdom_TagLite__apply__T__sci_Seq__Ljapgolly_scalajs_react_vdom_TagOf(this$24, self, xs);
     return this$25.rawElement__Ljapgolly_scalajs_react_facade_React$Element();
-  })(this);
+  };
 
   var $$x1 = $j_japgolly$002escalajs$002ereact$002ecomponent$002eScalaFn$0024.$m_Ljapgolly_scalajs_react_component_ScalaFn$();
   var this$26 = $j_japgolly$002escalajs$002ereact$002ecomponent$002eJsFn$0024.$m_Ljapgolly_scalajs_react_component_JsFn$();

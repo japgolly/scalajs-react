@@ -23,10 +23,10 @@ import * as $j_japgolly$002escalajs$002ereact$002eutil$002eDefaultEffects$0024 f
 import * as $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024 from "./japgolly.scalajs.react.vdom.VdomNode$.js";
 import * as $j_japgolly$002escalajs$002ereact$002evdom$002eVdomNode$0024$0024anon$00241 from "./japgolly.scalajs.react.vdom.VdomNode$$anon$1.js";
 import * as $j_japgolly$002escalajs$002ereact$002evdom$002ehtml$005f$0024less$0024up$0024 from "./japgolly.scalajs.react.vdom.html_$less$up$.js";
-import * as $j_java$002elang$002eCharacter$0024 from "./java.lang.Character$.js";
 import * as $j_java$002elang$002eObject from "./java.lang.Object.js";
 import * as $j_org$002escalajs$002edom$002eHTMLInputElement from "./org.scalajs.dom.HTMLInputElement.js";
 import * as $j_scala$002eFunction1 from "./scala.Function1.js";
+import * as $j_scala$002ereflect$002eClassTag$0024GenericClassTag from "./scala.reflect.ClassTag$GenericClassTag.js";
 
 function $c_Ljapgolly_scalajs_react_test_emissions_UseRef$() {
   this.Ljapgolly_scalajs_react_test_emissions_UseRef$__f_jsComp = null;
@@ -81,7 +81,7 @@ $c_Ljapgolly_scalajs_react_test_emissions_UseRef$.prototype.japgolly$scalajs$rea
   var _＿japgolly_＿hook4_raw = $i_react.useRef(null);
 
   var this$9 = $j_japgolly$002escalajs$002ereact$002eRef$0024.$m_Ljapgolly_scalajs_react_Ref$().fromJs__Ljapgolly_scalajs_react_facade_React$RefHandle__Ljapgolly_scalajs_react_Ref$FullF(_＿japgolly_＿hook4_raw);
-  var ct = new $j_java$002elang$002eCharacter$0024.$c_s_reflect_ClassTag$GenericClassTag($j_org$002escalajs$002edom$002eHTMLInputElement.$d_Lorg_scalajs_dom_HTMLInputElement.getClassOf());
+  var ct = new $j_scala$002ereflect$002eClassTag$0024GenericClassTag.$c_s_reflect_ClassTag$GenericClassTag($j_org$002escalajs$002edom$002eHTMLInputElement.$d_Lorg_scalajs_dom_HTMLInputElement.getClassOf());
   $j_japgolly$002escalajs$002ereact$002eRef$0024FullF.$f_Ljapgolly_scalajs_react_Ref$FullF__narrowOption__s_reflect_ClassTag__Ljapgolly_scalajs_react_Ref$FullF(this$9, ct);
 
   var _＿japgolly_＿hook5_raw = $i_react.useRef(null);
