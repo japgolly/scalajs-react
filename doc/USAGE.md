@@ -284,8 +284,8 @@ React Extensions
   * `modStateOption(State => Option[State])`
   * `modStateOption((State, Props) => Option[State])`
 
-* React has a [classSet addon](https://facebook.github.io/react/docs/class-name-manipulation.html)
-  for specifying multiple optional class attributes. The same mechanism is applicable with this library is as follows:
+* React JS/TS often uses a library like  a [clsx](https://www.npmjs.com/package/clsx)
+  for specifying multiple optional class attributes. The same mechanism is applicable with this library using `classSet` as follows:
 
   ```scala
   <.div(
