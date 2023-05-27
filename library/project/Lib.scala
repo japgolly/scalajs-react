@@ -103,9 +103,9 @@ object Lib {
           Nil
         else {
           val a = p.base.toURI.toString.replaceFirst("[^/]+/?$", "")
-          val g = s"https://raw.githubusercontent.com/japgolly/$ghProject/library"
+          val g = s"https://raw.githubusercontent.com/japgolly/$ghProject"
           val flag = if (isDotty) "-scalajs-mapSourceURI" else "-P:scalajs:mapSourceURI"
-          s"$flag:$a->$g/v$ver/" :: Nil
+          s"$flag:$a->$g/v$ver/library/" :: Nil
         }
       }
     )
