@@ -750,7 +750,7 @@ uses this router and demonstrates a number of features.
 2. Router logging is enabled so you can read what the router does in the console.
 
 There are also unit tests available in the
-[japgolly.scalajs.react.extra.router](../test/src/test/scala/japgolly/scalajs/react/extra/router)
+[japgolly.scalajs.react.extra.router](../library/tests/src/test/scala/japgolly/scalajs/react/extra/router)
 package.
 
 [This](https://github.com/chandu0101/scalajs-react-template) simple example [demonstrates](http://chandu0101.github.io/scalajs-react-template/) routing as well.
