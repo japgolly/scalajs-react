@@ -6,13 +6,15 @@ import scala.scalajs.js
 import scala.scalajs.js.annotation._
 import scala.scalajs.js.|
 
-@JSImport("react-dom/client", JSImport.Namespace, "ReactDOM")
+@JSImport("react-dom", JSImport.Namespace, "ReactDOM")
 @js.native
 object ReactDOM extends ReactDOM
 
 @js.native
 @nowarn("cat=unused")
-trait ReactDOM extends ReactDOM18 {
+trait ReactDOM extends js.Object {
+
+  final type Container          = dom.Element | dom.Document | dom.DocumentFragment
 
   val version: String = js.native
 

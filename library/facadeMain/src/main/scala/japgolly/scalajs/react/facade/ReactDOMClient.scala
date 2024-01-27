@@ -1,15 +1,19 @@
 package japgolly.scalajs.react.facade
 
 import org.scalajs.dom
+
 import scala.annotation.nowarn
 import scala.scalajs.js
+import scala.scalajs.js.annotation._
 import scala.scalajs.js.|
+
+@JSImport("react-dom/client", JSImport.Namespace)
+@js.native
+object ReactDOMClient extends ReactDOMClient
 
 @js.native
 @nowarn("cat=unused")
-trait ReactDOM18 extends js.Object {
-
-  final type Container          = dom.Element | dom.Document | dom.DocumentFragment
+trait ReactDOMClient extends js.Object {
   final type HydrationContainer = dom.Element | dom.Document
   final type RootContainer      = dom.Element | dom.DocumentFragment
 
