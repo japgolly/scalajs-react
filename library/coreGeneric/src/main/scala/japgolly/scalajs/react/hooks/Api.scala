@@ -421,7 +421,7 @@ object Api {
       next(_ => UseRef.unsafeCreateToJsComponentWithMountedFacade[P, S, F]())
 
     /** Create a mutable ref that will persist for the full lifetime of the component. */
-    final def useRefToJsComponent[F[_], A[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p, u]]
+    final def useRefToJsComponent[F[_], A[_], P1, S1, CT1[-p, +u] <: CtorType[p, u], R <: JsComponent.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object]
         (a: Ref.WithJsComponentArg[F, A, P1, S1, CT1, R, P0, S0])(implicit step: Step)
         : step.Next[Ref.WithJsComponent[F, A, P1, S1, CT1, R, P0, S0]] =
       next(_ => UseRef.unsafeCreateToJsComponent(a))
@@ -650,8 +650,8 @@ object Api {
       useReducerBy(step.squash(reducer)(_), step.squash(initialState)(_))
 
     /** Create a mutable ref that will persist for the full lifetime of the component. */
-    final def useRefBy[A](f: CtxFn[A])(implicit step: Step): step.Next[UseRef[A]] =
-      useRefBy(step.squash(f)(_))
+    final def useRefBy[A](initialValue: CtxFn[A])(implicit step: Step): step.Next[UseRef[A]] =
+      useRefBy(step.squash(initialValue)(_))
 
     /** Returns a stateful value, and a function to update it.
       *
@@ -678,7 +678,7 @@ object Api {
 
   // ===================================================================================================================
 
-  trait PrimaryWithRender[P, C <: Children, Ctx, _Step <: AbstractStep] extends Primary[Ctx, _Step] {
+  trait PrimaryWithRender[P, C <: Children, Ctx, _Step <: AbstractStep] extends Primary[Ctx, _Step] with ApiPrimaryWithRenderMacros[P, C, Ctx, _Step] {
     def render(f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], C]): Component[P, s.CT]
 
     final def renderReusable[A](f: Ctx => Reusable[A])(implicit s: CtorType.Summoner[Box[P], C], v: A => VdomNode): Component[P, s.CT] =
@@ -690,7 +690,8 @@ object Api {
     def renderWithReuseBy[A](reusableInputs: Ctx => A)(f: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], C], r: Reusability[A]): Component[P, s.CT]
   }
 
-  trait SecondaryWithRender[P, C <: Children, Ctx, CtxFn[_], _Step <: SubsequentStep[Ctx, CtxFn]] extends PrimaryWithRender[P, C, Ctx, _Step] with Secondary[Ctx, CtxFn, _Step] {
+  trait SecondaryWithRender[P, C <: Children, Ctx, CtxFn[_], _Step <: SubsequentStep[Ctx, CtxFn]] extends PrimaryWithRender[P, C, Ctx, _Step] with Secondary[Ctx, CtxFn, _Step] with ApiSecondaryWithRenderMacros[P, C, Ctx, CtxFn, _Step] {
+
     final def render(f: CtxFn[VdomNode])(implicit step: Step, s: CtorType.Summoner[Box[P], C]): Component[P, s.CT] =
       render(step.squash(f)(_))
 

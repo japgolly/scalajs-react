@@ -286,6 +286,9 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
   implicit def box[A: Reusability]: Reusability[Box[A]] =
     by(_.unbox)
 
+  implicit def propsChildren: Reusability[PropsChildren] =
+    apply((x, y) => x.raw == y.raw)
+
   implicit def range: Reusability[Range] =
     byRefOr_==
 

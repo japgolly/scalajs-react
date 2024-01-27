@@ -1,0 +1,39 @@
+#!/bin/bash
+set -euo pipefail
+cd "$(dirname "$0")/../library"
+
+if [ $# -gt 1 ]; then
+  echo "Usage: $0 [<scala ver>]"
+  echo ""
+  echo "Where"
+  echo "  <scala ver> = 2 or 3"
+  echo
+  exit 1
+fi
+
+case "${1:-}" in
+  "")
+    ../bin/"$0" 2
+    echo
+    echo
+    ../bin/"$0" 3
+    exit 0
+    ;;
+  2|3)
+    SCALA_VER="$(../bin/get_scala_version $1)"
+    echo "Scala version: $SCALA_VER"
+    ;;
+  *)
+    echo "Unrecognised version: $1" >&2
+    exit 2
+    ;;
+esac
+
+# Test upstream
+# rm -rf */target/scala-*/{,test-}classes
+sbt ++$SCALA_VER publishLocal
+
+# Test downstream
+SCALA_MAJOR_VER="${SCALA_VER:0:1}"
+cd ../downstream-tests
+sbt ++$SCALA_VER mima200/clean mima200/fastOptJS

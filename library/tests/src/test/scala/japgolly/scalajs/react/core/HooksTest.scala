@@ -110,6 +110,23 @@ object HooksTest extends TestSuite {
 
   // ===================================================================================================================
 
+  private def testProps(): Unit = {
+    val comp = ScalaFnComponent.withHooks[Int]
+      .render(_ + 1)
+
+    test(comp(3))(_ assertText "4")
+  }
+
+  private def testPropsChildren(): Unit = {
+    val inner = ScalaFnComponent.withHooks[Int]
+      .withPropsChildren
+      .render((p, c) => <.div(p + 1, " | ", c))
+
+    val comp = ScalaFnComponent[Int] { p => inner(p * 10)(<.p("yo!")) }
+
+    test(comp(3))(_ assertText "31 | yo!")
+  }
+
   private def testCustomHook(): Unit = {
     // TODO: https://github.com/lampepfl/dotty/issues/12663
     ScalaSpecificHooksTest.testCustomHook()
@@ -144,7 +161,6 @@ object HooksTest extends TestSuite {
   }
 
   private def testCustomHookComposition(): Unit = {
-
     locally {
       type LL = CustomHook[Long, Long]
       type II = CustomHook[Int, Int]
@@ -907,12 +923,17 @@ object HooksTest extends TestSuite {
       .useState(100)
       .useStateBy((p, s1) => p.pi + s1.value)
       .useStateBy($ => $.props.pi + $.hook1.value + $.hook2.value)
-      .render((p, s1, s2, s3) =>
+      .render { $ =>
+        val p = $.props
+        val s1 = $.hook1
+        val s2 = $.hook2
+        val s3 = $.hook3
         <.div(
           <.div(s"P=$p, s1=${s1.value}, s2=${s2.value}, s3=${s3.value}"),
           <.button(^.onClick --> (
             s1.modState(_ + 1) >> s2.modState(-_) >> s3.modState(_ * 10)
-          ))))
+          )))
+      }
 
     test(comp(PI(666))) { t =>
       t.assertText("P=PI(666), s1=100, s2=766, s3=1532")
@@ -1214,11 +1235,46 @@ object HooksTest extends TestSuite {
     }
   }
 
+  private def testRenderWithReuseNeverPC(): Unit = {
+    implicit val reusability: Reusability[PI] = Reusability.never
+
+    implicit val v: Reusability[japgolly.scalajs.react.hooks.HookCtx.PC0[PI]] =
+      japgolly.scalajs.react.hooks.HookCtx.reusabilityPC0
+
+    var renders = 0
+    val comp = ScalaFnComponent.withHooks[PI]
+      .withPropsChildren
+      .renderWithReuse { (p, c) =>
+        renders += 1
+        <.div(s"P=$p, R=$renders", c)
+      }
+
+    val wrapper = ScalaComponent.builder[PI]
+      .initialStateFromProps(identity)
+      .renderS { ($, s) =>
+        <.div(
+          comp(s)("."),
+          <.button(^.onClick --> $.modState(_ + 0)),
+          <.button(^.onClick --> $.modState(_ + 1)),
+        )
+      }
+      .build
+
+    withRenderedIntoBody(wrapper(PI(3))) { (_, root) =>
+      val t = new DomTester(root)
+      t.assertText("P=PI(3), R=1.")
+      t.clickButton(2); t.assertText("P=PI(4), R=2.")
+      t.clickButton(1); t.assertText("P=PI(4), R=3.")
+    }
+  }
+
   private def testRenderWithReuseAndUseRef(): Unit = {
     val comp = ScalaFnComponent.withHooks[Unit]
       .useRef(100)
       .useState(0)
-      .renderWithReuse { (_, ref, s) =>
+      .renderWithReuse { $ =>
+        val ref = $.hook1
+        val s = $.hook2
         <.div(
           ref.value,
           <.button(^.onClick --> ref.mod(_ + 1)),
@@ -1238,9 +1294,10 @@ object HooksTest extends TestSuite {
   private def testRenderWithReuseAndUseRefToVdom(): Unit = {
     var text = "uninitialised"
     val comp = ScalaFnComponent.withHooks[Unit]
+      .withPropsChildren
       .useRefToVdom[Input]
       .useState("x")
-      .renderWithReuse { (_, inputRef, s) =>
+      .renderWithReuse { (_, c, inputRef, s) =>
 
         def onChange(e: ReactEventFromInput): Callback =
           s.setState(e.target.value)
@@ -1255,11 +1312,12 @@ object HooksTest extends TestSuite {
 
         <.div(
           <.input.text.withRef(inputRef)(^.value := s.value, ^.onChange ==> onChange),
-          <.button(^.onClick --> btn)
+          <.button(^.onClick --> btn),
+          c
         )
       }
 
-    test(comp()) { t =>
+    test(comp("!")) { t =>
       t.assertInputText("x")
       t.clickButton()
       assertEq(text, "x")
@@ -1271,9 +1329,81 @@ object HooksTest extends TestSuite {
     }
   }
 
+  private def testRenderWithReuseAndUseRefToVdomO(): Unit = {
+    var text = "uninitialised"
+    val comp = ScalaFnComponent.withHooks[Unit]
+      .withPropsChildren
+      .useRefToVdom[Input]
+      .useState("x")
+      .renderWithReuse { $ =>
+        val c        = $.propsChildren
+        val inputRef = $.hook1
+        val s        = $.hook2
+
+        def onChange(e: ReactEventFromInput): Callback =
+          s.setState(e.target.value)
+
+        def btn: Callback =
+          for {
+            i <- inputRef.get.asCBO
+            // _ <- Callback.log(s"i.value = [${i.value}]")
+          } yield {
+            text = i.value
+          }
+
+        <.div(
+          <.input.text.withRef(inputRef)(^.value := s.value, ^.onChange ==> onChange),
+          <.button(^.onClick --> btn),
+          c
+        )
+      }
+
+    test(comp("!")) { t =>
+      t.assertInputText("x")
+      t.clickButton()
+      assertEq(text, "x")
+
+      t.setInputText("hehe")
+      t.assertInputText("hehe")
+      t.clickButton()
+      assertEq(text, "hehe")
+    }
+  }
+
+  private def testPropsChildrenCtxObj(): Unit = {
+    val inner = ScalaFnComponent.withHooks[Int]
+      .withPropsChildren
+      .useState(123)
+      .render { $ =>
+        val p = $.props
+        val c = $.propsChildren
+        val s = $.hook1
+        <.div(p + 1, " | ", s.value, " | ", c)
+      }
+
+    val comp = ScalaFnComponent[Int] { p => inner(p * 10)(<.p("yo!")) }
+
+    test(comp(3))(_ assertText "31 | 123 | yo!")
+  }
+
+  private def testPropsChildrenCtxFn(): Unit = {
+    val inner = ScalaFnComponent.withHooks[Int]
+      .withPropsChildren
+      .useState(123)
+      .render((p, c, s) => <.div(p + 1, " | ", s.value, " | ", c))
+
+    val comp = ScalaFnComponent[Int] { p => inner(p * 10)(<.p("yo!")) }
+
+    test(comp(3))(_ assertText "31 | 123 | yo!")
+  }
+
   // ===================================================================================================================
 
   override def tests = Tests {
+    "noHooks" - {
+      "props" - testProps()
+      "propsChildren" - testPropsChildren()
+    }
     "custom" - {
       "usage" - testCustomHook()
       "composition" - testCustomHookComposition()
@@ -1336,11 +1466,18 @@ object HooksTest extends TestSuite {
     "useStateSnapshot" - testUseStateSnapshot()
     "useStateSnapshotWithReuse" - testUseStateSnapshotWithReuse()
 
+    "withPropsChildren" - {
+      "ctxObj" - testPropsChildrenCtxObj()
+      "ctxFn" - testPropsChildrenCtxFn()
+    }
+
     "renderWithReuse" - {
-      "main" - testRenderWithReuse()
-      "never" - testRenderWithReuseNever()
-      "useRef" - testRenderWithReuseAndUseRef()
-      "useRefToVdom" - testRenderWithReuseAndUseRefToVdom()
+      "main"          - testRenderWithReuse() // P, Secondary, CtxFn
+      "never"         - testRenderWithReuseNever() // P, Primary
+      "neverC"        - testRenderWithReuseNeverPC() // PC, Primary
+      "useRef"        - testRenderWithReuseAndUseRef() // P, Secondary, CtxObj
+      "useRefToVdom"  - testRenderWithReuseAndUseRefToVdom() // PC, Secondary, CtxFn
+      "useRefToVdomO" - testRenderWithReuseAndUseRefToVdomO() // PC, Secondary, CtxObj
     }
   }
 }

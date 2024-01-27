@@ -14,6 +14,12 @@ object Lib {
 
   val ghProject = "scalajs-react"
 
+  private def readConfigVar(name: String): String =
+    Option(System.getProperty(name)).orElse(Option(System.getenv(name)))
+      .fold("")(_.trim.toLowerCase)
+
+  val inCI = readConfigVar("CI") == "1"
+
   def scalacCommonFlags: Seq[String] = Seq(
     "-deprecation",
     "-feature",
@@ -82,6 +88,10 @@ object Lib {
       libraryDependencies          ++= Seq(Dep.betterMonadicFor, Dep.kindProjector).filter(_ => scalaVersion.value startsWith "2"),
       disable                       := false,
       dependencyOverrides          ++= globalDependencyOverrides.value,
+      Test / clean := {
+        val dir = (Test / classDirectory).value
+        IO.delete(dir)
+      }
     )
 
   def byScalaVersion[A](f: PartialFunction[(Long, Long), Seq[A]]): Def.Initialize[Seq[A]] =
@@ -113,14 +123,24 @@ object Lib {
   def preventPublication: PE =
     _.settings(publish / skip := true)
 
+  def utestSettingsCross(scope: Configuration): PE =
+    _.settings(
+      scope / scalacOptions ++= {
+        val isScala2 = scalaVersion.value.startsWith("2")
+        if (isScala2) Seq("-Wconf:msg=copyArrayToImmutableIndexedSeq:s") else Seq()
+      },
+      libraryDependencies += Dep.utest.value % scope,
+      libraryDependencies += Dep.microlibsTestUtil.value % scope,
+      testFrameworks      += new TestFramework("utest.runner.Framework"))
+
+  def utestSettingsCross: PE =
+    utestSettingsCross(Test)
+
   def utestSettings(scope: Configuration): PE =
-    _.configure(InBrowserTesting.js)
+    _.configure(InBrowserTesting.js, utestSettingsCross(scope))
       .settings(
         jsEnv                := new JSDOMNodeJSEnv,
-        Test / scalacOptions += "-language:reflectiveCalls",
-        libraryDependencies  += Dep.utest.value % scope,
-        libraryDependencies  += Dep.microlibsTestUtil.value % scope,
-        testFrameworks       += new TestFramework("utest.runner.Framework"))
+        Test / scalacOptions += "-language:reflectiveCalls")
 
   def utestSettings: PE =
     utestSettings(Test)

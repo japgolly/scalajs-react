@@ -1,0 +1,10 @@
+{
+  "name": "scalajs_react_testing",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@babel/cli": "^7.17.6",
+    "@babel/core": "^7.17.5",
+    "react-refresh": "^0.14.0"
+  }
+}

@@ -4,7 +4,8 @@ import japgolly.microlibs.types.NaturalComposition
 import japgolly.scalajs.react.internal.ShouldComponentUpdateComponent
 import japgolly.scalajs.react.util.DefaultEffects
 import japgolly.scalajs.react.vdom.VdomNode
-import japgolly.scalajs.react.{PropsChildren, Reusability, Reusable}
+import japgolly.scalajs.react.{PropsChildren, Reusability, Reusable, facade}
+import scala.scalajs.js
 
 final class CustomHook[I, O] private[CustomHook] (val unsafeInit: I => O) extends AnyVal {
 
@@ -57,13 +58,14 @@ object CustomHook {
 
   trait ArgLowPri {
     implicit def id[A, B >: A]: Arg[A, B] =
-        Arg[A, B](a => a)
+      Arg[A, B](a => a)
   }
 
   object Arg extends ArgLowPri {
     def const[C, I](i: I): Arg[C, I] =
       apply[C, I](_ => i)
 
+    implicit def exactId [A]        : Arg[A, A]                            = apply(a => a)
     implicit def unit    [Ctx]      : Arg[Ctx, Unit]                       = const(())
     implicit def ctxProps[P]        : Arg[HookCtx.P0[P], P]                = apply((_: HookCtx.P0[P]).props)
     implicit def ctxPropsChildren   : Arg[HookCtx.PC0[Any], PropsChildren] = apply((_: HookCtx.PC0[Any]).propsChildren)
@@ -169,39 +171,39 @@ object CustomHook {
 
   // ===================================================================================================================
 
-  private final case class ReusableDepState[+A](value: A, rev: Int) {
+  final case class ReusableDepState[+A](value: A, rev: Int) {
     var skipTest = true
     val asTuple = (value, rev)
   }
 
+  def reusableDepsLogic[D](next: D)
+                          (depsState: Hooks.UseState[Option[ReusableDepState[D]]])
+                          (implicit r: Reusability[D]): ReusableDepState[D] =
+    depsState.value match {
+
+      // React is calling us again after the setState below
+      // Don't re-test reusability, we could end up in an infinite-loop (see #1027)
+      case Some(s) if s.skipTest =>
+        s.skipTest = false
+        s
+
+      // Previous result can be reused
+      case Some(prevState) if r.test(prevState.value, next) =>
+        prevState
+
+      // Not reusable
+      case o =>
+        val nextRev     = o.fold(1)(_.rev + 1)
+        val nextState   = ReusableDepState(next, nextRev)
+        val updateState = depsState.setState(Some(nextState)) // this causes a hook re-eval
+        DefaultEffects.Sync.runSync(updateState)
+        nextState
+    }
+
   def reusableDeps[D](implicit r: Reusability[D]): CustomHook[() => D, (D, Int)] =
     CustomHook[() => D]
       .useState[Option[ReusableDepState[D]]](None)
-      .buildReturning { (getDeps, depsState) =>
-        val next = getDeps()
-        val nextDepState =
-          depsState.value match {
-
-            // React is calling us again after the setState below
-            // Don't re-test reusability, we could end up in an infinite-loop (see #1027)
-            case Some(s) if s.skipTest =>
-              s.skipTest = false
-              s
-
-            // Previous result can be reused
-            case Some(prevState) if r.test(prevState.value, next) =>
-              prevState
-
-            // Not reusable
-            case o =>
-              val nextRev     = o.fold(1)(_.rev + 1)
-              val nextState   = ReusableDepState(next, nextRev)
-              val updateState = depsState.setState(Some(nextState)) // this causes a hook re-eval
-              DefaultEffects.Sync.runSync(updateState)
-              nextState
-          }
-        nextDepState.asTuple
-      }
+      .buildReturning((d, s) => reusableDepsLogic(d())(s).asTuple)
 
   def reusableByDeps[D, A](create: (D, Int) => A)(implicit r: Reusability[D]): CustomHook[() => D, Reusable[A]] =
     reusableDeps[D].map { case (d, rev) => Reusable.implicitly(rev).withValue(create(d, rev)) }
@@ -219,6 +221,11 @@ object CustomHook {
         val s = $.hook1
         Reusable.implicitly(s.value).withLazyValue(s.modState.map(_(inc)).value)
       })
+  }
+
+  def useForceUpdateRaw(s: facade.React.UseState[Int]): Reusable[DefaultEffects.Sync[Unit]] = {
+    @inline def inc: js.Function1[Int, Int] = _ + 1
+    Reusable.implicitly(s._1).withLazyValue(DefaultEffects.Sync.delay(s._2(inc)))
   }
 
 }

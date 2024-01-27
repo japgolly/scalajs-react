@@ -13,10 +13,10 @@ fi
 
 case "${1:-}" in
   "")
-    "$0" 2
+    ../bin/"$0" 2
     echo
     echo
-    "$0" 3
+    ../bin/"$0" 3
     exit 0
     ;;
   2|3)
@@ -40,6 +40,7 @@ echo
 rm -rf */target/scala-*/{,test-}classes
 cmd=(
   sbt
+    -DCI=1
     -J-Xmx3G
     -J-XX:+UseG1GC
     ++$SCALA_VER

@@ -4,7 +4,7 @@ import japgolly.scalajs.react.component.ScalaFn
 import japgolly.scalajs.react.component.ScalaFn.Component
 import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.vdom.VdomNode
-import japgolly.scalajs.react.{Children, CtorType, PropsChildren, Reusability}
+import japgolly.scalajs.react.{Children, CtorType, PropsChildren, Reusable, Reusability}
 
 object HookComponentBuilder {
 
@@ -107,7 +107,7 @@ object HookComponentBuilder {
 
   object ComponentPC {
 
-    final class First[P](init: HookCtx.PC0[P] => Unit) extends Api.PrimaryWithRender[P, Children.Varargs, HookCtx.PC0[P], FirstStep[P]] {
+    final class First[P](init: HookCtx.PC0[P] => Unit) extends Api.PrimaryWithRender[P, Children.Varargs, HookCtx.PC0[P], FirstStep[P]] with ComponentPCMacros[P] {
       type Ctx = HookCtx.PC0[P]
 
       override protected def self(f: Ctx => Any)(implicit step: Step): step.Self =
@@ -119,12 +119,21 @@ object HookComponentBuilder {
       override def render(f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
         ScalaFn.withChildren((p: P, pc: PropsChildren) => f(HookCtx.withChildren(p, pc)))
 
-      def render(f: (P, PropsChildren) => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
-        ScalaFn.withChildren(f)
-
       override def renderWithReuseBy[A](reusableInputs: Ctx => A)(f: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs], r: Reusability[A]): Component[P, s.CT] =
         customBy(ctx => CustomHook.shouldComponentUpdate(f).apply(() => reusableInputs(ctx)))
           .render((_: HookCtx.PC1[P, VdomNode]).hook1)
+
+      def render(f: (P, PropsChildren) => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
+        ScalaFn.withChildren(f)
+
+      def renderReusable[A](f: (P, PropsChildren) => Reusable[A])(implicit s: CtorType.Summoner[Box[P], Children.Varargs], v: A => VdomNode): Component[P, s.CT] =
+        renderReusable(($: Ctx) => f($.props, $.propsChildren))
+
+      def renderWithReuse(f: (P, PropsChildren) => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs], r: Reusability[Ctx]): Component[P, s.CT] =
+        renderWithReuse(($: Ctx) => f($.props, $.propsChildren))
+
+      def renderWithReuseBy[A](reusableInputs: (P, PropsChildren) => A)(f: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs], r: Reusability[A]): Component[P, s.CT] =
+        renderWithReuseBy(($: Ctx) => reusableInputs($.props, $.propsChildren))(f)
     }
 
     type RenderFn[-P, +Ctx] = (Ctx => VdomNode) => (P, PropsChildren) => VdomNode

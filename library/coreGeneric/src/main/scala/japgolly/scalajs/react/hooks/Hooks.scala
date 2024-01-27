@@ -15,16 +15,18 @@ import scala.scalajs.js.|
 
 object Hooks {
 
-  trait UseCallbackArg[S] {
+  trait UseCallbackArg[A] {
     type J <: js.Function
-    def toJs: S => J
-    def fromJs: J => Reusable[S]
+    def toJs: A => J
+    def fromJs: J => Reusable[A]
   }
 
   object UseCallbackArg extends UseCallbackArgInstances {
 
-    def apply[S, F <: js.Function](f: S => F)(g: F => Reusable[S]): UseCallbackArg[S] =
-      new UseCallbackArg[S] {
+    type To[A, F <: js.Function] = UseCallbackArg[A] { type J = F }
+
+    def apply[A, F <: js.Function](f: A => F)(g: F => Reusable[A]): UseCallbackArg[A] =
+      new UseCallbackArg[A] {
         override type J = F
         override def toJs = f
         override def fromJs = g
@@ -129,9 +131,9 @@ object Hooks {
       unsafeCreate[Null, S, A](reducer, null, _ => initialState)
 
     def unsafeCreate[I, S, A](reducer: (S, A) => S, initialArg: I, init: I => S): UseReducer[S, A] =
-      _unsafeCreate(facade.React.useReducer[I, S, A](reducer, initialArg, init))
+      fromJs(facade.React.useReducer[I, S, A](reducer, initialArg, init))
 
-    private def _unsafeCreate[S, A](originalResult: facade.React.UseReducer[S, A]): UseReducer[S, A] = {
+    def fromJs[S, A](originalResult: facade.React.UseReducer[S, A]): UseReducer[S, A] = {
       val originalDispatch = Reusable.byRef(originalResult._2)
       UseReducer(originalResult, originalDispatch)
     }
@@ -206,8 +208,11 @@ object Hooks {
   type UseRef[A] = UseRefF[D.Sync, A]
 
   object UseRef {
+    def fromJs[A](ref: facade.React.RefHandle[A]): UseRef[A] =
+      new UseRefF(ref)(D.Sync)
+
     def unsafeCreate[A](initialValue: A): UseRef[A] =
-      new UseRefF(facade.React.useRef(initialValue))(D.Sync)
+      fromJs(facade.React.useRef(initialValue))
 
     def unsafeCreateSimple[A](): Ref.Simple[A] =
       Ref.fromJs(facade.React.useRef[A | Null](null))
@@ -247,13 +252,19 @@ object Hooks {
     @inline def apply[S, O](r: facade.React.UseState[S], oss: Reusable[facade.React.UseStateSetter[O]]): UseState[S] =
       UseStateF(r, oss)(D.Sync)
 
-    def unsafeCreate[S](initialState: => S): UseState[S] = {
+    def unsafeCreateJsBoxed[S](initialState: => S): facade.React.UseState[Box[S]] = {
       // Boxing is required because React's useState uses reflection to distinguish between {set,mod}State.
-      val initialStateFn   = (() => Box(initialState)): js.Function0[Box[S]]
-      val originalResult   = facade.React.useState[Box[S]](initialStateFn)
-      val originalSetState = Reusable.byRef(originalResult._2)
-      UseState(originalResult, originalSetState)
-        .xmap(_.unbox)(Box.apply)
+      facade.React.useStateFn[Box[S]](
+        (() => Box(initialState)): js.Function0[Box[S]]
+      )
+    }
+
+    def unsafeCreate[S](initialState: => S): UseState[S] =
+      fromJsBoxed(unsafeCreateJsBoxed(initialState))
+
+    def fromJsBoxed[S](r: facade.React.UseState[Box[S]]): UseState[S] = {
+      val originalSetState = Reusable.byRef(r._2)
+      UseState(r, originalSetState).xmap(_.unbox)(Box.apply)
     }
   }
 
@@ -368,6 +379,12 @@ object Hooks {
     def unsafeCreate[S](initialState: => S)(implicit r: Reusability[S], ct: ClassTag[S]): UseStateWithReuse[S] = {
       val rr = Reusable.reusabilityInstance(r)
       val us = UseState.unsafeCreate(initialState).withReusability
+      UseStateWithReuseF(us, rr)
+    }
+
+    def fromJsBoxed[S](raw: facade.React.UseState[Box[S]])(implicit r: Reusability[S], ct: ClassTag[S]): UseStateWithReuse[S] = {
+      val rr = Reusable.reusabilityInstance(r)
+      val us = UseState.fromJsBoxed(raw).withReusability
       UseStateWithReuseF(us, rr)
     }
   }
