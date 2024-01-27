@@ -5,8 +5,8 @@ import org.scalajs.dom
 
 object TestReactRoot {
 
-  def apply(container: mainFacade.ReactDOM.RootContainer): TestReactRoot =
-    apply(ReactDOM.createRoot(container), container)
+  def apply(container: mainFacade.ReactDOMClient.RootContainer): TestReactRoot =
+    apply(ReactDOMClient.createRoot(container), container)
 
   def apply(root: ReactRoot, container: mainFacade.ReactDOM.Container): TestReactRoot = {
     @inline def r = root
