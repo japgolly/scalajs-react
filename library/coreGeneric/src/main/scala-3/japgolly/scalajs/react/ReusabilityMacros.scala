@@ -146,19 +146,19 @@ object ReusabilityMacros {
                )(using Quotes, Type[A]): Expr[Reusability[A]] = {
     import quotes.reflect.*
 
-    val logNonReuse = _logNonReuse.valueOrError
-    val logCode     = _logCode    .valueOrError
-    val compareRefs = _compareRefs.valueOrError
+    val logNonReuse = _logNonReuse.valueOrAbort
+    val logCode     = _logCode    .valueOrAbort
+    val compareRefs = _compareRefs.valueOrAbort
 
     val fieldExclusions = {
       var l: List[String] =
         if _excludeFields == null
         then Nil
-        else _excludeFields.valueOrError.split(',').iterator.map(_.trim).filter(_.nonEmpty).toList
+        else _excludeFields.valueOrAbort.split(',').iterator.map(_.trim).filter(_.nonEmpty).toList
       if _except1 != null then
-        l ::= _except1.valueOrError
+        l ::= _except1.valueOrAbort
       if _exceptN != null then
-        l :::= _exceptN.valueOrError.toList
+        l :::= _exceptN.valueOrAbort.toList
       FieldExclusions.fromList(l)
     }
 

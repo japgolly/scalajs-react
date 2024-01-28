@@ -1,10 +1,10 @@
 package japgolly.scalajs.react.hooks
 
 import japgolly.microlibs.types.NaturalComposition
-import japgolly.scalajs.react.internal.ShouldComponentUpdateComponent
+import japgolly.scalajs.react.internal.CoreGeneral.ScalaFnComponent
 import japgolly.scalajs.react.util.DefaultEffects
 import japgolly.scalajs.react.vdom.VdomNode
-import japgolly.scalajs.react.{PropsChildren, Reusability, Reusable}
+import japgolly.scalajs.react.{PropsChildren, React, Reusability, Reusable}
 
 final class CustomHook[I, O] private[CustomHook] (val unsafeInit: I => O) extends AnyVal {
 
@@ -206,9 +206,21 @@ object CustomHook {
   def reusableByDeps[D, A](create: (D, Int) => A)(implicit r: Reusability[D]): CustomHook[() => D, Reusable[A]] =
     reusableDeps[D].map { case (d, rev) => Reusable.implicitly(rev).withValue(create(d, rev)) }
 
-  def shouldComponentUpdate[D](render: D => VdomNode)(implicit r: Reusability[D]): CustomHook[() => D, VdomNode] =
-    reusableDeps[D].map { case (d, rev) =>
-      ShouldComponentUpdateComponent(rev, () => render(d))
+  protected[hooks] final case class ReuseComponentProps[A](value: A, render: A => VdomNode)(implicit val reusability: Reusability[A]) {
+    def renderVdom: VdomNode = render(value)
+  }
+
+  private implicit val reusabilityInstance: Reusability[ReuseComponentProps[Any]] =
+    Reusability( (a, b) => a.reusability.test(a.value, b.value) )
+
+  // Component for reuse. Must be stable.
+  private val ReuseComponent = React.memo(ScalaFnComponent[ReuseComponentProps[Any]](_.renderVdom))
+
+  def shouldComponentUpdate[D](render: D => VdomNode)(implicit r: Reusability[D]): CustomHook[() => D, VdomNode] = {
+    CustomHook[() => D]
+      .buildReturning{ deps =>
+        ReuseComponent(ReuseComponentProps(deps(), render).asInstanceOf[ReuseComponentProps[Any]] )
+      }
     }
 
   lazy val useForceUpdate: CustomHook[Unit, Reusable[DefaultEffects.Sync[Unit]]] = {

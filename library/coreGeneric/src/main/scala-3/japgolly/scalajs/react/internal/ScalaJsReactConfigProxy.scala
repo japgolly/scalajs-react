@@ -44,10 +44,10 @@ object ScalaJsReactConfigProxy {
         args.map(_._2)
 
       var candidateSyms =
-        moduleSym.memberMethod(methodName)
+        moduleSym.methodMember(methodName)
 
       if (args.isEmpty) {
-        val f = moduleSym.memberField(methodName)
+        val f = moduleSym.fieldMember(methodName)
         if (!f.isNoSymbol)
           candidateSyms ::= f
       }

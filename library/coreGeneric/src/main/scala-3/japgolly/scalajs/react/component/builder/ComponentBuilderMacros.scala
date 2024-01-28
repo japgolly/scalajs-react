@@ -196,8 +196,8 @@ object ComponentBuilderMacros {
     val backendClass = TypeRepr.of[B].typeSymbol
 
     val renderMethod: Symbol = {
-      var candidates = backendClass.memberMethod("render")
-      backendClass.memberField("render") match {
+      var candidates = backendClass.methodMember("render")
+      backendClass.fieldMember("render") match {
         case f if !f.isNoSymbol => candidates ::= f
         case _ =>
       }
