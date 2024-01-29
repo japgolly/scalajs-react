@@ -77,7 +77,7 @@ object Dependencies {
     val reactDoutestUtils = ReactArtifact("react-dom-test-utils")
   }
 
-  def fastTextEncodingJs = "text.js"
+  def fastTextEncodingJs = "text.min.js" // 1.0.6 webjar only contains minified version
 
   def globalDependencyOverrides = Def.setting(Seq(
     Dep.scalaJsDom.value,
