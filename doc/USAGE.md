@@ -1,11 +1,11 @@
-Usage
-=====
+# Usage
 
 This will attempt to show you how to use React in Scala.
 
 It is expected that you know how React itself works.
 
 #### Contents
+
 - [Setup](#setup)
 - [Creating Virtual-DOM](#creating-virtual-dom)
 - [Callbacks](#callbacks)
@@ -14,89 +14,82 @@ It is expected that you know how React itself works.
 - [React Extensions](#react-extensions)
 - [Gotchas](#gotchas)
 
-Setup
-=====
+# Setup
 
 1. Add [Scala.js](http://www.scala-js.org) to your project.
 
-2. Add *scalajs-react* to SBT:
+2. Add _scalajs-react_ to SBT:
 
    There are a number of different modules available.
    On this page we'll just use the `core` module but refer to the [Modules doc](./MODULES.md) to
    see other module options.
 
-  ```scala
-  // "core" = essentials only. No bells or whistles.
-  libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "2.1.1"
-  ```
+```scala
+// "core" = essentials only. No bells or whistles.
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "2.1.1"
+```
 
 3. Add React to your build.
 
-    How to do this depends on your Scala.JS config and build setup.
+   How to do this depends on your Scala.JS config and build setup.
 
-    If you're using [scalajs-bundler](https://scalacenter.github.io/scalajs-bundler/),
-    add the following SBT settings to get started:
+   If you're using [scalajs-bundler](https://scalacenter.github.io/scalajs-bundler/),
+   add the following SBT settings to get started:
 
-    ```scala
-      enablePlugins(ScalaJSPlugin)
+   ```scala
+     enablePlugins(ScalaJSPlugin)
 
-      enablePlugins(ScalaJSBundlerPlugin)
+     enablePlugins(ScalaJSBundlerPlugin)
 
-      libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "2.1.1"
+     libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "2.1.1"
 
-      Compile / npmDependencies ++= Seq(
-        "react" -> "18.1.0",
-        "react-dom" -> "18.1.0")
-    ```
+     Compile / npmDependencies ++= Seq(
+       "react" -> "18.2.0",
+       "react-dom" -> "18.2.0")
+   ```
 
-    If you're using `jsDependencies`, add the following:
+   If you're using `jsDependencies`, add the following:
 
-    ```scala
-    // Required for React 18.1.0
-    dependencyOverrides += "org.webjars.npm" % "scheduler" % "0.22.0",
+   ```scala
+   // Required for React 18.2.0
+   dependencyOverrides += "org.webjars.npm" % "scheduler" % "0.22.0",
 
-    jsDependencies ++= Seq(
+   jsDependencies ++= Seq(
 
-      // Polyfill required for React 18.1.0
-      "org.webjars.npm" % "fast-text-encoding" % "1.0.3" / "text.js" minified "text.min.js"
+     // Polyfill required for React 18.2.0
+     "org.webjars.npm" % "fast-text-encoding" % "1.0.3" / "text.js" minified "text.min.js"
 
-      "org.webjars.npm" % "react" % "18.1.0"
-        /         "umd/react.development.js"
-        minified  "umd/react.production.min.js"
-        dependsOn "text.js" // <-- Load the fast-text-encoding polyfill before loading React itself
-        commonJSName "React",
+     "org.webjars.npm" % "react" % "18.2.0"
+       /         "umd/react.development.js"
+       minified  "umd/react.production.min.js"
+       dependsOn "text.js" // <-- Load the fast-text-encoding polyfill before loading React itself
+       commonJSName "React",
 
-      "org.webjars.npm" % "react-dom" % "18.1.0"
-        /         "umd/react-dom.development.js"
-        minified  "umd/react-dom.production.min.js"
-        dependsOn "umd/react.development.js"
-        commonJSName "ReactDOM",
+     "org.webjars.npm" % "react-dom" % "18.2.0"
+       /         "umd/react-dom.development.js"
+       minified  "umd/react-dom.production.min.js"
+       dependsOn "umd/react.development.js"
+       commonJSName "ReactDOM",
 
-      "org.webjars.npm" % "react-dom" % "18.1.0"
-        /         "umd/react-dom-server.browser.development.js"
-        minified  "umd/react-dom-server.browser.production.min.js"
-        dependsOn "umd/react-dom.development.js"
-        commonJSName "ReactDOMServer",
-    ),
-    ```
+     "org.webjars.npm" % "react-dom" % "18.2.0"
+       /         "umd/react-dom-server.browser.development.js"
+       minified  "umd/react-dom-server.browser.production.min.js"
+       dependsOn "umd/react-dom.development.js"
+       commonJSName "ReactDOMServer",
+   ),
+   ```
 
 [See here](IDE.md) for tips on configuring your IDE.
 
-
-Creating Virtual-DOM
-====================
+# Creating Virtual-DOM
 
 See [VDOM.md](VDOM.md).
 
-
-Callbacks
-=========
+# Callbacks
 
 See [CALLBACK.md](CALLBACK.md).
 
-
-Creating Components
-===================
+# Creating Components
 
 This is how to create components from Scala.
 (For JS components, see [INTEROP.md](INTEROP.md).)
@@ -105,29 +98,30 @@ There is a component builder DSL beginning at `ScalaComponent.build`.
 You throw types and functions at it, call `build` and when it compiles you will have a React component.
 
 1. The first step is to specify your component's properties type, and a component name.
-  ```scala
-  import japgolly.scalajs.react._
-  import japgolly.scalajs.react.vdom.html_<^._
 
-  object MyComponent {
+```scala
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.html_<^._
 
-    case class Props(/* TODO */)
+object MyComponent {
 
-    val Component =
-      ScalaComponent.builder[Props]
-        |
-  }
-  ```
+  case class Props(/* TODO */)
 
-2. *(Optional)* If you want a stateful component,
-  call one of the methods beginning with `.initialState`.
-  Use your IDE to see the methods and the differences in their type signatures.
+  val Component =
+    ScalaComponent.builder[Props]
+      |
+}
+```
 
-3. *(Optional)* If you want a backend (explained below) for your component
-  (and you do for non-trivial components), call `.backend`.
-  If your backend has a `.render` function, instead of `.backend` here you can call `.renderBackend`
-  which will use a macro to instantiate your backend, and automatically choose the
-  appropriate `.render` function in the next step, bypassing it for you.
+2. _(Optional)_ If you want a stateful component,
+   call one of the methods beginning with `.initialState`.
+   Use your IDE to see the methods and the differences in their type signatures.
+
+3. _(Optional)_ If you want a backend (explained below) for your component
+   (and you do for non-trivial components), call `.backend`.
+   If your backend has a `.render` function, instead of `.backend` here you can call `.renderBackend`
+   which will use a macro to instantiate your backend, and automatically choose the
+   appropriate `.render` function in the next step, bypassing it for you.
 
 4. Choose from one of the many available `render` functions.
    Use your IDE to see the methods and the differences in their type signatures.
@@ -135,8 +129,8 @@ You throw types and functions at it, call `build` and when it compiles you will 
    and your backend has a `render` function, you can call `.renderBackend` here to have the
    builder automatically select the appropriate `render` function.
 
-5. *(Optional)* Type in the name of one of the React lifecycle hooks (eg. `componentDidMount`)
-  to add that hook to your component.
+5. _(Optional)_ Type in the name of one of the React lifecycle hooks (eg. `componentDidMount`)
+   to add that hook to your component.
 
 6. Call `.build` and you're done.
    <br>If your props is a singleton type (eg. `Unit`) then the buider automatically
@@ -144,6 +138,7 @@ You throw types and functions at it, call `build` and when it compiles you will 
    props be specified. (See [TYPES.md](TYPES.md) for more info.)
 
 Example with props:
+
 ```scala
 val Hello =
   ScalaComponent.builder[String]
@@ -155,6 +150,7 @@ Hello("Draconus")
 ```
 
 Example without props:
+
 ```scala
 val NoArgs =
   ScalaComponent.builder[Unit]
@@ -174,7 +170,7 @@ In plain React with JS, functions which can have access to the component's props
 are placed within the body of the component class.
 In scalajs-react you need another place for such functions as scalajs-react
 emphasises type-safety and provides different types for the component's scope at different points in the lifecycle.
-Instead they should be placed in some arbitrary class you may provide, called a *backend*.
+Instead they should be placed in some arbitrary class you may provide, called a _backend_.
 
 See the [online timer demo](http://japgolly.github.io/scalajs-react/#examples/timer) for an example.
 
@@ -184,7 +180,8 @@ It will locate the `render` method, determine what the arguments need (props/sta
 types or the arg names when the types are ambiguous, and create the appropriate function at compile-time.
 If can also automate the creation of the backend, see below.
 
-Example before: *(yuk!)*
+Example before: _(yuk!)_
+
 ```scala
 type State = Vector[String]
 
@@ -205,6 +202,7 @@ val Example = ScalaComponent.builder[Unit]
 ```
 
 After:
+
 ```scala
 class Backend(bs: BackendScope[Unit, State]) {
   def render(s: State): VdomElement = // ← Accept props, state and/or propsChildren as argument
@@ -220,6 +218,7 @@ val Example = ScalaComponent.builder[Unit]
 ```
 
 You can also create a backend yourself and still use `.renderBackend`:
+
 ```scala
 val Example = ScalaComponent.builder[Unit]
   .initialState(Vector("hello", "world"))
@@ -228,8 +227,7 @@ val Example = ScalaComponent.builder[Unit]
   .build
 ```
 
-Using Components
-================
+# Using Components
 
 Once you've created a Scala React component, it mostly acts like a typical Scala case class.
 To use it, you create an instance.
@@ -281,17 +279,17 @@ import org.scalajs.dom.document
 NoArgs().renderIntoDOM(document.body)
 ```
 
-React Extensions
-================
+# React Extensions
 
-* Where `setState(State)` is applicable, you can also run:
-  * `modState(State => State)`
-  * `modState((State, Props) => State)`
-  * `setStateOption(Option[State])`
-  * `modStateOption(State => Option[State])`
-  * `modStateOption((State, Props) => Option[State])`
+- Where `setState(State)` is applicable, you can also run:
 
-* React has a [classSet addon](https://facebook.github.io/react/docs/class-name-manipulation.html)
+  - `modState(State => State)`
+  - `modState((State, Props) => State)`
+  - `setStateOption(Option[State])`
+  - `modStateOption(State => Option[State])`
+  - `modStateOption((State, Props) => Option[State])`
+
+- React has a [classSet addon](https://facebook.github.io/react/docs/class-name-manipulation.html)
   for specifying multiple optional class attributes. The same mechanism is applicable with this library is as follows:
 
   ```scala
@@ -312,7 +310,7 @@ React Extensions
     props.message)
   ```
 
-* Sometimes you want to allow a function to both get and affect a portion of a component's state. Anywhere that you can call `.setState()` you can also call `.zoomState()` to return an object that has the same `.setState()`, `.modState()` methods but only operates on a subset of the total state.
+- Sometimes you want to allow a function to both get and affect a portion of a component's state. Anywhere that you can call `.setState()` you can also call `.zoomState()` to return an object that has the same `.setState()`, `.modState()` methods but only operates on a subset of the total state.
 
   ```scala
   def incrementCounter(s: StateAccessPure[Int]): Callback =
@@ -342,7 +340,7 @@ React Extensions
   }
   ```
 
-* The `.getDOMNode` callback can sometimes execute when unmounted which is an increasingly annoying bug to track down.
+- The `.getDOMNode` callback can sometimes execute when unmounted which is an increasingly annoying bug to track down.
   Since React 16 with its new burn-it-all-down error handling approach, an occurance of this can be fatal.
   In order to properly model the reality of the callback and ensure compile-time safety,
   rather than just getting back a VDOM reference, the return type is an ADT like this:
@@ -369,13 +367,11 @@ React Extensions
 
   In unit tests you'll typically use `asMounted().asElement()` or `asMounted().asText()` for inspection.
 
+# Gotchas
 
-Gotchas
-=======
+- `table(tr(...))` will appear to work fine at first then crash later. React needs `table(tbody(tr(...)))`.
 
-* `table(tr(...))` will appear to work fine at first then crash later. React needs `table(tbody(tr(...)))`.
-
-* React's `setState` functions are asynchronous; they don't apply invocations of `this.setState` until the end of `render` or the current callback. Calling `.state` after `.setState` will return the initial, original value, i.e.
+- React's `setState` functions are asynchronous; they don't apply invocations of `this.setState` until the end of `render` or the current callback. Calling `.state` after `.setState` will return the initial, original value, i.e.
 
   ```scala
   val s1 = $.state
@@ -390,5 +386,5 @@ Gotchas
   1. Use `modState`.
   2. Refactor your logic so that you only call `setState` once.
 
-* Since `setState` and `modState` return callbacks, if you need to call them from outside of a component (e.g. by accessing the backend of a mounted component), call `.runNow()` to trigger the change; else the callback will never run.
+- Since `setState` and `modState` return callbacks, if you need to call them from outside of a component (e.g. by accessing the backend of a mounted component), call `.runNow()` to trigger the change; else the callback will never run.
   See the [Callbacks](#callbacks) section for more detail.
