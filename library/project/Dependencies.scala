@@ -23,7 +23,7 @@ object Dependencies {
     val betterMonadicFor      = "0.3.1"
     val catsTestkitScalaTest  = "2.1.5"
     val disciplineScalaTest   = "2.1.5"
-    val fastTextEncoding      = "1.0.3"
+    val fastTextEncoding      = "1.0.6"
     val kindProjector         = "0.13.2"
     val macrotaskExecutor     = "1.0.0"
     val nyaya                 = "1.0.0"
