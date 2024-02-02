@@ -214,7 +214,7 @@ object CustomHook {
     Reusability( (a, b) => a.reusability.test(a.value, b.value) )
 
   // Component for reuse. Must be stable.
-  private val ReuseComponent = React.memo(ScalaFnComponent[ReuseComponentProps[Any]](_.renderVdom))
+  private lazy val ReuseComponent = React.memo(ScalaFnComponent[ReuseComponentProps[Any]](_.renderVdom))
 
   def shouldComponentUpdate[D](render: D => VdomNode)(implicit r: Reusability[D]): CustomHook[() => D, VdomNode] = {
     CustomHook[() => D]
