@@ -6,7 +6,6 @@ on:
       - v*.*.*
 
 jobs:
-
   ci:
     runs-on: ubuntu-latest
     strategy:
@@ -18,7 +17,6 @@ jobs:
             scala: 3
     name: Scala v${{ matrix.scala }} / Java v${{ matrix.java }}
     steps:
-
       - name: Git checkout
         uses: actions/checkout@v4
         with:
@@ -37,7 +35,6 @@ jobs:
     needs: ci
     runs-on: ubuntu-latest
     steps:
-
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -46,7 +43,7 @@ jobs:
         uses: japgolly/setup-everything-scala@v3.1
 
       - name: Release
-        run: cd library && sbt ci-release
+        run: cd library && sbt -v -J-Xmx6g ci-release
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
