@@ -2,7 +2,7 @@ package japgolly.scalajs.react
 
 import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.internal.CoreGeneral._
-import japgolly.scalajs.react.util.Effect.Async
+import japgolly.scalajs.react.util.Effect.{Async, Sync}
 import japgolly.scalajs.react.vdom.{VdomElement, VdomNode}
 import scala.scalajs.js
 
@@ -59,6 +59,15 @@ object React {
     JsComponent.force[Box[P], c.ctor.ChildrenType, Null](c2)
       .cmapCtorProps[P](Box(_))
   }
+
+  /** Similar to `useTransition` but allows uses where hooks are not available.
+    *
+    * @param callback A _synchronous_ function which causes state updates that can be deferred.
+    * 
+    * @since 2.2.0 / React 18.0.0
+    */
+  def startTransition[F[_]](callback: => F[Unit])(implicit F: Sync[F]) =
+    F.delay(facade.React.startTransition(F.toJsFn(callback)))
 
   val Profiler = feature.Profiler
 
