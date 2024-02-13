@@ -39,6 +39,9 @@ class DomTester(root: Element) {
     act(SimEvent.Change(t).simulate(i))
   }
 
+  def getText: String =
+    DomTester.getText(root)
+
   private def getInputText(): Input = {
     val is = root.querySelectorAll("input[type=text]")
     val len = is.length

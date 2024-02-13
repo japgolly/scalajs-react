@@ -817,6 +817,16 @@ object HooksTest extends TestSuite {
     }
   }
 
+  private def testUseId(): Unit = {
+    val comp = ScalaFnComponent.withHooks[Unit]
+      .useId
+      .render((_, id) => <.div(id))
+
+    test(comp()) { t =>
+      assertEq(t.getText.length, 4)
+    }
+  }
+
   private def testUseRefManual(): Unit = {
     val comp = ScalaFnComponent.withHooks[Unit]
       .useRef(100)
@@ -1354,6 +1364,8 @@ object HooksTest extends TestSuite {
     }
     "useStateSnapshot" - testUseStateSnapshot()
     "useStateSnapshotWithReuse" - testUseStateSnapshotWithReuse()
+
+    "useId" - testUseId()
 
     "renderWithReuse" - {
       "main" - testRenderWithReuse()

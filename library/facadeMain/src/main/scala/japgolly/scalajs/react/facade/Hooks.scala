@@ -46,4 +46,6 @@ trait Hooks extends js.Object {
 
   final def useDebugValue(desc: Any): Unit = js.native
   final def useDebugValue[A](value: A, desc: A => Any): Unit = js.native
+
+  final def useId(): String = js.native
 }
