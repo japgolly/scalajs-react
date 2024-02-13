@@ -477,6 +477,11 @@ object Api {
       */
     final def useStateWithReuseBy[S: ClassTag: Reusability](initialState: Ctx => S)(implicit step: Step): step.Next[UseStateWithReuse[S]] =
       next(ctx => UseStateWithReuse.unsafeCreate(initialState(ctx)))
+
+    /** `useId` is a React Hook for generating unique IDs that can be passed to accessibility attributes.
+      */
+    final def useId(implicit step: Step): step.Next[String] =
+      customBy(_ => UseId())
   }
 
   // ===================================================================================================================

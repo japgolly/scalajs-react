@@ -192,6 +192,7 @@ object Example {
 | `useRef()` | `.useRefToAnyVdom` <br> `.useRefToVdom[DomType]` <br> `.useRefToScalaComponent(component)` <br> `.useRefToScalaComponent[P, S, B]` <br> `.useRefToJsComponent(component)` <br> `.useRefToJsComponent[P, S]` <br> `.useRefToJsComponentWithMountedFacade[P, S, F]` |
 | `useRef(initialValue)` | `.useRef(initialValue)` |
 | `useState(initialState)` <br> `useState(() => initialState)` | `.useState(initialState)` |
+| `useId()` | `.useId()` |
 | Custom hook <br> `useBlah(i)` | `.custom(useBlah(i))`
 
 Note: The reason that `[deps]` on the JS side becomes `(deps)` on the Scala side,

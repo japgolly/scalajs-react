@@ -438,4 +438,11 @@ object Hooks {
       F.delay { value = f(value) }
   }
 
+
+  // ===================================================================================================================
+
+  object UseId {
+    def apply(): CustomHook[Unit, String] =
+      CustomHook.delay(facade.React.useId())
+  }
 }
