@@ -827,6 +827,24 @@ object HooksTest extends TestSuite {
     }
   }
 
+  private def testUseTransition(): Unit = {
+   val comp = ScalaFnComponent.withHooks[Unit]
+      .useTransition
+      .useState(false)
+      .render { (_, transition, state) =>
+        <.button(
+          ^.onClick --> transition.startTransition(state.modState(!_)), 
+          state.value.toString()
+        )
+      }
+        
+    test(comp()) { t =>
+      assertEq(t.getText, "false")
+      t.clickButton()
+      assertEq(t.getText, "true")
+    }
+  }
+
   private def testUseRefManual(): Unit = {
     val comp = ScalaFnComponent.withHooks[Unit]
       .useRef(100)
@@ -1233,8 +1251,7 @@ object HooksTest extends TestSuite {
       }
       .build
 
-    withRenderedIntoBody(wrapper(PI(3))) { (_, root) =>
-      val t = new DomTester(root)
+    test(wrapper(PI(3))) { (t) =>
       t.assertText("P=PI(3), R=1")
       t.clickButton(2); t.assertText("P=PI(4), R=2")
       t.clickButton(1); t.assertText("P=PI(4), R=3")
@@ -1366,6 +1383,8 @@ object HooksTest extends TestSuite {
     "useStateSnapshotWithReuse" - testUseStateSnapshotWithReuse()
 
     "useId" - testUseId()
+
+    "useTransition" - testUseTransition()
 
     "renderWithReuse" - {
       "main" - testRenderWithReuse()

@@ -17,6 +17,8 @@ trait Hooks extends js.Object {
   final type UseStateSetter[S] = js.Function1[S | js.Function1[S, S], Unit]
   final type UseState[S] = js.Tuple2[S, UseStateSetter[S]]
 
+  final type UseTransition = js.Tuple2[Boolean, js.Function1[js.Function0[Unit], Unit]]
+
   final def useState[S](initial: S | js.Function0[S]): UseState[S] = js.native
 
   final type UseEffectArg = js.Function0[js.UndefOr[js.Function0[Any]]]
@@ -48,4 +50,6 @@ trait Hooks extends js.Object {
   final def useDebugValue[A](value: A, desc: A => Any): Unit = js.native
 
   final def useId(): String = js.native
+
+  final def useTransition(): UseTransition = js.native
 }
