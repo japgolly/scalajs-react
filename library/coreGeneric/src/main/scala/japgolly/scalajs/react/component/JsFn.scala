@@ -68,10 +68,11 @@ object JsFn extends JsBaseComponentTemplate[facade.React.StatelessFunctionalComp
       generic[UnusedObject, Children.Varargs](p => render(PropsChildren(p.children)))(s)
   }
 
-  private def staticDisplayName = "<FnComponent>"
+  private def readDisplayName(a: facade.HasDisplayName): String =
+    a.displayName.getOrElse("")
 
   override protected def rawComponentDisplayName[A <: js.Object](r: facade.React.StatelessFunctionalComponent[A]) =
-    staticDisplayName
+    readDisplayName(r)
 
   // ===================================================================================================================
 
@@ -113,7 +114,7 @@ object JsFn extends JsBaseComponentTemplate[facade.React.StatelessFunctionalComp
   sealed trait UnmountedSimple[P, M] extends Generic.UnmountedSimple[P, M] {
     override type Raw <: facade.React.ComponentElement[_ <: js.Object]
     override final type Ref = Nothing
-    override final def displayName = staticDisplayName
+    override final def displayName = readDisplayName(raw.`type`)
 
     override def mapUnmountedProps[P2](f: P => P2): UnmountedSimple[P2, M]
     override def mapMounted[M2](f: M => M2): UnmountedSimple[P, M2]
