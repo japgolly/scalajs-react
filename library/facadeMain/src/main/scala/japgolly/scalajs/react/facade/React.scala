@@ -145,7 +145,7 @@ object React extends React {
     var current: A
   }
 
-  type StatelessFunctionalComponent[Props <: js.Object] = js.Function1[Props, Node]
+  type StatelessFunctionalComponent[Props <: js.Object] = js.Function1[Props, Node] with HasMutableDisplayName
 
   trait ValueProps[A] extends js.Object {
     val value: A
