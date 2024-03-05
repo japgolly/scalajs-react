@@ -29,9 +29,6 @@ object ReactForwardRefInternals {
     private def derivedDisplayName(implicit name: FullName): String =
       name.value
 
-    @inline def withDisplayName(name: String): DisplayNameApplied =
-      new DisplayNameApplied(name)
-
     final def apply(render: Option[R] => VdomNode)(implicit name: FullName): Component[Unit, RefValue, CtorType.Nullary] =
       create(derivedDisplayName)((_, r) => render(r))
 
@@ -43,19 +40,6 @@ object ReactForwardRefInternals {
 
     final def justChildren(render: (PropsChildren, Option[R]) => VdomNode)(implicit name: FullName): Component[Unit, RefValue, CtorType.Children] =
       create(derivedDisplayName)((b, r) => render(PropsChildren(b.children), r))
-
-    class DisplayNameApplied private[Dsl](displayName: String) {
-      final def apply(render: Option[R] => VdomNode): Component[Unit, RefValue, CtorType.Nullary] =
-        create(displayName)((_, r) => render(r))
-
-      final def apply[P](render: (P, Option[R]) => VdomNode): Component[P, RefValue, CtorType.Props] =
-        create(displayName)((p, r) => render(p.unbox, r))
-
-      final def withChildren[P](render: (P, PropsChildren, Option[R]) => VdomNode): Component[P, RefValue, CtorType.PropsAndChildren] =
-        create(displayName)((b, r) => render(b.unbox, PropsChildren(b.children), r))
-
-      final def justChildren(render: (PropsChildren, Option[R]) => VdomNode): Component[Unit, RefValue, CtorType.Children] =
-        create(displayName)((b, r) => render(PropsChildren(b.children), r))    }
   }
 
   // extends AnyVal with Dsl makes scalac 2.11 explode
@@ -70,6 +54,23 @@ object ReactForwardRefInternals {
       ReactForwardRef.create[P, RefValue, C, CT](displayName)((p, r) => render(p, r.map(_.map(
         Js.mounted[P0, S0](_).withRawType[RM]
       ))))
+
+    @inline def withDisplayName(name: String): DisplayNameApplied =
+      new DisplayNameApplied(name)
+
+    class DisplayNameApplied private[ToJsComponent](displayName: String) {
+      final def apply(render: Option[R] => VdomNode): Component[Unit, RefValue, CtorType.Nullary] =
+        create(displayName)((_, r) => render(r))
+
+      final def apply[P](render: (P, Option[R]) => VdomNode): Component[P, RefValue, CtorType.Props] =
+        create(displayName)((p, r) => render(p.unbox, r))
+
+      final def withChildren[P](render: (P, PropsChildren, Option[R]) => VdomNode): Component[P, RefValue, CtorType.PropsAndChildren] =
+        create(displayName)((b, r) => render(b.unbox, PropsChildren(b.children), r))
+
+      final def justChildren(render: (PropsChildren, Option[R]) => VdomNode): Component[Unit, RefValue, CtorType.Children] =
+        create(displayName)((b, r) => render(PropsChildren(b.children), r))
+    }
   }
 
   // extends AnyVal with Dsl makes scalac 2.11 explode
@@ -82,6 +83,23 @@ object ReactForwardRefInternals {
         (render: (Box[P] with facade.PropsWithChildren, Option[R]) => VdomNode)
         (implicit s: CtorType.Summoner.Aux[Box[P], C, CT]): Component[P, RefValue, CT] =
       ReactForwardRef.create[P, RefValue, C, CT](displayName)((p, r) => render(p, r.map(_.map(_.mountedImpure))))
+
+     @inline def withDisplayName(name: String): DisplayNameApplied =
+      new DisplayNameApplied(name)
+
+    class DisplayNameApplied private[ToScalaComponent](displayName: String) {
+      final def apply(render: Option[R] => VdomNode): Component[Unit, RefValue, CtorType.Nullary] =
+        create(displayName)((_, r) => render(r))
+
+      final def apply[P](render: (P, Option[R]) => VdomNode): Component[P, RefValue, CtorType.Props] =
+        create(displayName)((p, r) => render(p.unbox, r))
+
+      final def withChildren[P](render: (P, PropsChildren, Option[R]) => VdomNode): Component[P, RefValue, CtorType.PropsAndChildren] =
+        create(displayName)((b, r) => render(b.unbox, PropsChildren(b.children), r))
+
+      final def justChildren(render: (PropsChildren, Option[R]) => VdomNode): Component[Unit, RefValue, CtorType.Children] =
+        create(displayName)((b, r) => render(PropsChildren(b.children), r))
+    }
   }
 }
 
