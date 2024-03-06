@@ -214,10 +214,12 @@ object HooksTest extends TestSuite {
     val hook = addII ++ addI_ ++ add_S
     val _ : CustomHook[Int, (Int, String)] = hook
 
-    val comp = ScalaFnComponent.withHooks[PI]
+    val comp = ScalaFnComponent.withDisplayName("WithCustomHooks")
+      .withHooks[PI]
       .customBy(p => hook(p.pi))
       .render((_, h) => h.toString)
 
+    assertEq(comp.displayName, "WithCustomHooks")
     test(comp(PI(3))) { t =>
       t.assertText("(3,ah)")
     }
@@ -226,7 +228,7 @@ object HooksTest extends TestSuite {
 
   private def testLazyVal(): Unit = {
     val counter = new Counter
-    val comp = ScalaFnComponent.withHooks[PI]
+    val comp = ScalaFnComponent.withDisplayName("TestComponent").withHooks[PI]
       .localLazyVal(counter.inc())
       .localLazyValBy((p, _) => p.pi + counter.inc())
       .localLazyValBy($ => $.props.pi + counter.inc())
@@ -240,6 +242,7 @@ object HooksTest extends TestSuite {
           <.button(^.onClick --> s.modState(_ + 1)))
       }
 
+    assertEq(comp.displayName, "TestComponent")
     test(comp(PI(10))) { t =>
       t.assertText("P=PI(10), v1=3, v2=12, v3=11")
       t.clickButton(); t.assertText("P=PI(10), v1=6, v2=15, v3=14")
