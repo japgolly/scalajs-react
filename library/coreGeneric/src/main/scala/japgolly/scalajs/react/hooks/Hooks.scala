@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.hooks
 
 import japgolly.scalajs.react.component.{Js => JsComponent, Scala => ScalaComponent}
+import japgolly.scalajs.react.facade.React
 import japgolly.scalajs.react.feature.Context
 import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.util.Effect._
@@ -438,4 +439,42 @@ object Hooks {
       F.delay { value = f(value) }
   }
 
+
+  // ===================================================================================================================
+
+  object UseId {
+    def apply(): CustomHook[Unit, String] =
+      CustomHook.delay(facade.React.useId())
+  }
+
+  // ===================================================================================================================
+
+  type UseTransition = UseTransitionF[D.Sync]
+
+  object UseTransition {
+    @inline def apply(): CustomHook[Unit, UseTransition] = 
+      CustomHook.delay(UseTransitionF(facade.React.useTransition())(D.Sync))
+  }
+
+  object UseTransitionF {
+    def apply[F[_]](r: facade.React.UseTransition)(implicit f: Sync[F]): UseTransitionF[F] =
+      new UseTransitionF[F] {
+        override protected[hooks] implicit def F = f
+        override val raw: React.UseTransition = r
+      }
+  }
+
+  trait UseTransitionF[F[_]] {
+    protected[hooks] implicit def F: Sync[F]
+    val raw: facade.React.UseTransition
+
+    /** Whether we’re waiting for the transition to finish
+      */
+    def isPending: Boolean = raw._1
+
+    /** A function that takes a callback. We can use it to tell React which state we want to defer.
+      */
+    def startTransition(cb: => F[Unit]): F[Unit] =
+      F.delay(raw._2(F.toJsFn(cb)))
+  }
 }
