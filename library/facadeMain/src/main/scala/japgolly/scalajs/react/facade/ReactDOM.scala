@@ -14,24 +14,31 @@ object ReactDOM extends ReactDOM
 @nowarn("cat=unused")
 trait ReactDOM extends js.Object {
 
+  final type Container          = dom.Element | dom.Document | dom.DocumentFragment
+
   val version: String = js.native
 
-  final type Container = dom.Element | dom.Document
+  @deprecated("Use createRoot instead", "2.2.0 / React v18")
+  final def render(element: React.Node, container: Container): React.ComponentUntyped = js.native
 
   final def render(element  : React.Node,
                    container: Container,
-                   callback : js.Function0[Any] = js.native): React.ComponentUntyped = js.native
+                   callback : js.Function0[Any]): React.ComponentUntyped = js.native
+
+   @deprecated("Use hydrateRoot instead", "2.2.0 / React v18")
+  final def hydrate(element: React.Node, container: Container): React.ComponentUntyped = js.native
 
   final def hydrate(element  : React.Node,
                     container: Container,
-                    callback : js.Function0[Any] = js.native): React.ComponentUntyped = js.native
+                    callback : js.Function0[Any]): React.ComponentUntyped = js.native
 
+  @deprecated("Use root.unmount() instead", "2.2.0 / React v18")
   final def unmountComponentAtNode(container: dom.Node): Boolean = js.native
 
   // ==========================================================================
   // NOTE: Ensure that ComponentDom is kept up-to-date with this type
   //
-  final type DomNode = dom.Element | dom.Text
+  final type DomNode = dom.Node
   // ==========================================================================
 
   @throws[js.JavaScriptException]("if arg isn't a React component or its unmounted")

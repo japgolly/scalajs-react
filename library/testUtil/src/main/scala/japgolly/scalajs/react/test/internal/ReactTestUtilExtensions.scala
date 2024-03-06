@@ -1,17 +1,21 @@
 package japgolly.scalajs.react.test.internal
 
 import japgolly.scalajs.react.component.Generic
-import japgolly.scalajs.react.test.ReactTestUtils
+import japgolly.scalajs.react.test.ReactTestUtils2
 import japgolly.scalajs.react.util.Effect.{Id, UnsafeSync}
+import org.scalajs.dom
 
 object ReactTestUtilExtensions {
 
   implicit final class ReactTestExt_MountedSimple[F[_], A[_], P, S](private val m: Generic.MountedSimple[F, A, P, S]) extends AnyVal {
     def outerHtmlScrubbed()(implicit F: UnsafeSync[F]): String =
-      F.runSync(m.getDOMNode).asMounted().fold(_.textContent, e => ReactTestUtils.removeReactInternals(e.outerHTML))
+      F.runSync(m.getDOMNode).asMounted().node match {
+        case e: dom.Element => ReactTestUtils2.removeReactInternals(e.outerHTML)
+        case n              => n.nodeValue
+      }
 
     def showDom()(implicit F: UnsafeSync[F]): String =
-      F.runSync(m.getDOMNode).show(ReactTestUtils.removeReactInternals)
+      F.runSync(m.getDOMNode).show(ReactTestUtils2.removeReactInternals)
   }
 }
 

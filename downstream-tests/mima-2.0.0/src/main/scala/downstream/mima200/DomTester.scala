@@ -2,7 +2,7 @@ package japgolly.scalajs.react.test
 
 import japgolly.microlibs.testutil.TestUtil._
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.test.ReactTestUtils2._
+import japgolly.scalajs.react.test.ReactTestUtils._
 import japgolly.scalajs.react.test._
 import org.scalajs.dom.html.{Button, Element, Input}
 import sourcecode.Line
@@ -38,9 +38,6 @@ class DomTester(root: Element) {
     val i = getInputText()
     act(SimEvent.Change(t).simulate(i))
   }
-
-  def getText: String =
-    DomTester.getText(root)
 
   private def getInputText(): Input = {
     val is = root.querySelectorAll("input[type=text]")

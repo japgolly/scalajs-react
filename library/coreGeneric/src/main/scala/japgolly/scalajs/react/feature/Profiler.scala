@@ -5,6 +5,7 @@ import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.util.JsUtil
 import japgolly.scalajs.react.vdom.PackageBase._
 import java.time.Duration
+import scala.annotation.nowarn
 import scala.scalajs.js
 
 /** The Profiler measures how often a React application renders and what the "cost" of rendering is. Its purpose is to
@@ -67,13 +68,14 @@ object Profiler {
     * @param startTime Timestamp when React began rendering the current update.
     * @param commitTime Timestamp when React committed the current update. This value is shared between all profilers in a commit, enabling them to be grouped if desirable.
     */
+  @nowarn("cat=deprecation")
   final case class OnRenderData(id              : String,
                                 phase           : String,
                                 actualDurationMs: Double,
                                 baseDurationMs  : Double,
                                 startTime       : Double,
                                 commitTime      : Double,
-                                rawInteractions : js.Iterable[facade.Interaction],
+                                @deprecated("Removed in React 18", "2.2.0") rawInteractions: js.Iterable[facade.Interaction],
                                ) {
 
     def phaseIsMount: Boolean =
@@ -93,6 +95,7 @@ object Profiler {
     /** Set of "interactions" that were being traced when the update was scheduled
       * (e.g. when render or setState were called).
       */
+    @deprecated("Removed in React 18", "2.2.0")
     lazy val interactions: Vector[Interaction] =
       rawInteractions.iterator.map(Interaction.fromRaw).toVector
   }
@@ -119,6 +122,7 @@ object Profiler {
     * and its return value will be returned to the caller. Any code run within that callback will be attributed to that
     * interaction. Calls to unstable_wrap() will schedule async work within the same zone.
     */
+  @deprecated("Removed in React 18", "2.2.0")
   def unstable_trace[A](name: String)(body: => A): A =
     facade.React.SecretInternals.SchedulerTracing.unstable_trace(
       name,

@@ -1,7 +1,7 @@
 package downstream
 
 import japgolly.microlibs.testutil.TestUtil._
-import japgolly.scalajs.react.test.ReactTestUtils._
+import japgolly.scalajs.react.test.ReactTestUtils2
 import utest._
 
 object CatsEffectBundleTests extends TestSuite {
@@ -10,9 +10,9 @@ object CatsEffectBundleTests extends TestSuite {
     Globals.clear()
 
     "catnip" - {
-      withRenderedIntoDocument(Catnip.Component("omg")) { m =>
+      ReactTestUtils2.withRendered(Catnip.Component("omg")) { m =>
         assertEq(Globals.catnipMounts, List("omg"))
-        assertEq(m.showDom(), "<div>Hello omg</div>")
+        m.outerHTML.assert("<div>Hello omg</div>")
       }
       assertEq(Globals.catnipMounts, List("omg"))
     }

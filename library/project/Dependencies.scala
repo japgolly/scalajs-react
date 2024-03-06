@@ -11,7 +11,7 @@ object Dependencies {
     // Externally observable
     val cats                  = "2.7.0"
     val catsEffect            = "3.3.11"
-    val microlibs             = "4.1.0"
+    val microlibs             = "4.2.1"
     val monocle2              = "2.1.0"
     val monocle3              = "3.1.0"
     val scala2                = "2.13.8"
@@ -23,10 +23,11 @@ object Dependencies {
     val betterMonadicFor      = "0.3.1"
     val catsTestkitScalaTest  = "2.1.5"
     val disciplineScalaTest   = "2.1.5"
+    val fastTextEncoding      = "1.0.6"
     val kindProjector         = "0.13.2"
     val macrotaskExecutor     = "1.0.0"
     val nyaya                 = "1.0.0"
-    val reactJs               = "17.0.2"
+    val reactJs               = "18.2.0"
     val scalaJsJavaTime       = "1.0.0"
     val scalaJsSecureRandom   = "1.0.0"
     val scalaTest             = "3.2.11"
@@ -76,25 +77,34 @@ object Dependencies {
     val reactDoutestUtils = ReactArtifact("react-dom-test-utils")
   }
 
-  final case class ReactArtifact(filename: String) {
-    val dev = s"umd/$filename.development.js"
-    val prod = s"umd/$filename.production.min.js"
-  }
+  def fastTextEncodingJs = "text.min.js" // 1.0.6 webjar only contains minified version
 
   def globalDependencyOverrides = Def.setting(Seq(
     Dep.scalaJsDom.value,
     Dep.univEq.value,
     Dep.univEqCats.value,
+    "org.webjars.npm" % "scheduler" % "0.22.0", // Required for React 18.2.0
   ))
+
+  final case class ReactArtifact(filename: String) {
+    val dev = s"umd/$filename.development.js"
+    val prod = s"umd/$filename.production.min.js"
+  }
 
   def addReactJsDependencies(scope: Configuration): Project => Project =
     _.enablePlugins(JSDependenciesPlugin)
       .settings(
         jsDependencies ++= Seq(
 
+          /** For testing React 18 */
+          "org.webjars.npm" % "fast-text-encoding" % Ver.fastTextEncoding % scope
+          / fastTextEncodingJs
+          minified "text.min.js",
+
           "org.webjars.npm" % "react" % Ver.reactJs % scope
-            /        "umd/react.development.js"
-            minified "umd/react.production.min.js"
+            /         "umd/react.development.js"
+            minified  "umd/react.production.min.js"
+            dependsOn fastTextEncodingJs
             commonJSName "React",
 
           "org.webjars.npm" % "react-dom" % Ver.reactJs % scope
@@ -110,8 +120,8 @@ object Dependencies {
             commonJSName "ReactTestUtils",
 
           "org.webjars.npm" % "react-dom" % Ver.reactJs % scope
-            /         "umd/react-dom-server.browser.development.js"
-            minified  "umd/react-dom-server.browser.production.min.js"
+            /         "umd/react-dom-server-legacy.browser.development.js"
+            minified  "umd/react-dom-server-legacy.browser.production.min.js"
             dependsOn "umd/react-dom.development.js"
             commonJSName "ReactDOMServer"),
 

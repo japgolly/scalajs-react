@@ -227,10 +227,10 @@ object ScalaJsReact {
       ),
       jsDependencies ++= Seq(
         Dep.sizzleJs(Test).value,
+        (ProvidedJS / "polyfill.js") % Test,
         (ProvidedJS / "component-es6.js" dependsOn Dep.reactDom.dev) % Test,
         (ProvidedJS / "component-fn.js"  dependsOn Dep.reactDom.dev) % Test,
         (ProvidedJS / "forward-ref.js"   dependsOn Dep.reactDom.dev) % Test,
-        (ProvidedJS / "polyfill.js"      dependsOn Dep.reactDom.dev) % Test,
       ),
     )
 
@@ -239,6 +239,7 @@ object ScalaJsReact {
     .configure(commonSettings, publicationSettings, hasNoTests, effectGenericModule)
     .settings(
       moduleName := "test",
+      libraryDependencies += Dep.microlibsTestUtil.value,
     )
 
   lazy val testUtilMacros = project

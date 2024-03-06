@@ -1,7 +1,7 @@
 package japgolly.scalajs.react
 
 import japgolly.scalajs.react.util.DomUtil._
-import japgolly.scalajs.react.util.Util.{catchAll, identityFn}
+import japgolly.scalajs.react.util.Util.identityFn
 import org.scalajs.dom
 import org.scalajs.dom.html
 import scala.scalajs.js.|
@@ -15,8 +15,8 @@ sealed trait ComponentDom {
   final def asMounted(): ComponentDom.Mounted =
     mounted getOrElse sys.error("DOM node isn't mounted.")
 
-  def toElement: Option[dom.Element] = None
-  def toText: Option[dom.Text] = None
+  def toElement: Option[dom.Element] =
+    None
 
   final def toHtml: Option[html.Element] =
     toElement.flatMap(_.domToHtml)
@@ -24,11 +24,17 @@ sealed trait ComponentDom {
   final def toNode: Option[dom.Node] =
     mounted.map(_.node)
 
+  final def toText: Option[dom.Text] =
+    mounted.flatMap {
+      case Node(t: dom.Text) => Some(t)
+      case _                 => None
+    }
+
   /** For testing purposes. */
   final def show(sanitiseHtml: String => String = identityFn): String =
     mounted match {
       case Some(Element(e)) => sanitiseHtml(e.outerHTML)
-      case Some(Text(t))    => (catchAll(t.wholeText) orElse catchAll(t.textContent) orElse catchAll(t.innerText)).get
+      case Some(Node(n))    => n.nodeValue
       case None             => ""
     }
 }
@@ -38,7 +44,7 @@ object ComponentDom {
   def apply(i: facade.ReactDOM.DomNode | Null | Unit): ComponentDom =
     (i: Any) match {
       case e: dom.Element => Element(e)
-      case t: dom.Text    => Text(t)
+      case n: dom.Node    => Node(n)
       case null | ()      => Unmounted
     }
 
@@ -63,7 +69,7 @@ object ComponentDom {
     final def asElement(): dom.Element =
       this match {
         case Element(e) => e
-        case Text(t)    => sys error s"Expected a dom.Element; got $t"
+        case x          => throw new RuntimeException(s"Expected a dom.Element; got ${x.raw}")
       }
 
     /** unsafe! may throw an exception */
@@ -76,11 +82,12 @@ object ComponentDom {
 
     /** unsafe! may throw an exception */
     final def asText(): dom.Text =
-      this match {
-        case Text(t)    => t
-        case Element(e) => sys error s"Expected a dom.Text; got $e"
+      node match {
+        case t: dom.Text => t
+        case n           => throw new RuntimeException(s"Expected a dom.Text; got $n")
       }
 
+    @deprecated("Call .node and pattern match as needed", "2.2.0")
     def fold[A](text: dom.Text => A, element: dom.Element => A): A
   }
 
@@ -88,14 +95,20 @@ object ComponentDom {
     override def toElement = Some(element)
     override def node = element
     override def raw = element
+    @deprecated("Call .node and pattern match as needed", "2.2.0")
     override def fold[A](text: dom.Text => A, f: dom.Element => A) = f(element)
   }
 
-  final case class Text(text: dom.Text) extends Mounted {
-    override def toText = Some(text)
-    override def node = text
-    override def raw = text
-    override def fold[A](f: dom.Text => A, element: dom.Element => A) = f(text)
+  final case class Node(node: dom.Node) extends Mounted {
+    override def raw = node
+    @deprecated("Call .node and pattern match as needed", "2.2.0")
+    override def fold[A](text: dom.Text => A, element: dom.Element => A) =
+      node match {
+        case t: dom.Text => text(t)
+        case _           => throw new RuntimeException(s"The .fold method is now deprecated and doesn't support non-Text, non-Element nodes")
+      }
   }
 
+  @deprecated("Use Node instead", "2.2.0") type Text = Node
+  @deprecated("Use Node instead", "2.2.0") val  Text = Node
 }

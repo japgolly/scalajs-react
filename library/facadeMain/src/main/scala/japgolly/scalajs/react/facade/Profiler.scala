@@ -8,10 +8,12 @@ trait Interaction extends js.Object {
   val __count  : Int    = js.native
   val id       : Int    = js.native
   val name     : String = js.native
-  val timestamp: Double  = js.native
+  val timestamp: Double = js.native
 }
 
 object Profiler {
+
+  // TODO: the interactions field has been removed from React 18
 
   type OnRender = js.Function7[
     String,              // id:             the "id" prop of the Profiler tree that has just committed
