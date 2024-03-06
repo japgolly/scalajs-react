@@ -6,6 +6,8 @@ import japgolly.scalajs.react.vdom.VdomNode
 import japgolly.scalajs.react.{Children, CtorType, PropsChildren, Ref, facade}
 import scala.annotation.nowarn
 import scala.scalajs.js
+import sourcecode.FullName
+
 
 object ScalaForwardRef {
   type Component[P, R, CT[-p, +u] <: CtorType[p, u]] = JsForwardRef.ComponentWithRoot[P, R, CT, Unmounted[P, R], Box[P], CT, JsForwardRef.Unmounted[Box[P], R]]
@@ -20,20 +22,24 @@ object ReactForwardRefInternals {
     protected type RefValue
 
     protected def create[P, C <: Children, CT[-p, +u] <: CtorType[p, u]]
+      (displayName: String)
       (render: (Box[P] with facade.PropsWithChildren, Option[R]) => VdomNode)
       (implicit s: CtorType.Summoner.Aux[Box[P], C, CT]): Component[P, RefValue, CT]
 
-    final def apply(render: Option[R] => VdomNode): Component[Unit, RefValue, CtorType.Nullary] =
-      create((_, r) => render(r))
+    private def derivedDisplayName(implicit name: FullName): String =
+      name.value
 
-    final def apply[P](render: (P, Option[R]) => VdomNode): Component[P, RefValue, CtorType.Props] =
-      create((p, r) => render(p.unbox, r))
+    final def apply(render: Option[R] => VdomNode)(implicit name: FullName): Component[Unit, RefValue, CtorType.Nullary] =
+      create(derivedDisplayName)((_, r) => render(r))
 
-    final def withChildren[P](render: (P, PropsChildren, Option[R]) => VdomNode): Component[P, RefValue, CtorType.PropsAndChildren] =
-      create((b, r) => render(b.unbox, PropsChildren(b.children), r))
+    final def apply[P](render: (P, Option[R]) => VdomNode)(implicit name: FullName): Component[P, RefValue, CtorType.Props] =
+      create(derivedDisplayName)((p, r) => render(p.unbox, r))
 
-    final def justChildren(render: (PropsChildren, Option[R]) => VdomNode): Component[Unit, RefValue, CtorType.Children] =
-      create((b, r) => render(PropsChildren(b.children), r))
+    final def withChildren[P](render: (P, PropsChildren, Option[R]) => VdomNode)(implicit name: FullName): Component[P, RefValue, CtorType.PropsAndChildren] =
+      create(derivedDisplayName)((b, r) => render(b.unbox, PropsChildren(b.children), r))
+
+    final def justChildren(render: (PropsChildren, Option[R]) => VdomNode)(implicit name: FullName): Component[Unit, RefValue, CtorType.Children] =
+      create(derivedDisplayName)((b, r) => render(PropsChildren(b.children), r))
   }
 
   // extends AnyVal with Dsl makes scalac 2.11 explode
@@ -42,11 +48,29 @@ object ReactForwardRefInternals {
     override protected type RefValue = RM
 
     override protected def create[P, C <: Children, CT[-p, +u] <: CtorType[p, u]]
+        (displayName: String)
         (render: (Box[P] with facade.PropsWithChildren, Option[R]) => VdomNode)
         (implicit s: CtorType.Summoner.Aux[Box[P], C, CT]): Component[P, RefValue, CT] =
-      ReactForwardRef.create[P, RefValue, C, CT]((p, r) => render(p, r.map(_.map(
+      ReactForwardRef.create[P, RefValue, C, CT](displayName)((p, r) => render(p, r.map(_.map(
         Js.mounted[P0, S0](_).withRawType[RM]
       ))))
+
+    @inline def withDisplayName(name: String): DisplayNameApplied =
+      new DisplayNameApplied(name)
+
+    class DisplayNameApplied private[ToJsComponent](displayName: String) {
+      final def apply(render: Option[R] => VdomNode): Component[Unit, RefValue, CtorType.Nullary] =
+        create(displayName)((_, r) => render(r))
+
+      final def apply[P](render: (P, Option[R]) => VdomNode): Component[P, RefValue, CtorType.Props] =
+        create(displayName)((p, r) => render(p.unbox, r))
+
+      final def withChildren[P](render: (P, PropsChildren, Option[R]) => VdomNode): Component[P, RefValue, CtorType.PropsAndChildren] =
+        create(displayName)((b, r) => render(b.unbox, PropsChildren(b.children), r))
+
+      final def justChildren(render: (PropsChildren, Option[R]) => VdomNode): Component[Unit, RefValue, CtorType.Children] =
+        create(displayName)((b, r) => render(PropsChildren(b.children), r))
+    }
   }
 
   // extends AnyVal with Dsl makes scalac 2.11 explode
@@ -55,9 +79,27 @@ object ReactForwardRefInternals {
     override protected type RefValue = Scala.RawMounted[P2, S, B]
 
     override protected def create[P, C <: Children, CT[-p, +u] <: CtorType[p, u]]
+        (displayName: String)
         (render: (Box[P] with facade.PropsWithChildren, Option[R]) => VdomNode)
         (implicit s: CtorType.Summoner.Aux[Box[P], C, CT]): Component[P, RefValue, CT] =
-      ReactForwardRef.create[P, RefValue, C, CT]((p, r) => render(p, r.map(_.map(_.mountedImpure))))
+      ReactForwardRef.create[P, RefValue, C, CT](displayName)((p, r) => render(p, r.map(_.map(_.mountedImpure))))
+
+     @inline def withDisplayName(name: String): DisplayNameApplied =
+      new DisplayNameApplied(name)
+
+    class DisplayNameApplied private[ToScalaComponent](displayName: String) {
+      final def apply(render: Option[R] => VdomNode): Component[Unit, RefValue, CtorType.Nullary] =
+        create(displayName)((_, r) => render(r))
+
+      final def apply[P](render: (P, Option[R]) => VdomNode): Component[P, RefValue, CtorType.Props] =
+        create(displayName)((p, r) => render(p.unbox, r))
+
+      final def withChildren[P](render: (P, PropsChildren, Option[R]) => VdomNode): Component[P, RefValue, CtorType.PropsAndChildren] =
+        create(displayName)((b, r) => render(b.unbox, PropsChildren(b.children), r))
+
+      final def justChildren(render: (PropsChildren, Option[R]) => VdomNode): Component[Unit, RefValue, CtorType.Children] =
+        create(displayName)((b, r) => render(PropsChildren(b.children), r))
+    }
   }
 }
 
@@ -65,6 +107,7 @@ object ReactForwardRef { outer =>
   import ReactForwardRefInternals._
 
   private[component] def create[P, R, C <: Children, CT[-p, +u] <: CtorType[p, u]]
+      (displayName: String)
       (render: (Box[P] with facade.PropsWithChildren, Option[Ref.Simple[R]]) => VdomNode)
       (implicit s: CtorType.Summoner.Aux[Box[P], C, CT]): Component[P, R, CT] = {
 
@@ -73,23 +116,31 @@ object ReactForwardRef { outer =>
         render(p, Ref.forwardedFromJs(r)).rawNode
 
     val rawComponent = facade.React.forwardRef(jsRender)
+    rawComponent.displayName = displayName
 
     JsForwardRef.force[Box[P], C, R](rawComponent)(s)
       .cmapCtorProps[P](Box(_))
       .mapUnmounted(_.mapUnmountedProps(_.unbox))
   }
 
-  def apply[R](render: Option[Ref.Simple[R]] => VdomNode): Component[Unit, R, CtorType.Nullary] =
-    create((_, r) => render(r))
+  private def derivedDisplayName(implicit name: FullName): String =
+    name.value
 
-  def apply[P, R](render: (P, Option[Ref.Simple[R]]) => VdomNode): Component[P, R, CtorType.Props] =
-    create((p, r) => render(p.unbox, r))
+  @inline def withDisplayName(name: String): DisplayNameApplied =
+    new DisplayNameApplied(name)
 
-  def withChildren[P, R](render: (P, PropsChildren, Option[Ref.Simple[R]]) => VdomNode): Component[P, R, CtorType.PropsAndChildren] =
-    create((b, r) => render(b.unbox, PropsChildren(b.children), r))
 
-  def justChildren[R](render: (PropsChildren, Option[Ref.Simple[R]]) => VdomNode): Component[Unit, R, CtorType.Children] =
-    create((b, r) => render(PropsChildren(b.children), r))
+  def apply[R](render: Option[Ref.Simple[R]] => VdomNode)(implicit name: FullName): Component[Unit, R, CtorType.Nullary] =
+    create(derivedDisplayName)((_, r) => render(r))
+
+  def apply[P, R](render: (P, Option[Ref.Simple[R]]) => VdomNode)(implicit name: FullName): Component[P, R, CtorType.Props] =
+    create(derivedDisplayName)((p, r) => render(p.unbox, r))
+
+  def withChildren[P, R](render: (P, PropsChildren, Option[Ref.Simple[R]]) => VdomNode)(implicit name: FullName): Component[P, R, CtorType.PropsAndChildren] =
+    create(derivedDisplayName)((b, r) => render(b.unbox, PropsChildren(b.children), r))
+
+  def justChildren[R](render: (PropsChildren, Option[Ref.Simple[R]]) => VdomNode)(implicit name: FullName): Component[Unit, R, CtorType.Children] =
+    create(derivedDisplayName)((b, r) => render(PropsChildren(b.children), r))
 
   // ===================================================================================================================
 
@@ -104,4 +155,18 @@ object ReactForwardRef { outer =>
 
   def toScalaComponent[P, S, B]: ToScalaComponent[P, S, B] =
     new ToScalaComponent(())
+
+  class DisplayNameApplied private[ReactForwardRef](displayName: String) {
+    def apply[R](render: Option[Ref.Simple[R]] => VdomNode): Component[Unit, R, CtorType.Nullary] =
+      create(displayName)((_, r) => render(r))
+
+    def apply[P, R](render: (P, Option[Ref.Simple[R]]) => VdomNode): Component[P, R, CtorType.Props] =
+      create(displayName)((p, r) => render(p.unbox, r))
+
+    def withChildren[P, R](render: (P, PropsChildren, Option[Ref.Simple[R]]) => VdomNode): Component[P, R, CtorType.PropsAndChildren] =
+      create(displayName)((b, r) => render(b.unbox, PropsChildren(b.children), r))
+
+    def justChildren[R](render: (PropsChildren, Option[Ref.Simple[R]]) => VdomNode): Component[Unit, R, CtorType.Children] =
+      create(displayName)((b, r) => render(PropsChildren(b.children), r))
+  }
 }
