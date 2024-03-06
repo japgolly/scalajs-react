@@ -13,7 +13,7 @@ object ScalaFnComponentTest extends TestSuite {
 
   final case class Add(x: Int, y: Int)
 
-  val CaseClassProps = ScalaFnComponent[Add] { a =>
+  val CaseClassProps = ScalaFnComponent.withDisplayName("Add")[Add] { a =>
     import a._
     <.code(s"$x + $y = ${x + y}")
   }
@@ -32,6 +32,11 @@ object ScalaFnComponentTest extends TestSuite {
     "withChildren" - assertRender(WithChildren(3)(c1, c2),    "<div>i=3<i>good</i>222</div>")
     "justChild"    - assertRender(JustChildren(c1),           "<h4><i>good</i></h4>")
     "justChildren" - assertRender(JustChildren(c1, c2),       "<h4><i>good</i>222</h4>")
+
+    "displayName" - {
+      assertEq(IntProps.displayName, "japgolly.scalajs.react.core.ScalaFnComponentTest.IntProps")
+      assertEq(CaseClassProps.displayName, "Add")
+    }
 
     "memo" - {
       var rendered = 0

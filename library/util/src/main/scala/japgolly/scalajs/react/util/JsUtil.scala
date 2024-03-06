@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.util
 
 import java.time.Duration
+import org.scalajs.dom
 import scala.scalajs.js
 import scala.scalajs.js.|
 import scala.util.{Failure, Success, Try}
@@ -142,4 +143,41 @@ object JsUtil {
       async(pc)()
       p
     }
+
+  def global(): js.Dynamic =
+    _global
+
+  private lazy val _global =
+    Try(js.Dynamic.global.globalThis)
+      .orElse(Try(js.Dynamic.global.global))
+      .orElse(Try(js.Dynamic.global.globalThis))
+      .orElse(Try(js.Dynamic.global.self))
+      .orElse(Try(js.Dynamic.global.window))
+      .get
+
+  def optionalField(subject: js.Object, name: String): js.UndefOr[js.Dynamic] =
+    subject.asInstanceOf[js.Dynamic].selectDynamic(name).asInstanceOf[js.UndefOr[js.Dynamic]]
+
+  def typeOfOptionalField(subject: js.Object, name: String): String =
+    js.typeOf(optionalField(subject, name))
+
+  def querySelectorFn(node: dom.Node): js.UndefOr[js.Function1[String, dom.Element]] = {
+    if (typeOfOptionalField(node, "querySelector") == "function")
+      js.defined(s => node.asInstanceOf[js.Dynamic].querySelector(s).asInstanceOf[dom.Element])
+    else
+      ()
+  }
+
+  def querySelectorAllFn(node: dom.Node): js.UndefOr[js.Function1[String, dom.NodeList[dom.Element]]] = {
+    if (typeOfOptionalField(node, "querySelectorAll") == "function")
+      js.defined(s => node.asInstanceOf[js.Dynamic].querySelectorAll(s).asInstanceOf[dom.NodeList[dom.Element]])
+    else
+      ()
+  }
+
+  def querySelector(node: dom.Node, selectors: String): js.UndefOr[dom.Element] =
+    querySelectorFn(node).map(_ apply selectors)
+
+  def querySelectorAll(node: dom.Node, selectors: String): js.UndefOr[dom.NodeList[dom.Element]] =
+    querySelectorAllFn(node).map(_ apply selectors)
 }

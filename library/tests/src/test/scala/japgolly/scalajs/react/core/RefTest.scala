@@ -152,9 +152,11 @@ object RefTest extends TestSuite {
       @js.native
       private object RawComp extends js.Object
 
-      private val Forwarder = JsForwardRefComponent[Null, Children.Varargs, html.Button](RawComp)
+      val Forwarder = JsForwardRefComponent[Null, Children.Varargs, html.Button](RawComp)
 
-      def nullary() = assertRender(Forwarder(), "<div><button class=\"FancyButton\"></button></div>")
+      def nullaryExpectation = "<div><button class=\"FancyButton\"></button></div>"
+
+      def nullary() = assertRender(Forwarder(), nullaryExpectation)
 
       def children() = assertRender(Forwarder(<.br, <.hr), "<div><button class=\"FancyButton\"><br/><hr/></button></div>")
 
@@ -180,10 +182,12 @@ object RefTest extends TestSuite {
 
     object ScalaToVdom {
 
-      private val Forwarder = React.forwardRef.justChildren[html.Button]((c, r) =>
+      val Forwarder = React.forwardRef.justChildren[html.Button]((c, r) =>
         <.div(<.button.withOptionalRef(r)(^.cls := "fancy", c)))
 
-      def nullary() = assertRender(Forwarder(), "<div><button class=\"fancy\"></button></div>")
+      def nullaryExpectation = "<div><button class=\"fancy\"></button></div>"
+
+      def nullary() = assertRender(Forwarder(), nullaryExpectation)
 
       def children() = assertRender(Forwarder(<.br, <.hr), "<div><button class=\"fancy\"><br/><hr/></button></div>")
 

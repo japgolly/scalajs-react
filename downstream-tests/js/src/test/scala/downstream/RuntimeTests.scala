@@ -5,14 +5,13 @@ import japgolly.microlibs.compiletime.CompileTimeInfo
 import japgolly.microlibs.testutil.TestUtil._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
-import japgolly.scalajs.react.test.ReactTestUtils._
+import japgolly.scalajs.react.test.ReactTestUtils2
 import japgolly.scalajs.react.util.JsUtil
 import org.scalajs.dom.console
 import scala.scalajs.js
 import scala.scalajs.LinkingInfo.developmentMode
 import scala.util.Try
 import utest._
-import japgolly.scalajs.react.test.ReactTestUtils
 
 object RuntimeTests extends TestSuite {
 
@@ -65,13 +64,13 @@ object RuntimeTests extends TestSuite {
       val (promise, completePromise) = JsUtil.newPromise[Unit]()
       val io = IO(completePromise(Try(()))())
 
-      withRenderedIntoDocument(Carrot.Props("1", io).render) { m =>
-        replaceProps(Carrot.Component, m)(Carrot.Props("1"))
-        replaceProps(Carrot.Component, m)(Carrot.Props("2"))
+      ReactTestUtils2.withRendered(Carrot.Props("1", io).render) { m =>
+        m.root.render(Carrot.Props("1").render)
+        m.root.render(Carrot.Props("2").render)
       }
-      withRenderedIntoDocument(Pumpkin.Component("1")) { m =>
-        replaceProps(Pumpkin.Component, m)("1")
-        replaceProps(Pumpkin.Component, m)("2")
+      ReactTestUtils2.withRendered(Pumpkin.Component("1")) { m =>
+        m.root.render(Pumpkin.Component("1"))
+        m.root.render(Pumpkin.Component("2"))
       }
 
       assertEq(Globals.carrotMountsA, 1)
@@ -91,13 +90,13 @@ object RuntimeTests extends TestSuite {
 
       "react" - {
         val c = ScalaFnComponent[Int](i => <.p(<.td(s"i = $i")))
-        val t = Try(ReactTestUtils.withRenderedIntoBody(c(123))(_ => ()))
+        val t = Try(ReactTestUtils2.withRendered(c(123))(_ => ()))
         assertEq(t.isFailure, testWarningsReact.contains("react"))
       }
 
       "unlreated" - {
         val c = ScalaFnComponent[Int](i => <.p(s"i = $i"))
-        val t = Try(ReactTestUtils.withRenderedIntoBody(c(123)) { _ =>
+        val t = Try(ReactTestUtils2.withRendered(c(123)) { _ =>
           console.info(".")
           console.log(".")
           console.warn(".")

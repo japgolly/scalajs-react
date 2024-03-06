@@ -169,7 +169,8 @@ object ScalaComponentPTest extends TestSuite {
 
         assertEq("willUnmountCount", willUnmountCount, 0)
         mounted = Comp(null).renderIntoDOM(mountNode)
-        assertOuterHTMLMatches(el(), "<div>Error: Cannot read propert(y|ies) of null.*</div>")
+        // Error message varies between development and production modes
+        assertOuterHTMLMatches(el(), "<div>(?:Error: Cannot read propert(y|ies) of null.*|Error: java\\.lang\\.NullPointerException)</div>")
         assertEq("willUnmountCount", willUnmountCount, 1)
         mounted.withEffectsPure.getDOMNode
       }

@@ -27,4 +27,9 @@ package object facade {
     val displayName: js.UndefOr[String] = js.native
   }
 
+  @js.native
+  trait HasMutableDisplayName extends HasDisplayName {
+    @js.annotation.JSName("displayName")
+    var setDisplayName: js.UndefOr[String] = js.native
+  }
 }
