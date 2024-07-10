@@ -573,6 +573,23 @@ object HooksTest extends TestSuite {
     protected implicit def hooksExt1[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]): X_UseEffect_Primary[Ctx, Step]
     protected implicit def hooksExt2[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]): X_UseEffect_Secondary[Ctx, CtxFn, Step]
 
+    def testSingle(): Unit = {
+      val counter1 = new Counter
+      val counter2 = new Counter
+      def state() = s"${counter1.value}:${counter2.value}"
+
+      val comp = ScalaFnComponent.withHooks[Unit]
+        .X_useEffect(counter1.incCB.ret(counter2.incCB))
+        .X_useEffect(counter1.incCB(101))
+        .X_useEffect(counter1.incCB.ret(counter2.incCB))
+        .render(_ => EmptyVdom)
+
+      test(comp()) { _ =>
+        assertEq(state(), "103:0")
+      }
+      assertEq(state(), "103:2")
+    }
+
     def testConst(): Unit = {
       val counter1 = new Counter
       val counter2 = new Counter
@@ -1292,6 +1309,7 @@ object HooksTest extends TestSuite {
     "useDebugValue" - testUseDebugValue()
     "useEffect" - {
       import UseEffect._
+      "single" - testSingle()
       "const" - testConst()
       "constBy" - testConstBy()
       "deps" - testWithDeps()
@@ -1302,6 +1320,7 @@ object HooksTest extends TestSuite {
     "useForceUpdate" - testUseForceUpdate()
     "useLayoutEffect" - {
       import UseLayoutEffect._
+      "single" - testSingle()
       "const" - testConst()
       "constBy" - testConstBy()
       "deps" - testWithDeps()

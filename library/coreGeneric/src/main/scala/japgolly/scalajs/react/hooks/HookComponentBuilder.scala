@@ -28,7 +28,10 @@ object HookComponentBuilder {
         new ComponentPC.First(ctx => init(ctx.props))
 
       override def render(f: P => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
-        ScalaFn(f)
+        ScalaFn{ p =>
+          init(p)
+          f(p)
+        }
 
       override def renderWithReuseBy[A](reusableInputs: P => A)(f: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None], r: Reusability[A]): Component[P, s.CT] =
         customBy(p => CustomHook.shouldComponentUpdate(f).apply(() => reusableInputs(p)))
