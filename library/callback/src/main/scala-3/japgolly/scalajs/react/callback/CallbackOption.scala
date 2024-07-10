@@ -183,7 +183,7 @@ final class CallbackOption[+A](val underlyingRepr: CallbackOption.UnderlyingRepr
   def asCallback: CallbackTo[Option[A]] =
     CallbackTo lift cbfn
 
-  inline def map[B](f: A => B)(using inline ev: MapGuard[B]): CallbackOption[ev.Out] =
+  inline def map[B](f: A => B)(using ev: MapGuard[B]): CallbackOption[ev.Out] =
     unsafeMap(f)
 
   private[react] def unsafeMap[B](f: A => B): CallbackOption[B] =
@@ -192,7 +192,7 @@ final class CallbackOption[+A](val underlyingRepr: CallbackOption.UnderlyingRepr
   /**
    * Alias for `map`.
    */
-  inline def |>[B](f: A => B)(using inline ev: MapGuard[B]): CallbackOption[ev.Out] =
+  inline def |>[B](f: A => B)(using ev: MapGuard[B]): CallbackOption[ev.Out] =
     map(f)
 
   def flatMapOption[B](f: A => Option[B]): CallbackOption[B] =

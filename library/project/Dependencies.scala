@@ -9,22 +9,22 @@ object Dependencies {
   object Ver {
 
     // Externally observable
-    val cats                  = "2.7.0"
-    val catsEffect            = "3.3.11"
+    val cats                  = "2.12.0"
+    val catsEffect            = "3.5.4"
     val microlibs             = "4.1.0"
     val monocle2              = "2.1.0"
-    val monocle3              = "3.1.0"
-    val scala2                = "2.13.8"
-    val scala3                = "3.1.2"
-    val scalaJsDom            = "2.0.0"
-    val sourcecode            = "0.2.8"
+    val monocle3              = "3.2.0"
+    val scala2                = "2.13.14"
+    val scala3                = "3.3.0"
+    val scalaJsDom            = "2.8.0"
+    val sourcecode            = "0.4.2"
 
     // Internal
     val betterMonadicFor      = "0.3.1"
     val catsTestkitScalaTest  = "2.1.5"
     val disciplineScalaTest   = "2.1.5"
-    val kindProjector         = "0.13.2"
-    val macrotaskExecutor     = "1.0.0"
+    val kindProjector         = "0.13.3"
+    val macrotaskExecutor     = "1.1.1"
     val nyaya                 = "1.0.0"
     val reactJs               = "17.0.2"
     val scalaJsJavaTime       = "1.0.0"
