@@ -34,7 +34,7 @@ object ScalaFnComponentTest extends TestSuite {
     "justChildren" - assertRender(JustChildren(c1, c2),       "<h4><i>good</i>222</h4>")
 
     "displayName" - {
-      assertEq(IntProps.displayName, "japgolly.scalajs.react.core.ScalaFnComponentTest.IntProps")
+      assertEq(IntProps.displayName, "ScalaFnComponentTest.IntProps (japgolly.scalajs.react.core)")
       assertEq(CaseClassProps.displayName, "Add")
     }
 
