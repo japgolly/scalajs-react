@@ -3,7 +3,9 @@ package japgolly.scalajs.react.component.builder
 import japgolly.microlibs.compiletime.MacroEnv.*
 import japgolly.scalajs.react.{Children, PropsChildren}
 import japgolly.scalajs.react.component.builder.Lifecycle.RenderScope
+import japgolly.scalajs.react.component.Generic
 import japgolly.scalajs.react.component.Scala.BackendScope
+import japgolly.scalajs.react.util.DefaultEffects.{Async => DefaultA, Sync => DefaultS}
 import japgolly.scalajs.react.vdom.VdomNode
 import scala.language.`3.0`
 import scala.quoted.*
@@ -36,7 +38,7 @@ object ComponentBuilderMacros {
       t => monoName(t) == name
     }
 
-    def lambdaBody(input: Expr[Input]): Expr[B] = {
+    def lambdaBody(input: Expr[BackendScope[P, S]]): Expr[B] = {
       MacroUtils.NewInstance.of[B](
         findTermArg = Some { (valDef, fail) =>
           import quotes.reflect.*
