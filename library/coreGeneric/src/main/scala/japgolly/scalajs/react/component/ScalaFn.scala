@@ -7,7 +7,7 @@ import japgolly.scalajs.react.{Children, CtorType, PropsChildren, Reusability, f
 import scala.scalajs.js
 import sourcecode.FullName
 
-object ScalaFn {
+object ScalaFn extends DerivedDisplayName {
 
   type Component[P, CT[-p, +u] <: CtorType[p, u]] = JsFn.ComponentWithRoot[P, CT, Unmounted[P], Box[P], CT, JsFn.Unmounted[Box[P]]]
   type Unmounted[P]                               = JsFn.UnmountedWithRoot[P, Mounted, Box[P]]
@@ -25,9 +25,6 @@ object ScalaFn {
       .cmapCtorProps[P](Box(_))
       .mapUnmounted(_.mapUnmountedProps(_.unbox))
   }
-
-  private def derivedDisplayName(implicit name: FullName): String =
-    name.value
 
   @inline def withDisplayName(name: String): DisplayNameApplied =
     new DisplayNameApplied(name)

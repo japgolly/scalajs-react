@@ -15,7 +15,7 @@ object ScalaForwardRef {
   type Mounted                                       = JsForwardRef.Mounted
 }
 
-object ReactForwardRefInternals {
+object ReactForwardRefInternals extends DerivedDisplayName {
 
   sealed trait Dsl extends Any {
     protected type R
@@ -25,9 +25,6 @@ object ReactForwardRefInternals {
       (displayName: String)
       (render: (Box[P] with facade.PropsWithChildren, Option[R]) => VdomNode)
       (implicit s: CtorType.Summoner.Aux[Box[P], C, CT]): Component[P, RefValue, CT]
-
-    private def derivedDisplayName(implicit name: FullName): String =
-      name.value
 
     final def apply(render: Option[R] => VdomNode)(implicit name: FullName): Component[Unit, RefValue, CtorType.Nullary] =
       create(derivedDisplayName)((_, r) => render(r))

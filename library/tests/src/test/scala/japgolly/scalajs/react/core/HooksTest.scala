@@ -284,6 +284,7 @@ object HooksTest extends TestSuite {
           <.button(^.onClick --> s.modState(_ + 1)))
       }
 
+    assertEq(comp.displayName, "HooksTest.comp (japgolly.scalajs.react.core)")
     test(comp(PI(10))) { t =>
       t.assertText("P=PI(10), v1=101, v2=112, v3=113")
       t.clickButton(); t.assertText("P=PI(10), v1=104, v2=115, v3=116")
