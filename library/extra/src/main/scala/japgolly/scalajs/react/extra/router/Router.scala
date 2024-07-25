@@ -6,6 +6,7 @@ import japgolly.scalajs.react.util.DefaultEffects
 import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.util.Util.identityFn
 import japgolly.scalajs.react.vdom.VdomElement
+import japgolly.scalajs.react.React.startTransition
 import org.scalajs.dom
 import scala.scalajs.js
 
@@ -50,7 +51,7 @@ object RouterWithProps {
       .render                 ($ => lgc.render($.state, $.props))
       .componentDidMount      ($ => cfg.postRenderFn(None, $.state.page, $.props))
       .componentDidUpdate     (i => cfg.postRenderFn(Some(i.prevState.page), i.currentState.page, i.currentProps))
-      .configure              (ListenableF.listenToUnit(_ => lgc, $ => F.flatMap(lgc.syncToWindowUrl)(s => F.transSync($.setState(s)))))
+      .configure              (ListenableF.listenToUnit(_ => lgc, $ => F.flatMap(lgc.syncToWindowUrl)(s => F.transSync(startTransition($.setState(s))))))
       .configure              (EL.install_("popstate", lgc.ctl.refresh, dom.window))
       .configureWhen(isIE11())(EL.install_("hashchange", lgc.ctl.refresh, dom.window))
   }
