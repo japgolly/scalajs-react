@@ -87,7 +87,7 @@ object StaticDsl {
     val / = literal("/")
   }
 
-  abstract class RouteCommon[R[X] <: RouteCommon[R, X], A] {
+  trait RouteCommon[R[X] <: RouteCommon[R, X], A] {
 
     def parseThen(f: Option[A] => Option[A]): R[A]
 
@@ -159,7 +159,7 @@ object StaticDsl {
       // val g = p.matcher("").groupCount
       // if (g != matchGroups)
       //   sys.error(s"Error in regex: /${p.pattern}/. Expected $matchGroups match groups but detected $g.")
-      new Route(p, m => parse(i => m.group(i + 1)), a => Path(build(a)))
+      new RegexRoute(p, m => parse(i => m.group(i + 1)), a => Path(build(a)))
     }
   }
 
@@ -191,20 +191,27 @@ object StaticDsl {
       r.xmap(_ getOrElse default)(a => if (default == a) None else Some(a))
   }
 
+  trait Route[A] extends RouteCommon[Route, A] {
+    def parse(path: Path): Option[A]
+    def pathFor(a: A): Path
+  }
+
   /**
    * A complete route.
    */
-  final class Route[A](pattern: Pattern,
-                       parseFn: Matcher => Option[A],
-                       buildFn: A => Path) extends RouteCommon[Route, A] with RouterMacros.ForRoute[A] {
+  final class RegexRoute[A](
+    pattern: Pattern,
+    parseFn: Matcher => Option[A],
+    buildFn: A => Path
+  ) extends Route[A] with RouterMacros.ForRoute[A] {
     override def toString =
       s"Route($pattern)"
 
     override def parseThen(f: Option[A] => Option[A]): Route[A] =
-      new Route(pattern, f compose parseFn, buildFn)
+      new RegexRoute(pattern, f compose parseFn, buildFn)
 
     override def pmap[B](b: A => Option[B])(a: B => A): Route[B] =
-      new Route(pattern, parseFn(_) flatMap b, buildFn compose a)
+      new RegexRoute(pattern, parseFn(_) flatMap b, buildFn compose a)
 
     def parse(path: Path): Option[A] = {
       val m = pattern.matcher(path.value)
