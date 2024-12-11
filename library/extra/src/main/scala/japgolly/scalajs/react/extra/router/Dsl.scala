@@ -191,6 +191,9 @@ object StaticDsl {
       r.xmap(_ getOrElse default)(a => if (default == a) None else Some(a))
   }
 
+  /**
+   * Translates a `Path` into an instance of model `A` and vice versa.
+   */
   trait Route[A] extends RouteCommon[Route, A] {
     def parse(path: Path): Option[A]
     def pathFor(a: A): Path
