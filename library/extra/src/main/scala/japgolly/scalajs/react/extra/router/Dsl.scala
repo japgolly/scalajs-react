@@ -159,7 +159,7 @@ object StaticDsl {
       // val g = p.matcher("").groupCount
       // if (g != matchGroups)
       //   sys.error(s"Error in regex: /${p.pattern}/. Expected $matchGroups match groups but detected $g.")
-      new RegexRoute(p, m => parse(i => m.group(i + 1)), a => Path(build(a)))
+      Route.forPattern(p, m => parse(i => m.group(i + 1)), a => Path(build(a)))
     }
   }
 
@@ -192,40 +192,28 @@ object StaticDsl {
   }
 
   /**
-   * Translates a `Path` into an instance of model `A` and vice versa.
+   * A `Route` translates a `Path` into an instance of model `A` and vice versa.
    */
-  trait Route[A] extends RouteCommon[Route, A] {
-    def parse(path: Path): Option[A]
-    def pathFor(a: A): Path
-  }
-
-  /**
-   * A complete route.
-   */
-  final class RegexRoute[A](
-    pattern: Pattern,
-    parseFn: Matcher => Option[A],
-    buildFn: A => Path
-  ) extends Route[A] with RouterMacros.ForRoute[A] {
-    override def toString =
-      s"Route($pattern)"
-
+  case class Route[A](parse: Path => Option[A], pathFor: A => Path) extends RouteCommon[Route, A] {
     override def parseThen(f: Option[A] => Option[A]): Route[A] =
-      new RegexRoute(pattern, f compose parseFn, buildFn)
+      Route(f compose parse, pathFor)
 
     override def pmap[B](b: A => Option[B])(a: B => A): Route[B] =
-      new RegexRoute(pattern, parseFn(_) flatMap b, buildFn compose a)
+      Route(parse(_) flatMap b, pathFor compose a)
+  }
 
-    def parse(path: Path): Option[A] = {
-      val m = pattern.matcher(path.value)
-      if (m.matches)
-        parseFn(m)
-      else
-        None
-    }
-
-    def pathFor(a: A): Path =
-      buildFn(a)
+  object Route {
+    def forPattern[A](pattern: Pattern, parseFn: Matcher => Option[A], buildFn: A => Path): Route[A] =
+      new Route(
+        p => {
+          val m = pattern.matcher(p.value)
+          if (m.matches)
+            parseFn(m)
+          else
+            None
+        },
+        buildFn
+      )
   }
 
   // ===================================================================================================================
