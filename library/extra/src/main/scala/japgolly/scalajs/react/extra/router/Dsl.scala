@@ -87,7 +87,7 @@ object StaticDsl {
     val / = literal("/")
   }
 
-  abstract class RouteCommon[R[X] <: RouteCommon[R, X], A] {
+  trait RouteCommon[R[X] <: RouteCommon[R, X], A] {
 
     def parseThen(f: Option[A] => Option[A]): R[A]
 
@@ -159,7 +159,7 @@ object StaticDsl {
       // val g = p.matcher("").groupCount
       // if (g != matchGroups)
       //   sys.error(s"Error in regex: /${p.pattern}/. Expected $matchGroups match groups but detected $g.")
-      new Route(p, m => parse(i => m.group(i + 1)), a => Path(build(a)))
+      Route.forPattern(p, m => parse(i => m.group(i + 1)), a => Path(build(a)))
     }
   }
 
@@ -192,30 +192,28 @@ object StaticDsl {
   }
 
   /**
-   * A complete route.
+   * A `Route` translates a `Path` into an instance of model `A` and vice versa.
    */
-  final class Route[A](pattern: Pattern,
-                       parseFn: Matcher => Option[A],
-                       buildFn: A => Path) extends RouteCommon[Route, A] with RouterMacros.ForRoute[A] {
-    override def toString =
-      s"Route($pattern)"
-
+  case class Route[A](parse: Path => Option[A], pathFor: A => Path) extends RouteCommon[Route, A] {
     override def parseThen(f: Option[A] => Option[A]): Route[A] =
-      new Route(pattern, f compose parseFn, buildFn)
+      Route(f compose parse, pathFor)
 
     override def pmap[B](b: A => Option[B])(a: B => A): Route[B] =
-      new Route(pattern, parseFn(_) flatMap b, buildFn compose a)
+      Route(parse(_) flatMap b, pathFor compose a)
+  }
 
-    def parse(path: Path): Option[A] = {
-      val m = pattern.matcher(path.value)
-      if (m.matches)
-        parseFn(m)
-      else
-        None
-    }
-
-    def pathFor(a: A): Path =
-      buildFn(a)
+  object Route {
+    def forPattern[A](pattern: Pattern, parseFn: Matcher => Option[A], buildFn: A => Path): Route[A] =
+      new Route(
+        p => {
+          val m = pattern.matcher(p.value)
+          if (m.matches)
+            parseFn(m)
+          else
+            None
+        },
+        buildFn
+      )
   }
 
   // ===================================================================================================================

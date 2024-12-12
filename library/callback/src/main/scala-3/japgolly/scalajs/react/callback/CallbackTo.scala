@@ -306,11 +306,11 @@ final class CallbackTo[+A] /*private[react]*/ (private[CallbackTo] val trampolin
   inline def runNow(): A =
     trampoline.run
 
-  inline def map[B](f: A => B)(using inline ev: MapGuard[B]): CallbackTo[ev.Out] =
+  inline def map[B](f: A => B)(using ev: MapGuard[B]): CallbackTo[ev.Out] =
     new CallbackTo(trampoline.map(f))
 
   /** Alias for `map`. */
-  inline def |>[B](inline f: A => B)(using inline ev: MapGuard[B]): CallbackTo[ev.Out] =
+  inline def |>[B](inline f: A => B)(using ev: MapGuard[B]): CallbackTo[ev.Out] =
     map(f)
 
   inline def flatMap[B](f: A => CallbackTo[B]): CallbackTo[B] =
@@ -589,7 +589,7 @@ final class CallbackTo[+A] /*private[react]*/ (private[CallbackTo] val trampolin
 
 
   /** Convenience-method to run additional code after this callback. */
-  inline def thenRun[B](inline runNext: B)(using inline ev: MapGuard[B]): CallbackTo[ev.Out] =
+  inline def thenRun[B](inline runNext: B)(using ev: MapGuard[B]): CallbackTo[ev.Out] =
     this >> CallbackTo(runNext)
 
   /** Convenience-method to run additional code before this callback. */
