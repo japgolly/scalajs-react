@@ -11,7 +11,8 @@ trait CoreGeneral
     extends ReactEventTypes
        with ReactExtensions
        with DomUtil
-       with FacadeExports {
+       with FacadeExports 
+       with hooks.all {
 
   import japgolly.scalajs.react.util.DefaultEffects._
 
@@ -53,6 +54,9 @@ trait CoreGeneral
   final val CustomHook        = hooks.CustomHook
   final val Hooks             = hooks.Hooks
   final val HooksApi          = hooks.Api
+
+  final type HookResult[A] = hooks.HookResult[A]
+  final val HookResult     = hooks.HookResult
 
   final val ReactEffect = Effect
 

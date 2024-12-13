@@ -9,6 +9,7 @@ import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.html.Input
 import utest._
+import japgolly.scalajs.react.hooks.HookResult
 
 object HooksTest extends TestSuite {
 
@@ -226,6 +227,39 @@ object HooksTest extends TestSuite {
     assertEq(ints.values, Vector(3, 30, 100))
   }
 
+  private def testCustomMonadicHookComposition(): Unit = {
+
+    locally {
+      type LI = Long => HookResult[Int]
+      type IU = Int => HookResult[Unit]
+
+      assertType[(LI, IU)].map(h => h._1.andThen(_.flatMap(h._2))).is[Long => HookResult[Unit]]
+    }
+
+    val ints = new Recorder[Int]
+
+    val addII = (i: Int) => useEffect(ints.addCB(i)).map(_ => i)
+    val addI_ = addII.andThen(_.map(_ => ())).contramap[Int](_ * 10)
+    val add_S = useEffect(ints.addCB(100)).map(_ => "ah")
+
+    def hook(i: Int) =
+      for {
+        x <- addII(i)
+        _ <- addI_(i)
+        s <- add_S
+      } yield (x, s)
+    val _ : Int => HookResult[(Int, String)] = hook(_)
+
+    val comp = ScalaFnComponent.withDisplayName("WithCustomHooks")
+      .withFnHooks[PI](p => hook(p.pi).map(_.toString))
+
+    assertEq(comp.displayName, "WithCustomHooks")
+    test(comp(PI(3))) { t =>
+      t.assertText("(3,ah)")
+    }
+    assertEq(ints.values, Vector(3, 30, 100))
+  }  
+
   private def testLazyVal(): Unit = {
     val counter = new Counter
     val comp = ScalaFnComponent.withDisplayName("TestComponent").withHooks[PI]
@@ -334,6 +368,36 @@ object HooksTest extends TestSuite {
           <.button(^.onClick --> s.modState(_ + 1))
         )
       )
+
+    val inc9 = 1
+    val inc1 = 2
+    val inc2 = 3
+    val rndr = 4
+
+    test(comp()) { t =>
+      assertEq(counter.value, 0); t.assertText("S=0, R1=1, R2=1")
+      t.clickButton(inc1); assertEq(counter.value, 1); t.assertText("S=0, R1=1, R2=1")
+      t.clickButton(inc9); assertEq(counter.value, 10); t.assertText("S=0, R1=1, R2=1")
+      t.clickButton(inc2); assertEq(counter.value, 12); t.assertText("S=0, R1=1, R2=1")
+      t.clickButton(rndr); assertEq(counter.value, 12); t.assertText("S=12, R1=1, R2=1")
+    }
+  }
+
+  private def testMonadicUseCallback(): Unit = {
+    val counter = new Counter
+    val comp = ScalaFnComponent.withFnHooks[Unit]( _ =>
+      for {
+        c1 <- useCallback(counter.incCB(9))
+        c2 <- useCallback((i: Int) => counter.incCB(i))
+        s  <- useState(0)
+      } yield 
+        <.div(
+          "S=", counter.value,
+          ", R1=", ReusableCallbackComponent(c1),
+          ", R2=", ReusableSetIntComponent(c2),
+          <.button(^.onClick --> s.modState(_ + 1))
+        )
+    )
 
     val inc9 = 1
     val inc1 = 2
@@ -467,12 +531,76 @@ object HooksTest extends TestSuite {
     }
   }
 
+  private def testMonadicUseCallbackWithDeps(): Unit = {
+    val counter = new Counter
+    val comp = ScalaFnComponent.withFnHooks[PI]( p =>
+      for {
+        c0 <- useCallbackWithDeps(p.pi)( _ => counter.incCB(p.pi))
+        d1 <- useState(10)
+        d2 <- useState(20)
+        c1 <- useCallbackWithDeps( d1.value)(counter.incCB)
+        c2 <- useCallbackWithDeps(d2.value)(_ => (i: Int) => counter.incCB(d2.value + i - 1))
+      } yield
+        <.div(
+          "S=", counter.value,
+          ", C0=", ReusableCallbackComponent(c0),
+          ", C1=", ReusableCallbackComponent(c1),
+          ", C2=", ReusableSetIntComponent(c2),
+          <.button(^.onClick --> d1.modState(_ + 100)),
+          <.button(^.onClick --> d2.modState(_ + 100)),
+        )
+      )
+
+    val c0  = 1 //  s += 3
+    val c1  = 2 //  s += d1
+    val c2a = 3 //  s += d2
+    val c2b = 4 //  s += d2+1
+    val d1  = 5 // d1 += 100
+    val d2  = 6 // d2 += 100
+
+    test(comp(PI(3))) { t =>
+      assertEq(counter.value, 0); t.assertText("S=0, C0=1, C1=1, C2=1")
+      t.clickButton(c1); assertEq(counter.value, 10); t.assertText("S=0, C0=1, C1=1, C2=1")
+      t.clickButton(c0); assertEq(counter.value, 13); t.assertText("S=0, C0=1, C1=1, C2=1")
+      t.clickButton(c2b); assertEq(counter.value, 34); t.assertText("S=0, C0=1, C1=1, C2=1")
+      t.clickButton(c2a); assertEq(counter.value, 54); t.assertText("S=0, C0=1, C1=1, C2=1")
+      t.clickButton(d2); assertEq(counter.value, 54); t.assertText("S=54, C0=1, C1=1, C2=2") // d2=120
+      t.clickButton(c2a); assertEq(counter.value, 174); t.assertText("S=54, C0=1, C1=1, C2=2")
+      t.clickButton(c0); assertEq(counter.value, 177); t.assertText("S=54, C0=1, C1=1, C2=2")
+      t.clickButton(c1); assertEq(counter.value, 187); t.assertText("S=54, C0=1, C1=1, C2=2")
+      t.clickButton(d1); assertEq(counter.value, 187); t.assertText("S=187, C0=1, C1=2, C2=2") // d1=110
+      t.clickButton(c2a); assertEq(counter.value, 307); t.assertText("S=187, C0=1, C1=2, C2=2")
+      t.clickButton(c1); assertEq(counter.value, 417); t.assertText("S=187, C0=1, C1=2, C2=2")
+      t.clickButton(d1); assertEq(counter.value, 417); t.assertText("S=417, C0=1, C1=3, C2=2") // d1=210
+      t.clickButton(d1); assertEq(counter.value, 417); t.assertText("S=417, C0=1, C1=4, C2=2") // d1=310
+      t.clickButton(c1); assertEq(counter.value, 727); t.assertText("S=417, C0=1, C1=4, C2=2")
+    }
+  }
+
   private def testUseContext(): Unit = {
     val ctx = React.createContext(100)
 
     val compC = ScalaFnComponent.withHooks[Unit]
       .useContext(ctx)
       .render((_, c) => c)
+
+    val comp = ScalaFnComponent[Unit] { _ =>
+      <.div(
+        compC(),
+        ":",
+        ctx.provide(123)(compC()),
+      )
+    }
+
+    test(comp()) { t =>
+      t.assertText("100:123")
+    }
+  }
+
+  private def testMonadicUseContext(): Unit = {
+    val ctx = React.createContext(100)
+
+    val compC = ScalaFnComponent.withFnHooks[Unit]( _ => useContext(ctx).map(c => c))
 
     val comp = ScalaFnComponent[Unit] { _ =>
       <.div(
@@ -1325,6 +1453,7 @@ object HooksTest extends TestSuite {
     "custom" - {
       "usage" - testCustomHook()
       "composition" - testCustomHookComposition()
+      "monadic composition" - testCustomMonadicHookComposition()
     }
     "localLazyVal" - testLazyVal()
     "localVal" - testVal()
@@ -1335,8 +1464,13 @@ object HooksTest extends TestSuite {
       "deps" - testUseCallbackWithDeps()
       "depsBy" - testUseCallbackWithDepsBy()
     }
+    "useCallback (monadic)" - {
+      "const" - testMonadicUseCallback()
+      "deps" - testMonadicUseCallbackWithDeps()
+    }
     "unchecked" - testUnchecked()
     "useContext" - testUseContext()
+    "useContext (monadic)" - testMonadicUseContext()
     "useDebugValue" - testUseDebugValue()
     "useEffect" - {
       import UseEffect._

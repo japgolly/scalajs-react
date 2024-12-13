@@ -6,6 +6,7 @@ import japgolly.scalajs.react.vdom.VdomNode
 import japgolly.scalajs.react.{Children, CtorType, PropsChildren, Reusability, facade}
 import scala.scalajs.js
 import sourcecode.FullName
+import japgolly.scalajs.react.hooks.HookResult
 
 object ScalaFn extends DerivedDisplayName {
 
@@ -31,6 +32,14 @@ object ScalaFn extends DerivedDisplayName {
 
   @inline def withHooks[P](implicit name: FullName): HookComponentBuilder.ComponentP.First[P] =
     HookComponentBuilder.apply[P](derivedDisplayName)
+
+  @inline def withHooks[P](render: P => HookResult[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.None], name: FullName): Component[P, s.CT] =
+    apply(render.andThen(_.hook()))
+
+  // Scala 3 will correctly resolver the overload, but in Scala 2 we need another method name
+  @inline def withFnHooks[P](render: P => HookResult[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.None], name: FullName): Component[P, s.CT] =
+    apply(render.andThen(_.hook()))
+
 
   // ===================================================================================================================
 
@@ -60,6 +69,13 @@ object ScalaFn extends DerivedDisplayName {
   class DisplayNameApplied private[ScalaFn](displayName: String) {
     @inline def withHooks[P]: HookComponentBuilder.ComponentP.First[P] =
       HookComponentBuilder.apply[P](displayName)
+
+    @inline def withHooks[P](render: P => HookResult[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
+      apply(render.andThen(_.hook()))
+
+    // Scala 3 will correctly resolver the overload, but in Scala 2 we need another method name
+    @inline def withFnHooks[P](render: P => HookResult[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
+      apply(render.andThen(_.hook()))
 
     // ===================================================================================================================
 

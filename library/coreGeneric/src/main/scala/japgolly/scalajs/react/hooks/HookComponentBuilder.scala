@@ -17,7 +17,6 @@ object HookComponentBuilder {
   object ComponentP {
 
     final class First[P](displayName: String)(init: P => Unit) extends Api.PrimaryWithRender[P, Children.None, P, FirstStep[P]] {
-
       override protected def self(f: P => Any)(implicit step: Step): step.Self =
         step.self(init, f, displayName)
 

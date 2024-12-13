@@ -31,7 +31,6 @@ object HooksExample {
       |}
       |""".stripMargin
 
-
   val source = GhPagesMacros.exampleSource
 
   // EXAMPLE:START
@@ -39,6 +38,16 @@ object HooksExample {
   import japgolly.scalajs.react._
   import japgolly.scalajs.react.vdom.html_<^._
   import org.scalajs.dom.document
+
+  // Monadic hook example
+  // def useAddReporter(initial: Int): HookResult[Reusable[Int => Callback]] ={
+  //   for {
+  //     state <- useState(initial)
+  //     cb   <- useCallback{ (i: Int) =>
+  //               state.modState(_ + i) >> Callback.log(s"New value ${state.value + i}")
+  //             } if state != null 
+  //    } yield cb
+  // }
 
   object Example {
     val Component = ScalaFnComponent.withHooks[Unit]
