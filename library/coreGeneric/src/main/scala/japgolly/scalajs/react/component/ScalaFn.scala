@@ -33,18 +33,10 @@ object ScalaFn extends DerivedDisplayName {
   @inline def withHooks[P](implicit name: FullName): HookComponentBuilder.ComponentP.First[P] =
     HookComponentBuilder.apply[P](derivedDisplayName)
 
-  @inline def withHooks[P](render: P => HookResult[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.None], name: FullName): Component[P, s.CT] =
-    apply(render.andThen(_.hook()))
-
-  // Scala 3 will correctly resolver the overload, but in Scala 2 we need another method name
-  @inline def withFnHooks[P](render: P => HookResult[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.None], name: FullName): Component[P, s.CT] =
-    apply(render.andThen(_.hook()))
-
-
   // ===================================================================================================================
 
-  def apply[P](render: P => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None], name: FullName): Component[P, s.CT] =
-    create[P, Children.None, s.CT](derivedDisplayName)(b => render(b.unbox))(s)
+  def apply[P](render: P => HookResult[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.None], name: FullName): Component[P, s.CT] =
+    create[P, Children.None, s.CT](derivedDisplayName)(b => render(b.unbox).hook())(s)
 
   def withChildren[P](render: (P, PropsChildren) => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs], name: FullName): Component[P, s.CT] =
     create[P, Children.Varargs, s.CT](derivedDisplayName)(b => render(b.unbox, PropsChildren(b.children)))(s)
@@ -70,17 +62,10 @@ object ScalaFn extends DerivedDisplayName {
     @inline def withHooks[P]: HookComponentBuilder.ComponentP.First[P] =
       HookComponentBuilder.apply[P](displayName)
 
-    @inline def withHooks[P](render: P => HookResult[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
-      apply(render.andThen(_.hook()))
-
-    // Scala 3 will correctly resolver the overload, but in Scala 2 we need another method name
-    @inline def withFnHooks[P](render: P => HookResult[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
-      apply(render.andThen(_.hook()))
-
     // ===================================================================================================================
 
-    def apply[P](render: P => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
-      create[P, Children.None, s.CT](displayName)(b => render(b.unbox))(s)
+    def apply[P](render: P => HookResult[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
+      create[P, Children.None, s.CT](displayName)(b => render(b.unbox).hook())(s)
 
     def withChildren[P](render: (P, PropsChildren) => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
       create[P, Children.Varargs, s.CT](displayName)(b => render(b.unbox, PropsChildren(b.children)))(s)

@@ -250,8 +250,8 @@ object HooksTest extends TestSuite {
       } yield (x, s)
     val _ : Int => HookResult[(Int, String)] = hook(_)
 
-    val comp = ScalaFnComponent.withDisplayName("WithCustomHooks")
-      .withFnHooks[PI](p => hook(p.pi).map(_.toString))
+    val comp = 
+      ScalaFnComponent.withDisplayName("WithCustomHooks")[PI](p => hook(p.pi).map(_.toString))
 
     assertEq(comp.displayName, "WithCustomHooks")
     test(comp(PI(3))) { t =>
@@ -385,7 +385,7 @@ object HooksTest extends TestSuite {
 
   private def testMonadicUseCallback(): Unit = {
     val counter = new Counter
-    val comp = ScalaFnComponent.withFnHooks[Unit]( _ =>
+    val comp = ScalaFnComponent[Unit]( _ =>
       for {
         c1 <- useCallback(counter.incCB(9))
         c2 <- useCallback((i: Int) => counter.incCB(i))
@@ -533,7 +533,7 @@ object HooksTest extends TestSuite {
 
   private def testMonadicUseCallbackWithDeps(): Unit = {
     val counter = new Counter
-    val comp = ScalaFnComponent.withFnHooks[PI]( p =>
+    val comp = ScalaFnComponent[PI]( p =>
       for {
         c0 <- useCallbackWithDeps(p.pi)( _ => counter.incCB(p.pi))
         d1 <- useState(10)
@@ -600,7 +600,7 @@ object HooksTest extends TestSuite {
   private def testMonadicUseContext(): Unit = {
     val ctx = React.createContext(100)
 
-    val compC = ScalaFnComponent.withFnHooks[Unit]( _ => useContext(ctx).map(c => c))
+    val compC = ScalaFnComponent[Unit]( _ => useContext(ctx).map(c => c))
 
     val comp = ScalaFnComponent[Unit] { _ =>
       <.div(
@@ -644,9 +644,9 @@ object HooksTest extends TestSuite {
   }
 
   private object UseEffect extends UseEffectTests {
-    override protected implicit def hooksExt1[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]) =
+    override protected implicit def hooksExt1[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]): Primary[Ctx, Step] =
       new Primary(api)
-    override protected implicit def hooksExt2[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]) =
+    override protected implicit def hooksExt2[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]): Secondary[Ctx, CtxFn, Step] =
       new Secondary(api)
     protected class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]) extends X_UseEffect_Primary[Ctx, Step] {
         override def X_useEffect[A](effect: A)(implicit a: UseEffectArg[A], step: Step) =
@@ -673,9 +673,9 @@ object HooksTest extends TestSuite {
   }
 
   private object UseLayoutEffect extends UseEffectTests {
-    override protected implicit def hooksExt1[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]) =
+    override protected implicit def hooksExt1[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]): Primary[Ctx, Step] =
       new Primary(api)
-    override protected implicit def hooksExt2[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]) =
+    override protected implicit def hooksExt2[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]): Secondary[Ctx, CtxFn, Step] =
       new Secondary(api)
     protected class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]) extends X_UseEffect_Primary[Ctx, Step] {
         override def X_useEffect[A](effect: A)(implicit a: UseEffectArg[A], step: Step) =
@@ -722,6 +722,25 @@ object HooksTest extends TestSuite {
       assertEq(state(), "103:2")
     }
 
+    def testMonadicSingle(): Unit = {
+      val counter1 = new Counter
+      val counter2 = new Counter
+      def state() = s"${counter1.value}:${counter2.value}"
+
+      val comp = ScalaFnComponent[Unit]( _ =>
+        for {
+          _ <- useEffect(counter1.incCB.ret(counter2.incCB))
+          _ <- useEffect(counter1.incCB(101))
+          _ <- useEffect(counter1.incCB.ret(counter2.incCB))
+        } yield EmptyVdom
+      )
+
+      test(comp()) { _ =>
+        assertEq(state(), "103:0")
+      }
+      assertEq(state(), "103:2")
+    }    
+
     def testConst(): Unit = {
       val counter1 = new Counter
       val counter2 = new Counter
@@ -733,6 +752,28 @@ object HooksTest extends TestSuite {
         .X_useEffect(counter1.incCB.ret(counter2.incCB))
         .useState(321)
         .render((_, s) => <.button(^.onClick --> s.modState(_ + 1)))
+
+      test(comp()) { t =>
+        assertEq(state(), "103:0")
+        t.clickButton(); assertEq(state(), "206:2")
+      }
+      assertEq(state(), "206:4")
+    }
+
+   def testMonadicConst(): Unit = {
+      val counter1 = new Counter
+      val counter2 = new Counter
+      def state() = s"${counter1.value}:${counter2.value}"
+
+      val comp = ScalaFnComponent[Unit]( _ =>
+        for {
+          _ <- useEffect(counter1.incCB.ret(counter2.incCB))
+          _ <- useEffect(counter1.incCB(101))
+          _ <- useEffect(counter1.incCB.ret(counter2.incCB))
+          s <- useState(321)
+        } yield <.button(^.onClick --> s.modState(_ + 1))
+      )
+      
 
       test(comp()) { t =>
         assertEq(state(), "103:0")
@@ -793,6 +834,25 @@ object HooksTest extends TestSuite {
       assertEq(state(), "101:100")
     }
 
+    def testMonadicOnMount(): Unit = {
+      val counter1 = new Counter
+      val counter2 = new Counter
+      def state() = s"${counter1.value}:${counter2.value}"
+      val comp = ScalaFnComponent[Unit](_ =>
+        for {
+          s <- useState(100)
+          _ <- useEffectOnMount(counter1.incCB(s.value))
+          _ <- useEffectOnMount(counter1.incCB.ret(counter2.incCB(s.value)))
+        } yield <.button(^.onClick --> s.modState(_ + 1))
+      )
+
+      test(comp()) { t =>
+        assertEq(state(), "101:0")
+        t.clickButton(); assertEq(state(), "101:0")
+      }
+      assertEq(state(), "101:100")
+    }    
+
     def testWithDeps(): Unit = {
       val dep1     = new Counter
       val dep2     = new Counter
@@ -848,6 +908,39 @@ object HooksTest extends TestSuite {
       }
       assertEq(state(), "700)3540:3140") // +1000 +0 +70
     }
+
+    def testMonadicWithDeps(): Unit = {
+      var _state   = -1
+      val dep1     = new Counter
+      val dep2     = new Counter
+      val dep3     = new Counter
+      val counter1 = new Counter
+      val counter2 = new Counter
+      def state() = s"${_state})${counter1.value}:${counter2.value}"
+
+      val comp = ScalaFnComponent[PI]( p =>
+        for {
+          _ <- useEffectWithDeps(dep1.value)(_ => counter1.incCB(p.pi).ret(counter2.incCB(p.pi)))
+          s <- useState(100)
+          _ <- useEffectWithDeps(dep2.value)(_ => counter1.incCB(s.value))
+          _ <- useEffectWithDeps(dep3.value)(_ => counter1.incCB(s.value / 10).ret(counter2.incCB(s.value / 10)))
+        } yield {
+          _state = s.value
+          <.button(^.onClick --> s.modState(_ + 100))
+        }
+      )
+
+      test(comp(PI(1000))) { t =>
+        assertEq(state(), "100)1110:0")
+        t.clickButton(); assertEq(state(), "200)1110:0")
+        dep2.inc(); t.clickButton(); assertEq(state(), "300)1410:0")
+        dep1.inc(); t.clickButton(); assertEq(state(), "400)2410:1000")
+        dep1.inc(); t.clickButton(); assertEq(state(), "500)3410:2000")
+        dep3.inc(); t.clickButton(); assertEq(state(), "600)3470:2010") // s'=100, d'=10, s=600, d=60
+        dep3.inc(); t.clickButton(); assertEq(state(), "700)3540:2070") // s'=600, d'=60, s=700, d=70
+      }
+      assertEq(state(), "700)3540:3140") // +1000 +0 +70
+    }    
 
   } // UseEffectTests
 
@@ -1482,6 +1575,13 @@ object HooksTest extends TestSuite {
       "mount" - testOnMount()
       "mountBy" - testOnMountBy()
     }
+    "useEffect (monadic)" - {
+      import UseEffect._
+      "single" - testMonadicSingle()
+      "const" - testMonadicConst()
+      "deps" - testMonadicWithDeps()
+      "mount" - testMonadicOnMount()
+    } 
     "useForceUpdate" - testUseForceUpdate()
     "useLayoutEffect" - {
       import UseLayoutEffect._

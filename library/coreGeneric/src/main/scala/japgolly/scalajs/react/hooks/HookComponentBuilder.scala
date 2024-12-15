@@ -48,13 +48,13 @@ object HookComponentBuilder {
         step.next[H](renderFn, f, displayName)
 
       override def render(f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
-        ScalaFn.withDisplayName(displayName)(renderFn(f))
+        ScalaFn.withDisplayName(displayName)(renderFn(f).andThen(HookResult(_)))
 
       override def renderWithReuseBy[A](reusableInputs: Ctx => A)(f: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None], r: Reusability[A]): Component[P, s.CT] = {
         val hook = CustomHook.shouldComponentUpdate(f)
         ScalaFn.withDisplayName(displayName)(renderFn { ctx =>
           hook.unsafeInit(() => reusableInputs(ctx))
-        })
+        }.andThen(HookResult(_)))
       }
     }
 
