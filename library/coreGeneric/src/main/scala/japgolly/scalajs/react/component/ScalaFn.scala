@@ -38,6 +38,9 @@ object ScalaFn extends DerivedDisplayName {
   def apply[P](render: P => HookResult[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.None], name: FullName): Component[P, s.CT] =
     create[P, Children.None, s.CT](derivedDisplayName)(b => render(b.unbox).hook())(s)
 
+  // def apply[P](render: P => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None], name: FullName): Component[P, s.CT] =
+  //   create[P, Children.None, s.CT](derivedDisplayName)(b => render(b.unbox))(s)
+
   def withChildren[P](render: (P, PropsChildren) => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs], name: FullName): Component[P, s.CT] =
     create[P, Children.Varargs, s.CT](derivedDisplayName)(b => render(b.unbox, PropsChildren(b.children)))(s)
 

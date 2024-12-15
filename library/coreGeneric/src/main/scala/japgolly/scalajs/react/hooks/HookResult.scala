@@ -2,7 +2,7 @@ package japgolly.scalajs.react.hooks
 
 import japgolly.scalajs.react.vdom.VdomNode
 
-class HookResult[A](protected[react] val hook: () => A) extends AnyVal {
+class HookResult[+A](protected[react] val hook: () => A) extends AnyVal {
   def map[B](f: A => B): HookResult[B] =
     HookResult(f(hook()))
 
