@@ -122,7 +122,7 @@ object HookComponentBuilder {
         ScalaFn.withDisplayName(displayName).withChildren((p: P, pc: PropsChildren) => f(HookCtx.withChildren(p, pc)))
 
       def render(f: (P, PropsChildren) => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
-        ScalaFn.withDisplayName(displayName).withChildren(f)
+        ScalaFn.withDisplayName(displayName).withChildren((p, c) => HookResult(f(p, c)))
 
       override def renderWithReuseBy[A](reusableInputs: Ctx => A)(f: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs], r: Reusability[A]): Component[P, s.CT] =
         customBy(ctx => CustomHook.shouldComponentUpdate(f).apply(() => reusableInputs(ctx)))
@@ -140,13 +140,17 @@ object HookComponentBuilder {
         step.next[H](renderFn, f, displayName)
 
       override def render(f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
-        ScalaFn.withDisplayName(displayName).withChildren(renderFn(f))
+        ScalaFn.withDisplayName(displayName).withChildren((p, c) => HookResult(renderFn(f)(p, c)))
 
       override def renderWithReuseBy[A](reusableInputs: Ctx => A)(f: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs], r: Reusability[A]): Component[P, s.CT] = {
         val hook = CustomHook.shouldComponentUpdate(f)
-        ScalaFn.withDisplayName(displayName).withChildren(renderFn { ctx =>
-          hook.unsafeInit(() => reusableInputs(ctx))
-        })
+        ScalaFn.withDisplayName(displayName).withChildren((p, c) => 
+          HookResult(
+            renderFn { ctx =>
+              hook.unsafeInit(() => reusableInputs(ctx))
+            }(p, c)
+          )
+        )
       }
     }
 
