@@ -256,7 +256,7 @@ object Api {
     final def useEffectWithDepsBy[D, A](deps: Ctx => D)(effect: Ctx => D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
       customBy(ctx => ReusableEffect.useEffect(deps(ctx))(effect(ctx)))
 
-    /** When invoked, forces a re-render of your component. */
+    /** Provides a Callback that when invoked forces a re-render of your component. */
     final def useForceUpdate(implicit step: Step): step.Next[Reusable[DefaultEffects.Sync[Unit]]] =
       custom(CustomHook.useForceUpdate)
 

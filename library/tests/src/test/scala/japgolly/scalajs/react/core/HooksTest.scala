@@ -629,6 +629,22 @@ object HooksTest extends TestSuite {
     }
   }
 
+  // Can't really observe this but can at least confirm that usage doesn't throw
+  private def testMonadicUseDebugValue(): Unit = {
+    val comp = ScalaFnComponent[PI](p =>
+      for {
+        _ <- useDebugValue("hehe")
+        _ <- useDebugValue(p.pi)
+        s <- useState(0)
+        _ <- useDebugValue(p.pi + s.value)
+      } yield <.div(p.pi)
+    )
+
+    test(comp(PI(3))) { t =>
+      t.assertText("3")
+    }
+  }
+
   trait X_UseEffect_Primary[Ctx, Step <: HooksApi.AbstractStep] {
     def X_useEffect[A](effect: A)(implicit a: UseEffectArg[A], step: Step): step.Self
     def X_useEffectBy[A](init: Ctx => A)(implicit a: UseEffectArg[A], step: Step): step.Self
@@ -978,6 +994,24 @@ object HooksTest extends TestSuite {
           rev, ":", ReusableCallbackComponent(forceUpdate)
         )
       }
+
+    test(comp()) { t =>
+      t.assertText("1:1")
+      t.clickButton(); t.assertText("2:2")
+      t.clickButton(); t.assertText("3:3")
+    }
+  }
+
+  private def testMonadicUseForceUpdate(): Unit = {
+    val counter = new Counter
+    val comp = ScalaFnComponent[Unit]{ _ =>
+      useForceUpdate.map{ forceUpdate =>
+        val rev = counter.inc()
+        <.div(
+          rev, ":", ReusableCallbackComponent(forceUpdate)
+        )
+      }
+    }
 
     test(comp()) { t =>
       t.assertText("1:1")
@@ -1606,95 +1640,95 @@ object HooksTest extends TestSuite {
     }
   }
 
-  // private def testMonadicUseStateWithReuse(): Unit = {
-  //   implicit val reusability: Reusability[PI] = Reusability.by[PI, Int](_.pi >> 1)
+  private def testMonadicUseStateWithReuse(): Unit = {
+    implicit val reusability: Reusability[PI] = Reusability.by[PI, Int](_.pi >> 1)
 
-  //   val comp = ScalaFnComponent[PI] { p =>
-  //     for {
-  //       s1 <- useStateWithReuse(PI(100))
-  //       s2 <- useStateWithReuse(p.pi + s1.value)
-  //       s3 <- useStateWithReuse(p.pi + s1.value + s2.value)
-  //     } yield
-  //       <.div(
-  //         <.div(s"P=$p, s1=${s1.value}, s2=${s2.value}, s3=${s3.value}"),
-  //         <.button(^.onClick --> (
-  //           s1.modState(_ + 2) >> s2.modState(-_) >> s3.modState(_ * 10)
-  //         )),
-  //         <.button(^.onClick --> (
-  //           s1.modState(_ + 1) >> s2.modState(-_)
-  //         ))
-  //       )
-  //   }
+    val comp = ScalaFnComponent[PI] { p =>
+      for {
+        s1 <- useStateWithReuse(PI(100))
+        s2 <- useStateWithReuse(p + s1.value)
+        s3 <- useStateWithReuse(p + s1.value + s2.value)
+      } yield
+        <.div(
+          <.div(s"P=$p, s1=${s1.value}, s2=${s2.value}, s3=${s3.value}"),
+          <.button(^.onClick --> (
+            s1.modState(_ + 2) >> s2.modState(-_) >> s3.modState(_ * 10)
+          )),
+          <.button(^.onClick --> (
+            s1.modState(_ + 1) >> s2.modState(-_)
+          ))
+        )
+    }
 
-  //   test(comp(PI(666))) { t =>
-  //     t.assertText("P=PI(666), s1=PI(100), s2=PI(766), s3=PI(1532)")
-  //     t.clickButton(1); t.assertText("P=PI(666), s1=PI(102), s2=PI(-766), s3=PI(15320)")
-  //     t.clickButton(2); t.assertText("P=PI(666), s1=PI(102), s2=PI(766), s3=PI(15320)")
-  //   }
-  // }
+    test(comp(PI(666))) { t =>
+      t.assertText("P=PI(666), s1=PI(100), s2=PI(766), s3=PI(1532)")
+      t.clickButton(1); t.assertText("P=PI(666), s1=PI(102), s2=PI(-766), s3=PI(15320)")
+      t.clickButton(2); t.assertText("P=PI(666), s1=PI(102), s2=PI(766), s3=PI(15320)")
+    }
+  }
 
-  // private def testMonadicUseStateWithReuseSetStateReusability(): Unit = {
-  //   implicit val reusability: Reusability[PI] = Reusability[PI]((x, y) => (x.pi - y.pi).abs <= 1)
+  private def testMonadicUseStateWithReuseSetStateReusability(): Unit = {
+    implicit val reusability: Reusability[PI] = Reusability[PI]((x, y) => (x.pi - y.pi).abs <= 1)
 
-  //   val comp = ScalaFnComponent[Unit] { _ =>
-  //     useStateWithReuse(PI(4)).map { s =>
-  //       <.div(
-  //         s"S=${s.value}",
-  //         ", R1=", ReusableSetIntComponent(s.setState.map(f => (i: Int) => f(PI(i)).value)),
-  //         ", R2=", ReusableSetIntComponent(s.setState.map(f => (i: Int) => f(PI(i)).value)),
-  //         ", R3=", ReusableCallbackComponent(s.setState(PI(if (s.value.pi >= 30) -30 else 30))),
-  //         ", R4=", ReusableCallbackComponent(s.setState(PI(40))),
-  //       )
-  //     }
-  //   }
+    val comp = ScalaFnComponent[Unit] { _ =>
+      useStateWithReuse(PI(4)).map { s =>
+        <.div(
+          s"S=${s.value}",
+          ", R1=", ReusableSetIntComponent(s.setState.map(f => (i: Int) => f(PI(i)).value)),
+          ", R2=", ReusableSetIntComponent(s.setState.map(f => (i: Int) => f(PI(i)).value)),
+          ", R3=", ReusableCallbackComponent(s.setState(PI(if (s.value.pi >= 30) -30 else 30))),
+          ", R4=", ReusableCallbackComponent(s.setState(PI(40))),
+        )
+      }
+    }
 
-  //   val r1_1 = 1
-  //   val r1_2 = 2
-  //   val r2_1 = 3
-  //   val r2_2 = 4
-  //   val r3   = 5
-  //   val r4   = 6
+    val r1_1 = 1
+    val r1_2 = 2
+    val r2_1 = 3
+    val r2_2 = 4
+    val r3   = 5
+    val r4   = 6
 
-  //   test(comp()) { t =>
-  //     t.assertText("S=PI(4), R1=1, R2=1, R3=1, R4=1")
-  //     t.clickButton(r2_1); t.assertText("S=PI(1), R1=1, R2=1, R3=1, R4=1")
-  //     t.clickButton(r1_2); t.assertText("S=PI(1), R1=1, R2=1, R3=1, R4=1")
-  //     t.clickButton(r3); t.assertText("S=PI(30), R1=1, R2=1, R3=2, R4=1")
-  //     t.clickButton(r4); t.assertText("S=PI(40), R1=1, R2=1, R3=2, R4=1")
-  //     t.clickButton(r2_2); t.assertText("S=PI(2), R1=1, R2=1, R3=3, R4=1")
-  //     t.clickButton(r1_1); t.assertText("S=PI(2), R1=1, R2=1, R3=3, R4=1")
-  //     t.clickButton(r3); t.assertText("S=PI(30), R1=1, R2=1, R3=4, R4=1")
-  //     t.clickButton(r3); t.assertText("S=PI(-30), R1=1, R2=1, R3=5, R4=1")
-  //     t.clickButton(r3); t.assertText("S=PI(30), R1=1, R2=1, R3=6, R4=1")
-  //   }
-  // }
+    test(comp()) { t =>
+      t.assertText("S=PI(4), R1=1, R2=1, R3=1, R4=1")
+      t.clickButton(r2_1); t.assertText("S=PI(1), R1=1, R2=1, R3=1, R4=1")
+      t.clickButton(r1_2); t.assertText("S=PI(1), R1=1, R2=1, R3=1, R4=1")
+      t.clickButton(r3); t.assertText("S=PI(30), R1=1, R2=1, R3=2, R4=1")
+      t.clickButton(r4); t.assertText("S=PI(40), R1=1, R2=1, R3=2, R4=1")
+      t.clickButton(r2_2); t.assertText("S=PI(2), R1=1, R2=1, R3=3, R4=1")
+      t.clickButton(r1_1); t.assertText("S=PI(2), R1=1, R2=1, R3=3, R4=1")
+      t.clickButton(r3); t.assertText("S=PI(30), R1=1, R2=1, R3=4, R4=1")
+      t.clickButton(r3); t.assertText("S=PI(-30), R1=1, R2=1, R3=5, R4=1")
+      t.clickButton(r3); t.assertText("S=PI(30), R1=1, R2=1, R3=6, R4=1")
+    }
+  }
 
-  // private def testMonadicUseStateWithReuseModStateReusability(): Unit = {
-  //   implicit val reusability: Reusability[PI] = Reusability.by[PI, Int](_.pi >> 1)
-  //   val comp = ScalaFnComponent[Unit] { _ =>
-  //     useStateWithReuse(PI(4)).map { s =>
-  //       <.div(
-  //         s"S=${s.value}",
-  //         ", R0=", ReusableCallbackComponent(s.modState(_ + 1)),
-  //         ", R1=", ReusableCallbackComponent(s.modState(_ + 2)),
-  //         ", R2=", ReusableCallbackComponent(s.modState(_ + 4)),
-  //       )
-  //     }
-  //   }
+  private def testMonadicUseStateWithReuseModStateReusability(): Unit = {
+    implicit val reusability: Reusability[PI] = Reusability.by[PI, Int](_.pi >> 1)
+    val comp = ScalaFnComponent[Unit] { _ =>
+      useStateWithReuse(PI(4)).map { s =>
+        <.div(
+          s"S=${s.value}",
+          ", R0=", ReusableCallbackComponent(s.modState(_ + 1)),
+          ", R1=", ReusableCallbackComponent(s.modState(_ + 2)),
+          ", R2=", ReusableCallbackComponent(s.modState(_ + 4)),
+        )
+      }
+    }
 
-  //   val inc1 = 1
-  //   val inc2 = 2
-  //   val inc4 = 3
+    val inc1 = 1
+    val inc2 = 2
+    val inc4 = 3
 
-  //   test(comp()) { t =>
-  //     t.assertText("S=PI(4), R0=1, R1=1, R2=1")
-  //     t.clickButton(inc2); t.assertText("S=PI(6), R0=1, R1=1, R2=1")
-  //     t.clickButton(inc4); t.assertText("S=PI(10), R0=1, R1=1, R2=1")
-  //     t.clickButton(inc1); t.assertText("S=PI(10), R0=1, R1=1, R2=1")
-  //     t.clickButton(inc4); t.assertText("S=PI(14), R0=1, R1=1, R2=1")
-  //     t.clickButton(inc2); t.assertText("S=PI(16), R0=1, R1=1, R2=1")
-  //   }
-  // }
+    test(comp()) { t =>
+      t.assertText("S=PI(4), R0=1, R1=1, R2=1")
+      t.clickButton(inc2); t.assertText("S=PI(6), R0=1, R1=1, R2=1")
+      t.clickButton(inc4); t.assertText("S=PI(10), R0=1, R1=1, R2=1")
+      t.clickButton(inc1); t.assertText("S=PI(10), R0=1, R1=1, R2=1")
+      t.clickButton(inc4); t.assertText("S=PI(14), R0=1, R1=1, R2=1")
+      t.clickButton(inc2); t.assertText("S=PI(16), R0=1, R1=1, R2=1")
+    }
+  }
 
   private def testUseStateSnapshot(): Unit = {
     val counter = new Counter
@@ -1715,6 +1749,45 @@ object HooksTest extends TestSuite {
           s", S3=${s3.value}:", ReusableSetIntComponent(s1.underlyingSetFn.map(f => (i: Int) => f(Some(i), Callback.empty))),
         )
       }
+
+    test(comp(PI(666))) { t =>
+      t.assertText("P=PI(666), S1=100:1, S2=766:1, S3=1532:1")
+      t.clickButton(1); t.assertText("P=PI(666), S1=101:1, S2=-766:1, S3=15320:1")
+      t.clickButton(2); t.assertText("P=PI(666), S1=101:1, S2=-766:1, S3=15321:1")
+      assertEq(counter.value, 15321) // verify that the modState(cb) executes after the state update
+      t.clickButton(3); t.assertText("P=PI(666), S1=101:1, S2=-766:1, S3=15321:1")
+      assertEq(counter.value, 15322) // verify that the setState(None, cb) executes (and that ↖ the previous modState effect ↖ doesn't execute again)
+      t.clickButton(3); t.assertText("P=PI(666), S1=101:1, S2=-766:1, S3=15321:1")
+      assertEq(counter.value, 15323)
+      t.clickButton(2); t.assertText("P=PI(666), S1=101:1, S2=-766:1, S3=15322:1")
+      assertEq(counter.value, 15323 + 15322)
+      t.clickButton(4); t.assertText("P=PI(666), S1=1:1, S2=-766:1, S3=15322:1")
+      assertEq(counter.value, 15323 + 15322)
+    }
+  }
+
+  private def testMonadicUseStateSnapshot(): Unit = {
+    val counter = new Counter
+    var latestS3 = 0
+    val comp = ScalaFnComponent[PI]{ p =>
+      for {
+        s1 <- useStateSnapshot(100)
+        s2 <- useStateSnapshot(p.pi + s1.value)
+        s3 <- useStateSnapshot(p.pi + s1.value + s2.value)
+      } yield {
+        latestS3 = s3.value
+        <.div(
+          <.button(^.onClick --> (s1.modState(_ + 1) >> s2.modState(-_) >> s3.modState(_ * 10))),
+          <.button(^.onClick --> s3.modState(_ + 1, CallbackTo(latestS3).flatMap(counter.incCB(_)))),
+          <.button(^.onClick --> s3.setStateOption(None, counter.incCB)),
+          s"P=$p",
+          s", S1=${s1.value}:", ReusableSetIntComponent(s1.underlyingSetFn.map(f => (i: Int) => f(Some(i), Callback.empty))),
+          s", S2=${s2.value}:", ReusableSetIntComponent(s1.underlyingSetFn.map(f => (i: Int) => f(Some(i), Callback.empty))),
+          s", S3=${s3.value}:", ReusableSetIntComponent(s1.underlyingSetFn.map(f => (i: Int) => f(Some(i), Callback.empty))),
+        )
+      }
+    }
+      
 
     test(comp(PI(666))) { t =>
       t.assertText("P=PI(666), S1=100:1, S2=766:1, S3=1532:1")
@@ -1776,6 +1849,52 @@ object HooksTest extends TestSuite {
     }
   }
 
+  private def testMonadicUseStateSnapshotWithReuse(): Unit = {
+    type I = Int {type A=1}
+    implicit val I = Reusability.int.contramap((_: I) >> 1)
+    val counter = new Counter
+    var latestS3 = 0
+    val comp = ScalaFnComponent[PI] { p =>
+      for {
+        s1 <- useStateSnapshotWithReuse(100)
+        s2 <- useStateSnapshotWithReuse(p.pi + s1.value)
+        s3 <- useStateSnapshotWithReuse(p.pi + s1.value + s2.value)
+        s4 <- useStateSnapshotWithReuse(330.asInstanceOf[I])
+      } yield {
+        latestS3 = s3.value
+        <.div(
+          <.button(^.onClick --> (s1.modState(_ + 1) >> s2.modState(-_) >> s3.modState(_ * 10))),
+          <.button(^.onClick --> s3.modState(_ + 1, CallbackTo(latestS3).flatMap(counter.incCB(_)))),
+          <.button(^.onClick --> s3.setStateOption(None, counter.incCB)),
+          s"P=$p",
+          ", S1=", ReusableStateSnapshotComponent(s1), // buttons: 4 & 5
+          ", S2=", ReusableStateSnapshotComponent(s2), // buttons: 6 & 7
+          ", S3=", ReusableStateSnapshotComponent(s3), // buttons: 8 & 9
+          s", S4=", ReusableStateSnapshotComponent(s4.asInstanceOf[StateSnapshot[Int]]), // buttons: 10 & 11
+        )
+      }
+    }
+
+    test(comp(PI(666))) { t =>
+      t.assertText("P=PI(666), S1=100:1, S2=766:1, S3=1532:1, S4=330:1")
+      t.clickButton(1); t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15320:2, S4=330:1")
+      t.clickButton(2); t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15321:3, S4=330:1")
+      assertEq(counter.value, 15321) // verify that the modState(cb) executes after the state update
+      t.clickButton(3); t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15321:3, S4=330:1")
+      assertEq(counter.value, 15322) // verify that the setState(None, cb) executes (and that ↖ the previous modState effect ↖ doesn't execute again)
+      t.clickButton(3); t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15321:3, S4=330:1")
+      assertEq(counter.value, 15323)
+      t.clickButton(2); t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15322:4, S4=330:1")
+      assertEq(counter.value, 15323 + 15322)
+      t.clickButton(4); t.assertText("P=PI(666), S1=102:3, S2=-766:2, S3=15322:4, S4=330:1")
+      t.clickButton(4); t.assertText("P=PI(666), S1=103:4, S2=-766:2, S3=15322:4, S4=330:1")
+      assertEq(counter.value, 15323 + 15322)
+      t.clickButton(11); t.assertText("P=PI(666), S1=103:4, S2=-766:2, S3=15322:4, S4=340:2")
+      t.clickButton(10); t.assertText("P=PI(666), S1=103:4, S2=-766:2, S3=15322:4, S4=340:2") // reusability blocks update
+      t.clickButton(11); t.assertText("P=PI(666), S1=103:4, S2=-766:2, S3=15322:4, S4=350:3")
+    }
+  }  
+
   private def testRenderWithReuse(): Unit = {
     implicit val reusability: Reusability[PI] = Reusability.by[PI, Int](_.pi >> 1)
     var renders = 0
@@ -1792,6 +1911,47 @@ object HooksTest extends TestSuite {
           <.button(^.onClick --> (incES >> fu)),
         )
       }
+
+    val wrapper = ScalaComponent.builder[PI].render_P(comp(_)).build
+
+    withRenderedIntoBody(wrapper(PI(3))) { (m, root) =>
+      val t = new DomTester(root)
+      t.assertText("P=PI(3), S=20, ES=5, R=1")
+      replaceProps(wrapper, m)(PI(2)); t.assertText("P=PI(3), S=20, ES=5, R=1")
+      t.clickButton(1); t.assertText("P=PI(2), S=21, ES=5, R=2")
+      replaceProps(wrapper, m)(PI(2)); t.assertText("P=PI(2), S=21, ES=5, R=2")
+      replaceProps(wrapper, m)(PI(3)); t.assertText("P=PI(2), S=21, ES=5, R=2")
+      replaceProps(wrapper, m)(PI(4)); t.assertText("P=PI(4), S=21, ES=5, R=3")
+      t.clickButton(2); t.assertText("P=PI(4), S=21, ES=6, R=4")
+      replaceProps(wrapper, m)(PI(5)); t.assertText("P=PI(4), S=21, ES=6, R=4")
+    }
+  }
+
+  private def testMonadicRenderWithReuse(): Unit = {
+    implicit val reusability: Reusability[PI] = Reusability.by[PI, Int](_.pi >> 1)
+    var renders = 0
+    var extState = 5
+
+    val inner = 
+      React.memo(
+        ScalaFnComponent[(PI, Hooks.UseState[Int], Reusable[Callback], Reusable[Callback])] { case (p, s, incES, fu) =>
+          renders += 1
+          <.div(
+            s"P=$p, S=${s.value}, ES=$extState, R=$renders",
+            <.button(^.onClick --> s.modState(_ + 1)),
+            <.button(^.onClick --> (incES.value >> fu.value)),
+          )
+        }
+      )
+
+    val comp = ScalaFnComponent[PI] { p =>
+      for {
+        s <- useState(20)
+        incES <- useCallback(Callback(extState += 1))
+        fu <- useForceUpdate
+      } yield 
+        inner((p, s, incES, fu))
+    }
 
     val wrapper = ScalaComponent.builder[PI].render_P(comp(_)).build
 
@@ -1917,8 +2077,8 @@ object HooksTest extends TestSuite {
     "unchecked" - testUnchecked()
     "useContext" - testUseContext()
     "useContext (monadic)" - testMonadicUseContext()
-    // TODO MONADIC
     "useDebugValue" - testUseDebugValue()
+    "useDebugValue (monadic)" - testMonadicUseDebugValue()
     "useEffect" - {
       import UseEffect._
       "single" - testSingle()
@@ -1936,8 +2096,8 @@ object HooksTest extends TestSuite {
       "deps" - testWithDeps()
       "mount" - testOnMount()
     }
-    // TODO MONADIC
     "useForceUpdate" - testUseForceUpdate()
+    "useForceUpdate (monadic)" - testMonadicUseForceUpdate()
     "useLayoutEffect" - {
       import UseLayoutEffect._
       "single" - testSingle()
@@ -1994,17 +2154,17 @@ object HooksTest extends TestSuite {
         "mod" - testUseStateWithReuseModStateReusability()
       }
     }
-    // TODO MONADIC
-    // "useStateWithReuse (monadic)" - {
-    //   "state" - testMonadicUseStateWithReuse()
-    //   "reusability" - {
-    //     "set" - testMonadicUseStateWithReuseSetStateReusability()
-    //     "mod" - testMonadicUseStateWithReuseModStateReusability()
-    //   }
-    // }
-    // TODO MONADIC
+    "useStateWithReuse (monadic)" - {
+      "state" - testMonadicUseStateWithReuse()
+      "reusability" - {
+        "set" - testMonadicUseStateWithReuseSetStateReusability()
+        "mod" - testMonadicUseStateWithReuseModStateReusability()
+      }
+    }
     "useStateSnapshot" - testUseStateSnapshot()
+    "useStateSnapshot (monadic)" - testMonadicUseStateSnapshot()
     "useStateSnapshotWithReuse" - testUseStateSnapshotWithReuse()
+    "useStateSnapshotWithReuse (monadic)" - testMonadicUseStateSnapshotWithReuse()
 
     "useId" - testUseId()
     "useId (monadic)" - testMonadicUseId()
@@ -2012,12 +2172,14 @@ object HooksTest extends TestSuite {
     "useTransition" - testUseTransition()
     "useTransition (monadic)" - testMonadicUseTransition()
 
-    // TODO FIND A WAY TO DO THIS MONADICALLY (JUST WRAP?) (React.memo?)
     "renderWithReuse" - {
       "main" - testRenderWithReuse()
       "never" - testRenderWithReuseNever()
       "useRef" - testRenderWithReuseAndUseRef()
       "useRefToVdom" - testRenderWithReuseAndUseRefToVdom()
+    }
+    "renderWithReuse (monadic alternative using Render.memo)" - {
+      "main" - testMonadicRenderWithReuse()
     }
   }
 }

@@ -3,12 +3,6 @@ package japgolly.scalajs.react.hooks
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.feature.Context
 import japgolly.scalajs.react.hooks.Hooks._
-import japgolly.scalajs.react.vdom._
-import japgolly.scalajs.react.component.{Js => JsComponent}
-
-import scala.reflect.ClassTag
-
-import scalajs.js
 import japgolly.scalajs.react.Reusability
 
 trait react17 {
@@ -23,7 +17,7 @@ trait react17 {
   * @see
   *   https://reactjs.org/docs/hooks-reference.html#usecallback
   */
-  @inline def useCallback[A](callback: A)(implicit isCallbackArg: UseCallbackArg[A]): HookResult[Reusable[A]] =
+  @inline final def useCallback[A](callback: A)(implicit isCallbackArg: UseCallbackArg[A]): HookResult[Reusable[A]] =
     UseCallback(callback).toHookResult
 
   /**
@@ -37,7 +31,7 @@ trait react17 {
   * @see
   *   https://reactjs.org/docs/hooks-reference.html#usecallback
   */
-  @inline def useCallbackWithDeps[D: Reusability, A](deps: => D)(callback: D => A)(
+  @inline final def useCallbackWithDeps[D: Reusability, A](deps: => D)(callback: D => A)(
     implicit isCallbackArg: UseCallbackArg[A]
   ): HookResult[Reusable[A]] =
     UseCallback.withDeps(deps)(callback).toHookResult
@@ -61,7 +55,7 @@ trait react17 {
   * @see
   *   https://reactjs.org/docs/hooks-reference.html#usecontext
   */
-  @inline def useContext[A](ctx: Context[A]): HookResult[A] =
+  @inline final def useContext[A](ctx: Context[A]): HookResult[A] =
     HookResult(UseContext.unsafeCreate(ctx))
 
   /**
@@ -70,7 +64,7 @@ trait react17 {
   * @see
   *   https://reactjs.org/docs/hooks-reference.html#usedebugvalue
   */
-  @inline def useDebugValue(desc: => Any): HookResult[Unit] =
+  @inline final def useDebugValue(desc: => Any): HookResult[Unit] =
     HookResult(UseDebugValue.unsafeCreate(desc))
 
   /**
@@ -84,7 +78,7 @@ trait react17 {
   * @see
   *   https://reactjs.org/docs/hooks-reference.html#useeffect
   */
-  @inline def useEffect[A](effect: A)(implicit isEffectArg: UseEffectArg[A]): HookResult[Unit] =
+  @inline final def useEffect[A](effect: A)(implicit isEffectArg: UseEffectArg[A]): HookResult[Unit] =
     HookResult(UseEffect.unsafeCreate(effect))
 
   /**
@@ -96,7 +90,7 @@ trait react17 {
   * @see
   *   https://reactjs.org/docs/hooks-reference.html#useeffect
   */
-  @inline def useEffectOnMount[A](effect: A)(implicit isEffectArg: UseEffectArg[A]): HookResult[Unit] =
+  @inline final def useEffectOnMount[A](effect: A)(implicit isEffectArg: UseEffectArg[A]): HookResult[Unit] =
     HookResult(UseEffect.unsafeCreateOnMount(effect))
 
   /**
@@ -108,7 +102,7 @@ trait react17 {
   * @see
   *   https://reactjs.org/docs/hooks-reference.html#useeffect
   */
-  @inline def useEffectWithDeps[D: Reusability, A](deps: => D)(effect: D => A)(
+  @inline final def useEffectWithDeps[D: Reusability, A](deps: => D)(effect: D => A)(
     implicit isEffectArg: UseEffectArg[A]
   ): HookResult[Unit] =
     ReusableEffect.useEffect(deps)(effect).toHookResult
@@ -127,7 +121,7 @@ trait react17 {
   * @see
   *   https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
   */
-  @inline def useLayoutEffect[A](effect: A)(implicit isEffectArg: UseEffectArg[A]): HookResult[Unit] =
+  @inline final def useLayoutEffect[A](effect: A)(implicit isEffectArg: UseEffectArg[A]): HookResult[Unit] =
     HookResult(UseEffect.unsafeCreateLayout(effect))
 
   /**
@@ -142,7 +136,7 @@ trait react17 {
   * @see
   *   https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
   */
-  @inline def useLayoutEffectOnMount[A](effect: A)(implicit isEffectArg: UseEffectArg[A]): HookResult[Unit] =
+  @inline final def useLayoutEffectOnMount[A](effect: A)(implicit isEffectArg: UseEffectArg[A]): HookResult[Unit] =
     HookResult(UseEffect.unsafeCreateLayoutOnMount(effect))
 
   /**
@@ -157,7 +151,7 @@ trait react17 {
   * @see
   *   https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
   */
-  @inline def useLayoutEffectWithDeps[D: Reusability, A](deps: => D)(effect: D => A)(
+  @inline final def useLayoutEffectWithDeps[D: Reusability, A](deps: => D)(effect: D => A)(
     implicit isEffectArg: UseEffectArg[A]
   ): HookResult[Unit] =
     ReusableEffect.useLayoutEffect(deps)(effect).toHookResult
@@ -176,7 +170,7 @@ trait react17 {
   * @see
   *   https://reactjs.org/docs/hooks-reference.html#usememo
   */
-  @inline def useMemo[D: Reusability, A](deps: => D)(create: D => A): HookResult[Reusable[A]] =
+  @inline final def useMemo[D: Reusability, A](deps: => D)(create: D => A): HookResult[Reusable[A]] =
     UseMemo(deps)(create).toHookResult
 
   /**
@@ -192,49 +186,11 @@ trait react17 {
   * @see
   *   https://reactjs.org/docs/hooks-reference.html#usereducer
   */
-  @inline def useReducer[S, A](reducer: (S, A) => S, initialState: => S): HookResult[UseReducer[S, A]] =
+  @inline final def useReducer[S, A](reducer: (S, A) => S, initialState: => S): HookResult[UseReducer[S, A]] =
     HookResult(UseReducer.unsafeCreate(reducer, initialState))
 
   /** Create a mutable ref that will persist for the full lifetime of the component. */
-  @inline def useRefToAnyVdom: HookResult[Ref.ToAnyVdom] =
-    HookResult(UseRef.unsafeCreateToAnyVdom())
-
-  /** Create a mutable ref that will persist for the full lifetime of the component. */
-  @inline def useRefToVdom[N <: TopNode: ClassTag]: HookResult[Ref.ToVdom[N]] =
-    HookResult(UseRef.unsafeCreateToVdom[N]())
-
-  /** Create a mutable ref that will persist for the full lifetime of the component. */
-  @inline def useRefToScalaComponent[P, S, B]: HookResult[Ref.ToScalaComponent[P, S, B]] =
-    HookResult(UseRef.unsafeCreateToScalaComponent[P, S, B]())
-
-  /** Create a mutable ref that will persist for the full lifetime of the component. */
-  @inline def useRefToScalaComponent[P, S, B, CT[-p, +u] <: CtorType[p, u]](
-    c: ScalaComponent.Component[P, S, B, CT]
-  ): HookResult[Ref.WithScalaComponent[P, S, B, CT]] =
-    HookResult(UseRef.unsafeCreateToScalaComponent(c))
-
-  /** Create a mutable ref that will persist for the full lifetime of the component. */
-  @inline def useRefToJsComponent[P <: js.Object, S <: js.Object]
-    : HookResult[Ref.ToJsComponent[P, S, JsComponent.RawMounted[P, S]]] =
-    HookResult(UseRef.unsafeCreateToJsComponent[P, S]())
-
-  /** Create a mutable ref that will persist for the full lifetime of the component. */
-  @inline def useRefToJsComponentWithMountedFacade[P <: js.Object, S <: js.Object, F <: js.Object]
-    : HookResult[Ref.ToJsComponent[P, S, JsComponent.RawMounted[P, S] with F]] =
-    HookResult(UseRef.unsafeCreateToJsComponentWithMountedFacade[P, S, F]())
-
-  /** Create a mutable ref that will persist for the full lifetime of the component. */
-  @inline def useRefToJsComponent[F[_], A[_], P1, S1, CT1[-p, +u] <: CtorType[p,
-                                                                            u
-  ], R <: JsComponent.RawMounted[P0, S0], P0 <: js.Object, S0 <: js.Object, CT0[-p, +u] <: CtorType[p,
-                                                                                                    u
-  ]](
-    a: Ref.WithJsComponentArg[F, A, P1, S1, CT1, R, P0, S0]
-  ): HookResult[Ref.WithJsComponent[F, A, P1, S1, CT1, R, P0, S0]] =
-    HookResult(UseRef.unsafeCreateToJsComponent(a))
-
-  /** Create a mutable ref that will persist for the full lifetime of the component. */
-  @inline def useRef[A](initialValue: => A): HookResult[UseRef[A]] =
+  @inline final def useRef[A](initialValue: => A): HookResult[UseRef[A]] =
     HookResult(UseRef.unsafeCreate(initialValue))
 
   /**
@@ -246,20 +202,6 @@ trait react17 {
   * During subsequent re-renders, the first value returned by useState will always be the most recent
   * state after applying updates.
   */
-  @inline def useState[A](initial: => A): HookResult[UseState[A]] =
+  @inline final def useState[A](initial: => A): HookResult[UseState[A]] =
     HookResult(UseState.unsafeCreate(initial))
-
-  /**
-  * Returns a stateful value, and a function to update it.
-  *
-  * During the initial render, the returned state is the same as the value passed as the first
-  * argument (initialState).
-  *
-  * During subsequent re-renders, the first value returned by useState will always be the most recent
-  * state after applying updates.
-  */
-  @inline def useStateWithReuseBy[S: ClassTag: Reusability](
-    initialState: => S
-  ): HookResult[UseStateWithReuse[S]] =
-    HookResult(UseStateWithReuse.unsafeCreate(initialState))
 }

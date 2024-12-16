@@ -12,7 +12,7 @@ trait react18 {
   * @see
   *   https://react.dev/reference/react/useId
   */
-  @inline def useId: HookResult[String] =
+  @inline final def useId: HookResult[String] =
     UseId().toHookResult
 
   /**
@@ -26,6 +26,6 @@ trait react18 {
   * @see
   *   {@link https://react.dev/reference/react/useTransition}
   */
-  @inline def useTransition: HookResult[UseTransition] =
+  @inline final def useTransition: HookResult[UseTransition] =
     UseTransition().toHookResult
 }

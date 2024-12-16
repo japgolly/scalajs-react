@@ -8,6 +8,9 @@ import japgolly.scalajs.react.internal.{Iso, Lens}
 import japgolly.scalajs.react.util.DefaultEffects.{Async => DA, Sync => DS}
 import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.{Reusability, Reusable, StateAccess, StateAccessor}
+import japgolly.scalajs.react.hooks.all._
+import japgolly.scalajs.react.hooks.HookResult
+import japgolly.scalajs.react.extra.internal.StateSnapshot.withReuse.useStateSnapshotWithReuse
 
 object StateSnapshot {
   type SetFn      [-S] = StateSnapshotF.SetFn      [DS, S]
@@ -47,19 +50,19 @@ object StateSnapshot {
     def apply[S](value: S): FromValue[S] =
       new FromValue(value)
 
-    /** @since 2.0.0 */
-    def hook[S](initialValue: => S)(implicit rs: Reusability[S]): CustomHook[Unit, StateSnapshot[S]] =
-      CustomHook[Unit]
-        .useState(initialValue)
-        .useRef(List.empty[DS[Unit]])
-        .useEffectBy { (_, _, delayedCallbacks) =>
+    /** @since 3.0.0 */
+    def useStateSnapshotWithReuse[S](initialValue: => S)(implicit rs: Reusability[S]): HookResult[StateSnapshot[S]] = 
+      for {
+        state <- useState(initialValue)
+        delayedCallbacks <- useRef(List.empty[DS[Unit]])
+        _ <- useEffect { 
           val cbs = delayedCallbacks.value
           if (cbs.isEmpty)
             DS.empty
           else
             DS.chain(DS.runAll(cbs: _*), delayedCallbacks.set(Nil))
         }
-        .buildReturning { (_, state, delayedCallbacks) =>
+      } yield {
           val setFn: SetFn[S] = (os, cb) =>
             os match {
               case Some(s) =>
@@ -73,6 +76,10 @@ object StateSnapshot {
             }
           new StateSnapshot[S](state.value, state.originalSetState.withValue(setFn), rs)
         }
+
+    /** @since 2.0.0 */
+    def hook[S](initialValue: => S)(implicit rs: Reusability[S]): CustomHook[Unit, StateSnapshot[S]] =
+      CustomHook.fromHookResult(useStateSnapshotWithReuse(initialValue))
 
     /** This is meant to be called once and reused so that the setState callback stays the same. */
     def prepare[S](f: SetFn[S]): FromSetStateFn[S] =
@@ -183,9 +190,13 @@ object StateSnapshot {
   def apply[S](value: S): FromValue[S] =
     new FromValue(value)
 
+  /** @since 3.0.0 */
+  def useStateSnapshot[S](initialValue: => S): HookResult[StateSnapshot[S]] =
+    useStateSnapshotWithReuse(initialValue)(Reusability.never)
+
   /** @since 2.0.0 */
   def hook[S](initialValue: => S): CustomHook[Unit, StateSnapshot[S]] =
-    withReuse.hook(initialValue)(Reusability.never)
+    CustomHook.fromHookResult(useStateSnapshot(initialValue))
 
   def of[I, S](i: I)(implicit t: StateAccessor.ReadImpureWritePure[I, S]): StateSnapshot[S] =
     apply(t.state(i)).setStateVia(i)
@@ -270,5 +281,11 @@ object StateSnapshot {
 
     implicit def hooksExtUseStateSnapshot2[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]): Secondary[Ctx, CtxFn, Step] =
       new Secondary(api)
+
+    @inline def useStateSnapshot[S](initialState: => S): HookResult[StateSnapshot[S]] =
+      StateSnapshot.useStateSnapshot(initialState)
+
+    @inline def useStateSnapshotWithReuse[S](initialState: => S)(implicit r: Reusability[S]): HookResult[StateSnapshot[S]] =
+      StateSnapshot.withReuse.useStateSnapshotWithReuse(initialState)
   }
 }
