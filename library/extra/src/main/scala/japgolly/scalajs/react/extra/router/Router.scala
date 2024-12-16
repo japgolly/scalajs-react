@@ -213,12 +213,12 @@ final class RouterLogicF[F[_], Page, Props](val baseUrl: BaseUrl, cfg: RouterWit
 
   val ctlByPath: RouterCtlF[F, Path] =
     new RouterCtlF[F, Path] {
-      override protected implicit def F         = cfg.effect
-      override def baseUrl                      = impbaseurl
-      override def byPath                       = this
-      override val refresh                      = interpret(BroadcastSync)
-      override def pathFor(path: Path)          = path
-      override def set(p: Path, v: SetRouteVia) = interpret(setPath(p, v))
+      override protected implicit def F: Sync[F] = cfg.effect
+      override def baseUrl                       = impbaseurl
+      override def byPath                        = this
+      override val refresh                       = interpret(BroadcastSync)
+      override def pathFor(path: Path)           = path
+      override def set(p: Path, v: SetRouteVia)  = interpret(setPath(p, v))
     }
 
   val ctl: RouterCtlF[F, Page] =
