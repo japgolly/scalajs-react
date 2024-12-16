@@ -66,9 +66,30 @@ object HooksExample {
           <.button(
             ^.onClick --> count.modState(_ + 1),
             "Click me"
-          ),
+          )
         )
       )
+  }
+
+  // ALTERNATIVELY
+
+    object Example2 {
+    val Component = ScalaFnComponent[Unit] { _ =>
+      for {
+        count <- useState(0)
+        _     <- useEffect(Callback {
+                   // Update the document title using the browser API
+                   document.title = s"You clicked ${count.value} times"
+                 })
+      } yield
+        <.div(
+          <.p(s"You clicked ${count.value} times"),
+          <.button(
+            ^.onClick --> count.modState(_ + 1),
+            "Click me"
+          )
+        )
+    }
   }
 
   // EXAMPLE:END
