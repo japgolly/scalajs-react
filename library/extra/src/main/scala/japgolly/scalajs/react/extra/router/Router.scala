@@ -1,12 +1,12 @@
 package japgolly.scalajs.react.extra.router
 
+import japgolly.scalajs.react.React.startTransition
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.util.DefaultEffects
 import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.util.Util.identityFn
 import japgolly.scalajs.react.vdom.VdomElement
-import japgolly.scalajs.react.React.startTransition
 import org.scalajs.dom
 import scala.scalajs.js
 

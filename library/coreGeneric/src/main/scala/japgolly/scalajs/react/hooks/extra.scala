@@ -1,17 +1,12 @@
 package japgolly.scalajs.react.hooks
 
-import japgolly.scalajs.react.Reusable
-import japgolly.scalajs.react.util.DefaultEffects
-import scala.reflect.ClassTag
-import japgolly.scalajs.react.Reusability
-import japgolly.scalajs.react.hooks.Hooks.UseStateWithReuse
-import japgolly.scalajs.react.Ref
-import japgolly.scalajs.react.hooks.Hooks.UseRef
-import japgolly.scalajs.react.vdom.TopNode
-import japgolly.scalajs.react.CtorType
-import japgolly.scalajs.react.ScalaComponent
-import scalajs.js
 import japgolly.scalajs.react.component.{Js => JsComponent}
+import japgolly.scalajs.react.hooks.Hooks.{UseRef, UseStateWithReuse}
+import japgolly.scalajs.react.util.DefaultEffects
+import japgolly.scalajs.react.vdom.TopNode
+import japgolly.scalajs.react.{CtorType, Ref, Reusability, Reusable, ScalaComponent}
+import scala.reflect.ClassTag
+import scala.scalajs.js
 
 
 trait extra {

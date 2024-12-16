@@ -3,13 +3,13 @@ package japgolly.scalajs.react.core
 import japgolly.scalajs.react.Hooks.UseEffectArg
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
+import japgolly.scalajs.react.hooks.HookResult
 import japgolly.scalajs.react.test.DomTester
 import japgolly.scalajs.react.test.ReactTestUtils._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.html.Input
 import utest._
-import japgolly.scalajs.react.hooks.HookResult
 
 object HooksTest extends TestSuite {
 

@@ -1,12 +1,11 @@
 package japgolly.scalajs.react.component
 
-import japgolly.scalajs.react.hooks.HookComponentBuilder
+import japgolly.scalajs.react.hooks.{HookComponentBuilder, HookResult}
 import japgolly.scalajs.react.internal._
 import japgolly.scalajs.react.vdom.VdomNode
 import japgolly.scalajs.react.{Children, CtorType, PropsChildren, Reusability, facade}
 import scala.scalajs.js
 import sourcecode.FullName
-import japgolly.scalajs.react.hooks.HookResult
 
 object ScalaFn extends DerivedDisplayName {
 
@@ -37,9 +36,6 @@ object ScalaFn extends DerivedDisplayName {
 
   def apply[P](render: P => HookResult[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.None], name: FullName): Component[P, s.CT] =
     create[P, Children.None, s.CT](derivedDisplayName)(b => render(b.unbox).hook())(s)
-
-  // def apply[P](render: P => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None], name: FullName): Component[P, s.CT] =
-  //   create[P, Children.None, s.CT](derivedDisplayName)(b => render(b.unbox))(s)
 
   def withChildren[P](render: (P, PropsChildren) => HookResult[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.Varargs], name: FullName): Component[P, s.CT] =
     create[P, Children.Varargs, s.CT](derivedDisplayName)(b => render(b.unbox, PropsChildren(b.children)).hook())(s)

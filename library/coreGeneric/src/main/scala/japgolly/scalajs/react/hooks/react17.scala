@@ -1,9 +1,8 @@
 package japgolly.scalajs.react.hooks
 
-import japgolly.scalajs.react._
 import japgolly.scalajs.react.feature.Context
 import japgolly.scalajs.react.hooks.Hooks._
-import japgolly.scalajs.react.Reusability
+import japgolly.scalajs.react.{Reusability, _}
 
 trait react17 {
   /**

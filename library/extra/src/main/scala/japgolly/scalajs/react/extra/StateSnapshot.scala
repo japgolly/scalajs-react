@@ -3,14 +3,13 @@ package japgolly.scalajs.react.extra.internal
 import japgolly.scalajs.react.component.{Generic => GenericComponent}
 import japgolly.scalajs.react.extra.StateSnapshotF
 import japgolly.scalajs.react.extra.StateSnapshotF.StateSnapshot
-import japgolly.scalajs.react.hooks.{Api => HooksApi, CustomHook}
+import japgolly.scalajs.react.extra.internal.StateSnapshot.withReuse.useStateSnapshotWithReuse
+import japgolly.scalajs.react.hooks.all._
+import japgolly.scalajs.react.hooks.{Api => HooksApi, CustomHook, HookResult}
 import japgolly.scalajs.react.internal.{Iso, Lens}
 import japgolly.scalajs.react.util.DefaultEffects.{Async => DA, Sync => DS}
 import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.{Reusability, Reusable, StateAccess, StateAccessor}
-import japgolly.scalajs.react.hooks.all._
-import japgolly.scalajs.react.hooks.HookResult
-import japgolly.scalajs.react.extra.internal.StateSnapshot.withReuse.useStateSnapshotWithReuse
 
 object StateSnapshot {
   type SetFn      [-S] = StateSnapshotF.SetFn      [DS, S]
