@@ -5,23 +5,12 @@
 * [React hooks in scalajs-react](#react-hooks-in-scalajs-react)
 * [New hooks provided by scalajs-react](#new-hooks-provided-by-scalajs-react)
 * [`shouldComponentUpdate`](#shouldcomponentupdate)
-* [Hooks with dependencies](#hooks-with-dependencies)
-* [Hooks and PropsChildren](#hooks-and-propschildren)
 * [Custom hooks](#custom-hooks)
-* [Custom hook composition](#custom-hook-composition)
 * [Using third-party JavaScript hooks](#using-third-party-javascript-hooks)
-* [API extensions](#api-extensions)
-* [Escape hatches](#escape-hatches)
+* [Interop with builder-style](#interop-with-builder-style)
 
 
 # Design
-
-// TODO REWRITE
-...
-Alternatively, you can use builder-style (link) which provides extra safety while being more verbose.
-...
-
-// TODO REWRITE
 
 One of the core goals of scalajs-react is that if your code compiles, it will
 work as expected at runtime. As a consequence, most translation of React JS
@@ -29,22 +18,24 @@ looks different in scalajs-react specifically because we want to turn runtime
 errors into compile-time errors. Hooks is no different.
 
 The main difference you'll notice is that instead of just creating hooks
-imperatively, scalajs-react provides a builder-like DSL. The reason for this
-difference is that it allows us to enforce at compile-time, the React JS rule
-that the same hooks must always be created, and in the same order, even if they
-aren't used in a given render pass. In a plain JS world, the onus is on the user
-to have read the documentation and know that they have to avoid many very natural
-types of code, else they'll get a runtime error (or worse, no runtime error but
+imperatively, scalajs-react provides a DSL based on `flatMap` so that you can 
+compose them using for-comprehensions. The reason for this difference is that 
+it allows us to enforce at compile-time, the React JS rule that the same hooks
+must always be created, and in the same order, even if they aren't used in a
+given render pass. In a plain JS world, the onus is on the user to have read 
+the documentation and know that they have to avoid many very natural types of
+code, else they'll get a runtime error (or worse, no runtime error but
 undetected bugs). There is a mitigation in that JS users can use a linter that
 uses AST reflection to try to detect when a user is misusing hooks.
 In scalajs-react the DSL enforces these rules at compile-time without the need
 for an AST-inspecting macro.
 
-If you have a spare 9 hours (!), you can watch the livestreamed coding sessions
-([part 1](https://www.youtube.com/watch?v=rDTr9TRFGSA), [part 2](https://www.youtube.com/watch?v=8pMXmk_YM5s))
-and see how the design gradually evolved into what it (conceptually) is today.
-
-// TODO REWRITE
+Hook composition via `flatMap` can enforce most of the rules of hooks, but
+you can still break them in some cases. For example, you can `fold` an
+`Option` into 2 different hooks, thus making the hook invocation conditional,
+which is forbidden. You can choose to use a more bullet-proof syntax in the
+form of a [builder-like DSL](HOOKS_BUILDER.md), which provides extra safety
+while being more verbose. 
 
 # Quickstart
 
@@ -228,59 +219,35 @@ object Example {
 }
 ```
 
-# Using third-party JavaScript hooks (TODO)
+# Using third-party JavaScript hooks
 
 Using a third-party JavaScript hook is as simple as wrapping it in `HookResult.fromFunction`.
 
 ```scala
 // Declare your JS facade as normal as `useJsHookFacade`. Type should be a subtype of js.Function.
-val useJsHook = HookResult.fromFunction(i => useJsHookFacade(i))
+val useJsHook = HookResult.fromFunction(useJsHookFacade)
 ```
 
+Then you can use just like any other hook:
+```scala
+  for {
+    ...
+    output <- useJsHook(input1, input2, ...)
+    ...
+  } yield ...
+```
 
 # Interop with builder-style
 
-fromHookResult
-toHookResult
-
-# Escape hatches (TODO)
-
-If you really, really want to work with JS-style imperative hooks, you can!
-But it's important to note that the onus is on you to ensure you use hooks correctly without violating React's rules.
-If you use the escape hatch, scalajs-react won't be able to check that your code will always work.
-
-In the hooks API, there's `.unchecked(body)` and `.uncheckedBy(ctx => body)` that you can use as an escape hatch,
-and create hooks using React directly instead of using scalajs-react's hooks API.
-
-Example:
+Conversion is possible between hooks of the form `I => HookResult[O]` and builder-style [`CustomHook[I, O]`](HOOKS_BUILDER.md#custom-hooks) via:
 
 ```scala
-package japgolly.scalajs.react.core
+val customHook1: CustomHook[I, O] = ...
+val customHook2: CustomHook[I, Unit] = ...
 
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.facade.{React => ReactJs}
-import japgolly.scalajs.react.vdom.html_<^._
-import org.scalajs.dom.document
+val useHook1: I => HookResult[O] = customHook1.toHookResult
+val useHook2: HookResult[O] = customHook2.toHookResult
 
-object Example {
-  val Component = ScalaFnComponent.withHooks[Unit]
-    .unchecked {
-      val count = ReactJs.useState[Int](0)
-      ReactJs.useEffect(() => {
-        document.title = s"You clicked ${count._1} times"
-      })
-      count
-    }
-    .render { (_, countHook) =>
-      val count    = countHook._1
-      val setCount = countHook._2
-      <.div(
-        <.p(s"You clicked $count times"),
-        <.button(
-          ^.onClick --> Callback(setCount(count + 1)),
-          "Click me"
-        ),
-      )
-    }
-}
+val newCustomHook: CustomHook[I, O] = CustomHook.fromHookResult(useHook1)
+val newCustomHook: CustomHook[Unit, O] = CustomHook.fromHookResult(useHook2)
 ```

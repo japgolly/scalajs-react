@@ -20,6 +20,7 @@ Includes a router, testing utils, performance utils, more.
   - [Modules](doc/MODULES.md)
   - [VDOM](doc/VDOM.md)
   - [Hooks](doc/HOOKS.md)
+  - [Hooks via builder](doc/HOOKS_BUILDER.md)
   - [Refs](doc/REFS.md)
   - [IDE support](doc/IDE.md)
   - [The `Callback` class](doc/CALLBACK.md)

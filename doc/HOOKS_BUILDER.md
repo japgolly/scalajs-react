@@ -1,4 +1,4 @@
-# React Hooks with scalajs-react
+# React Hooks with scalajs-react using a builder
 
 * [Design](#design)
 * [Quickstart](#quickstart)
@@ -16,22 +16,13 @@
 
 # Design
 
-One of the core goals of scalajs-react is that if your code compiles, it will
-work as expected at runtime. As a consequence, most translation of React JS
-looks different in scalajs-react specifically because we want to turn runtime
-errors into compile-time errors. Hooks is no different.
-
-The main difference you'll notice is that instead of just creating hooks
-imperatively, scalajs-react provides a builder-like DSL. The reason for this
-difference is that it allows us to enforce at compile-time, the React JS rule
-that the same hooks must always be created, and in the same order, even if they
-aren't used in a given render pass. In a plain JS world, the onus is on the user
-to have read the documentation and know that they have to avoid many very natural
-types of code, else they'll get a runtime error (or worse, no runtime error but
-undetected bugs). There is a mitigation in that JS users can use a linter that
-uses AST reflection to try to detect when a user is misusing hooks.
-In scalajs-react the DSL enforces these rules at compile-time without the need
-for an AST-inspecting macro.
+scalajs-react aims to provide a DSL which enforces usage of React's rules for
+hooks at compile time. There's actually 2 DSL flavors implemented:
+  * A composition-based approach documented [here](HOOKS.md), which results in 
+    more concise code, but doesn't protect you from breaking a couple of rules
+    via `fold`/`traverse`.
+  * A builder-like approach documented in this page, which gives you complete
+    safety at the cost of being more vebose.
 
 If you have a spare 9 hours (!), you can watch the livestreamed coding sessions
 ([part 1](https://www.youtube.com/watch?v=rDTr9TRFGSA), [part 2](https://www.youtube.com/watch?v=8pMXmk_YM5s))
