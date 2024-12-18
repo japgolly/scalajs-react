@@ -261,7 +261,7 @@ object Hooks {
   object UseStateF {
     def apply[F[_], S, O](r: facade.React.UseState[S], oss: Reusable[facade.React.UseStateSetter[O]])(implicit f: Sync[F]): UseStateF[F, S] =
       new UseStateF[F, S] {
-        override protected[hooks] implicit def F = f
+        override protected[hooks] implicit def F: Sync[F] = f
         override val raw = r
         override type OriginalState = O
         override val originalSetState = oss
@@ -459,7 +459,7 @@ object Hooks {
   object UseTransitionF {
     def apply[F[_]](r: facade.React.UseTransition)(implicit f: Sync[F]): UseTransitionF[F] =
       new UseTransitionF[F] {
-        override protected[hooks] implicit def F = f
+        override protected[hooks] implicit def F: Sync[F] = f
         override val raw: React.UseTransition = r
       }
   }
