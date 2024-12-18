@@ -49,10 +49,10 @@ object CustomHook {
     new Builder.First(_ => ())
 
   def fromHookResult[O](hook: HookResult[O]): CustomHook[Unit, O] =
-    CustomHook.unchecked(_ => hook.hook())
+    CustomHook.unchecked(_ => hook.eval())
 
   def fromHookResult[I, O](hook: I => HookResult[O]): CustomHook[I, O] =
-    CustomHook.unchecked(i => hook(i).hook())
+    CustomHook.unchecked(i => hook(i).eval())
 
   /** Provides you with a means to do whatever you want without the static guarantees that the normal DSL provides.
     * It's up to you to ensure you don't vioalte React's hook rules.
