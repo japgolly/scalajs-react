@@ -158,7 +158,7 @@ import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.document
 
 object Example {
-  private val Render = React.memo(
+  private val ReusableRender = React.memo(
     ScalaFnComponent[(UseState[Int], UseState[String])]{ case (count, fruit) =>
       <.div(
         <.p(s"You clicked ${count.value} times"),
@@ -178,53 +178,16 @@ object Example {
                  document.title = s"You clicked ${count.value} times"
                })
       fruit <- useState("banana")
-    } yield
-      Render(count, fruit)
+    } yield ReusableRender(count, fruit)
   )
 }
 ```
 
-# Hooks and PropsChildren (TODO)
+# Custom hooks
 
-In order to get access to `PropsChildren`, call `.withPropsChildren` as the first step in your DSL.
-It will then become available...
+A custom hook is just a function that returns a `HookResult[O]`, where `O` is the output type (or `Unit` if your custom hook doesn't return an output).
 
-1) as argument #2 after `props` in multi-arg fns (eg. `.render((props, propsChildren, hook1, hook2, ...) => `)
-2) as `.propsChildren` from context objects (eg. `.render($ => $.propsChildren)`)
-
-Example:
-
-```scala
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.html_<^._
-
-object Example {
-  final case class Props(name: String)
-
-  val Component = ScalaFnComponent.withHooks[Props]
-    .withPropsChildren
-    .useState(0)
-    .render((props, propsChildren, counter) =>
-      <.div(
-        <.p(s"Hello ${props.name}."),
-        <.p(s"You clicked ${counter.value} times."),
-        <.button("Click me", ^.onClick --> counter.modState(_ + 1)),
-        <.div(propsChildren)
-      )
-    )
-}
-```
-
-# Custom hooks (TODO)
-
-A custom hook has the type `CustomHook[I, O]` where
-`I` is the input type (or `Unit` if your custom hook doesn't take an input),
-and `O` is the output type (or `Unit` if your custom hook doesn't return an output),
-
-To create a custom hook, the API is nearly identical to building a component with hooks.
-
-1. Start with `CustomHook[I]` instead of `ScalaFnComponent.withHooks[P]`
-2. Complete your hook with `.buildReturning(ctx => O)`, or just `.build` if you don't need to return a value.
+To create a custom hook, the API is nearly identical to building a component with hooks, only that you are free to return any value instead of a `VdomNode`.
 
 Example:
 
@@ -233,12 +196,13 @@ import japgolly.scalajs.react._
 import org.scalajs.dom.document
 
 object ExampleHook {
-  val useTitleCounter = CustomHook[Unit]
-    .useState(0)
-    .useEffectBy((_, count) => Callback {
-      document.title = s"You clicked ${count.value} times"
-    })
-    .buildReturning(_.hook1)
+  val useTitleCounter: HookResult[UseState[Int]] =
+    for {
+      count <- useState(0)
+      _     <- useEffect(Callback {
+                 document.title = s"You clicked ${count.value} times"
+               })
+    } yield count
 }
 ```
 
@@ -249,52 +213,35 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 
 object Example {
-  val Component = ScalaFnComponent.withHooks[Unit]
-    .custom(ExampleHook.useTitleCounter) // <--- usage
-    .render((_, count) =>
-      <.div(
-        <.p(s"You clicked ${count.value} times"),
-        <.button(
-          ^.onClick --> count.modState(_ + 1),
-          "Click me")))
+  val Component = ScalaFnComponent[Unit]( _ =>
+    ExampleHook.useTitleCounter // <--- usage
+      .map( count =>
+        <.div(
+          <.p(s"You clicked ${count.value} times"),
+          <.button(
+            ^.onClick --> count.modState(_ + 1),
+            "Click me"
+          )
+        )
+      )
+  )
 }
-```
-
-In order to provide the hook directly via `.custom` the input type of the hook must be one of the following...
-* `Unit`
-* same as the `Props` type
-* `PropsChildren`
-
-If the custom hook has any other kind of type, simply provide it to the hook directly.
-Example:
-
-```scala
-  val someCustomHook: CustomHook[Int, Unit] = ???
-
-  final case class Props(someInt: Int)
-
-  val Component = ScalaFnComponent.withHooks[Props]
-    .custom(someCustomHook(123)) // provide a constant Int arg
-    .customBy($ => someCustomHook($.props.someInt)) // or use a dynamic value
 ```
 
 # Using third-party JavaScript hooks (TODO)
 
-Using a third-party JavaScript hook is as simple as wrapping it in `CustomHook.unchecked`.
+Using a third-party JavaScript hook is as simple as wrapping it in `HookResult.fromFunction`.
 
 ```scala
-// Declare your JS facade as normal. Type should be a subtype of js.Function.
-
-// I is the type of the hook's inputs (use a tuple or case class for multiple args)
-// O is the type of the hook's output (or Unit if none)
-val jsHook = CustomHook.unchecked[I, O](i => JsHookFacade(i))
+// Declare your JS facade as normal as `useJsHookFacade`. Type should be a subtype of js.Function.
+val useJsHook = HookResult.fromFunction(i => useJsHookFacade(i))
 ```
 
-Then to use it, either...
 
-1) simply call `.custom(jsHook)` from your component
-2) or create an API extension as shown below
+# Interop with builder-style
 
+fromHookResult
+toHookResult
 
 # Escape hatches (TODO)
 

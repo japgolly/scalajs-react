@@ -9,6 +9,7 @@ import japgolly.scalajs.react.test.ReactTestUtils._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.html.Input
+import scala.scalajs.js
 import utest._
 
 object HooksTest extends TestSuite {
@@ -2053,6 +2054,34 @@ object HooksTest extends TestSuite {
     }
   }
 
+  def testFromFunction() = {
+    val jsHook1: js.Function1[Int, Int] = _ + 1
+    val jsHook2: js.Function2[Int, Int, String] = (a: Int, b: Int) => (a + b).toString
+
+    val useIncrementer = HookResult.fromFunction(jsHook1)
+    val useAdder = HookResult.fromFunction(jsHook2)
+
+    assertTypeOf[Int => HookResult[Int]](useIncrementer)
+    assertTypeOf[(Int, Int) => HookResult[String]](useAdder)
+
+    val comp = ScalaFnComponent[Unit] { _ =>
+      for {
+        s <- useState(100)
+        inc <- useIncrementer(s.value)
+        add <- useAdder(s.value, inc)
+      } yield
+        <.div(
+          <.div(s"s=${s.value}, inc=$inc, add=$add"),
+          <.button(^.onClick --> s.modState(_ + 1))
+        )
+    }
+
+    test(comp()) { t =>
+      t.assertText("s=100, inc=101, add=201")
+      t.clickButton(); t.assertText("s=101, inc=102, add=203")
+    }
+  }
+
   // ===================================================================================================================
 
   override def tests = Tests {
@@ -2181,5 +2210,6 @@ object HooksTest extends TestSuite {
     "renderWithReuse (monadic alternative using Render.memo)" - {
       "main" - testMonadicRenderWithReuse()
     }
+    "fromFunction" - testFromFunction()
   }
 }
