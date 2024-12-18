@@ -16,6 +16,13 @@
 
 # Design
 
+// TODO REWRITE
+...
+Alternatively, you can use builder-style (link) which provides extra safety while being more verbose.
+...
+
+// TODO REWRITE
+
 One of the core goals of scalajs-react is that if your code compiles, it will
 work as expected at runtime. As a consequence, most translation of React JS
 looks different in scalajs-react specifically because we want to turn runtime
@@ -36,6 +43,8 @@ for an AST-inspecting macro.
 If you have a spare 9 hours (!), you can watch the livestreamed coding sessions
 ([part 1](https://www.youtube.com/watch?v=rDTr9TRFGSA), [part 2](https://www.youtube.com/watch?v=8pMXmk_YM5s))
 and see how the design gradually evolved into what it (conceptually) is today.
+
+// TODO REWRITE
 
 # Quickstart
 
@@ -65,10 +74,7 @@ function Example() {
 }
 ```
 
-The above JS component can be written in scalajs-react in two
-very similar ways.
-
-### Method 1
+The above JS component can be written in scalajs-react in the following way:
 
 ```scala
 import japgolly.scalajs.react._
@@ -76,17 +82,14 @@ import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.document
 
 object Example {
-  val Component = ScalaFnComponent.withHooks[Unit]
-
-    .useState(0)
-
-    .useEffectBy((props, count) => Callback {
-      document.title = s"You clicked ${count.value} times"
-    })
-
-    .useState("banana")
-
-    .render((props, count, fruit) =>
+  val Component = ScalaFnComponent[Unit]( props =>
+    for {
+      count <- useState(0)
+      _     <- useEffect(Callback {
+                 document.title = s"You clicked ${count.value} times"
+               })
+      fruit <- useState("banana")
+    } yield
       <.div(
         <.p(s"You clicked ${count.value} times"),
         <.button(
@@ -95,106 +98,38 @@ object Example {
         ),
         <.p(s"Your favourite fruit is a ${fruit.value}!")
       )
-    )
+  )
 }
-```
-
-### Method 2
-
-```scala
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.html_<^._
-import org.scalajs.dom.document
-
-object Example {
-  val Component = ScalaFnComponent.withHooks[Unit]
-
-    .useState(0)
-
-    .useEffectBy($ => Callback {
-      document.title = s"You clicked ${$.hook1.value} times"
-    })
-
-    .useState("banana")
-
-    .render($ =>
-      <.div(
-        <.p(s"You clicked ${$.hook1.value} times"),
-        <.button(
-          ^.onClick --> $.hook1.modState(_ + 1),
-          "Click me"
-        ),
-        <.p(s"Your favourite fruit is a ${$.hook2.value}!")
-      )
-    )
-}
-```
-
-### Diff between both methods
-
-```diff
- import japgolly.scalajs.react._
- import japgolly.scalajs.react.vdom.html_<^._
- import org.scalajs.dom.document
-
- object Example {
-   val Component = ScalaFnComponent.withHooks[Unit]
-
-     .useState(0)
-
--    .useEffectBy((props, count) => Callback {
--      document.title = s"You clicked ${count.value} times"
-+    .useEffectBy($ => Callback {
-+      document.title = s"You clicked ${$.hook1.value} times"
-     })
-
-     .useState("banana")
-
--    .render((props, count, fruit) =>
-+    .render($ =>
-       <.div(
--        <.p(s"You clicked ${count.value} times"),
-+        <.p(s"You clicked ${$.hook1.value} times"),
-         <.button(
--          ^.onClick --> count.modState(_ + 1),
-+          ^.onClick --> $.hook1.modState(_ + 1),
-           "Click me"
-         ),
--        <.p(s"Your favourite fruit is a ${fruit.value}!")
-+        <.p(s"Your favourite fruit is a ${$.hook2.value}!")
-       )
-     )
- }
 ```
 
 # React hooks in scalajs-react
 
 | JavaScript | scalajs-react |
 | --------- | -------- |
-| `useCallback(c)` | `.useCallback(c)` |
-| `useCallback(c, [deps])` | `.useCallbackWithDeps((deps))(_ => c)` |
-| `useCallback(f([deps]), [deps])` | `.useCallbackWithDeps((deps))(f)` |
-| `useContext(c)` | `.useContext(c)` |
-| `useDebugValue(desc)` | `.useDebugValue(desc)` |
-| `useDebugValue(a, f)` | `.useDebugValue(f(a))` |
-| `useEffect(e)` | `.useEffect(e)` |
-| `useEffect(e, [])` | `.useEffectOnMount(e)` |
-| `useEffect(e, [deps])` | `.useEffectWithDeps((deps))(_ => e)` |
-| `useEffect(f([deps]), [deps])` | `.useEffectWithDeps((deps))(f)` |
-| `useLayoutEffect(e)` | `.useLayoutEffect(e)` |
-| `useLayoutEffect(e, [])` | `.useLayoutEffectOnMount(e)` |
-| `useLayoutEffect(e, [deps])` | `.useLayoutEffectWithDeps((deps))(_ => e)` |
-| `useLayoutEffect(f([deps]), [deps])` | `.useLayoutEffectWithDeps((deps))(f)` |
-| `useMemo(() => a, [deps])` | `.useMemo((deps))(_ => a) |
-| `useMemo(() => f([deps]), [deps])` | `.useMemo((deps))(f) |
-| `useReducer(f, s)` | `.useReducer(f, s)` |
-| `useReducer(f, a, i)` | `.useReducer(f, i(a))`<br>*(Note: `i(a)` is actually `(=> i(a))` and isn't evaluated immediately)* |
-| `useRef()` | `.useRefToAnyVdom` <br> `.useRefToVdom[DomType]` <br> `.useRefToScalaComponent(component)` <br> `.useRefToScalaComponent[P, S, B]` <br> `.useRefToJsComponent(component)` <br> `.useRefToJsComponent[P, S]` <br> `.useRefToJsComponentWithMountedFacade[P, S, F]` |
-| `useRef(initialValue)` | `.useRef(initialValue)` |
-| `useState(initialState)` <br> `useState(() => initialState)` | `.useState(initialState)` |
-| `useId()` | `.useId` | 
-| `useTransition` | `.useTransition` |
-| Custom hook <br> `useBlah(i)` | `.custom(useBlah(i))`
+| `useCallback(c)` | `useCallback(c)` |
+| `useCallback(c, [deps])` | `useCallbackWithDeps((deps))(_ => c)` |
+| `useCallback(f([deps]), [deps])` | `useCallbackWithDeps((deps))(f)` |
+| `useContext(c)` | `useContext(c)` |
+| `useDebugValue(desc)` | `useDebugValue(desc)` |
+| `useDebugValue(a, f)` | `useDebugValue(f(a))` |
+| `useEffect(e)` | `useEffect(e)` |
+| `useEffect(e, [])` | `useEffectOnMount(e)` |
+| `useEffect(e, [deps])` | `useEffectWithDeps((deps))(_ => e)` |
+| `useEffect(f([deps]), [deps])` | `useEffectWithDeps((deps))(f)` |
+| `useLayoutEffect(e)` | `useLayoutEffect(e)` |
+| `useLayoutEffect(e, [])` | `useLayoutEffectOnMount(e)` |
+| `useLayoutEffect(e, [deps])` | `useLayoutEffectWithDeps((deps))(_ => e)` |
+| `useLayoutEffect(f([deps]), [deps])` | `useLayoutEffectWithDeps((deps))(f)` |
+| `useMemo(() => a, [deps])` | `useMemo((deps))(_ => a)` |
+| `useMemo(() => f([deps]), [deps])` | `useMemo((deps))(f)` |
+| `useReducer(f, s)` | `useReducer(f, s)` |
+| `useReducer(f, a, i)` | `useReducer(f, i(a))`<br>*(Note: `i(a)` is actually `(=> i(a))` and isn't evaluated immediately)* |
+| `useRef()` | `.useRefToAnyVdom` <br> `useRefToVdom[DomType]` <br> `useRefToScalaComponent(component)` <br> `useRefToScalaComponent[P, S, B]` <br> `useRefToJsComponent(component)` <br> `useRefToJsComponent[P, S]` <br> `useRefToJsComponentWithMountedFacade[P, S, F]` |
+| `useRef(initialValue)` | `useRef(initialValue)` |
+| `useState(initialState)` <br> `useState(() => initialState)` | `useState(initialState)` |
+| `useId()` | `useId` | 
+| `useTransition` | `useTransition` |
+| Custom hook <br> `useBlah(i)` | `useBlah(i)` <br> (`def useBlah(i: I): HookResult[O]`) |
 
 Note: The reason that `[deps]` on the JS side becomes `(deps)` on the Scala side,
 is that in JS you'd use an array but in Scala you'd use a tuple.
@@ -206,73 +141,50 @@ So `[dep1, dep2]` becomes `(dep1, dep2)`; and `[dep1]` becomes just `dep1` which
 
 | Hook | Description |
 | ---- | ----------- |
-| `.localLazyVal(a)` | Creates a new `lazy val` on each render. |
-| `.localVal(a)` | Creates a new `val` on each render. |
-| `.localVar(a)` | Creates a new `var` on each render. |
-| `.useForceUpdate` | Provides a `Reusable[Callback]` then when invoked, forces a re-render of the component. |
-| `.useStateSnapshot(initialState)` <br> *(Requires import japgolly.scalajs.react.extra._)* | Same as `.useState` except you get a `StateSnapshot` (which accepts callbacks on set updates). |
-| `.useStateSnapshotWithReuse(initialState)` <br> *(Requires import japgolly.scalajs.react.extra._)* | Same as `.useState` except you get a `StateSnapshot` (which accepts callbacks on set updates) with state `Reusability`. |
-| `.useStateWithReuse(initialState)` | Conceptually `useState` + `shouldComponentUpdate`. Same as `useState` except that updates are dropped according to `Reusability`. |
+| `useForceUpdate` | Provides a `Reusable[Callback]` then when invoked, forces a re-render of the component. |
+| `useStateSnapshot(initialState)` <br> *(Requires import japgolly.scalajs.react.extra._)* | Same as `.useState` except you get a `StateSnapshot` (which accepts callbacks on set updates). |
+| `useStateSnapshotWithReuse(initialState)` <br> *(Requires import japgolly.scalajs.react.extra._)* | Same as `.useState` except you get a `StateSnapshot` (which accepts callbacks on set updates) with state `Reusability`. |
+| `useStateWithReuse(initialState)` | Conceptually `useState` + `shouldComponentUpdate`. Same as `useState` except that updates are dropped according to `Reusability`. |
 
 # `shouldComponentUpdate`
 
-Instead of calling `render`, you can call one of the following to get `shouldComponentUpdate`
-behaviour just like classes have.
+In order to avoid a rerender in the case where the render dependencies are reusable,
+you can render in a new component wrapped in `React.memo`, just as you would in JS.
 
-* `renderWithReuse(f: Ctx => VdomNode)(implicit r: Reusability[Ctx])`
-* `renderWithReuseBy[A: Reusability](reusableInputs: Ctx => A)(f: A => VdomNode)`
-* `renderReusable(f: Ctx => Reusable[VdomNode])`
-
-# Hooks with dependencies
-
-Sometimes hooks are initialised using props and/or the output of other hooks,
-(which scalajs-react refers to as "context").
-Each hook that has a return type that's not `Unit`,
-becomes available in subsequent contexts.
-
-In order to get access to this context, append a `By` suffix to the hook method
-of your choice, and change the arguments to functions that take the context.
-There are two ways to do this.
-
-### 1. useXxxxxBy((props, hook1, hook2, ...) => arg)
-
+For example, the above component can be rewritten as:
 ```scala
-val comp = ScalaFnComponent.withHooks[Int]
-  .useStateBy(props => props - 1) // initialise state according to props
-  .useEffectBy((props, hook1) => Callback.log(s"Props: $props, State: ${hook1.value}"))
-```
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.html_<^._
+import org.scalajs.dom.document
 
-### 2. useXxxxxBy(ctxObj => arg)
-
-```scala
-val comp = ScalaFnComponent.withHooks[Int]
-  .useStateBy(props => props - 1) // initialise state according to props
-  .useEffectBy(c => Callback.log(s"Props: ${c.props}, State: ${c.hook1.value}"))
-```
-
-### Hooks that return `Unit` don't appear in context
-
-```scala
-val comp = ScalaFnComponent.withHooks[Int]
-
-  // The result of this hook becomes "hook1"
-  .useStateBy(props => props - 1)
-
-  // The result of useEffect is Unit and doesn't appear in context
-  .useEffectBy(c => Callback.log(s"Props: ${c.props}, State: ${c.hook1.value}"))
-
-  // The result of this hook becomes "hook2"
-  .useState(123)
-
-  .render((props, hook1, hook2) =>
-    <.div(
-      <.div("State 1 = ", hook1.value),
-      <.div("State 2 = ", hook2.value),
-    )
+object Example {
+  private val Render = React.memo(
+    ScalaFnComponent[(UseState[Int], UseState[String])]{ case (count, fruit) =>
+      <.div(
+        <.p(s"You clicked ${count.value} times"),
+        <.button(
+          ^.onClick --> count.modState(_ + 1),
+          "Click me"
+        ),
+        <.p(s"Your favourite fruit is a ${fruit.value}!")
+      )
+    }
   )
+
+  val Component = ScalaFnComponent[Unit]( props =>
+    for {
+      count <- useState(0)
+      _     <- useEffect(Callback {
+                 document.title = s"You clicked ${count.value} times"
+               })
+      fruit <- useState("banana")
+    } yield
+      Render(count, fruit)
+  )
+}
 ```
 
-# Hooks and PropsChildren
+# Hooks and PropsChildren (TODO)
 
 In order to get access to `PropsChildren`, call `.withPropsChildren` as the first step in your DSL.
 It will then become available...
@@ -303,7 +215,7 @@ object Example {
 }
 ```
 
-# Custom hooks
+# Custom hooks (TODO)
 
 A custom hook has the type `CustomHook[I, O]` where
 `I` is the input type (or `Unit` if your custom hook doesn't take an input),
@@ -366,45 +278,7 @@ Example:
     .customBy($ => someCustomHook($.props.someInt)) // or use a dynamic value
 ```
 
-# Custom hook composition
-
-CustomHooks can be composed by calling `++`.
-
-The input/output type of the result will be the "natural" result according to these rules:
-* `A ++ Unit` or `Unit ++ A` becomes `A`
-* `A ++ A` becomes `A` if it's in the input position
-* `A ++ A` becomes `A` if it's in the output position and `A <: scala.Singleton`
-* otherwise `A ++ B` becomes `(A, B)`
-
-Examples:
-
-```scala
-object Example1 {
-  val hook1: CustomHook[Int, Unit] = ???
-  val hook2: CustomHook[Int, Unit] = ???
-  val hooks: CustomHook[Int, Unit] = hook1 ++ hook2
-}
-
-object Example2 {
-  val hook1: CustomHook[Unit, Int] = ???
-  val hook2: CustomHook[Unit, Int] = ???
-  val hooks: CustomHook[Unit, (Int, Int)] = hook1 ++ hook2
-}
-
-object Example3 {
-  val hook1: CustomHook[Long, Boolean] = ???
-  val hook2: CustomHook[String, Int] = ???
-  val hooks: CustomHook[(Long, String), (Boolean, Int)] = hook1 ++ hook2
-}
-
-object Example4 {
-  val hook1: CustomHook[Unit, Boolean] = ???
-  val hook2: CustomHook[String, Unit] = ???
-  val hooks: CustomHook[String, Boolean] = hook1 ++ hook2
-}
-```
-
-# Using third-party JavaScript hooks
+# Using third-party JavaScript hooks (TODO)
 
 Using a third-party JavaScript hook is as simple as wrapping it in `CustomHook.unchecked`.
 
@@ -421,201 +295,8 @@ Then to use it, either...
 1) simply call `.custom(jsHook)` from your component
 2) or create an API extension as shown below
 
-# API extensions
 
-You can also provide your own implicit extensions to the hook API.
-
-Unfortunately it involves a bit of boilerplate. Copy and customise one of the following templates:
-
-### Template 1: Custom hooks that take input and return output
-
-```scala
-import japgolly.scalajs.react._
-
-object MyCustomHook {
-
-  // TODO: Replace
-  val hook = CustomHook[String]
-    .useEffectOnMountBy(name => Callback.log(s"HELLO $name"))
-    .buildReturning(name => name)
-
-  object HooksApiExt {
-    sealed class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]) {
-
-      // TODO: Change hook name, input args/type(s), and output type
-      final def useMyCustomHook(name: String)(implicit step: Step): step.Next[String] =
-        // TODO: Change hook name
-        useMyCustomHookBy(_ => name)
-
-      // TODO: Change hook name, input args/type(s), and output type
-      final def useMyCustomHookBy(name: Ctx => String)(implicit step: Step): step.Next[String] =
-        api.customBy(ctx => hook(name(ctx)))
-    }
-
-    final class Secondary[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]) extends Primary[Ctx, Step](api) {
-
-      // TODO: Change hook name, input args/type(s), and output type
-      def useMyCustomHookBy(name: CtxFn[String])(implicit step: Step): step.Next[String] =
-        // TODO: Change hook name, squash each parameter
-        // useMyCustomHookBy(step.squash(arg1)(_), step.squash(arg2)(_), ...)
-        useMyCustomHookBy(step.squash(name)(_))
-    }
-  }
-
-  trait HooksApiExt {
-    import HooksApiExt._
-
-    // TODO: Change hook name so that it won't conflict with other custom hooks
-    implicit def hooksExtMyCustomHook1[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]): Primary[Ctx, Step] =
-      new Primary(api)
-
-    // TODO: Change hook name so that it won't conflict with other custom hooks
-    implicit def hooksExtMyCustomHook2[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]): Secondary[Ctx, CtxFn, Step] =
-      new Secondary(api)
-  }
-
-  object Implicits extends HooksApiExt
-}
-```
-
-### Template 2: Custom hooks that take input and don't return output
-
-```scala
-import japgolly.scalajs.react._
-
-object MyCustomHook {
-
-  // TODO: Replace
-  val hook = CustomHook[String]
-    .useEffectOnMountBy(name => Callback.log(s"HELLO $name"))
-    .build
-
-  object HooksApiExt {
-    sealed class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]) {
-
-      // TODO: Change hook name, input args/type(s), and output type
-      final def useMyCustomHook(name: String)(implicit step: Step): step.Self =
-        // TODO: Change hook name
-        useMyCustomHookBy(_ => name)
-
-      // TODO: Change hook name, input args/type(s), and output type
-      final def useMyCustomHookBy(name: Ctx => String)(implicit step: Step): step.Self =
-        api.customBy(ctx => hook(name(ctx)))
-    }
-
-    final class Secondary[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]) extends Primary[Ctx, Step](api) {
-
-      // TODO: Change hook name, input args/type(s), and output type
-      def useMyCustomHookBy(name: CtxFn[String])(implicit step: Step): step.Self =
-        // TODO: Change hook name, squash each parameter
-        // useMyCustomHookBy(step.squash(arg1)(_), step.squash(arg2)(_), ...)
-        useMyCustomHookBy(step.squash(name)(_))
-    }
-  }
-
-  trait HooksApiExt {
-    import HooksApiExt._
-
-    // TODO: Change hook name so that it won't conflict with other custom hooks
-    implicit def hooksExtMyCustomHook1[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]): Primary[Ctx, Step] =
-      new Primary(api)
-
-    // TODO: Change hook name so that it won't conflict with other custom hooks
-    implicit def hooksExtMyCustomHook2[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]): Secondary[Ctx, CtxFn, Step] =
-      new Secondary(api)
-  }
-
-  object Implicits extends HooksApiExt
-}
-```
-
-### Template 3: Custom hooks that don't take input but return output
-
-```scala
-import japgolly.scalajs.react._
-
-object MyCustomHook {
-
-  // TODO: Replace
-  val hook = CustomHook[Unit]
-    .useEffectOnMount(Callback.log("HELLO!"))
-    .buildReturning(_ => 123)
-
-  object HooksApiExt {
-    sealed class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]) {
-
-      // TODO: Change hook name, and output type
-      final def useMyCustomHook(implicit step: Step): step.Next[Int] =
-        api.custom(hook)
-    }
-  }
-
-  trait HooksApiExt {
-    import HooksApiExt._
-
-    // TODO: Change hook name so that it won't conflict with other custom hooks
-    implicit def hooksExtMyCustomHook[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]): Primary[Ctx, Step] =
-      new Primary(api)
-  }
-
-  object Implicits extends HooksApiExt
-}
-```
-
-### Template 4: Custom hooks that don't take input or return output
-
-```scala
-import japgolly.scalajs.react._
-
-object MyCustomHook {
-
-  // TODO: Replace
-  val hook = CustomHook[Unit]
-    .useEffectOnMount(Callback.log("HELLO!"))
-    .build
-
-  object HooksApiExt {
-    sealed class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]) {
-
-      // TODO: Change hook name
-      final def useMyCustomHook(implicit step: Step): step.Self =
-        api.custom(hook)
-    }
-  }
-
-  trait HooksApiExt {
-    import HooksApiExt._
-
-    // TODO: Change hook name so that it won't conflict with other custom hooks
-    implicit def hooksExtMyCustomHook[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]): Primary[Ctx, Step] =
-      new Primary(api)
-  }
-
-  object Implicits extends HooksApiExt
-}
-```
-
-### Usage
-
-By importing `MyCustomHook.Implicits._` users will be able to use your custom hook directly from the hooks API.
-
-Example:
-
-```scala
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.html_<^._
-import MyCustomHook.Implicits._
-
-object Example {
-  val Component = ScalaFnComponent.withHooks[Unit]
-    .useMyCustomHook // Implicitly available
-    .render($ =>
-      <.div("MyCustomHook: ", $.hook1)
-    )
-}
-```
-
-# Escape hatches
+# Escape hatches (TODO)
 
 If you really, really want to work with JS-style imperative hooks, you can!
 But it's important to note that the onus is on you to ensure you use hooks correctly without violating React's rules.
