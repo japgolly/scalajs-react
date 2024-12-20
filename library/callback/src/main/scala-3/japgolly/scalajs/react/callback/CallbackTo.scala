@@ -3,6 +3,7 @@ package japgolly.scalajs.react.callback
 import japgolly.scalajs.react.callback.CallbackTo.MapGuard
 import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.util.JsUtil
+import japgolly.scalajs.react.util.Trampoline
 import japgolly.scalajs.react.util.Util.{catchAll, identityFn}
 import java.time.{Duration, Instant}
 import org.scalajs.dom.Window
