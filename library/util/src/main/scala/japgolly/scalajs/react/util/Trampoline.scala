@@ -1,4 +1,4 @@
-package japgolly.scalajs.react.callback
+package japgolly.scalajs.react.util
 
 import scala.scalajs.js
 

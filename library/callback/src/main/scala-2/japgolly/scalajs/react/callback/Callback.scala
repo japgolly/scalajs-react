@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.callback
 
+import japgolly.scalajs.react.util.Trampoline
 import japgolly.scalajs.react.util.Util.identityFn
 import java.time.Duration
 import org.scalajs.dom.{console, window}
