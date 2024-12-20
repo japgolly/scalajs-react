@@ -55,8 +55,8 @@ trait CoreGeneral
   final val Hooks             = hooks.Hooks
   final val HooksApi          = hooks.Api
 
-  final type HookResult[A] = hooks.HookResult[A]
-  final val HookResult     = hooks.HookResult
+  final type HookResult[+A] = hooks.HookResult[A]
+  final val HookResult      = hooks.HookResult
 
   final val ReactEffect = Effect
 

@@ -205,14 +205,14 @@ import japgolly.scalajs.react.vdom.html_<^._
 
 object Example {
   val Component = ScalaFnComponent[Unit]( _ =>
-    ExampleHook.useTitleCounter // <--- usage
-      .map( count =>
-        <.div(
-          <.p(s"You clicked ${count.value} times"),
-          <.button(
-            ^.onClick --> count.modState(_ + 1),
-            "Click me"
-          )
+    for {
+      count <- useTitleCounter // <--- usage
+    } yield
+      <.div(
+        <.p(s"You clicked ${count.value} times"),
+        <.button(
+          ^.onClick --> count.modState(_ + 1),
+          "Click me"
         )
       )
   )
