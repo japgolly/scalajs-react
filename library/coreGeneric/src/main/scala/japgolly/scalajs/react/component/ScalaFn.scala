@@ -34,28 +34,28 @@ object ScalaFn extends DerivedDisplayName {
 
   // ===================================================================================================================
 
-  def apply[P](render: P => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None], name: FullName): Component[P, s.CT] =
-    create[P, Children.None, s.CT](derivedDisplayName)(b => render(b.unbox))(s)
+  def apply[P](render: P => Delayed[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.None], name: FullName): Component[P, s.CT] =
+    create[P, Children.None, s.CT](derivedDisplayName)(b => render(b.unbox).eval())(s)
 
-  def withChildren[P](render: (P, PropsChildren) => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs], name: FullName): Component[P, s.CT] =
-    create[P, Children.Varargs, s.CT](derivedDisplayName)(b => render(b.unbox, PropsChildren(b.children)))(s)
+  def withChildren[P](render: (P, PropsChildren) => Delayed[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.Varargs], name: FullName): Component[P, s.CT] =
+    create[P, Children.Varargs, s.CT](derivedDisplayName)(b => render(b.unbox, PropsChildren(b.children)).eval())(s)
 
-  def justChildren(render: PropsChildren => VdomNode)(implicit name: FullName): Component[Unit, CtorType.Children] =
-    create(derivedDisplayName)(b => render(PropsChildren(b.children)))
+  def justChildren(render: PropsChildren => Delayed[VdomNode])(implicit name: FullName): Component[Unit, CtorType.Children] =
+    create(derivedDisplayName)(b => render(PropsChildren(b.children)).eval())
 
   // ===================================================================================================================
 
-  def withReuse[P](render: P => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None], r: Reusability[P], name: FullName): Component[P, s.CT] =
-    withHooks[P].renderWithReuse(render)(s, r)
+  def withReuse[P](render: P => Delayed[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.None], r: Reusability[P], name: FullName): Component[P, s.CT] =
+    withHooks[P].renderWithReuse(render.andThen(_.eval()))(s, r)
 
-  def withReuseBy[P, A](reusableInputs: P => A)(render: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None], r: Reusability[A], name: FullName): Component[P, s.CT] =
-    withHooks[P].renderWithReuseBy(reusableInputs)(render)(s, r)
+  def withReuseBy[P, A](reusableInputs: P => A)(render: A => Delayed[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.None], r: Reusability[A], name: FullName): Component[P, s.CT] =
+    withHooks[P].renderWithReuseBy(reusableInputs)(render.andThen(_.eval()))(s, r)
 
-  def withChildrenAndReuse[P](render: (P, PropsChildren) => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs], rp: Reusability[P], rc: Reusability[PropsChildren], name: FullName): Component[P, s.CT] =
-    withHooks[P].withPropsChildren.renderWithReuse(i => render(i.props, i.propsChildren))
+  def withChildrenAndReuse[P](render: (P, PropsChildren) => Delayed[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.Varargs], rp: Reusability[P], rc: Reusability[PropsChildren], name: FullName): Component[P, s.CT] =
+    withHooks[P].withPropsChildren.renderWithReuse(i => render(i.props, i.propsChildren).eval())
 
-  def withChildrenAndReuse[P, A](reusableInputs: (P, PropsChildren) => A)(render: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs], r: Reusability[A], name: FullName): Component[P, s.CT] =
-    withHooks[P].withPropsChildren.renderWithReuseBy(i => reusableInputs(i.props, i.propsChildren))(render)
+  def withChildrenAndReuse[P, A](reusableInputs: (P, PropsChildren) => A)(render: A => Delayed[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.Varargs], r: Reusability[A], name: FullName): Component[P, s.CT] =
+    withHooks[P].withPropsChildren.renderWithReuseBy(i => reusableInputs(i.props, i.propsChildren))(render.andThen(_.eval()))
 
   class DisplayNameApplied private[ScalaFn](displayName: String) {
     @inline def withHooks[P]: HookComponentBuilder.ComponentP.First[P] =
@@ -63,27 +63,27 @@ object ScalaFn extends DerivedDisplayName {
 
     // ===================================================================================================================
 
-    def apply[P](render: P => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
-      create[P, Children.None, s.CT](displayName)(b => render(b.unbox))(s)
+    def apply[P](render: P => Delayed[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
+      create[P, Children.None, s.CT](displayName)(b => render(b.unbox).eval())(s)
 
-    def withChildren[P](render: (P, PropsChildren) => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
-      create[P, Children.Varargs, s.CT](displayName)(b => render(b.unbox, PropsChildren(b.children)))(s)
+    def withChildren[P](render: (P, PropsChildren) => Delayed[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
+      create[P, Children.Varargs, s.CT](displayName)(b => render(b.unbox, PropsChildren(b.children)).eval())(s)
 
-    def justChildren(render: PropsChildren => VdomNode): Component[Unit, CtorType.Children] =
-      create(displayName)(b => render(PropsChildren(b.children)))
+    def justChildren(render: PropsChildren => Delayed[VdomNode]): Component[Unit, CtorType.Children] =
+      create(displayName)(b => render(PropsChildren(b.children)).eval())
 
     // ===================================================================================================================
 
-    def withReuse[P](render: P => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None], r: Reusability[P]): Component[P, s.CT] =
-      withHooks[P].renderWithReuse(render)(s, r)
+    def withReuse[P](render: P => Delayed[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.None], r: Reusability[P]): Component[P, s.CT] =
+      withHooks[P].renderWithReuse(render.andThen(_.eval()))(s, r)
 
-    def withReuseBy[P, A](reusableInputs: P => A)(render: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.None], r: Reusability[A]): Component[P, s.CT] =
-      withHooks[P].renderWithReuseBy(reusableInputs)(render)(s, r)
+    def withReuseBy[P, A](reusableInputs: P => A)(render: A => Delayed[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.None], r: Reusability[A]): Component[P, s.CT] =
+      withHooks[P].renderWithReuseBy(reusableInputs)(render.andThen(_.eval()))(s, r)
 
-    def withChildrenAndReuse[P](render: (P, PropsChildren) => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs], rp: Reusability[P], rc: Reusability[PropsChildren]): Component[P, s.CT] =
-      withHooks[P].withPropsChildren.renderWithReuse(i => render(i.props, i.propsChildren))
+    def withChildrenAndReuse[P](render: (P, PropsChildren) => Delayed[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.Varargs], rp: Reusability[P], rc: Reusability[PropsChildren]): Component[P, s.CT] =
+      withHooks[P].withPropsChildren.renderWithReuse(i => render(i.props, i.propsChildren).eval())
 
-    def withChildrenAndReuse[P, A](reusableInputs: (P, PropsChildren) => A)(render: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs], r: Reusability[A]): Component[P, s.CT] =
-      withHooks[P].withPropsChildren.renderWithReuseBy(i => reusableInputs(i.props, i.propsChildren))(render)
+    def withChildrenAndReuse[P, A](reusableInputs: (P, PropsChildren) => A)(render: A => Delayed[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.Varargs], r: Reusability[A]): Component[P, s.CT] =
+      withHooks[P].withPropsChildren.renderWithReuseBy(i => reusableInputs(i.props, i.propsChildren))(render.andThen(_.eval()))
   }
 }

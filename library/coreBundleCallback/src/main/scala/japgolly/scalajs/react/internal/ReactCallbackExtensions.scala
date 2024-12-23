@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.internal
 
 import japgolly.scalajs.react.callback._
+import japgolly.scalajs.react.util.Trampoline
 import japgolly.scalajs.react.{ReactEventTypes, Reusability, Reusable}
 import scala.annotation.nowarn
 

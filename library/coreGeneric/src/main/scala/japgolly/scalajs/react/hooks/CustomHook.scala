@@ -35,12 +35,24 @@ final class CustomHook[I, O] private[CustomHook] (val unsafeInit: I => O) extend
       val o2 = next.unsafeInit(is._2)
       O.merge(o1, o2)
     }
+
+  def toHookResult(implicit ev: I =:= Unit): HookResult[O] =
+    HookResult(unsafeInit(ev.flip(())))
+
+  def toHookResult: I => HookResult[O] = 
+    (i: I) => HookResult(unsafeInit(i))
 }
 
 object CustomHook {
 
   def apply[I]: Builder.First[I] =
     new Builder.First(_ => ())
+
+  def fromHookResult[O](hook: HookResult[O]): CustomHook[Unit, O] =
+    CustomHook.unchecked(_ => hook.eval())
+
+  def fromHookResult[I, O](hook: I => HookResult[O]): CustomHook[I, O] =
+    CustomHook.unchecked(i => hook(i).eval())
 
   /** Provides you with a means to do whatever you want without the static guarantees that the normal DSL provides.
     * It's up to you to ensure you don't vioalte React's hook rules.
