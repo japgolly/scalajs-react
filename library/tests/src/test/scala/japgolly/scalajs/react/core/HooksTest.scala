@@ -2055,12 +2055,13 @@ object HooksTest extends TestSuite {
   }
 
   private def testUseReused(): Unit = {
-    val reuseIntByRounding: Reusability[Int] = Reusability.by(_ / 2) 
+    implicit val reusePIByRounding: Reusability[PI] = Reusability.by(_.pi / 2) 
 
     val comp = ScalaFnComponent[Unit] { _ =>
       for {
-        count <- useState(0)
-        (stable, rev) <- useReused(count.value)(reuseIntByRounding)
+        count <- useState(PI(0))
+        reused <- useReused(count.value)
+        (stable, rev) = reused
       } yield
         <.div(
           <.div(s"count=${count.value}, stable=$stable, rev=$rev"),
@@ -2069,9 +2070,9 @@ object HooksTest extends TestSuite {
     }
 
     test(comp()) { (t) =>
-      t.assertText("count=0, stable=0, rev=1")
-      t.clickButton(1); t.assertText("count=1, stable=0, rev=1")
-      t.clickButton(1); t.assertText("count=2, stable=2, rev=2")
+      t.assertText("count=PI(0), stable=PI(0), rev=1")
+      t.clickButton(1); t.assertText("count=PI(1), stable=PI(0), rev=1")
+      t.clickButton(1); t.assertText("count=PI(2), stable=PI(2), rev=2")
     }
   }  
 
