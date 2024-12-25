@@ -54,18 +54,27 @@ trait extra {
     HookResult(UseRef.unsafeCreateToJsComponent(a))    
 
   /**
-  * Returns a stateful value, and a function to update it.
-  *
-  * During the initial render, the returned state is the same as the value passed as the first
-  * argument (initialState).
-  *
-  * During subsequent re-renders, the first value returned by useState will always be the most recent
-  * state after applying updates.
-  */
+    * Returns a stateful value, and a function to update it.
+    *
+    * During the initial render, the returned state is the same as the value passed as the first
+    * argument (initialState).
+    *
+    * During subsequent re-renders, the first value returned by useState will always be the most recent
+    * state after applying updates.
+    */
   @inline final def useStateWithReuse[S: ClassTag: Reusability](
     initialState: => S
   ): HookResult[UseStateWithReuse[S]] =
     HookResult(UseStateWithReuse.unsafeCreate(initialState))
 
+  /**
+    * Given a reusable value, returns the original value that is being reused whenver reusability
+    * applies, together with a revisition a number that increments only when the value isn't reused.
+    *
+    * Useful for using `Reusability` logic in facades to JS hooks that accept dependencies: you can
+    * pass the revision as a dependency to the JS hook.
+    */
+  @inline final def useReused[D: Reusability](deps: => D): HookResult[(D, Int)] =
+    CustomHook.reusableDeps[D].toHookResult(() => deps)
 
 }
