@@ -2054,7 +2054,29 @@ object HooksTest extends TestSuite {
     }
   }
 
-  def testFromFunction() = {
+  private def testUseReused(): Unit = {
+    implicit val reusePIByRounding: Reusability[PI] = Reusability.by(_.pi / 2) 
+
+    val comp = ScalaFnComponent[Unit] { _ =>
+      for {
+        count <- useState(PI(0))
+        reused <- useReused(count.value)
+        (stable, rev) = reused
+      } yield
+        <.div(
+          <.div(s"count=${count.value}, stable=$stable, rev=$rev"),
+          <.button(^.onClick --> count.modState(_ + 1))
+        )
+    }
+
+    test(comp()) { (t) =>
+      t.assertText("count=PI(0), stable=PI(0), rev=1")
+      t.clickButton(1); t.assertText("count=PI(1), stable=PI(0), rev=1")
+      t.clickButton(1); t.assertText("count=PI(2), stable=PI(2), rev=2")
+    }
+  }  
+
+  private def testFromFunction() = {
     val jsHook1: js.Function1[Int, Int] = _ + 1
     val jsHook2: js.Function2[Int, Int, String] = (a: Int, b: Int) => (a + b).toString
 
@@ -2210,6 +2232,7 @@ object HooksTest extends TestSuite {
     "renderWithReuse (monadic alternative using Render.memo)" - {
       "main" - testMonadicRenderWithReuse()
     }
+    "useReused" - testUseReused()
     "fromFunction" - testFromFunction()
   }
 }
