@@ -180,7 +180,6 @@ object React extends React {
 }
 
 @js.native
-@nowarn("cat=unused")
 trait React extends Hooks {
   import React._
 

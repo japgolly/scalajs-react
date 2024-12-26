@@ -9,9 +9,9 @@ import japgolly.scalajs.react.test.ReactTestUtils._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.html.Input
+import scala.collection.mutable
 import scala.scalajs.js
 import utest._
-import scala.collection.mutable
 
 object HooksTest extends TestSuite {
 
@@ -2219,6 +2219,70 @@ object HooksTest extends TestSuite {
     }
   }
 
+  object UseDeferred {
+    def testConst() = {
+      var renders: List[(Int, Int, Boolean)] = Nil
+
+      val comp = ScalaFnComponent
+        .withHooks[Unit]
+        .useState(0)
+        .useDeferredValue((_, state) => state.value)
+        .render { (_, state, deferredValue) =>
+          val isStale: Boolean = state.value != deferredValue
+          renders = renders :+ (state.value, deferredValue, isStale)
+          <.button(^.onClick --> state.modState(_ + 1))
+        }
+
+      test(comp()) { t =>
+        t.clickButton()
+      }
+      assertEq(renders, List((0, 0, false), (1, 0, true), (1, 1, false)))
+    }
+
+    // initialValue was added in React 19 - Uncomment when we upgrade to React 19
+    // def testConstWithInitial() = {
+    //   var renders: List[(Int, Int, Boolean)] = Nil
+
+    //   val comp = ScalaFnComponent
+    //     .withHooks[Unit]
+    //     .useState(0)
+    //     .useDeferredValue((_, state) => state.value, (_, _) => 100)
+    //     .render { (_, state, deferredValue) =>
+    //       val isStale: Boolean = state.value != deferredValue
+    //       renders = renders :+ (state.value, deferredValue, isStale)
+    //       <.div(
+    //         deferredValue,
+    //         <.button(^.onClick --> state.modState(_ + 1))
+    //       )
+    //     }
+
+    //   test(comp()) { t =>
+    //     t.clickButton()
+    //   }
+    //   assertEq(renders, List((0, 100, true), (0, 0, false), (1, 0, true), (1, 1, false)))
+    // }
+
+    def testMonadicConst() = {
+      var renders: List[(Int, Int, Boolean)] = Nil
+
+      val comp = ScalaFnComponent[Unit] { _ =>
+        for {
+          state         <- useState(0)
+          deferredValue <- useDeferredValue(state.value)
+        } yield {
+          val isStale: Boolean = state.value != deferredValue
+          renders = renders :+ (state.value, deferredValue, isStale)
+          <.button(^.onClick --> state.modState(_ + 1))
+        }
+      }
+
+      test(comp()) { t =>
+        t.clickButton()
+      }
+      assertEq(renders, List((0, 0, false), (1, 0, true), (1, 1, false)))
+    }
+  }
+
   // ===================================================================================================================
 
   override def tests = Tests {
@@ -2361,6 +2425,16 @@ object HooksTest extends TestSuite {
     }
     "useSyncExternalStore (monadic)" - {
       "const" - UseSyncExternalStore.testMonadicConst()
+    }
+
+    "useDeferred" - {
+      "const" - UseDeferred.testConst()
+      // initialValue was added in React 19 - Uncomment when we upgrade to React 19
+      // "constWithInitial" - UseDeferred.testConstWithInitial()
+    }
+    "useDeferred (monadic)" - {
+      "const" - UseDeferred.testMonadicConst()
+      // "constWithInitial" - UseDeferred.testMonadicConstWithInitial()
     }
 
     "renderWithReuse" - {

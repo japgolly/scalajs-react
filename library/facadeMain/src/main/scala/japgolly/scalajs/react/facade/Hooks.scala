@@ -61,5 +61,7 @@ trait Hooks extends js.Object {
     getServerSnapshot: js.UndefOr[js.Function0[A]] = js.undefined
   ): A = js.native
 
-  final def useDeferredValue[A](value: A, config: js.UndefOr[A] = js.undefined): A = js.native
+  // initialValue was added in React 19 - Replace when we upgrade to React 19
+  // final def useDeferredValue[A](value: A, initialValue: js.UndefOr[A] = js.undefined): A = js.native
+  final def useDeferredValue[A](value: A): A = js.native
 }

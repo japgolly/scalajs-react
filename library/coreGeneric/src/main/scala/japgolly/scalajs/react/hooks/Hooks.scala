@@ -503,4 +503,13 @@ object Hooks {
       CustomHook.delay(facade.React.useSyncExternalStore(subscribeJs, getSnapshotJs, getServerSnapshotJs))
     }
   }
+
+  object UseDeferredValue {
+  // initialValue was added in React 19 - Replace when we upgrade to React 19
+    // def apply[A](value: A, initialValue: js.UndefOr[A] = js.undefined): CustomHook[Unit, A] =
+    //   CustomHook.delay(facade.React.useDeferredValue(value, initialValue))
+
+    def apply[A](value: A): CustomHook[Unit, A] =
+      CustomHook.delay(facade.React.useDeferredValue(value))
+  }
 }

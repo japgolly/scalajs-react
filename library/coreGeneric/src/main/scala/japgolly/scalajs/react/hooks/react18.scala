@@ -1,9 +1,10 @@
 package japgolly.scalajs.react.hooks
 
+import japgolly.scalajs.react.Reusability
+import japgolly.scalajs.react.hooks.HookResult
 import japgolly.scalajs.react.hooks.Hooks._
 import japgolly.scalajs.react.util.Effect.Sync
 import scala.scalajs.js
-import japgolly.scalajs.react.Reusability
 
 trait react18 {
   /**
@@ -35,7 +36,11 @@ trait react18 {
     * @see
     *   {@link https://react.dev/reference/react/useSyncExternalStore}
     */
-  @inline final def useSyncExternalStore[F[_], A](subscribe: F[Unit] => F[F[Unit]], getSnapshot: F[A], getServerSnapshot: js.UndefOr[F[A]] = js.undefined)(implicit F: Sync[F]): HookResult[A] =
+  @inline final def useSyncExternalStore[F[_], A](
+    subscribe: F[Unit] => F[F[Unit]],
+    getSnapshot: F[A],
+    getServerSnapshot: js.UndefOr[F[A]] = js.undefined
+  )(implicit F: Sync[F]): HookResult[A] =
     UseSyncExternalStore(subscribe, getSnapshot, getServerSnapshot).toHookResult
 
 
@@ -85,4 +90,16 @@ trait react18 {
     implicit isEffectArg: UseEffectArg[A]
   ): HookResult[Unit] =
     ReusableEffect.useInsertionEffect(deps)(effect).toHookResult
+
+  /**
+    * Lets you defer updating a part of the UI.
+    *
+    * @see
+    *   {@link https://react.dev/reference/react/useDeferredValue}
+    */
+  // initialValue was added in React 19 - Replace when we upgrade to React 19
+  // @inline final def useDeferredValue[A](value: A, initialValue: js.UndefOr[A] = js.undefined): HookResult[A] =
+  //   UseDeferredValue(value, initialValue).toHookResult
+  @inline final def useDeferredValue[A](value: A): HookResult[A] =
+    UseDeferredValue(value).toHookResult
 }
