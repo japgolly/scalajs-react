@@ -31,9 +31,14 @@ object Hooks {
         override def fromJs = g
       }
 
-    implicit def callback[F[_]](implicit F: Dispatch[F]): UseCallbackArg[F[Unit]] =
+    implicit def dispatchUnit[F[_]](implicit F: Dispatch[F]): UseCallbackArg[F[Unit]] =
       apply[F[Unit], js.Function0[Unit]](
         F.dispatchFn(_))(
+        f => Reusable.byRef(f).withValue(F.delay(f())))
+
+    implicit def syncValue[F[_], A](implicit F: UnsafeSync[F]): UseCallbackArg[F[A]] =
+      apply[F[A], js.Function0[A]](
+        F.toJsFn(_))(
         f => Reusable.byRef(f).withValue(F.delay(f())))
   }
 
@@ -100,6 +105,12 @@ object Hooks {
 
     def unsafeCreateLayoutOnMount[A](effect: A)(implicit a: UseEffectArg[A]): Unit =
       facade.React.useLayoutEffect(a.toJs(effect), new js.Array[Any])
+
+    def unsafeCreateInsertion[A](effect: A)(implicit a: UseEffectArg[A]): Unit =
+      facade.React.useInsertionEffect(a.toJs(effect))
+
+    def unsafeCreateInsertionOnMount[A](effect: A)(implicit a: UseEffectArg[A]): Unit =
+      facade.React.useInsertionEffect(a.toJs(effect), new js.Array[Any])      
   }
 
   object ReusableEffect {
@@ -113,6 +124,11 @@ object Hooks {
       CustomHook.reusableDeps[D]
         .apply(() => deps)
         .map { case (d, rev) => facade.React.useLayoutEffect(a.toJs(effect(d)), js.Array[Int](rev)) }
+
+    def useInsertionEffect[D, A](deps: => D)(effect: D => A)(implicit a: UseEffectArg[A], r: Reusability[D]): CustomHook[Unit, Unit] =
+      CustomHook.reusableDeps[D]
+        .apply(() => deps)
+        .map { case (d, rev) => facade.React.useInsertionEffect(a.toJs(effect(d)), js.Array[Int](rev)) }
   }
 
   // ===================================================================================================================
@@ -259,9 +275,9 @@ object Hooks {
   }
 
   object UseStateF {
-    def apply[F[_], S, O](r: facade.React.UseState[S], oss: Reusable[facade.React.UseStateSetter[O]])(implicit f: Sync[F]): UseStateF[F, S] =
+    def apply[F[_], S, O](r: facade.React.UseState[S], oss: Reusable[facade.React.UseStateSetter[O]])(implicit FF: Sync[F]): UseStateF[F, S] =
       new UseStateF[F, S] {
-        override protected[hooks] implicit def F: Sync[F] = f
+        override protected[hooks] implicit def F: Sync[F] = FF
         override val raw = r
         override type OriginalState = O
         override val originalSetState = oss
@@ -456,14 +472,6 @@ object Hooks {
       CustomHook.delay(UseTransitionF(facade.React.useTransition())(D.Sync))
   }
 
-  object UseTransitionF {
-    def apply[F[_]](r: facade.React.UseTransition)(implicit f: Sync[F]): UseTransitionF[F] =
-      new UseTransitionF[F] {
-        override protected[hooks] implicit def F: Sync[F] = f
-        override val raw: React.UseTransition = r
-      }
-  }
-
   trait UseTransitionF[F[_]] {
     protected[hooks] implicit def F: Sync[F]
     val raw: facade.React.UseTransition
@@ -476,5 +484,23 @@ object Hooks {
       */
     def startTransition(cb: => F[Unit]): F[Unit] =
       F.delay(raw._2(F.toJsFn(cb)))
+  }
+
+  object UseTransitionF {
+    def apply[F[_]](r: facade.React.UseTransition)(implicit FF: Sync[F]): UseTransitionF[F] =
+      new UseTransitionF[F] {
+        override protected[hooks] implicit def F: Sync[F] = FF
+
+        override val raw: React.UseTransition = r
+      }
+  }
+
+  object UseSyncExternalStore {
+    def apply[F[_], A](subscribe: F[Unit] => F[F[Unit]], getSnapshot: F[A], getServerSnapshot: js.UndefOr[F[A]] = js.undefined)(implicit F: Sync[F]): CustomHook[Unit, A] = {
+      val subscribeJs:  facade.React.UseSyncExternalStoreSubscribeArg  = (update: js.Function0[Unit]) => F.runSync(F.map(subscribe(F.fromJsFn0(update)))(F.toJsFn(_)))
+      val getSnapshotJs: js.Function0[A] = F.toJsFn(getSnapshot)
+      val getServerSnapshotJs: js.UndefOr[js.Function0[A]] = getServerSnapshot.map(F.toJsFn(_))
+      CustomHook.delay(facade.React.useSyncExternalStore(subscribeJs, getSnapshotJs, getServerSnapshotJs))
+    }
   }
 }

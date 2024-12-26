@@ -1,10 +1,12 @@
 package japgolly.scalajs.react.hooks
 
 import japgolly.scalajs.react.hooks.Hooks._
+import japgolly.scalajs.react.util.Effect.Sync
+import scala.scalajs.js
 
 trait react18 {
   /**
-  * `useId` is a React Hook for generating unique IDs that can be passed to accessibility attributes.
+  * Generates unique IDs that can be passed to accessibility attributes.
   *
   * @see
   *   https://react.dev/reference/react/useId
@@ -25,4 +27,13 @@ trait react18 {
   */
   @inline final def useTransition: HookResult[UseTransition] =
     UseTransition().toHookResult
+
+  /**
+    * Lets you subscribe to an external store.
+    *
+    * @see
+    *   {@link https://react.dev/reference/react/useSyncExternalStore}
+    */
+  @inline final def useSyncExternalStore[F[_], A](subscribe: F[Unit] => F[F[Unit]], getSnapshot: F[A], getServerSnapshot: js.UndefOr[F[A]] = js.undefined)(implicit F: Sync[F]): HookResult[A] =
+    UseSyncExternalStore(subscribe, getSnapshot, getServerSnapshot).toHookResult
 }

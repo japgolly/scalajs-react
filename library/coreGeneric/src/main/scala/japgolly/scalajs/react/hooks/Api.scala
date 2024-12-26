@@ -6,6 +6,7 @@ import japgolly.scalajs.react.feature.Context
 import japgolly.scalajs.react.hooks.Hooks._
 import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.util.DefaultEffects
+import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.util.Util.identityFn
 import japgolly.scalajs.react.vdom.{TopNode, VdomNode}
 import japgolly.scalajs.react.{Children, CtorType, Ref, Reusability, Reusable}
@@ -342,6 +343,93 @@ object Api {
     final def useLayoutEffectWithDepsBy[D, A](deps: Ctx => D)(effect: Ctx => D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
       customBy(ctx => ReusableEffect.useLayoutEffect(deps(ctx))(effect(ctx)))
 
+    //************
+
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
+      * read Insertion from the DOM and synchronously re-render. Updates scheduled inside useInsertionEffect will be flushed
+      * synchronously, before the browser has a chance to paint.
+      *
+      * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
+      *
+      * If you'd only like to execute the effect when your component is mounted, then use [[useInsertionEffectOnMount]].
+      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
+      * the second argument.
+      *
+      * @see https://react.dev/reference/react/useInsertionEffect#useinsertioneffect
+      */
+    final def useInsertionEffect[A](effect: A)(implicit a: UseEffectArg[A], step: Step): step.Self =
+      useInsertionEffectBy(_ => effect)
+
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
+      * read Insertion from the DOM and synchronously re-render. Updates scheduled inside useInsertionEffect will be flushed
+      * synchronously, before the browser has a chance to paint.
+      *
+      * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
+      *
+      * If you'd only like to execute the effect when your component is mounted, then use [[useInsertionEffectOnMount]].
+      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
+      * the second argument.
+      *
+      * @see https://react.dev/reference/react/useInsertionEffect#useinsertioneffect
+      */
+    final def useInsertionEffectBy[A](init: Ctx => A)(implicit a: UseEffectArg[A], step: Step): step.Self =
+      self(ctx => UseEffect.unsafeCreateInsertion(init(ctx)))
+
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
+      * read Insertion from the DOM and synchronously re-render. Updates scheduled inside useInsertionEffect will be flushed
+      * synchronously, before the browser has a chance to paint.
+      *
+      * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
+      *
+      * This will only execute the effect when your component is mounted.
+      *
+      * @see https://react.dev/reference/react/useInsertionEffect#useinsertioneffect
+      */
+    final def useInsertionEffectOnMount[A](effect: A)(implicit a: UseEffectArg[A], step: Step): step.Self =
+      useInsertionEffectOnMountBy(_ => effect)
+
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
+      * read Insertion from the DOM and synchronously re-render. Updates scheduled inside useInsertionEffect will be flushed
+      * synchronously, before the browser has a chance to paint.
+      *
+      * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
+      *
+      * This will only execute the effect when your component is mounted.
+      *
+      * @see https://react.dev/reference/react/useInsertionEffect#useinsertioneffect
+      */
+    final def useInsertionEffectOnMountBy[A](effect: Ctx => A)(implicit a: UseEffectArg[A], step: Step): step.Self =
+      self(ctx => UseEffect.unsafeCreateInsertionOnMount(effect(ctx)))
+
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
+      * read Insertion from the DOM and synchronously re-render. Updates scheduled inside useInsertionEffect will be flushed
+      * synchronously, before the browser has a chance to paint.
+      *
+      * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
+      *
+      * This will only execute the effect when values in the second argument, change.
+      *
+      * @see https://react.dev/reference/react/useInsertionEffect#useinsertioneffect
+      */
+    final def useInsertionEffectWithDeps[D, A](deps: => D)(effect: D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
+      custom(ReusableEffect.useInsertionEffect(deps)(effect))
+
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
+      * read Insertion from the DOM and synchronously re-render. Updates scheduled inside useInsertionEffect will be flushed
+      * synchronously, before the browser has a chance to paint.
+      *
+      * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
+      *
+      * This will only execute the effect when values in the second argument, change.
+      *
+      * @see https://react.dev/reference/react/useInsertionEffect#useinsertioneffect
+      */
+    final def useInsertionEffectWithDepsBy[D, A](deps: Ctx => D)(effect: Ctx => D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
+      customBy(ctx => ReusableEffect.useInsertionEffect(deps(ctx))(effect(ctx)))
+
+
+    //************
+
     /** Returns a memoized value.
       *
       * Pass a “create” function and any dependencies. useMemo will only recompute the memoized value when one
@@ -478,7 +566,7 @@ object Api {
     final def useStateWithReuseBy[S: ClassTag: Reusability](initialState: Ctx => S)(implicit step: Step): step.Next[UseStateWithReuse[S]] =
       next(ctx => UseStateWithReuse.unsafeCreate(initialState(ctx)))
 
-    /** `useId` is a React Hook for generating unique IDs that can be passed to accessibility attributes.
+    /** Generates unique IDs that can be passed to accessibility attributes.
       * 
       * @see https://react.dev/reference/react/useId
       */
@@ -496,6 +584,41 @@ object Api {
       */
     final def useTransition(implicit step: Step): step.Next[UseTransition] =
       customBy(_ => UseTransition())
+
+    /**
+      * Lets you subscribe to an external store.
+      *
+      * @see
+      *   {@link https://react.dev/reference/react/useSyncExternalStore}
+      */
+    @inline final def useSyncExternalStore[F[_], A](subscribe: F[Unit] => F[F[Unit]], getSnapshot: F[A])(implicit F: Sync[F], step: Step): step.Next[A] =
+      useSyncExternalStore(subscribe, getSnapshot, js.undefined)
+
+    /**
+      * Lets you subscribe to an external store.
+      *
+      * @see
+      *   {@link https://react.dev/reference/react/useSyncExternalStore}
+      */
+    final def useSyncExternalStore[F[_], A](subscribe: F[Unit] => F[F[Unit]], getSnapshot: F[A], getServerSnapshot: js.UndefOr[F[A]])(implicit F: Sync[F], step: Step): step.Next[A] =
+      customBy(_ => UseSyncExternalStore(subscribe, getSnapshot, getServerSnapshot))
+
+    /**
+      * Lets you subscribe to an external store.
+      *
+      * @see
+      *   {@link https://react.dev/reference/react/useSyncExternalStore}
+      */
+    @inline final def useSyncExternalStoreBy[F[_], A](subscribe: Ctx => F[Unit] => F[F[Unit]], getSnapshot: Ctx => F[A])(implicit F: Sync[F], step: Step): step.Next[A] =
+      useSyncExternalStoreBy(subscribe, getSnapshot, js.undefined)
+    /**
+      * Lets you subscribe to an external store.
+      *
+      * @see
+      *   {@link https://react.dev/reference/react/useSyncExternalStore}
+      */
+    final def useSyncExternalStoreBy[F[_], A](subscribe: Ctx => F[Unit] => F[F[Unit]], getSnapshot: Ctx => F[A], getServerSnapshot: js.UndefOr[Ctx => F[A]])(implicit F: Sync[F], step: Step): step.Next[A] =
+      customBy(ctx => UseSyncExternalStore(subscribe(ctx), getSnapshot(ctx), getServerSnapshot.map(_(ctx))))
   }
 
   // ===================================================================================================================
@@ -693,6 +816,23 @@ object Api {
       */
     final def useStateWithReuseBy[S: ClassTag: Reusability](initialState: CtxFn[S])(implicit step: Step): step.Next[UseStateWithReuse[S]] =
       useStateWithReuseBy(step.squash(initialState)(_))
+
+    /**
+      * Lets you subscribe to an external store.
+      *
+      * @see
+      *   {@link https://react.dev/reference/react/useSyncExternalStore}
+      */
+    @inline final def useSyncExternalStoreBy[F[_], A](subscribe: CtxFn[F[Unit] => F[F[Unit]]], getSnapshot: CtxFn[F[A]])(implicit F: Sync[F], step: Step): step.Next[A] =
+      useSyncExternalStoreBy(subscribe, getSnapshot, js.undefined)
+    /**
+      * Lets you subscribe to an external store.
+      *
+      * @see
+      *   {@link https://react.dev/reference/react/useSyncExternalStore}
+      */
+    final def useSyncExternalStoreBy[F[_], A](subscribe: CtxFn[F[Unit] => F[F[Unit]]], getSnapshot: CtxFn[F[A]], getServerSnapshot: js.UndefOr[CtxFn[F[A]]])(implicit F: Sync[F], step: Step): step.Next[A] =
+      useSyncExternalStoreBy(ctx => step.squash(subscribe)(ctx), ctx => step.squash(getSnapshot)(ctx), getServerSnapshot.map(f => ctx => step.squash(f)(ctx)))
   }
 
   // ===================================================================================================================

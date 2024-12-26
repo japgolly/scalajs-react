@@ -20,9 +20,19 @@ trait UseCallbackArgInstances {
       z => (a) => Z.dispatch(z(a)))(
       z => Reusable.byRef(z).withValue((a) => Z.delay(z(a))))
 
+  implicit def ci1[A, Y, Z[_]](implicit Z: UnsafeSync[Z]): UseCallbackArg[(A) => Z[Y]] =
+    UseCallbackArg[(A) => Z[Y], js.Function1[A, Y]](
+      z => (a) => Z.runSync(z(a)))(
+      z => Reusable.byRef(z).withValue((a) => Z.delay(z(a))))
+
   implicit def c2[A, B, Z[_]](implicit Z: Dispatch[Z]): UseCallbackArg[(A, B) => Z[Unit]] =
     UseCallbackArg[(A, B) => Z[Unit], js.Function2[A, B, Unit]](
       z => (a, b) => Z.dispatch(z(a, b)))(
+      z => Reusable.byRef(z).withValue((a, b) => Z.delay(z(a, b))))
+
+  implicit def ci2[A, B, Y, Z[_]](implicit Z: UnsafeSync[Z]): UseCallbackArg[(A, B) => Z[Y]] =
+    UseCallbackArg[(A, B) => Z[Y], js.Function2[A, B, Y]](
+      z => (a, b) => Z.runSync(z(a, b)))(
       z => Reusable.byRef(z).withValue((a, b) => Z.delay(z(a, b))))
 
   implicit def c3[A, B, C, Z[_]](implicit Z: Dispatch[Z]): UseCallbackArg[(A, B, C) => Z[Unit]] =
@@ -30,9 +40,19 @@ trait UseCallbackArgInstances {
       z => (a, b, c) => Z.dispatch(z(a, b, c)))(
       z => Reusable.byRef(z).withValue((a, b, c) => Z.delay(z(a, b, c))))
 
+  implicit def ci3[A, B, C, Y, Z[_]](implicit Z: UnsafeSync[Z]): UseCallbackArg[(A, B, C) => Z[Y]] =
+    UseCallbackArg[(A, B, C) => Z[Y], js.Function3[A, B, C, Y]](
+      z => (a, b, c) => Z.runSync(z(a, b, c)))(
+      z => Reusable.byRef(z).withValue((a, b, c) => Z.delay(z(a, b, c))))
+
   implicit def c4[A, B, C, D, Z[_]](implicit Z: Dispatch[Z]): UseCallbackArg[(A, B, C, D) => Z[Unit]] =
     UseCallbackArg[(A, B, C, D) => Z[Unit], js.Function4[A, B, C, D, Unit]](
       z => (a, b, c, d) => Z.dispatch(z(a, b, c, d)))(
+      z => Reusable.byRef(z).withValue((a, b, c, d) => Z.delay(z(a, b, c, d))))
+
+  implicit def ci4[A, B, C, D, Y, Z[_]](implicit Z: UnsafeSync[Z]): UseCallbackArg[(A, B, C, D) => Z[Y]] =
+    UseCallbackArg[(A, B, C, D) => Z[Y], js.Function4[A, B, C, D, Y]](
+      z => (a, b, c, d) => Z.runSync(z(a, b, c, d)))(
       z => Reusable.byRef(z).withValue((a, b, c, d) => Z.delay(z(a, b, c, d))))
 
   implicit def c5[A, B, C, D, E, Z[_]](implicit Z: Dispatch[Z]): UseCallbackArg[(A, B, C, D, E) => Z[Unit]] =
@@ -40,9 +60,19 @@ trait UseCallbackArgInstances {
       z => (a, b, c, d, e) => Z.dispatch(z(a, b, c, d, e)))(
       z => Reusable.byRef(z).withValue((a, b, c, d, e) => Z.delay(z(a, b, c, d, e))))
 
+  implicit def ci5[A, B, C, D, E, Y, Z[_]](implicit Z: UnsafeSync[Z]): UseCallbackArg[(A, B, C, D, E) => Z[Y]] =
+    UseCallbackArg[(A, B, C, D, E) => Z[Y], js.Function5[A, B, C, D, E, Y]](
+      z => (a, b, c, d, e) => Z.runSync(z(a, b, c, d, e)))(
+      z => Reusable.byRef(z).withValue((a, b, c, d, e) => Z.delay(z(a, b, c, d, e))))
+
   implicit def c6[A, B, C, D, E, F, Z[_]](implicit Z: Dispatch[Z]): UseCallbackArg[(A, B, C, D, E, F) => Z[Unit]] =
     UseCallbackArg[(A, B, C, D, E, F) => Z[Unit], js.Function6[A, B, C, D, E, F, Unit]](
       z => (a, b, c, d, e, f) => Z.dispatch(z(a, b, c, d, e, f)))(
+      z => Reusable.byRef(z).withValue((a, b, c, d, e, f) => Z.delay(z(a, b, c, d, e, f))))
+
+  implicit def ci6[A, B, C, D, E, F, Y, Z[_]](implicit Z: UnsafeSync[Z]): UseCallbackArg[(A, B, C, D, E, F) => Z[Y]] =
+    UseCallbackArg[(A, B, C, D, E, F) => Z[Y], js.Function6[A, B, C, D, E, F, Y]](
+      z => (a, b, c, d, e, f) => Z.runSync(z(a, b, c, d, e, f)))(
       z => Reusable.byRef(z).withValue((a, b, c, d, e, f) => Z.delay(z(a, b, c, d, e, f))))
 
   implicit def c7[A, B, C, D, E, F, G, Z[_]](implicit Z: Dispatch[Z]): UseCallbackArg[(A, B, C, D, E, F, G) => Z[Unit]] =
@@ -50,9 +80,19 @@ trait UseCallbackArgInstances {
       z => (a, b, c, d, e, f, g) => Z.dispatch(z(a, b, c, d, e, f, g)))(
       z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g) => Z.delay(z(a, b, c, d, e, f, g))))
 
+  implicit def ci7[A, B, C, D, E, F, G, Y, Z[_]](implicit Z: UnsafeSync[Z]): UseCallbackArg[(A, B, C, D, E, F, G) => Z[Y]] =
+    UseCallbackArg[(A, B, C, D, E, F, G) => Z[Y], js.Function7[A, B, C, D, E, F, G, Y]](
+      z => (a, b, c, d, e, f, g) => Z.runSync(z(a, b, c, d, e, f, g)))(
+      z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g) => Z.delay(z(a, b, c, d, e, f, g))))
+
   implicit def c8[A, B, C, D, E, F, G, H, Z[_]](implicit Z: Dispatch[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H) => Z[Unit]] =
     UseCallbackArg[(A, B, C, D, E, F, G, H) => Z[Unit], js.Function8[A, B, C, D, E, F, G, H, Unit]](
       z => (a, b, c, d, e, f, g, h) => Z.dispatch(z(a, b, c, d, e, f, g, h)))(
+      z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h) => Z.delay(z(a, b, c, d, e, f, g, h))))
+
+  implicit def ci8[A, B, C, D, E, F, G, H, Y, Z[_]](implicit Z: UnsafeSync[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H) => Z[Y]] =
+    UseCallbackArg[(A, B, C, D, E, F, G, H) => Z[Y], js.Function8[A, B, C, D, E, F, G, H, Y]](
+      z => (a, b, c, d, e, f, g, h) => Z.runSync(z(a, b, c, d, e, f, g, h)))(
       z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h) => Z.delay(z(a, b, c, d, e, f, g, h))))
 
   implicit def c9[A, B, C, D, E, F, G, H, I, Z[_]](implicit Z: Dispatch[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I) => Z[Unit]] =
@@ -60,9 +100,19 @@ trait UseCallbackArgInstances {
       z => (a, b, c, d, e, f, g, h, i) => Z.dispatch(z(a, b, c, d, e, f, g, h, i)))(
       z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i) => Z.delay(z(a, b, c, d, e, f, g, h, i))))
 
+  implicit def ci9[A, B, C, D, E, F, G, H, I, Y, Z[_]](implicit Z: UnsafeSync[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I) => Z[Y]] =
+    UseCallbackArg[(A, B, C, D, E, F, G, H, I) => Z[Y], js.Function9[A, B, C, D, E, F, G, H, I, Y]](
+      z => (a, b, c, d, e, f, g, h, i) => Z.runSync(z(a, b, c, d, e, f, g, h, i)))(
+      z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i) => Z.delay(z(a, b, c, d, e, f, g, h, i))))
+
   implicit def c10[A, B, C, D, E, F, G, H, I, J, Z[_]](implicit Z: Dispatch[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I, J) => Z[Unit]] =
     UseCallbackArg[(A, B, C, D, E, F, G, H, I, J) => Z[Unit], js.Function10[A, B, C, D, E, F, G, H, I, J, Unit]](
       z => (a, b, c, d, e, f, g, h, i, j) => Z.dispatch(z(a, b, c, d, e, f, g, h, i, j)))(
+      z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i, j) => Z.delay(z(a, b, c, d, e, f, g, h, i, j))))
+
+  implicit def ci10[A, B, C, D, E, F, G, H, I, J, Y, Z[_]](implicit Z: UnsafeSync[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I, J) => Z[Y]] =
+    UseCallbackArg[(A, B, C, D, E, F, G, H, I, J) => Z[Y], js.Function10[A, B, C, D, E, F, G, H, I, J, Y]](
+      z => (a, b, c, d, e, f, g, h, i, j) => Z.runSync(z(a, b, c, d, e, f, g, h, i, j)))(
       z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i, j) => Z.delay(z(a, b, c, d, e, f, g, h, i, j))))
 
   implicit def c11[A, B, C, D, E, F, G, H, I, J, K, Z[_]](implicit Z: Dispatch[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K) => Z[Unit]] =
@@ -70,9 +120,19 @@ trait UseCallbackArgInstances {
       z => (a, b, c, d, e, f, g, h, i, j, k) => Z.dispatch(z(a, b, c, d, e, f, g, h, i, j, k)))(
       z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i, j, k) => Z.delay(z(a, b, c, d, e, f, g, h, i, j, k))))
 
+  implicit def ci11[A, B, C, D, E, F, G, H, I, J, K, Y, Z[_]](implicit Z: UnsafeSync[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K) => Z[Y]] =
+    UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K) => Z[Y], js.Function11[A, B, C, D, E, F, G, H, I, J, K, Y]](
+      z => (a, b, c, d, e, f, g, h, i, j, k) => Z.runSync(z(a, b, c, d, e, f, g, h, i, j, k)))(
+      z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i, j, k) => Z.delay(z(a, b, c, d, e, f, g, h, i, j, k))))
+
   implicit def c12[A, B, C, D, E, F, G, H, I, J, K, L, Z[_]](implicit Z: Dispatch[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L) => Z[Unit]] =
     UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L) => Z[Unit], js.Function12[A, B, C, D, E, F, G, H, I, J, K, L, Unit]](
       z => (a, b, c, d, e, f, g, h, i, j, k, l) => Z.dispatch(z(a, b, c, d, e, f, g, h, i, j, k, l)))(
+      z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i, j, k, l) => Z.delay(z(a, b, c, d, e, f, g, h, i, j, k, l))))
+
+  implicit def ci12[A, B, C, D, E, F, G, H, I, J, K, L, Y, Z[_]](implicit Z: UnsafeSync[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L) => Z[Y]] =
+    UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L) => Z[Y], js.Function12[A, B, C, D, E, F, G, H, I, J, K, L, Y]](
+      z => (a, b, c, d, e, f, g, h, i, j, k, l) => Z.runSync(z(a, b, c, d, e, f, g, h, i, j, k, l)))(
       z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i, j, k, l) => Z.delay(z(a, b, c, d, e, f, g, h, i, j, k, l))))
 
   implicit def c13[A, B, C, D, E, F, G, H, I, J, K, L, M, Z[_]](implicit Z: Dispatch[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M) => Z[Unit]] =
@@ -80,9 +140,19 @@ trait UseCallbackArgInstances {
       z => (a, b, c, d, e, f, g, h, i, j, k, l, m) => Z.dispatch(z(a, b, c, d, e, f, g, h, i, j, k, l, m)))(
       z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i, j, k, l, m) => Z.delay(z(a, b, c, d, e, f, g, h, i, j, k, l, m))))
 
+  implicit def ci13[A, B, C, D, E, F, G, H, I, J, K, L, M, Y, Z[_]](implicit Z: UnsafeSync[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M) => Z[Y]] =
+    UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M) => Z[Y], js.Function13[A, B, C, D, E, F, G, H, I, J, K, L, M, Y]](
+      z => (a, b, c, d, e, f, g, h, i, j, k, l, m) => Z.runSync(z(a, b, c, d, e, f, g, h, i, j, k, l, m)))(
+      z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i, j, k, l, m) => Z.delay(z(a, b, c, d, e, f, g, h, i, j, k, l, m))))
+
   implicit def c14[A, B, C, D, E, F, G, H, I, J, K, L, M, N, Z[_]](implicit Z: Dispatch[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N) => Z[Unit]] =
     UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N) => Z[Unit], js.Function14[A, B, C, D, E, F, G, H, I, J, K, L, M, N, Unit]](
       z => (a, b, c, d, e, f, g, h, i, j, k, l, m, n) => Z.dispatch(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n)))(
+      z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i, j, k, l, m, n) => Z.delay(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n))))
+
+  implicit def ci14[A, B, C, D, E, F, G, H, I, J, K, L, M, N, Y, Z[_]](implicit Z: UnsafeSync[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N) => Z[Y]] =
+    UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N) => Z[Y], js.Function14[A, B, C, D, E, F, G, H, I, J, K, L, M, N, Y]](
+      z => (a, b, c, d, e, f, g, h, i, j, k, l, m, n) => Z.runSync(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n)))(
       z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i, j, k, l, m, n) => Z.delay(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n))))
 
   implicit def c15[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, Z[_]](implicit Z: Dispatch[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O) => Z[Unit]] =
@@ -90,9 +160,19 @@ trait UseCallbackArgInstances {
       z => (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) => Z.dispatch(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)))(
       z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) => Z.delay(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o))))
 
+  implicit def ci15[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, Y, Z[_]](implicit Z: UnsafeSync[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O) => Z[Y]] =
+    UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O) => Z[Y], js.Function15[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, Y]](
+      z => (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) => Z.runSync(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)))(
+      z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) => Z.delay(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o))))
+
   implicit def c16[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Z[_]](implicit Z: Dispatch[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P) => Z[Unit]] =
     UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P) => Z[Unit], js.Function16[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Unit]](
       z => (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p) => Z.dispatch(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p)))(
+      z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p) => Z.delay(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p))))
+
+  implicit def ci16[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Y, Z[_]](implicit Z: UnsafeSync[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P) => Z[Y]] =
+    UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P) => Z[Y], js.Function16[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Y]](
+      z => (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p) => Z.runSync(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p)))(
       z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p) => Z.delay(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p))))
 
   implicit def c17[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, Z[_]](implicit Z: Dispatch[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q) => Z[Unit]] =
@@ -100,9 +180,19 @@ trait UseCallbackArgInstances {
       z => (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q) => Z.dispatch(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q)))(
       z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q) => Z.delay(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q))))
 
+  implicit def ci17[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, Y, Z[_]](implicit Z: UnsafeSync[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q) => Z[Y]] =
+    UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q) => Z[Y], js.Function17[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, Y]](
+      z => (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q) => Z.runSync(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q)))(
+      z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q) => Z.delay(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q))))
+
   implicit def c18[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, Z[_]](implicit Z: Dispatch[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R) => Z[Unit]] =
     UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R) => Z[Unit], js.Function18[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, Unit]](
       z => (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r) => Z.dispatch(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r)))(
+      z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r) => Z.delay(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r))))
+
+  implicit def ci18[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, Y, Z[_]](implicit Z: UnsafeSync[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R) => Z[Y]] =
+    UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R) => Z[Y], js.Function18[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, Y]](
+      z => (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r) => Z.runSync(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r)))(
       z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r) => Z.delay(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r))))
 
   implicit def c19[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, Z[_]](implicit Z: Dispatch[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S) => Z[Unit]] =
@@ -110,9 +200,19 @@ trait UseCallbackArgInstances {
       z => (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s) => Z.dispatch(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s)))(
       z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s) => Z.delay(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s))))
 
+  implicit def ci19[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, Y, Z[_]](implicit Z: UnsafeSync[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S) => Z[Y]] =
+    UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S) => Z[Y], js.Function19[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, Y]](
+      z => (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s) => Z.runSync(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s)))(
+      z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s) => Z.delay(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s))))
+
   implicit def c20[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, Z[_]](implicit Z: Dispatch[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) => Z[Unit]] =
     UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) => Z[Unit], js.Function20[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, Unit]](
       z => (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t) => Z.dispatch(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t)))(
+      z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t) => Z.delay(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t))))
+
+  implicit def ci20[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, Y, Z[_]](implicit Z: UnsafeSync[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) => Z[Y]] =
+    UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) => Z[Y], js.Function20[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, Y]](
+      z => (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t) => Z.runSync(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t)))(
       z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t) => Z.delay(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t))))
 
   implicit def c21[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, Z[_]](implicit Z: Dispatch[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) => Z[Unit]] =
@@ -120,9 +220,19 @@ trait UseCallbackArgInstances {
       z => (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u) => Z.dispatch(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u)))(
       z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u) => Z.delay(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u))))
 
+  implicit def ci21[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, Y, Z[_]](implicit Z: UnsafeSync[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) => Z[Y]] =
+    UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) => Z[Y], js.Function21[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, Y]](
+      z => (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u) => Z.runSync(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u)))(
+      z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u) => Z.delay(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u))))
+
   implicit def c22[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, Z[_]](implicit Z: Dispatch[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V) => Z[Unit]] =
     UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V) => Z[Unit], js.Function22[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, Unit]](
       z => (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v) => Z.dispatch(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v)))(
+      z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v) => Z.delay(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v))))
+
+  implicit def ci22[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, Y, Z[_]](implicit Z: UnsafeSync[Z]): UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V) => Z[Y]] =
+    UseCallbackArg[(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V) => Z[Y], js.Function22[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, Y]](
+      z => (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v) => Z.runSync(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v)))(
       z => Reusable.byRef(z).withValue((a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v) => Z.delay(z(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v))))
 
 }

@@ -11,6 +11,7 @@ import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.html.Input
 import scala.scalajs.js
 import utest._
+import scala.collection.mutable
 
 object HooksTest extends TestSuite {
 
@@ -2104,6 +2105,82 @@ object HooksTest extends TestSuite {
     }
   }
 
+  object UseSyncExternalStore {
+    private class ExternalStore {
+      private val values: mutable.Map[Boolean, Int] = mutable.Map(true -> 0, false -> 0)
+      private val listeners: mutable.Map[Boolean, Callback] = mutable.Map.empty
+
+      def get(which: Boolean): CallbackTo[Int] = CallbackTo(values(which))
+
+      def register(which: Boolean)(listener: Callback): CallbackTo[Callback] = {
+        Callback(this.listeners.updateWith(which)(_ => Some(listener)))
+          .ret(Callback(this.listeners.updateWith(which)(_ => None)))
+      }
+
+      def peekListener(which: Boolean): Option[Callback] = listeners.get(which)
+
+      def notifyListener(which: Boolean): Callback = listeners.get(which).getOrElse(Callback.empty)
+
+      def inc(which: Boolean): Callback = Callback(values.updateWith(which)(_.map(_ + 1))) >> notifyListener(which)
+    }
+
+    def testConst() = {
+      val store = new ExternalStore
+
+      val comp = ScalaFnComponent
+        .withHooks[Unit]
+        .useSyncExternalStore(store.register(true), store.get(true))
+        .render { (_, i) =>
+          <.div(s"i=$i")
+      }
+
+      test(comp()) { t =>
+        t.assertText("i=0")
+        store.inc(true).runNow()
+        t.assertText("i=1")
+      }
+      assert(store.peekListener(true).isEmpty)
+      assert(store.peekListener(false).isEmpty)
+    }
+
+    def testConstBy() = {
+      val store = new ExternalStore
+
+      val comp = ScalaFnComponent
+        .withHooks[Boolean]
+        .useSyncExternalStoreBy(store.register, store.get)
+        .render { (_, i) =>
+          <.div(s"i=$i")
+      }
+
+      test(comp(false)) { t =>
+        t.assertText("i=0")
+        store.inc(false).runNow()
+        t.assertText("i=1")
+      }
+      assert(store.peekListener(true).isEmpty)
+      assert(store.peekListener(false).isEmpty)
+    }
+
+    def testMonadicConst() = {
+      val store = new ExternalStore
+
+      val comp = ScalaFnComponent[Unit] { _ =>
+        for {
+          i <- useSyncExternalStore(store.register(true), store.get(true))
+        } yield <.div(s"i=$i")
+      }
+
+      test(comp()) { t =>
+        t.assertText("i=0")
+        store.inc(true).runNow()
+        t.assertText("i=1")
+      }
+      assert(store.peekListener(true).isEmpty)
+      assert(store.peekListener(false).isEmpty)
+    }
+  }
+
   // ===================================================================================================================
 
   override def tests = Tests {
@@ -2222,6 +2299,14 @@ object HooksTest extends TestSuite {
 
     "useTransition" - testUseTransition()
     "useTransition (monadic)" - testMonadicUseTransition()
+
+    "useSyncExternalStore" - {
+      "const" - UseSyncExternalStore.testConst()
+      "constBy" - UseSyncExternalStore.testConstBy()
+    }
+    "useSyncExternalStore (monadic)" - {
+      "const" - UseSyncExternalStore.testMonadicConst()
+    }
 
     "renderWithReuse" - {
       "main" - testRenderWithReuse()
