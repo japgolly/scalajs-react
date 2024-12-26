@@ -15,10 +15,10 @@ object ScalaFn extends DerivedDisplayName {
 
   private def create[P, C <: Children, CT[-p, +u] <: CtorType[p, u]]
       (displayName: String)
-      (render: Box[P] with facade.PropsWithChildren => VdomNode)
+      (render: Box[P] with facade.PropsWithChildren => Delayed[VdomNode])
       (implicit s: CtorType.Summoner.Aux[Box[P], C, CT]): Component[P, CT] = {
 
-    val jsRender = render.andThen(_.rawNode): js.Function1[Box[P] with facade.PropsWithChildren, facade.React.Node]
+    val jsRender = render.andThen(_.eval().rawNode): js.Function1[Box[P] with facade.PropsWithChildren, facade.React.Node]
     val rawComponent = jsRender.asInstanceOf[facade.React.StatelessFunctionalComponent[Box[P]]]
     rawComponent.setDisplayName = displayName
     JsFn.force[Box[P], C](rawComponent)(s)
@@ -35,13 +35,13 @@ object ScalaFn extends DerivedDisplayName {
   // ===================================================================================================================
 
   def apply[P](render: P => Delayed[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.None], name: FullName): Component[P, s.CT] =
-    create[P, Children.None, s.CT](derivedDisplayName)(b => render(b.unbox).eval())(s)
+    create[P, Children.None, s.CT](derivedDisplayName)(b => render(b.unbox))(s)
 
   def withChildren[P](render: (P, PropsChildren) => Delayed[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.Varargs], name: FullName): Component[P, s.CT] =
-    create[P, Children.Varargs, s.CT](derivedDisplayName)(b => render(b.unbox, PropsChildren(b.children)).eval())(s)
+    create[P, Children.Varargs, s.CT](derivedDisplayName)(b => render(b.unbox, PropsChildren(b.children)))(s)
 
   def justChildren(render: PropsChildren => Delayed[VdomNode])(implicit name: FullName): Component[Unit, CtorType.Children] =
-    create(derivedDisplayName)(b => render(PropsChildren(b.children)).eval())
+    create(derivedDisplayName)(b => render(PropsChildren(b.children)))
 
   // ===================================================================================================================
 
@@ -64,13 +64,13 @@ object ScalaFn extends DerivedDisplayName {
     // ===================================================================================================================
 
     def apply[P](render: P => Delayed[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.None]): Component[P, s.CT] =
-      create[P, Children.None, s.CT](displayName)(b => render(b.unbox).eval())(s)
+      create[P, Children.None, s.CT](displayName)(b => render(b.unbox))(s)
 
     def withChildren[P](render: (P, PropsChildren) => Delayed[VdomNode])(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
-      create[P, Children.Varargs, s.CT](displayName)(b => render(b.unbox, PropsChildren(b.children)).eval())(s)
+      create[P, Children.Varargs, s.CT](displayName)(b => render(b.unbox, PropsChildren(b.children)))(s)
 
     def justChildren(render: PropsChildren => Delayed[VdomNode]): Component[Unit, CtorType.Children] =
-      create(displayName)(b => render(PropsChildren(b.children)).eval())
+      create(displayName)(b => render(PropsChildren(b.children)))
 
     // ===================================================================================================================
 
