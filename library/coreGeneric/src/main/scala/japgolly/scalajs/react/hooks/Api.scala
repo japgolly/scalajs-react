@@ -768,7 +768,7 @@ object Api {
     final def useLayoutEffectOnMountBy[A](effect: CtxFn[A])(implicit a: UseEffectArg[A], step: Step): step.Self =
       useLayoutEffectOnMountBy(step.squash(effect)(_))
 
-/** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any 
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any 
       * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates 
       * scheduled inside useLayoutEffect will be flushed synchronously, before the browser has a chance to paint.
       *

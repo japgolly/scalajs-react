@@ -719,6 +719,35 @@ object HooksTest extends TestSuite {
     }
   }
 
+  private object UseInsertionEffect extends UseEffectTests {
+    override protected implicit def hooksExt1[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]): Primary[Ctx, Step] =
+      new Primary(api)
+    override protected implicit def hooksExt2[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]): Secondary[Ctx, CtxFn, Step] =
+      new Secondary(api)
+    protected class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]) extends X_UseEffect_Primary[Ctx, Step] {
+        override def X_useEffect[A](effect: A)(implicit a: UseEffectArg[A], step: Step) =
+          api.useInsertionEffect(effect)
+        override def X_useEffectBy[A](init: Ctx => A)(implicit a: UseEffectArg[A], step: Step) =
+          api.useInsertionEffectBy(init)
+        override def X_useEffectOnMount[A](effect: A)(implicit a: UseEffectArg[A], step: Step) =
+          api.useInsertionEffectOnMount(effect)
+        override def X_useEffectOnMountBy[A](effect: Ctx => A)(implicit a: UseEffectArg[A], step: Step) =
+          api.useInsertionEffectOnMountBy(effect)
+        override def X_useEffectWithDeps[D, A](deps: => D)(effect: D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step) =
+          api.useInsertionEffectWithDeps(deps)(effect)
+        override def X_useEffectWithDepsBy[D, A](deps: Ctx => D)(effect: Ctx => D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step) =
+          api.useInsertionEffectWithDepsBy(deps)(effect)
+    }
+    protected class Secondary[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]) extends Primary(api) with X_UseEffect_Secondary[Ctx, CtxFn, Step] {
+        override def X_useEffectBy[A](init: CtxFn[A])(implicit a: UseEffectArg[A], step: Step): step.Self =
+          api.useInsertionEffectBy(init)
+        override def X_useEffectOnMountBy[A](effect: CtxFn[A])(implicit a: UseEffectArg[A], step: Step): step.Self =
+          api.useInsertionEffectOnMountBy(effect)
+        override def X_useEffectWithDepsBy[D, A](deps: CtxFn[D])(effect: CtxFn[D => A])(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
+          api.useInsertionEffectWithDepsBy(deps)(effect)
+    }
+  }
+
   private abstract class UseEffectTests {
     protected implicit def hooksExt1[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]): X_UseEffect_Primary[Ctx, Step]
     protected implicit def hooksExt2[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]): X_UseEffect_Secondary[Ctx, CtxFn, Step]
@@ -984,7 +1013,16 @@ object HooksTest extends TestSuite {
       useLayoutEffectOnMount(effect)
     protected def X_useEffectWithDeps[D, A](deps: => D)(effect: D => A)(implicit a: UseEffectArg[A], r: Reusability[D]): HookResult[Unit] = 
       useLayoutEffectWithDeps(deps)(effect)
-  }  
+  }
+
+  private object UseInsertionEffectMonadic extends UseEffectHub {
+    protected def X_useEffect[A](effect: A)(implicit a: UseEffectArg[A]): HookResult[Unit] = 
+      useInsertionEffect(effect)
+    protected def X_useEffectOnMount[A](effect: A)(implicit a: UseEffectArg[A]): HookResult[Unit] = 
+      useInsertionEffectOnMount(effect)
+    protected def X_useEffectWithDeps[D, A](deps: => D)(effect: D => A)(implicit a: UseEffectArg[A], r: Reusability[D]): HookResult[Unit] = 
+      useInsertionEffectWithDeps(deps)(effect)
+  }
 
   private def testUseForceUpdate(): Unit = {
     val counter = new Counter
@@ -2242,7 +2280,24 @@ object HooksTest extends TestSuite {
       "const" - testConst()
       "depsBy" - testWithDeps()
       "mount" - testOnMount()
-    }    
+    }
+    "useInsertionEffect" - {
+      import UseInsertionEffect._
+      "single" - testSingle()
+      "const" - testConst()
+      "constBy" - testConstBy()
+      "deps" - testWithDeps()
+      "depsBy" - testWithDepsBy()
+      "mount" - testOnMount()
+      "mountBy" - testOnMountBy()
+    }
+    "useInsertionEffect (monadic)" - {
+      import UseInsertionEffectMonadic._
+      "single" - testSingle()
+      "const" - testConst()
+      "depsBy" - testWithDeps()
+      "mount" - testOnMount()
+    }
     "useMemo" - {
       "deps" - testUseMemo()
       "depsBy" - testUseMemoBy()
