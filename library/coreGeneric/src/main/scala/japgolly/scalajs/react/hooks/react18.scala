@@ -51,8 +51,7 @@ trait react18 {
     * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
     *
     * If you'd only like to execute the effect when your component is mounted, then use [[useInsertionEffectOnMount]].
-    * If you'd only like to execute the effect when certain values have changed, provide those certain values as
-    * the first argument.
+    * If you'd only like to execute the effect when certain values have changed, then use [[useInsertionEffectWithDeps]].
     *
     * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
     */
@@ -65,9 +64,7 @@ trait react18 {
     *
     * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
     *
-    * If you'd only like to execute the effect when your component is mounted, then use [[useInsertionEffectOnMount]].
-    * If you'd only like to execute the effect when certain values have changed, provide those certain values as
-    * the first argument.
+    * This will only execute the effect when your component is mounted.
     *
     * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
     */
@@ -80,9 +77,7 @@ trait react18 {
     *
     * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
     *
-    * If you'd only like to execute the effect when your component is mounted, then use [[useInsertionEffectOnMount]].
-    * If you'd only like to execute the effect when certain values have changed, provide those certain values as
-    * the first argument.
+    * This will only execute the effect when values in the first argument change.
     *
     * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
     */

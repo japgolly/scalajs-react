@@ -196,8 +196,7 @@ object Api {
       *
       * By default, effects run after every completed render.
       * If you'd only like to execute the effect when your component is mounted, then use [[useEffectOnMount]].
-      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
-      * a first argument.
+      * If you'd only like to execute the effect when certain values have changed, then use [[useEffectWithDeps]].
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
@@ -209,8 +208,7 @@ object Api {
       *
       * By default, effects run after every completed render.
       * If you'd only like to execute the effect when your component is mounted, then use [[useEffectOnMount]].
-      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
-      * a first argument.
+      * If you'd only like to execute the effect when certain values have changed, then use [[useEffectWithDeps]].
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
@@ -240,7 +238,7 @@ object Api {
     /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
       * escape hatch from React’s purely functional world into the imperative world.
       *
-      * This will only execute the effect when values in a first argument, change.
+      * This will only execute the effect when values in the first argument change.
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
@@ -250,7 +248,7 @@ object Api {
     /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
       * escape hatch from React’s purely functional world into the imperative world.
       *
-      * This will only execute the effect when values in a first argument, change.
+      * This will only execute the effect when values in the first argument change.
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
@@ -268,8 +266,7 @@ object Api {
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
       *
       * If you'd only like to execute the effect when your component is mounted, then use [[useLayoutEffectOnMount]].
-      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
-      * a first argument.
+      * If you'd only like to execute the effect when certain values have changed, then use [[useLayoutEffectWithDeps]].
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
@@ -283,8 +280,7 @@ object Api {
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
       *
       * If you'd only like to execute the effect when your component is mounted, then use [[useLayoutEffectOnMount]].
-      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
-      * a first argument.
+      * If you'd only like to execute the effect when certain values have changed, then use [[useLayoutEffectWithDeps]].
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
@@ -323,7 +319,7 @@ object Api {
       *
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
       *
-      * This will only execute the effect when values in a first argument, change.
+      * This will only execute the effect when values in the first argument change.
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
@@ -336,7 +332,7 @@ object Api {
       *
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
       *
-      * This will only execute the effect when values in a first argument, change.
+      * This will only execute the effect when values in the first argument change.
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
@@ -350,8 +346,7 @@ object Api {
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
       *
       * If you'd only like to execute the effect when your component is mounted, then use [[useInsertionEffectOnMount]].
-      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
-      * the first argument.
+      * If you'd only like to execute the effect when certain values have changed, then use [[useInsertionEffectWithDeps]].
       *
       * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
       */
@@ -365,8 +360,7 @@ object Api {
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
       *
       * If you'd only like to execute the effect when your component is mounted, then use [[useInsertionEffectOnMount]].
-      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
-      * the first argument.
+      * If you'd only like to execute the effect when certain values have changed, then use [[useInsertionEffectWithDeps]].
       *
       * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
       */
@@ -379,9 +373,7 @@ object Api {
       *
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
       *
-      * If you'd only like to execute the effect when your component is mounted, then use [[useInsertionEffectOnMount]].
-      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
-      * the first argument.
+      * This will only execute the effect when your component is mounted.
       *
       * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
       */
@@ -394,9 +386,7 @@ object Api {
       *
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
       *
-      * If you'd only like to execute the effect when your component is mounted, then use [[useInsertionEffectOnMount]].
-      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
-      * the first argument.
+      * This will only execute the effect when your component is mounted.
       *
       * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
       */
@@ -409,9 +399,7 @@ object Api {
       *
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
       *
-      * If you'd only like to execute the effect when your component is mounted, then use [[useInsertionEffectOnMount]].
-      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
-      * the first argument.
+      * This will only execute the effect when values in the first argument change.
       *
       * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
       */
@@ -424,9 +412,7 @@ object Api {
       *
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
       *
-      * If you'd only like to execute the effect when your component is mounted, then use [[useInsertionEffectOnMount]].
-      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
-      * the first argument.
+      * This will only execute the effect when values in the first argument change.
       *
       * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
       */
@@ -720,8 +706,7 @@ object Api {
       *
       * By default, effects run after every completed render.
       * If you'd only like to execute the effect when your component is mounted, then use [[useEffectOnMount]].
-      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
-      * a first argument.
+      * If you'd only like to execute the effect when certain values have changed, then use [[useEffectWithDeps]].
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
@@ -731,7 +716,7 @@ object Api {
     /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
       * escape hatch from React’s purely functional world into the imperative world.
       *
-      * This will only execute the effect when values in a first argument, change.
+      * This will only execute the effect when values in the first argument change.
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
@@ -755,8 +740,7 @@ object Api {
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
       *
       * If you'd only like to execute the effect when your component is mounted, then use [[useLayoutEffectOnMount]].
-      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
-      * a first argument.
+      * If you'd only like to execute the effect when certain values have changed, then use [[useLayoutEffectWithDeps]].
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
@@ -769,7 +753,7 @@ object Api {
       *
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
       *
-      * This will only execute the effect when values in a first argument, change.
+      * This will only execute the effect when values in the first argument change.
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
@@ -796,8 +780,7 @@ object Api {
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
       *
       * If you'd only like to execute the effect when your component is mounted, then use [[useInsertionEffectOnMount]].
-      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
-      * the first argument.
+      * If you'd only like to execute the effect when certain values have changed, then use [[useInsertionEffectWithDeps]].
       *
       * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
       */
@@ -810,9 +793,7 @@ object Api {
       *
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
       *
-      * If you'd only like to execute the effect when your component is mounted, then use [[useInsertionEffectOnMount]].
-      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
-      * the first argument.
+      * This will only execute the effect when values in the first argument change.
       *
       * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
       */
@@ -825,9 +806,7 @@ object Api {
       *
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
       *
-      * If you'd only like to execute the effect when your component is mounted, then use [[useInsertionEffectOnMount]].
-      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
-      * the first argument.
+      * This will only execute the effect when your component is mounted.
       *
       * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
       */
