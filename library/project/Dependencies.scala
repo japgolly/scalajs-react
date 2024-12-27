@@ -27,7 +27,7 @@ object Dependencies {
     val kindProjector         = "0.13.3"
     val macrotaskExecutor     = "1.1.1"
     val nyaya                 = "1.0.0"
-    val reactJs               = "18.2.0"
+    val reactJs               = "18.3.1"
     val scalaJsJavaTime       = "1.0.0"
     val scalaJsSecureRandom   = "1.0.0"
     val scalaTest             = "3.2.11"
@@ -83,7 +83,7 @@ object Dependencies {
     Dep.scalaJsDom.value,
     Dep.univEq.value,
     Dep.univEqCats.value,
-    "org.webjars.npm" % "scheduler" % "0.22.0", // Required for React 18.2.0
+    "org.webjars.npm" % "scheduler" % "0.22.0", // Required for React 18.3.1
   ))
 
   final case class ReactArtifact(filename: String) {
