@@ -58,6 +58,13 @@ object GenHooks {
            |      z => ($as) => Z.dispatch(z($as)))(
            |      z => Reusable.byRef(z).withValue(($as) => Z.delay(z($as))))
            |""".stripMargin
+           
+      useCallbackArgs +=
+        s"""  implicit def ci$n[$As, Y, Z[_]](implicit Z: UnsafeSync[Z]): UseCallbackArg[($As) => Z[Y]] =
+           |    UseCallbackArg[($As) => Z[Y], js.Function$n[$As, Y]](
+           |      z => ($as) => Z.runSync(z($as)))(
+           |      z => Reusable.byRef(z).withValue(($as) => Z.delay(z($as))))
+           |""".stripMargin
 
       if (n <= 21) {
         hookCtxCtorsI += s"    def apply[I, $Hns](input: I, $hookParams): I$n[I, $Hns] =\n      new I$n(input, $hookArgs)"

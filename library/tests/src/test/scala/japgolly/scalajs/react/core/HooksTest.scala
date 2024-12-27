@@ -9,6 +9,7 @@ import japgolly.scalajs.react.test.ReactTestUtils._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.html.Input
+import scala.collection.mutable
 import scala.scalajs.js
 import utest._
 
@@ -718,6 +719,35 @@ object HooksTest extends TestSuite {
     }
   }
 
+  private object UseInsertionEffect extends UseEffectTests {
+    override protected implicit def hooksExt1[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]): Primary[Ctx, Step] =
+      new Primary(api)
+    override protected implicit def hooksExt2[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]): Secondary[Ctx, CtxFn, Step] =
+      new Secondary(api)
+    protected class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]) extends X_UseEffect_Primary[Ctx, Step] {
+        override def X_useEffect[A](effect: A)(implicit a: UseEffectArg[A], step: Step) =
+          api.useInsertionEffect(effect)
+        override def X_useEffectBy[A](init: Ctx => A)(implicit a: UseEffectArg[A], step: Step) =
+          api.useInsertionEffectBy(init)
+        override def X_useEffectOnMount[A](effect: A)(implicit a: UseEffectArg[A], step: Step) =
+          api.useInsertionEffectOnMount(effect)
+        override def X_useEffectOnMountBy[A](effect: Ctx => A)(implicit a: UseEffectArg[A], step: Step) =
+          api.useInsertionEffectOnMountBy(effect)
+        override def X_useEffectWithDeps[D, A](deps: => D)(effect: D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step) =
+          api.useInsertionEffectWithDeps(deps)(effect)
+        override def X_useEffectWithDepsBy[D, A](deps: Ctx => D)(effect: Ctx => D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step) =
+          api.useInsertionEffectWithDepsBy(deps)(effect)
+    }
+    protected class Secondary[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]) extends Primary(api) with X_UseEffect_Secondary[Ctx, CtxFn, Step] {
+        override def X_useEffectBy[A](init: CtxFn[A])(implicit a: UseEffectArg[A], step: Step): step.Self =
+          api.useInsertionEffectBy(init)
+        override def X_useEffectOnMountBy[A](effect: CtxFn[A])(implicit a: UseEffectArg[A], step: Step): step.Self =
+          api.useInsertionEffectOnMountBy(effect)
+        override def X_useEffectWithDepsBy[D, A](deps: CtxFn[D])(effect: CtxFn[D => A])(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
+          api.useInsertionEffectWithDepsBy(deps)(effect)
+    }
+  }
+
   private abstract class UseEffectTests {
     protected implicit def hooksExt1[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]): X_UseEffect_Primary[Ctx, Step]
     protected implicit def hooksExt2[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](api: HooksApi.Secondary[Ctx, CtxFn, Step]): X_UseEffect_Secondary[Ctx, CtxFn, Step]
@@ -983,7 +1013,16 @@ object HooksTest extends TestSuite {
       useLayoutEffectOnMount(effect)
     protected def X_useEffectWithDeps[D, A](deps: => D)(effect: D => A)(implicit a: UseEffectArg[A], r: Reusability[D]): HookResult[Unit] = 
       useLayoutEffectWithDeps(deps)(effect)
-  }  
+  }
+
+  private object UseInsertionEffectMonadic extends UseEffectHub {
+    protected def X_useEffect[A](effect: A)(implicit a: UseEffectArg[A]): HookResult[Unit] = 
+      useInsertionEffect(effect)
+    protected def X_useEffectOnMount[A](effect: A)(implicit a: UseEffectArg[A]): HookResult[Unit] = 
+      useInsertionEffectOnMount(effect)
+    protected def X_useEffectWithDeps[D, A](deps: => D)(effect: D => A)(implicit a: UseEffectArg[A], r: Reusability[D]): HookResult[Unit] = 
+      useInsertionEffectWithDeps(deps)(effect)
+  }
 
   private def testUseForceUpdate(): Unit = {
     val counter = new Counter
@@ -2104,6 +2143,146 @@ object HooksTest extends TestSuite {
     }
   }
 
+  object UseSyncExternalStore {
+    private class ExternalStore {
+      private val values: mutable.Map[Boolean, Int] = mutable.Map(true -> 0, false -> 0)
+      private val listeners: mutable.Map[Boolean, Callback] = mutable.Map.empty
+
+      def get(which: Boolean): CallbackTo[Int] = CallbackTo(values(which))
+
+      def register(which: Boolean)(listener: Callback): CallbackTo[Callback] = {
+        Callback(this.listeners.updateWith(which)(_ => Some(listener)))
+          .ret(Callback(this.listeners.updateWith(which)(_ => None)))
+      }
+
+      def peekListener(which: Boolean): Option[Callback] = listeners.get(which)
+
+      def notifyListener(which: Boolean): Callback = listeners.get(which).getOrElse(Callback.empty)
+
+      def inc(which: Boolean): Callback = Callback(values.updateWith(which)(_.map(_ + 1))) >> notifyListener(which)
+    }
+
+    def testConst() = {
+      val store = new ExternalStore
+
+      val comp = ScalaFnComponent
+        .withHooks[Unit]
+        .useSyncExternalStore(store.register(true), store.get(true))
+        .render { (_, i) =>
+          <.div(s"i=$i")
+      }
+
+      test(comp()) { t =>
+        t.assertText("i=0")
+        store.inc(true).runNow()
+        t.assertText("i=1")
+      }
+      assert(store.peekListener(true).isEmpty)
+      assert(store.peekListener(false).isEmpty)
+    }
+
+    def testConstBy() = {
+      val store = new ExternalStore
+
+      val comp = ScalaFnComponent
+        .withHooks[Boolean]
+        .useSyncExternalStoreBy(store.register, store.get)
+        .render { (_, i) =>
+          <.div(s"i=$i")
+      }
+
+      test(comp(false)) { t =>
+        t.assertText("i=0")
+        store.inc(false).runNow()
+        t.assertText("i=1")
+      }
+      assert(store.peekListener(true).isEmpty)
+      assert(store.peekListener(false).isEmpty)
+    }
+
+    def testMonadicConst() = {
+      val store = new ExternalStore
+
+      val comp = ScalaFnComponent[Unit] { _ =>
+        for {
+          i <- useSyncExternalStore(store.register(true), store.get(true))
+        } yield <.div(s"i=$i")
+      }
+
+      test(comp()) { t =>
+        t.assertText("i=0")
+        store.inc(true).runNow()
+        t.assertText("i=1")
+      }
+      assert(store.peekListener(true).isEmpty)
+      assert(store.peekListener(false).isEmpty)
+    }
+  }
+
+  object UseDeferred {
+    def testConst() = {
+      var renders: List[(Int, Int, Boolean)] = Nil
+
+      val comp = ScalaFnComponent
+        .withHooks[Unit]
+        .useState(0)
+        .useDeferredValue((_, state) => state.value)
+        .render { (_, state, deferredValue) =>
+          val isStale: Boolean = state.value != deferredValue
+          renders = renders :+ (state.value, deferredValue, isStale)
+          <.button(^.onClick --> state.modState(_ + 1))
+        }
+
+      test(comp()) { t =>
+        t.clickButton()
+      }
+      assertEq(renders, List((0, 0, false), (1, 0, true), (1, 1, false)))
+    }
+
+    // initialValue was added in React 19 - Uncomment when we upgrade to React 19
+    // def testConstWithInitial() = {
+    //   var renders: List[(Int, Int, Boolean)] = Nil
+
+    //   val comp = ScalaFnComponent
+    //     .withHooks[Unit]
+    //     .useState(0)
+    //     .useDeferredValue((_, state) => state.value, (_, _) => 100)
+    //     .render { (_, state, deferredValue) =>
+    //       val isStale: Boolean = state.value != deferredValue
+    //       renders = renders :+ (state.value, deferredValue, isStale)
+    //       <.div(
+    //         deferredValue,
+    //         <.button(^.onClick --> state.modState(_ + 1))
+    //       )
+    //     }
+
+    //   test(comp()) { t =>
+    //     t.clickButton()
+    //   }
+    //   assertEq(renders, List((0, 100, true), (0, 0, false), (1, 0, true), (1, 1, false)))
+    // }
+
+    def testMonadicConst() = {
+      var renders: List[(Int, Int, Boolean)] = Nil
+
+      val comp = ScalaFnComponent[Unit] { _ =>
+        for {
+          state         <- useState(0)
+          deferredValue <- useDeferredValue(state.value)
+        } yield {
+          val isStale: Boolean = state.value != deferredValue
+          renders = renders :+ (state.value, deferredValue, isStale)
+          <.button(^.onClick --> state.modState(_ + 1))
+        }
+      }
+
+      test(comp()) { t =>
+        t.clickButton()
+      }
+      assertEq(renders, List((0, 0, false), (1, 0, true), (1, 1, false)))
+    }
+  }
+
   // ===================================================================================================================
 
   override def tests = Tests {
@@ -2165,7 +2344,24 @@ object HooksTest extends TestSuite {
       "const" - testConst()
       "depsBy" - testWithDeps()
       "mount" - testOnMount()
-    }    
+    }
+    "useInsertionEffect" - {
+      import UseInsertionEffect._
+      "single" - testSingle()
+      "const" - testConst()
+      "constBy" - testConstBy()
+      "deps" - testWithDeps()
+      "depsBy" - testWithDepsBy()
+      "mount" - testOnMount()
+      "mountBy" - testOnMountBy()
+    }
+    "useInsertionEffect (monadic)" - {
+      import UseInsertionEffectMonadic._
+      "single" - testSingle()
+      "const" - testConst()
+      "depsBy" - testWithDeps()
+      "mount" - testOnMount()
+    }
     "useMemo" - {
       "deps" - testUseMemo()
       "depsBy" - testUseMemoBy()
@@ -2222,6 +2418,24 @@ object HooksTest extends TestSuite {
 
     "useTransition" - testUseTransition()
     "useTransition (monadic)" - testMonadicUseTransition()
+
+    "useSyncExternalStore" - {
+      "const" - UseSyncExternalStore.testConst()
+      "constBy" - UseSyncExternalStore.testConstBy()
+    }
+    "useSyncExternalStore (monadic)" - {
+      "const" - UseSyncExternalStore.testMonadicConst()
+    }
+
+    "useDeferred" - {
+      "const" - UseDeferred.testConst()
+      // initialValue was added in React 19 - Uncomment when we upgrade to React 19
+      // "constWithInitial" - UseDeferred.testConstWithInitial()
+    }
+    "useDeferred (monadic)" - {
+      "const" - UseDeferred.testMonadicConst()
+      // "constWithInitial" - UseDeferred.testMonadicConstWithInitial()
+    }
 
     "renderWithReuse" - {
       "main" - testRenderWithReuse()

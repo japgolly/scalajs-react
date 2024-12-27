@@ -6,6 +6,7 @@ import japgolly.scalajs.react.feature.Context
 import japgolly.scalajs.react.hooks.Hooks._
 import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.util.DefaultEffects
+import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.util.Util.identityFn
 import japgolly.scalajs.react.vdom.{TopNode, VdomNode}
 import japgolly.scalajs.react.{Children, CtorType, Ref, Reusability, Reusable}
@@ -195,8 +196,7 @@ object Api {
       *
       * By default, effects run after every completed render.
       * If you'd only like to execute the effect when your component is mounted, then use [[useEffectOnMount]].
-      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
-      * the second argument.
+      * If you'd only like to execute the effect when certain values have changed, then use [[useEffectWithDeps]].
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
@@ -208,13 +208,12 @@ object Api {
       *
       * By default, effects run after every completed render.
       * If you'd only like to execute the effect when your component is mounted, then use [[useEffectOnMount]].
-      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
-      * the second argument.
+      * If you'd only like to execute the effect when certain values have changed, then use [[useEffectWithDeps]].
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
-    final def useEffectBy[A](init: Ctx => A)(implicit a: UseEffectArg[A], step: Step): step.Self =
-      self(ctx => UseEffect.unsafeCreate(init(ctx)))
+    final def useEffectBy[A](effect: Ctx => A)(implicit a: UseEffectArg[A], step: Step): step.Self =
+      self(ctx => UseEffect.unsafeCreate(effect(ctx)))
 
     /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
       * escape hatch from React’s purely functional world into the imperative world.
@@ -239,7 +238,7 @@ object Api {
     /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
       * escape hatch from React’s purely functional world into the imperative world.
       *
-      * This will only execute the effect when values in the second argument, change.
+      * This will only execute the effect when values in the first argument change.
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
@@ -249,7 +248,7 @@ object Api {
     /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
       * escape hatch from React’s purely functional world into the imperative world.
       *
-      * This will only execute the effect when values in the second argument, change.
+      * This will only execute the effect when values in the first argument change.
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
@@ -267,8 +266,7 @@ object Api {
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
       *
       * If you'd only like to execute the effect when your component is mounted, then use [[useLayoutEffectOnMount]].
-      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
-      * the second argument.
+      * If you'd only like to execute the effect when certain values have changed, then use [[useLayoutEffectWithDeps]].
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
@@ -282,13 +280,12 @@ object Api {
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
       *
       * If you'd only like to execute the effect when your component is mounted, then use [[useLayoutEffectOnMount]].
-      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
-      * the second argument.
+      * If you'd only like to execute the effect when certain values have changed, then use [[useLayoutEffectWithDeps]].
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
-    final def useLayoutEffectBy[A](init: Ctx => A)(implicit a: UseEffectArg[A], step: Step): step.Self =
-      self(ctx => UseEffect.unsafeCreateLayout(init(ctx)))
+    final def useLayoutEffectBy[A](effect: Ctx => A)(implicit a: UseEffectArg[A], step: Step): step.Self =
+      self(ctx => UseEffect.unsafeCreateLayout(effect(ctx)))
 
     /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
       * read layout from the DOM and synchronously re-render. Updates scheduled inside useLayoutEffect will be flushed
@@ -322,7 +319,7 @@ object Api {
       *
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
       *
-      * This will only execute the effect when values in the second argument, change.
+      * This will only execute the effect when values in the first argument change.
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
@@ -335,12 +332,92 @@ object Api {
       *
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
       *
-      * This will only execute the effect when values in the second argument, change.
+      * This will only execute the effect when values in the first argument change.
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
     final def useLayoutEffectWithDepsBy[D, A](deps: Ctx => D)(effect: Ctx => D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
       customBy(ctx => ReusableEffect.useLayoutEffect(deps(ctx))(effect(ctx)))
+
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any 
+      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates 
+      * scheduled inside useLayoutEffect will be flushed synchronously, before the browser has a chance to paint.
+      *
+      * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
+      *
+      * If you'd only like to execute the effect when your component is mounted, then use [[useInsertionEffectOnMount]].
+      * If you'd only like to execute the effect when certain values have changed, then use [[useInsertionEffectWithDeps]].
+      *
+      * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
+      */
+    final def useInsertionEffect[A](effect: A)(implicit a: UseEffectArg[A], step: Step): step.Self =
+      useInsertionEffectBy(_ => effect)
+
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any 
+      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates 
+      * scheduled inside useLayoutEffect will be flushed synchronously, before the browser has a chance to paint.
+      *
+      * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
+      *
+      * If you'd only like to execute the effect when your component is mounted, then use [[useInsertionEffectOnMount]].
+      * If you'd only like to execute the effect when certain values have changed, then use [[useInsertionEffectWithDeps]].
+      *
+      * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
+      */
+    final def useInsertionEffectBy[A](effect: Ctx => A)(implicit a: UseEffectArg[A], step: Step): step.Self =
+      self(ctx => UseEffect.unsafeCreateInsertion(effect(ctx)))
+
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any 
+      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates 
+      * scheduled inside useLayoutEffect will be flushed synchronously, before the browser has a chance to paint.
+      *
+      * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
+      *
+      * This will only execute the effect when your component is mounted.
+      *
+      * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
+      */
+    final def useInsertionEffectOnMount[A](effect: A)(implicit a: UseEffectArg[A], step: Step): step.Self =
+      useInsertionEffectOnMountBy(_ => effect)
+
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any 
+      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates 
+      * scheduled inside useLayoutEffect will be flushed synchronously, before the browser has a chance to paint.
+      *
+      * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
+      *
+      * This will only execute the effect when your component is mounted.
+      *
+      * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
+      */
+    final def useInsertionEffectOnMountBy[A](effect: Ctx => A)(implicit a: UseEffectArg[A], step: Step): step.Self =
+      self(ctx => UseEffect.unsafeCreateInsertionOnMount(effect(ctx)))
+
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any 
+      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates 
+      * scheduled inside useLayoutEffect will be flushed synchronously, before the browser has a chance to paint.
+      *
+      * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
+      *
+      * This will only execute the effect when values in the first argument change.
+      *
+      * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
+      */
+    final def useInsertionEffectWithDeps[D, A](deps: => D)(effect: D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
+      custom(ReusableEffect.useInsertionEffect(deps)(effect))
+
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any 
+      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates 
+      * scheduled inside useLayoutEffect will be flushed synchronously, before the browser has a chance to paint.
+      *
+      * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
+      *
+      * This will only execute the effect when values in the first argument change.
+      *
+      * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
+      */
+    final def useInsertionEffectWithDepsBy[D, A](deps: Ctx => D)(effect: Ctx => D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
+      customBy(ctx => ReusableEffect.useInsertionEffect(deps(ctx))(effect(ctx)))
 
     /** Returns a memoized value.
       *
@@ -478,7 +555,7 @@ object Api {
     final def useStateWithReuseBy[S: ClassTag: Reusability](initialState: Ctx => S)(implicit step: Step): step.Next[UseStateWithReuse[S]] =
       next(ctx => UseStateWithReuse.unsafeCreate(initialState(ctx)))
 
-    /** `useId` is a React Hook for generating unique IDs that can be passed to accessibility attributes.
+    /** Generates unique IDs that can be passed to accessibility attributes.
       * 
       * @see https://react.dev/reference/react/useId
       */
@@ -496,6 +573,62 @@ object Api {
       */
     final def useTransition(implicit step: Step): step.Next[UseTransition] =
       customBy(_ => UseTransition())
+
+    /**
+      * Lets you subscribe to an external store.
+      *
+      * @see
+      *   {@link https://react.dev/reference/react/useSyncExternalStore}
+      */
+    @inline final def useSyncExternalStore[F[_], A](subscribe: F[Unit] => F[F[Unit]], getSnapshot: F[A])(implicit F: Sync[F], step: Step): step.Next[A] =
+      useSyncExternalStore(subscribe, getSnapshot, js.undefined)
+
+    /**
+      * Lets you subscribe to an external store.
+      *
+      * @see
+      *   {@link https://react.dev/reference/react/useSyncExternalStore}
+      */
+    final def useSyncExternalStore[F[_], A](subscribe: F[Unit] => F[F[Unit]], getSnapshot: F[A], getServerSnapshot: js.UndefOr[F[A]])(implicit F: Sync[F], step: Step): step.Next[A] =
+      customBy(_ => UseSyncExternalStore(subscribe, getSnapshot, getServerSnapshot))
+
+    /**
+      * Lets you subscribe to an external store.
+      *
+      * @see
+      *   {@link https://react.dev/reference/react/useSyncExternalStore}
+      */
+    @inline final def useSyncExternalStoreBy[F[_], A](subscribe: Ctx => F[Unit] => F[F[Unit]], getSnapshot: Ctx => F[A])(implicit F: Sync[F], step: Step): step.Next[A] =
+      useSyncExternalStoreBy(subscribe, getSnapshot, js.undefined)
+    /**
+      * Lets you subscribe to an external store.
+      *
+      * @see
+      *   {@link https://react.dev/reference/react/useSyncExternalStore}
+      */
+    final def useSyncExternalStoreBy[F[_], A](subscribe: Ctx => F[Unit] => F[F[Unit]], getSnapshot: Ctx => F[A], getServerSnapshot: js.UndefOr[Ctx => F[A]])(implicit F: Sync[F], step: Step): step.Next[A] =
+      customBy(ctx => UseSyncExternalStore(subscribe(ctx), getSnapshot(ctx), getServerSnapshot.map(_(ctx))))
+
+    /**
+      * Lets you defer updating a part of the UI.
+      *
+      * @see
+      *   {@link https://react.dev/reference/react/useDeferredValue}
+      */
+    final def useDeferredValue[A](value: Ctx => A)(implicit step: Step): step.Next[A] =
+      // initialValue was added in React 19 - Replace when we upgrade to React 19
+      // customBy(ctx => UseDeferredValue(value(ctx), js.undefined))
+      customBy(ctx => UseDeferredValue(value(ctx)))
+
+    // initialValue was added in React 19 - Uncomment when we upgrade to React 19
+    // /**
+    //   * Lets you defer updating a part of the UI.
+    //   *
+    //   * @see
+    //   *   {@link https://react.dev/reference/react/useDeferredValue}
+    //   */
+    // final def useDeferredValue[A](value: Ctx => A, initialValue: Ctx => A)(implicit step: Step): step.Next[A] =
+    //   customBy(ctx => UseDeferredValue(value(ctx), initialValue(ctx)))
   }
 
   // ===================================================================================================================
@@ -573,18 +706,17 @@ object Api {
       *
       * By default, effects run after every completed render.
       * If you'd only like to execute the effect when your component is mounted, then use [[useEffectOnMount]].
-      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
-      * the second argument.
+      * If you'd only like to execute the effect when certain values have changed, then use [[useEffectWithDeps]].
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
-    final def useEffectBy[A](init: CtxFn[A])(implicit a: UseEffectArg[A], step: Step): step.Self =
-      useEffectBy(step.squash(init)(_))
+    final def useEffectBy[A](effect: CtxFn[A])(implicit a: UseEffectArg[A], step: Step): step.Self =
+      useEffectBy(step.squash(effect)(_))
 
     /** The callback passed to useEffect will run after the render is committed to the screen. Think of effects as an
       * escape hatch from React’s purely functional world into the imperative world.
       *
-      * This will only execute the effect when values in the second argument, change.
+      * This will only execute the effect when values in the first argument change.
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useeffect
       */
@@ -608,13 +740,12 @@ object Api {
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
       *
       * If you'd only like to execute the effect when your component is mounted, then use [[useLayoutEffectOnMount]].
-      * If you'd only like to execute the effect when certain values have changed, provide those certain values as
-      * the second argument.
+      * If you'd only like to execute the effect when certain values have changed, then use [[useLayoutEffectWithDeps]].
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
-    final def useLayoutEffectBy[A](init: CtxFn[A])(implicit a: UseEffectArg[A], step: Step): step.Self =
-      useLayoutEffectBy(step.squash(init)(_))
+    final def useLayoutEffectBy[A](effect: CtxFn[A])(implicit a: UseEffectArg[A], step: Step): step.Self =
+      useLayoutEffectBy(step.squash(effect)(_))
 
     /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations. Use this to
       * read layout from the DOM and synchronously re-render. Updates scheduled inside useLayoutEffect will be flushed
@@ -622,7 +753,7 @@ object Api {
       *
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
       *
-      * This will only execute the effect when values in the second argument, change.
+      * This will only execute the effect when values in the first argument change.
       *
       * @see https://reactjs.org/docs/hooks-reference.html#useLayoutEffect
       */
@@ -641,6 +772,46 @@ object Api {
       */
     final def useLayoutEffectOnMountBy[A](effect: CtxFn[A])(implicit a: UseEffectArg[A], step: Step): step.Self =
       useLayoutEffectOnMountBy(step.squash(effect)(_))
+
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any 
+      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates 
+      * scheduled inside useLayoutEffect will be flushed synchronously, before the browser has a chance to paint.
+      *
+      * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
+      *
+      * If you'd only like to execute the effect when your component is mounted, then use [[useInsertionEffectOnMount]].
+      * If you'd only like to execute the effect when certain values have changed, then use [[useInsertionEffectWithDeps]].
+      *
+      * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
+      */
+    final def useInsertionEffectBy[A](effect: CtxFn[A])(implicit a: UseEffectArg[A], step: Step): step.Self =
+      useInsertionEffectBy(step.squash(effect)(_))
+
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any 
+      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates 
+      * scheduled inside useLayoutEffect will be flushed synchronously, before the browser has a chance to paint.
+      *
+      * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
+      *
+      * This will only execute the effect when values in the first argument change.
+      *
+      * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
+      */
+    final def useInsertionEffectWithDepsBy[D, A](deps: CtxFn[D])(effect: CtxFn[D => A])(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
+      useInsertionEffectWithDepsBy(step.squash(deps)(_))(step.squash(effect)(_))
+
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any 
+      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates 
+      * scheduled inside useLayoutEffect will be flushed synchronously, before the browser has a chance to paint.
+      *
+      * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
+      *
+      * This will only execute the effect when your component is mounted.
+      *
+      * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
+      */
+    final def useInsertionEffectOnMountBy[A](effect: CtxFn[A])(implicit a: UseEffectArg[A], step: Step): step.Self =
+      useInsertionEffectOnMountBy(step.squash(effect)(_))
 
     /** Returns a memoized value.
       *
@@ -693,6 +864,43 @@ object Api {
       */
     final def useStateWithReuseBy[S: ClassTag: Reusability](initialState: CtxFn[S])(implicit step: Step): step.Next[UseStateWithReuse[S]] =
       useStateWithReuseBy(step.squash(initialState)(_))
+
+    /**
+      * Lets you subscribe to an external store.
+      *
+      * @see
+      *   {@link https://react.dev/reference/react/useSyncExternalStore}
+      */
+    @inline final def useSyncExternalStoreBy[F[_], A](subscribe: CtxFn[F[Unit] => F[F[Unit]]], getSnapshot: CtxFn[F[A]])(implicit F: Sync[F], step: Step): step.Next[A] =
+      useSyncExternalStoreBy(subscribe, getSnapshot, js.undefined)
+    /**
+      * Lets you subscribe to an external store.
+      *
+      * @see
+      *   {@link https://react.dev/reference/react/useSyncExternalStore}
+      */
+    final def useSyncExternalStoreBy[F[_], A](subscribe: CtxFn[F[Unit] => F[F[Unit]]], getSnapshot: CtxFn[F[A]], getServerSnapshot: js.UndefOr[CtxFn[F[A]]])(implicit F: Sync[F], step: Step): step.Next[A] =
+      useSyncExternalStoreBy(ctx => step.squash(subscribe)(ctx), ctx => step.squash(getSnapshot)(ctx), getServerSnapshot.map(f => ctx => step.squash(f)(ctx)))
+
+    /**
+      * Lets you defer updating a part of the UI.
+      *
+      * @see
+      *   {@link https://react.dev/reference/react/useDeferredValue}
+      */
+    @inline final def useDeferredValue[A](value: CtxFn[A])(implicit step: Step): step.Next[A] =
+      useDeferredValue(ctx => step.squash(value)(ctx))
+
+    // initialValue was added in React 19 - Uncomment when we upgrade to React 19
+    // /**
+    //   * Lets you defer updating a part of the UI.
+    //   *
+    //   * @see
+    //   *   {@link https://react.dev/reference/react/useDeferredValue}
+    //   */
+    // final def useDeferredValue[A](value: CtxFn[A], initialValue: CtxFn[A])(implicit step: Step): step.Next[A] =
+    //   // useDeferredValue(ctx => step.squash(value)(ctx), initialValue.map(f => ctx => step.squash(f)(ctx)))
+    //   useDeferredValue(ctx => step.squash(value)(ctx), ctx => step.squash(initialValue)(ctx))
   }
 
   // ===================================================================================================================
