@@ -129,4 +129,12 @@ trait ReactTestUtils2 extends japgolly.scalajs.react.test.internal.ReactTestUtil
     F.flatMap(F.pure(ReactTestUtils2.withReactRoot.setup(implicitly, new WithDsl.Cleanup)))(
       root => F.map(actAsync(root.render(unmounted)))(_ => root.selectFirstChild())
     )
+
+  def withRenderedAsync[F[_], A](
+    unmounted: A
+  )(use: TestDomWithRoot => F[Unit]
+  )(implicit F: Async[F], renderable: Renderable[A]): F[Unit] =
+    F.flatMap(renderAsync(unmounted)) { d =>
+      F.finallyRun(use(d), actAsync(d.unmount()))
+    }
 }
