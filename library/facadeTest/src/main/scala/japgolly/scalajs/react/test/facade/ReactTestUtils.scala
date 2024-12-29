@@ -12,7 +12,6 @@ import scala.scalajs.js.|
 object ReactTestUtils extends ReactTestUtils
 
 @js.native
-@nowarn("cat=unused")
 trait ReactTestUtils extends js.Object {
 
   final val Simulate: Simulate = js.native
@@ -30,6 +29,7 @@ trait ReactTestUtils extends js.Object {
     *
     * This helps make your tests run closer to what real users would experience when using your application.
     */
+  @deprecated("Use React.act", "3.0.0")
   final def act(body: js.Function0[Any]): js.Thenable[Unit] = js.native
 
   /** When writing UI tests, tasks like rendering, user events, or data fetching can be considered as "units" of
@@ -46,6 +46,7 @@ trait ReactTestUtils extends js.Object {
     * This helps make your tests run closer to what real users would experience when using your application.
     */
   @JSName("act")
+  @deprecated("Use React.actAsync", "3.0.0")
   final def actAsync(body: js.Function0[js.Thenable[Any]]): js.Thenable[Unit] = js.native
 
   /** Render a component into a detached DOM node in the document. This function requires a DOM. */

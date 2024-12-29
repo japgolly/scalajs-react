@@ -98,7 +98,7 @@ trait WithDsl[A, I] { self =>
   def map[B](f: A => B): WithDsl[B, I] =
     mapFull { (a, _) => f(a) }
 
-  def mapResourse[B](f: A => B)(cleanup: B => Unit): WithDsl[B, I] =
+  def mapResource[B](f: A => B)(cleanup: B => Unit): WithDsl[B, I] =
     mapFull { (a, c) =>
       val b = f(a)
       c.register(cleanup(b))

@@ -11,9 +11,6 @@ import org.scalajs.dom.html.Element
 import org.scalajs.dom.{console, document}
 
 object ReactTestUtils2 extends ReactTestUtils2 {
-
-  val raw = japgolly.scalajs.react.test.facade.ReactTestUtils
-
   IsReactActEnvironment = true
 
   private[ReactTestUtils2] object Internals {
@@ -32,8 +29,9 @@ object ReactTestUtils2 extends ReactTestUtils2 {
 }
 
 trait ReactTestUtils2 extends japgolly.scalajs.react.test.internal.ReactTestUtilExtensions {
-  import ReactTestUtils2._
   import ReactTestUtils2.Internals._
+
+  private val reactRaw = japgolly.scalajs.react.facade.React
 
   type Unmounted = GenericComponent.Unmounted[_, Unit]
 
@@ -62,8 +60,8 @@ trait ReactTestUtils2 extends japgolly.scalajs.react.test.internal.ReactTestUtil
     */
   def act[A](body: => A): A = {
     var a = Option.empty[A]
-    raw.act(() => { a = Some(body) })
-    a.getOrElse(throw new RuntimeException("React's TestUtils.act didn't seem to complete."))
+    reactRaw.act(() => { a = Some(body) })
+    a.getOrElse(throw new RuntimeException("React.act didn't seem to complete."))
   }
 
   /** When writing UI tests, tasks like rendering, user events, or data fetching can be considered as "units" of
@@ -83,10 +81,13 @@ trait ReactTestUtils2 extends japgolly.scalajs.react.test.internal.ReactTestUtil
     F.flatMap(F.delay(new Hooks.Var(Option.empty[A]))) { ref =>
       def setAsync(a: A): F[Unit] = F.delay(DS.runSync(ref.set(Some(a))))
       val body2 = F.flatMap(body)(setAsync)
-      val body3 = F.fromJsPromise(raw.actAsync(F.toJsPromise(body2)))
-      F.map(body3)(_ => ref.value.getOrElse(throw new RuntimeException("React's TestUtils.act didn't seem to complete.")))
+      val body3 = F.fromJsPromise(reactRaw.actAsync(F.toJsPromise(body2)))
+      F.map(body3)(_ => ref.value.getOrElse(throw new RuntimeException("React.act didn't seem to complete.")))
     }
   }
+
+  @inline def actAsync[F[_], A](body: => A)(implicit F: Async[F]): F[A] =
+    actAsync(F.delay(body))
 
   def newElement(): Element = {
     val cont = document.createElement("div").domAsHtml
@@ -113,12 +114,19 @@ trait ReactTestUtils2 extends japgolly.scalajs.react.test.internal.ReactTestUtil
     WithDsl(newElement())(removeElement)
 
   val withReactRoot: WithDsl[TestReactRoot, ImplicitUnit] =
-    withElement.mapResourse(TestReactRoot(_))(_.unmount())
+    withElement.mapResource(TestReactRoot(_))(_.unmount())
 
   def withRendered[A](unmounted: A): WithDsl[TestDomWithRoot, Renderable[A]] =
-    WithDsl[TestDomWithRoot, Renderable[A]] { (renderable, cleanup) =>
+    WithDsl.apply[TestDomWithRoot, Renderable[A]] { (renderable, cleanup) =>
       val root = withReactRoot.setup(implicitly, cleanup)
       act(root.render(unmounted)(renderable))
       root.selectFirstChild()
     }
+
+  def renderAsync[F[_], A](
+    unmounted: A
+  )(implicit F: Async[F], renderable: Renderable[A]): F[TestDomWithRoot] =
+    F.flatMap(F.pure(ReactTestUtils2.withReactRoot.setup(implicitly, new WithDsl.Cleanup)))(
+      root => F.map(actAsync(root.render(unmounted)))(_ => root.selectFirstChild())
+    )
 }
