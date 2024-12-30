@@ -75,12 +75,12 @@ object ReactTestVarTest extends TestSuite {
         .render_P(parent => <.div(parent.state.runNow(), ^.onClick --> parent.modState(_ + 1)))
         .build
       val v = ReactTestVar(1)
-      ReactTestUtils.withRenderedIntoDocument(c(v.stateAccess)) { m =>
-        v.onUpdate(m.forceUpdate)
-        assertRendered(m.getDOMNode.asMounted().asElement(), "<div>1</div>")
-        Simulate.click(m.getDOMNode.asMounted().asElement())
+      ReactTestUtils2.withRendered(c(v.stateAccess)) { d =>
+        v.onUpdate(d.root.render(c(v.stateAccess)))
+        d.outerHTML.assert("<div>1</div>")
+        d.node.foreach(n => d.act(Simulate.click(n)))
         assertEq(v.value(), 2)
-        assertRendered(m.getDOMNode.asMounted().asElement(), "<div>2</div>")
+        d.outerHTML.assert("<div>2</div>")
       }
     }
   }

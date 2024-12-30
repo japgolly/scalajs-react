@@ -19,6 +19,9 @@ trait TestDomWithRoot extends TestDom {
   override type Self <: TestDomWithRoot
   val root: TestReactRoot
 
+  @inline def act[A](body: => A): A = 
+    root.act(body)
+
   @inline def unmount(): Unit =
     root.unmount()
 }

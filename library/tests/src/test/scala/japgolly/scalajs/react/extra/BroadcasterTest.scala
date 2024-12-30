@@ -1,9 +1,10 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.test.ReactTestUtils
+import japgolly.scalajs.react.test.ReactTestUtils2
 import japgolly.scalajs.react.vdom.html_<^._
 import utest._
+import japgolly.scalajs.react.test.DomTester
 
 object BroadcasterTest extends TestSuite {
 
@@ -23,12 +24,13 @@ object BroadcasterTest extends TestSuite {
     val b = new B
 
     "component" - {
-      val c = ReactTestUtils.renderIntoDocument(C(b))
-      assert(c.state == Vector())
-      b.broadcast(2).runNow()
-      assert(c.state == Vector(2))
-      b.broadcast(7).runNow()
-      assert(c.state == Vector(2, 7))
+      ReactTestUtils2.withRendered(C(b)){ d => 
+        DomTester.assertText(d.asHtml(), "Got: {}")
+        d.act(b.broadcast(2).runNow())
+        DomTester.assertText(d.asHtml(), "Got: {2}")
+        d.act(b.broadcast(7).runNow())
+        DomTester.assertText(d.asHtml(), "Got: {2,7}")
+      }
     }
 
     "unregister" - {
