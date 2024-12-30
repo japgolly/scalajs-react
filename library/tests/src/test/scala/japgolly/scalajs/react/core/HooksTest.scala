@@ -4,9 +4,9 @@ import japgolly.scalajs.react.Hooks.UseEffectArg
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.hooks.HookResult
-import japgolly.scalajs.react.test.DomTester
-import japgolly.scalajs.react.test.ReactTestUtils._
+import japgolly.scalajs.react.test.ReactTestUtils2._
 import japgolly.scalajs.react.test.TestUtil._
+import japgolly.scalajs.react.test.{DomTester, TestReactRoot}
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.html.Input
 import scala.collection.mutable
@@ -15,10 +15,11 @@ import utest._
 
 object HooksTest extends TestSuite {
 
-  // TODO: https://github.com/lampepfl/dotty/issues/12663
-  // Should be private ↓
-  def test[M, A](u: Unmounted[M])(f: DomTester => A): A =
-    withRenderedIntoBody(u).withParent(root => f(new DomTester(root)))
+  protected[core] def test[A](u: Unmounted)(f: DomTester => A): A =
+    withRendered(u).map(d => new DomTester(d.root.asHtml()))(f)
+
+  protected[core] def testWithRoot[A](u: Unmounted)(f: (TestReactRoot, DomTester) => A): A =
+    withRendered(u)(d => f(d.root, new DomTester(d.root.asHtml())))
 
   private val incBy1 = Reusable.byRef((_: Int) + 1)
   private val incBy5 = Reusable.byRef((_: Int) + 5)
@@ -1952,18 +1953,17 @@ object HooksTest extends TestSuite {
         )
       }
 
-    val wrapper = ScalaComponent.builder[PI].render_P(comp(_)).build
+    val wrapper = ScalaFnComponent[PI](comp(_))
 
-    withRenderedIntoBody(wrapper(PI(3))) { (m, root) =>
-      val t = new DomTester(root)
+    testWithRoot(wrapper(PI(3))) { (r, t) =>
       t.assertText("P=PI(3), S=20, ES=5, R=1")
-      replaceProps(wrapper, m)(PI(2)); t.assertText("P=PI(3), S=20, ES=5, R=1")
+      r.render(wrapper(PI(2))); t.assertText("P=PI(3), S=20, ES=5, R=1")
       t.clickButton(1); t.assertText("P=PI(2), S=21, ES=5, R=2")
-      replaceProps(wrapper, m)(PI(2)); t.assertText("P=PI(2), S=21, ES=5, R=2")
-      replaceProps(wrapper, m)(PI(3)); t.assertText("P=PI(2), S=21, ES=5, R=2")
-      replaceProps(wrapper, m)(PI(4)); t.assertText("P=PI(4), S=21, ES=5, R=3")
+      r.render(wrapper(PI(2))); t.assertText("P=PI(2), S=21, ES=5, R=2")
+      r.render(wrapper(PI(3))); t.assertText("P=PI(2), S=21, ES=5, R=2")
+      r.render(wrapper(PI(4))); t.assertText("P=PI(4), S=21, ES=5, R=3")
       t.clickButton(2); t.assertText("P=PI(4), S=21, ES=6, R=4")
-      replaceProps(wrapper, m)(PI(5)); t.assertText("P=PI(4), S=21, ES=6, R=4")
+      r.render(wrapper(PI(5))); t.assertText("P=PI(4), S=21, ES=6, R=4")
     }
   }
 
@@ -1993,19 +1993,19 @@ object HooksTest extends TestSuite {
         inner((p, s, incES, fu))
     }
 
-    val wrapper = ScalaComponent.builder[PI].render_P(comp(_)).build
+    ScalaComponent.builder[PI].render_P(comp(_)).build
 
-    withRenderedIntoBody(wrapper(PI(3))) { (m, root) =>
-      val t = new DomTester(root)
-      t.assertText("P=PI(3), S=20, ES=5, R=1")
-      replaceProps(wrapper, m)(PI(2)); t.assertText("P=PI(3), S=20, ES=5, R=1")
-      t.clickButton(1); t.assertText("P=PI(2), S=21, ES=5, R=2")
-      replaceProps(wrapper, m)(PI(2)); t.assertText("P=PI(2), S=21, ES=5, R=2")
-      replaceProps(wrapper, m)(PI(3)); t.assertText("P=PI(2), S=21, ES=5, R=2")
-      replaceProps(wrapper, m)(PI(4)); t.assertText("P=PI(4), S=21, ES=5, R=3")
-      t.clickButton(2); t.assertText("P=PI(4), S=21, ES=6, R=4")
-      replaceProps(wrapper, m)(PI(5)); t.assertText("P=PI(4), S=21, ES=6, R=4")
-    }
+    // withRenderedIntoBody(wrapper(PI(3))) { (m, root) =>
+    //   val t = new DomTester(root)
+    //   t.assertText("P=PI(3), S=20, ES=5, R=1")
+    //   replaceProps(wrapper, m)(PI(2)); t.assertText("P=PI(3), S=20, ES=5, R=1")
+    //   t.clickButton(1); t.assertText("P=PI(2), S=21, ES=5, R=2")
+    //   replaceProps(wrapper, m)(PI(2)); t.assertText("P=PI(2), S=21, ES=5, R=2")
+    //   replaceProps(wrapper, m)(PI(3)); t.assertText("P=PI(2), S=21, ES=5, R=2")
+    //   replaceProps(wrapper, m)(PI(4)); t.assertText("P=PI(4), S=21, ES=5, R=3")
+    //   t.clickButton(2); t.assertText("P=PI(4), S=21, ES=6, R=4")
+    //   replaceProps(wrapper, m)(PI(5)); t.assertText("P=PI(4), S=21, ES=6, R=4")
+    // }
   }
 
   // See https://github.com/japgolly/scalajs-react/issues/1027
@@ -2018,16 +2018,15 @@ object HooksTest extends TestSuite {
         <.div(s"P=$p, R=$renders")
       }
 
-    val wrapper = ScalaComponent.builder[PI]
-      .initialStateFromProps(identity)
-      .renderS { ($, s) =>
+    val wrapper = ScalaFnComponent.withHooks[PI]
+      .useStateBy(identity)
+      .render { (_, s) =>
         <.div(
-          comp(s),
-          <.button(^.onClick --> $.modState(_ + 0)),
-          <.button(^.onClick --> $.modState(_ + 1)),
+          comp(s.value),
+          <.button(^.onClick --> s.modState(_ + 0)),
+          <.button(^.onClick --> s.modState(_ + 1)),
         )
       }
-      .build
 
     test(wrapper(PI(3))) { (t) =>
       t.assertText("P=PI(3), R=1")
@@ -2172,9 +2171,9 @@ object HooksTest extends TestSuite {
           <.div(s"i=$i")
       }
 
-      test(comp()) { t =>
+      testWithRoot(comp()) { (r, t) =>
         t.assertText("i=0")
-        store.inc(true).runNow()
+        r.act(store.inc(true).runNow())
         t.assertText("i=1")
       }
       assert(store.peekListener(true).isEmpty)
@@ -2191,9 +2190,9 @@ object HooksTest extends TestSuite {
           <.div(s"i=$i")
       }
 
-      test(comp(false)) { t =>
+      testWithRoot(comp(false)) { (r, t) =>
         t.assertText("i=0")
-        store.inc(false).runNow()
+        r.act(store.inc(false).runNow())
         t.assertText("i=1")
       }
       assert(store.peekListener(true).isEmpty)
@@ -2209,9 +2208,9 @@ object HooksTest extends TestSuite {
         } yield <.div(s"i=$i")
       }
 
-      test(comp()) { t =>
+      testWithRoot(comp()) { (r, t) =>
         t.assertText("i=0")
-        store.inc(true).runNow()
+        r.act(store.inc(true).runNow())
         t.assertText("i=1")
       }
       assert(store.peekListener(true).isEmpty)

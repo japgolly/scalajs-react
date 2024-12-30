@@ -3,10 +3,10 @@ package japgolly.scalajs.react.test
 import org.scalajs.dom
 
 object TestDomWithRoot {
-  def apply(r: TestReactRoot, n: dom.Node): TestDomWithRoot =
+  def apply(r: TestReactRoot, n: Option[dom.Node]): TestDomWithRoot =
     new TestDomWithRoot {
       override type Self = TestDomWithRoot
-      override protected def Self(n2: dom.Node) = TestDomWithRoot(root, n2)
+      override protected def Self(n2: Option[dom.Node]) = TestDomWithRoot(root, n2)
       override val root = r
       override def node = n
       override def toString = s"TestDomWithRoot($node)"

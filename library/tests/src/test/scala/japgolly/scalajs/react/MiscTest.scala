@@ -97,7 +97,7 @@ object MiscTest extends TestSuite {
           .build
         ReactTestUtils2.withRendered(C()) { d =>
           d.select("span").innerHTML.assert("3")
-          Simulation.click run d.node
+          d.node.foreach(Simulation.click.run(_))
           d.select("span").innerHTML.assert("11")
         }
       }

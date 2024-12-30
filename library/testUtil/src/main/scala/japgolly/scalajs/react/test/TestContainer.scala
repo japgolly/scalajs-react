@@ -7,7 +7,7 @@ object TestContainer {
   def apply(c: mainFacade.ReactDOM.Container): TestContainer =
     new TestContainer {
       override type Self = TestDom
-      override protected def Self(n2: dom.Node) = TestDom(n2)
+      override protected def Self(n2: Option[dom.Node]) = TestDom(n2)
       override def container = c
       override def toString = s"TestContainer($c)"
     }
@@ -25,8 +25,8 @@ trait TestContainer extends TestDom {
 
   def container: mainFacade.ReactDOM.Container
 
-  final def node =
-    fold(identity, identity, identity)
+  final def node: Option[dom.Node] =
+    Some(fold(identity, identity, identity))
 
   def fold[A](onElement         : dom.Element          => A,
               onDocument        : dom.Document         => A,
@@ -38,7 +38,7 @@ trait TestContainer extends TestDom {
     }
 
   def isEmpty(): Boolean =
-    node.childNodes.length == 0
+    node.forall(_.childNodes.length == 0)
 
   @inline final def nonEmpty(): Boolean =
     !isEmpty()

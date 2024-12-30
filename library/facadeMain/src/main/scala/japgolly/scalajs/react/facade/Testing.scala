@@ -1,13 +1,13 @@
 package japgolly.scalajs.react.facade
 
-import scalajs.js
-import scalajs.js.annotation.JSName
+import scala.scalajs.js
+import scala.scalajs.js.annotation.JSName
 
 /** 
   * @since React 18.3.0 / scalajs-react 3.0.0
   */
 @js.native
-trait Act extends js.Object {
+trait Testing extends js.Object {
   /** When writing UI tests, tasks like rendering, user events, or data fetching can be considered as "units" of
     * interaction with a user interface. React provides a helper called act() that makes sure all updates related to
     * these "units" have been processed and applied to the DOM before you make any assertions:

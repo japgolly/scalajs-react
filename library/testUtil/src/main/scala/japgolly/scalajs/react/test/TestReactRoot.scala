@@ -13,7 +13,7 @@ object TestReactRoot {
     @inline def c = container
     new TestReactRoot {
       override type Self = TestDomWithRoot
-      override protected def Self(n2: dom.Node) = TestDomWithRoot(this, n2)
+      override protected def Self(n2: Option[dom.Node]) = TestDomWithRoot(this, n2)
       override def root = r
 
       override def container = c
@@ -38,9 +38,12 @@ trait TestReactRoot extends TestContainer {
   @inline def raw =
     root.raw
 
+  def act[A](body: => A): A = 
+    ReactTestUtils2.act(body)
+
   def render[A](unmounted: A)(implicit r: Renderable[A]): Unit =
-    ReactTestUtils2.act(root.render(unmounted))
+    act(root.render(unmounted))
 
   def unmount(): Unit =
-    ReactTestUtils2.act(root.unmount())
+    act(root.unmount())
 }

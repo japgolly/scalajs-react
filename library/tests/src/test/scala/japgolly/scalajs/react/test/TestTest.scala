@@ -171,13 +171,13 @@ object TestTest extends TestSuite {
           <.div(^.onClick ==> onClick)
         }.build
         ReactTestUtils2.withRendered(c()) { r =>
-          Simulate.click(r.node)
+          r.node.foreach(Simulate.click(_))
         }
         assertEq(ok, true)
       }
 
       "change" - ReactTestUtils2.withRendered(IT()) { t =>
-        SimEvent.Change("hehe").simulate(t.node)
+        t.node.foreach(SimEvent.Change("hehe").simulate(_))
         assertEq(t.asInput().value, "HEHE")
       }
 
@@ -200,7 +200,7 @@ object TestTest extends TestSuite {
         var count = 0
         def tgt = {
           count += 1
-          t.select("input").node
+          t.select("input").node.get
         }
         Simulation.focusChangeBlur("-") run tgt
         assertEq(count, 3)

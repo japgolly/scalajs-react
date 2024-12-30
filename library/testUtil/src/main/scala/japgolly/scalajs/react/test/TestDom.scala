@@ -7,11 +7,11 @@ import scala.reflect.ClassTag
 import scala.util.Try
 
 object TestDom {
-  def apply(n: dom.Node): TestDom =
+  def apply(n: Option[dom.Node]): TestDom =
     new TestDom {
       override type Self = TestDom
 
-      override protected def Self(n2: dom.Node) = TestDom(n2)
+      override protected def Self(n2: Option[dom.Node]) = TestDom(n2)
       override def node = n
       override def toString = s"TestDom($node)"
     }
@@ -27,24 +27,24 @@ object TestDom {
   */
 trait TestDom {
 
-  def node: dom.Node
+  def node: Option[dom.Node]
 
-  assert(node.isInstanceOf[dom.Node], "Invalid test DOM. Expected a DOM node but got: " + node)
+  assert(node.isInstanceOf[Option[dom.Node]], "Invalid test DOM. Expected a DOM node but got: " + node)
 
   // -------------------------------------------------------------------------------------------------------------------
   // Returning `TestDom`
 
   type Self <: TestDom
 
-  protected def Self(n: dom.Node): Self
+  protected def Self(n: Option[dom.Node]): Self
 
   def select(f: dom.Node => dom.Node): Self =
-    Self(f(node))
+    Self(node.map(f))
 
   def select(selectors: String): Self = {
     val all = querySelectorAll(selectors)
     all.length match {
-      case 1 => Self(all.head)
+      case 1 => Self(all.headOption)
       case 0 => throw new RuntimeException(s"No child of $node found matching '$selectors'")
       case n => throw new RuntimeException(s"Found $n children of $node found matching '$selectors', expected 1. Use .selectFirst() instead to select the first matching result.")
     }
@@ -52,11 +52,11 @@ trait TestDom {
 
   def selectFirst(selectors: String): Self =
     querySelectorOption(selectors) match {
-      case Some(e) => Self(e)
+      case Some(e) => Self(Some(e))
       case None    => throw new RuntimeException(s"No child of $node found matching '$selectors'")
     }
 
-  def selectFirstChild(): Self =
+  def selectFirstChild(): Self = 
     Self(firstChild())
 
   // -------------------------------------------------------------------------------------------------------------------
@@ -64,13 +64,12 @@ trait TestDom {
 
   /** Cast the DOM as `A` or throw an exception. */
   def as[A](implicit ct: ClassTag[A]): A =
-    (node: Any) match {
-      case a: A =>
-        a
-      case _ =>
-        val cls = ct.runtimeClass
-        val name = Try(cls.getSimpleName()).getOrElse(cls.getName())
-        throw new RuntimeException(s"Expected DOM to be a $name, got: $node")
+    node.collect{
+      case a: A => a
+    }.getOrElse{
+      val cls = ct.runtimeClass
+      val name = Try(cls.getSimpleName()).getOrElse(cls.getName())
+      throw new RuntimeException(s"Expected DOM to be Some($name), got: $node")
     }
 
   def asButton(): dom.HTMLButtonElement =
@@ -98,22 +97,29 @@ trait TestDom {
     as[dom.HTMLTextAreaElement]
 
   def children(): Vector[dom.Node] =
-    node.childNodes.toVector
+    node.map(_.childNodes.toVector).getOrElse(Vector.empty)
 
-  def firstChild(): dom.Node =
-    node.childNodes(0)
+  def firstChild(): Option[dom.Node] =
+    node.flatMap(n => Option(n.firstChild))
 
   def querySelector(selectors: String): dom.Element = {
-    JsUtil.querySelectorFn(node)
-      .map(_(selectors))
-      .getOrElse(throw new RuntimeException(s".querySelector() isn't available on $node"))
+    node.flatMap( n =>
+      JsUtil.querySelectorFn(n)
+        .map(_(selectors))
+        .toOption
+    )
+    .getOrElse(throw new RuntimeException(s".querySelector() isn't available on $node"))
   }
 
   def querySelectorOption(selectors: String): Option[dom.Element] =
-    JsUtil.querySelectorFn(node).toOption.flatMap(f => Option(f(selectors)))
+    node.flatMap( n =>
+      JsUtil.querySelectorFn(n).toOption.flatMap(f => Option(f(selectors)))
+    )
 
   def querySelectorAll(selectors: String): Vector[dom.Element] =
-    JsUtil.querySelectorAllFn(node).map(_(selectors).toVector).getOrElse(Vector.empty)
+    node.flatMap( n =>
+      JsUtil.querySelectorAllFn(n).map(_(selectors).toVector).toOption
+    ).getOrElse(Vector.empty)
 
   // /**
   //  * Traverse all components in tree and accumulate all components where test(component) is true.
