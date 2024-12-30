@@ -9,7 +9,7 @@ import org.scalajs.dom.html
 import scala.annotation.nowarn
 import utest._
 
-object VdomTest extends TestSuite {
+object VdomTest extends AsyncTestSuite {
 
   val C = ScalaComponent.static("")(<.br)
   val Span = ScalaComponent.builder[Unit]("").render_C(<.span(_)).build
@@ -69,15 +69,18 @@ object VdomTest extends TestSuite {
     }
 
     "portal" - {
-      ReactTestUtils.withNewBodyElement { portalTarget =>
+      ReactTestUtils2.withElement { portalTarget =>
         val comp = ScalaComponent.static("tmp")(
-          <.div("Here we go...",
-            ReactPortal(<.div("NICE"), portalTarget)))
-        ReactTestUtils.withRenderedIntoBody(comp()) { m =>
-          val compHtml = m.outerHtmlScrubbed()
-          val portalHtml = ReactTestUtils.removeReactInternals(portalTarget.innerHTML)
-          assertEq((compHtml, portalHtml), ("<div>Here we go...</div>", "<div>NICE</div>"))
-        }
+            <.div(
+              "Here we go...",
+              ReactPortal(<.div("NICE"), portalTarget)
+            )
+          )
+          ReactTestUtils2.withRendered(comp()) { d =>
+            val compHtml = ReactTestUtils2.removeReactInternals(d.asHtml().outerHTML)
+            val portalHtml = ReactTestUtils2.removeReactInternals(portalTarget.innerHTML)
+            assertEq((compHtml, portalHtml), ("<div>Here we go...</div>", "<div>NICE</div>"))
+          }
       }
     }
 
@@ -101,12 +104,15 @@ object VdomTest extends TestSuite {
               ^.value := s)
           }
           .build
-      ReactTestUtils.withRenderedIntoBody(c()) { m =>
-        def txt() = m.getDOMNode.asMounted().domCast[html.Input].value
-        SimEvent.Keyboard.Enter.simulateKeyDown(m)
-        assertEq(txt(), "enter!")
-        SimEvent.Keyboard.Space.simulateKeyDown(m)
-        assertEq(txt(), "SPACE!")
+
+      ReactTestUtils2.withRenderedAsync(c()) { d =>
+        def txt() = d.asInput().value
+        for {
+          _ <- d.actAsync_(SimEvent.Keyboard.Enter.simulateKeyDown(d.asHtml()))
+          _ = assertEq(txt(), "enter!")
+          _ <- d.actAsync_(SimEvent.Keyboard.Space.simulateKeyDown(d.asHtml()))
+          _ = assertEq(txt(), "SPACE!") 
+        } yield ()
       }
     }
 
@@ -125,10 +131,9 @@ object VdomTest extends TestSuite {
             }
             .build
 
-        ReactTestUtils.withRenderedIntoBody(c()) { _ =>
+        ReactTestUtils2.withRenderedAsync_(c()) { _ =>
           assert(value.isInstanceOf[html.Input])
-        }
-        assert(value eq null)
+        }.map(_ => assert(value eq null))
       }
 
       "ref" - {
@@ -145,11 +150,10 @@ object VdomTest extends TestSuite {
             }
             .build
 
-        ReactTestUtils.withRenderedIntoBody(c()) { _ =>
+        ReactTestUtils2.withRenderedAsync_(c()) { _ =>
           val x = ref.get.runNow()
           assert(x.isDefined)
-        }
-        assert(ref.get.runNow().isEmpty)
+        }.map(_ => assert(ref.get.runNow().isEmpty))
       }
     }
 

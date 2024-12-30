@@ -33,7 +33,7 @@ object Dependencies {
     val scalaTest             = "3.2.11"
     val sizzleJs              = "2.3.0"
     val univEq                = "2.0.0"
-    val utest                 = "0.7.11"
+    val utest                 = "0.8.5"
   }
 
   object Dep {

@@ -116,7 +116,7 @@ object Lib {
   def utestSettings(scope: Configuration): PE =
     _.configure(InBrowserTesting.js)
       .settings(
-        jsEnv                := new JSDOMNodeJSEnv,
+        jsEnv                := new JSDOMNodeJSEnv(JSDOMNodeJSEnv.Config().withArgs("--experimental-worker" :: Nil)),
         Test / scalacOptions += "-language:reflectiveCalls",
         libraryDependencies  += Dep.utest.value % scope,
         libraryDependencies  += Dep.microlibsTestUtil.value % scope,

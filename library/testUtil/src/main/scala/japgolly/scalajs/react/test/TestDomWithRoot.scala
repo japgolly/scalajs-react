@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.test
 
+import japgolly.scalajs.react.util.Effect.Async
 import org.scalajs.dom
 
 object TestDomWithRoot {
@@ -21,6 +22,12 @@ trait TestDomWithRoot extends TestDom {
 
   @inline def act[A](body: => A): A = 
     root.act(body)
+
+  @inline def actAsync[F[_], A](body: F[A])(implicit F: Async[F]): F[A] =
+    root.actAsync(body)
+
+  @inline def actAsync_[F[_], A](body: => A)(implicit F: Async[F]): F[A] =
+    root.actAsync_(body)
 
   @inline def unmount(): Unit =
     root.unmount()

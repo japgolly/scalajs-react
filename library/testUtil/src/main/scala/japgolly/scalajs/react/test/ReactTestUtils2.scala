@@ -86,7 +86,7 @@ trait ReactTestUtils2 extends japgolly.scalajs.react.test.internal.ReactTestUtil
     }
   }
 
-  @inline def actAsync[F[_], A](body: => A)(implicit F: Async[F]): F[A] =
+  @inline def actAsync_[F[_], A](body: => A)(implicit F: Async[F]): F[A] =
     actAsync(F.delay(body))
 
   def newElement(): Element = {
@@ -123,18 +123,50 @@ trait ReactTestUtils2 extends japgolly.scalajs.react.test.internal.ReactTestUtil
       root.selectFirstChild()
     }
 
+  // def renderAsync[F[_], A](
+  //   unmounted: A
+  // )(implicit F: Async[F], renderable: Renderable[A]): F[TestDomWithRoot] =
+  //   F.flatMap(F.delay(withReactRoot.setup(implicitly, new WithDsl.Cleanup)))(
+  //     root => F.map(actAsync(F.delay(root.render(unmounted))))(_ => root.selectFirstChild())
+  //   )
+
   def renderAsync[F[_], A](
     unmounted: A
   )(implicit F: Async[F], renderable: Renderable[A]): F[TestDomWithRoot] =
-    F.flatMap(F.pure(ReactTestUtils2.withReactRoot.setup(implicitly, new WithDsl.Cleanup)))(
-      root => F.map(actAsync(root.render(unmounted)))(_ => root.selectFirstChild())
-    )
+    F.flatMap(
+      // F.finallyRun(F.delay(newElement()), e => F.delay(removeElement(e)))
+      F.delay(newElement())
+    ){e =>
+      val root = TestReactRoot(e)
+      // F.flatMap(F.delay(withReactRoot.setup(implicitly, new WithDsl.Cleanup)))(
+      //   root => 
+        F.map(actAsync(F.delay(root.render(unmounted))))(_ => root.selectFirstChild())
+      // )
+    }
 
   def withRenderedAsync[F[_], A](
     unmounted: A
   )(use: TestDomWithRoot => F[Unit]
   )(implicit F: Async[F], renderable: Renderable[A]): F[Unit] =
-    F.flatMap(renderAsync(unmounted)) { d =>
-      F.finallyRun(use(d), actAsync(d.unmount()))
+    F.flatMap(F.delay(newElement())){ e =>
+      val root = TestReactRoot(e)
+      F.flatMap(actAsync(F.delay(root.render(unmounted)))) { _ =>
+        val d = root.selectFirstChild()
+        F.finallyRun(use(d), F.finallyRun(actAsync(F.delay(d.unmount())), F.delay(removeElement(e))))
+      }
     }
+
+  // def withRenderedAsync[F[_], A](
+  //   unmounted: A
+  // )(use: TestDomWithRoot => F[Unit]
+  // )(implicit F: Async[F], renderable: Renderable[A]): F[Unit] =
+  //   F.flatMap(renderAsync(unmounted)) { d =>
+  //     F.finallyRun(use(d), actAsync(F.delay(d.unmount())))
+  //   }
+
+  @inline def withRenderedAsync_[F[_], A](
+    unmounted: A
+  )(use: TestDomWithRoot => Unit
+  )(implicit F: Async[F], renderable: Renderable[A]): F[Unit] =
+    withRenderedAsync(unmounted)(d => F.delay(use(d)))
 }

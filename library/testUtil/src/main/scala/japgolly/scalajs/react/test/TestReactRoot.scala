@@ -1,6 +1,7 @@
 package japgolly.scalajs.react.test
 
 import japgolly.scalajs.react.{facade => mainFacade, _}
+import japgolly.scalajs.react.util.Effect.Async
 import org.scalajs.dom
 
 object TestReactRoot {
@@ -40,6 +41,12 @@ trait TestReactRoot extends TestContainer {
 
   def act[A](body: => A): A = 
     ReactTestUtils2.act(body)
+
+  def actAsync[F[_], A](body: F[A])(implicit F: Async[F]): F[A] =
+    ReactTestUtils2.actAsync(body)
+
+  @inline def actAsync_[F[_], A](body: => A)(implicit F: Async[F]): F[A] =
+    ReactTestUtils2.actAsync_(body)
 
   def render[A](unmounted: A)(implicit r: Renderable[A]): Unit =
     act(root.render(unmounted))
