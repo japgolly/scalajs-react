@@ -3,36 +3,10 @@ name: Release
 on:
   push:
     tags:
-      - v*.*.*
+      - test_release_*
 
 jobs:
-  ci:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - java: 14
-            scala: 2
-          - java: 8
-            scala: 3
-    name: Scala v${{ matrix.scala }} / Java v${{ matrix.java }}
-    steps:
-      - name: Git checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Scala
-        uses: japgolly/setup-everything-scala@v3.1
-        with:
-          java-version: adopt@1.${{ matrix.java }}
-
-      - name: Build and test
-        shell: bash
-        run: bin/ci ${{ matrix.scala }}
-
   release:
-    needs: ci
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
