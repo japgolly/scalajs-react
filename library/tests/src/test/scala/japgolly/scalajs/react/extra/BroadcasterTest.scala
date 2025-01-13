@@ -1,11 +1,11 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.test.{DomTester, ReactTestUtils2}
+import japgolly.scalajs.react.test.ReactTestUtils2
 import japgolly.scalajs.react.vdom.html_<^._
 import utest._
 
-object BroadcasterTest extends TestSuite {
+object BroadcasterTest extends AsyncTestSuite {
 
   class B extends Broadcaster[Int] {
     override def broadcast(a: Int): Callback =
@@ -23,12 +23,14 @@ object BroadcasterTest extends TestSuite {
     val b = new B
 
     "component" - {
-      ReactTestUtils2.withRenderedSync(C(b)){ d => 
-        DomTester.assertText(d.asHtml(), "Got: {}")
-        d.actSync(b.broadcast(2).runNow())
-        DomTester.assertText(d.asHtml(), "Got: {2}")
-        d.actSync(b.broadcast(7).runNow())
-        DomTester.assertText(d.asHtml(), "Got: {2,7}")
+      ReactTestUtils2.withRendered(C(b)){ d => 
+        d.innerHTML.assert("Got: {}")
+        for {
+          _ <- d.act_(b.broadcast(2).runNow())
+          _  = d.innerHTML.assert("Got: {2}")
+          _ <- d.act_(b.broadcast(7).runNow())
+          _  = d.innerHTML.assert("Got: {2,7}")
+        } yield ()
       }
     }
 

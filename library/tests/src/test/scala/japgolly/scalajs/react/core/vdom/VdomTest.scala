@@ -69,18 +69,18 @@ object VdomTest extends AsyncTestSuite {
     }
 
     "portal" - {
-      ReactTestUtils2.withElementSync { portalTarget =>
+      ReactTestUtils2.withElement.use { portalTarget =>
         val comp = ScalaComponent.static("tmp")(
             <.div(
               "Here we go...",
               ReactPortal(<.div("NICE"), portalTarget)
             )
           )
-          ReactTestUtils2.withRenderedSync(comp()) { d =>
-            val compHtml = ReactTestUtils2.removeReactInternals(d.asHtml().outerHTML)
-            val portalHtml = ReactTestUtils2.removeReactInternals(portalTarget.innerHTML)
-            assertEq((compHtml, portalHtml), ("<div>Here we go...</div>", "<div>NICE</div>"))
-          }
+        ReactTestUtils2.withRendered_(comp()) { d =>
+          val compHtml = ReactTestUtils2.removeReactInternals(d.asHtml().outerHTML)
+          val portalHtml = ReactTestUtils2.removeReactInternals(portalTarget.innerHTML)
+          assertEq((compHtml, portalHtml), ("<div>Here we go...</div>", "<div>NICE</div>"))
+        }
       }
     }
 

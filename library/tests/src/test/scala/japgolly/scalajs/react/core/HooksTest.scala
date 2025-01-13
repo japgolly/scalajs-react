@@ -13,7 +13,7 @@ import scala.collection.mutable
 import scala.scalajs.js
 import utest._
 
-object HooksTest extends TestSuite {
+object HooksTest extends AsyncTestSuite {
 
   protected[core] def test[A](u: Unmounted)(f: DomTester => A): A =
     withRenderedSync(u).map(d => new DomTester(d.root.asHtml()))(f)

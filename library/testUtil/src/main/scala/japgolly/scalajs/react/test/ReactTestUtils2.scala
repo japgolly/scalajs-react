@@ -113,7 +113,7 @@ trait ReactTestUtils2 extends japgolly.scalajs.react.test.internal.ReactTestUtil
   val withElementSync: WithDsl[Element, ImplicitUnit] =
     WithDsl(newElement())(removeElement)
 
-  def withElement[F[_]: Effect]: Resource[F, Element] =
+  def withElement[F[_]: Async]: Resource[F, Element] =
     Resource.make(Effect[F].delay(newElement()), e => Effect[F].delay(removeElement(e)))
 
   val withReactRootSync: WithDsl[TestReactRoot, ImplicitUnit] =
