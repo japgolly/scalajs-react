@@ -20,6 +20,7 @@ trait Effect[F[_]] extends Monad[F] {
 }
 
 object Effect extends EffectFallbacks {
+  @inline def apply[F[_]](implicit F: Effect[F]): Effect[F] = F
 
   trait WithDefaults[F[_]] extends Effect[F] {
   }

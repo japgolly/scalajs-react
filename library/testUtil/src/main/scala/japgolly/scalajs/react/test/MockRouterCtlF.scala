@@ -16,7 +16,7 @@ class MockRouterCtlF[F[_], P](override val baseUrl: BaseUrl, pageToPath: P => Pa
 
   override val byPath: RouterCtlF[F, Path] =
     new RouterCtlF[F, Path] {
-    override protected implicit def F           = self.F
+    override protected implicit def F: Sync[F]  = self.F
       override def byPath                       = this
       override def baseUrl                      = self.baseUrl
       override def refresh                      = self.refresh

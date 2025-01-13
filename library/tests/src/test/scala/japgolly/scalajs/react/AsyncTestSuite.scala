@@ -1,7 +1,7 @@
 package japgolly.scalajs.react
 
-import scala.reflect.ClassTag
 import scala.concurrent.{ExecutionContext, Future}
+import scala.reflect.ClassTag
 import utest.TestSuite
 
 abstract class AsyncTestSuite extends TestSuite {

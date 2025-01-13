@@ -1,10 +1,9 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.test.ReactTestUtils2
+import japgolly.scalajs.react.test.{DomTester, ReactTestUtils2}
 import japgolly.scalajs.react.vdom.html_<^._
 import utest._
-import japgolly.scalajs.react.test.DomTester
 
 object BroadcasterTest extends TestSuite {
 
