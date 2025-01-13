@@ -12,7 +12,7 @@ import scala.scalajs.js
 import scala.util.Try
 import utest._
 
-object MiscTest extends TestSuite {
+object MiscTest extends AsyncTestSuite {
 
   lazy val CA = ScalaComponent.builder[Unit]("CA").render_C(c => <.div(c)).build
   lazy val CB = ScalaComponent.builder[Unit]("CB").render_C(c => <.span(c)).build
@@ -69,9 +69,9 @@ object MiscTest extends TestSuite {
             <.option(^.value := "c")("c"))
         ).build
 
-      ReactTestUtils2.withRenderedSync(s()) { d =>
+      ReactTestUtils2.withRendered_(s()) { d =>
         val sel = d.asSelect()
-        val selectedOptions =sel.options.filter(_.selected).map(_.value)
+        val selectedOptions = sel.options.filter(_.selected).map(_.value)
         assertSet(selectedOptions.toSet, Set("a", "c"))
       }
     }
@@ -95,10 +95,13 @@ object MiscTest extends TestSuite {
             <.button(<.span($.state), ^.onClick --> (add1 >> add7))
           }
           .build
-        ReactTestUtils2.withRenderedSync(C()) { d =>
+        ReactTestUtils2.withRendered(C()) { d =>
           d.select("span").innerHTML.assert("3")
-          d.node.foreach(Simulation.click.run(_))
-          d.select("span").innerHTML.assert("11")
+          d.withNode( n =>
+            d.act_(Simulate.click(n)).map(_ =>
+              d.select("span").innerHTML.assert("11")
+            )
+          )
         }
       }
 
@@ -109,16 +112,21 @@ object MiscTest extends TestSuite {
             val $$ = $.mountedPure.zoomState(_.int)(b => _.copy(int = b))
             val add7 = $$.modState(_ + 7)
             val add1 = $$.modState(_ + 1)
-            <.button(^.onClick --> (add1 >> add7))
+            <.button($.state.toString, ^.onClick --> (add1 >> add7), ^.onDoubleClick --> $.setState(StrInt("oh", 100)))
           }
           .build
-        val c = ReactTestUtils.renderIntoDocument(C())
-        assertEq(c.state, StrInt("yay", 3))
-        Simulation.click run c
-        assertEq(c.state, StrInt("yay", 11))
-        c.setState(StrInt("oh", 100))
-        Simulation.click run c
-        assertEq(c.state, StrInt("oh", 108))
+        ReactTestUtils2.withRendered(C()) ( d =>
+          d.withNode{ n => 
+            d.innerHTML.assert("StrInt(yay,3)")
+            for {
+              _ <- d.act_(Simulate.click(n))
+              _  = d.innerHTML.assert("StrInt(yay,11)")
+              _ <- d.act_(Simulate.doubleClick(n))
+              _ <- d.act_(Simulate.click(n))
+            } yield
+              d.innerHTML.assert("StrInt(oh,108)")
+          }
+        )
       }
 
       "zoomStateL" - {
@@ -128,16 +136,21 @@ object MiscTest extends TestSuite {
             val $$ = $.mountedPure zoomStateL StrInt.int
             val add7 = $$.modState(_ + 7)
             val add1 = $$.modState(_ + 1)
-            <.button(^.onClick --> (add1 >> add7))
+            <.button($.state.toString, ^.onClick --> (add1 >> add7), ^.onDoubleClick --> $.setState(StrInt("oh", 100)))
           }
           .build
-        val c = ReactTestUtils.renderIntoDocument(C())
-        assertEq(c.state, StrInt("yay", 3))
-        Simulation.click run c
-        assertEq(c.state, StrInt("yay", 11))
-        c.setState(StrInt("oh", 100))
-        Simulation.click run c
-        assertEq(c.state, StrInt("oh", 108))
+        ReactTestUtils2.withRendered(C()) { d =>
+          d.withNode{ n => 
+            d.innerHTML.assert("StrInt(yay,3)")
+            for {
+              _ <- d.act_(Simulate.click(n))
+              _  = d.innerHTML.assert("StrInt(yay,11)")
+              _ <- d.act_(Simulate.doubleClick(n))
+              _ <- d.act_(Simulate.click(n))
+            } yield
+              d.innerHTML.assert("StrInt(oh,108)")
+          }
+        }
       }
 
       "zoomStateL2" - {
@@ -147,16 +160,21 @@ object MiscTest extends TestSuite {
             val $$ = $.mountedPure zoomStateL StrIntWrap.strInt zoomStateL StrInt.int
             val add7 = $$.modState(_ + 7)
             val add1 = $$.modState(_ + 1)
-            <.button(^.onClick --> (add1 >> add7))
+            <.button($.state.toString, ^.onClick --> (add1 >> add7), ^.onDoubleClick --> $.setState(StrIntWrap(StrInt("oh", 100))))
           }
           .build
-        val c = ReactTestUtils.renderIntoDocument(C())
-        assertEq(c.state, StrIntWrap(StrInt("yay", 3)))
-        Simulation.click run c
-        assertEq(c.state, StrIntWrap(StrInt("yay", 11)))
-        c.setState(StrIntWrap(StrInt("oh", 100)))
-        Simulation.click run c
-        assertEq(c.state, StrIntWrap(StrInt("oh", 108)))
+        ReactTestUtils2.withRendered(C()) ( d =>
+          d.withNode{ n => 
+            d.innerHTML.assert("StrIntWrap(StrInt(yay,3))")
+            for {
+              _ <- d.act_(Simulate.click(n))
+              _  = d.innerHTML.assert("StrIntWrap(StrInt(yay,11))")
+              _ <- d.act_(Simulate.doubleClick(n))
+              _ <- d.act_(Simulate.click(n))
+            } yield
+              d.innerHTML.assert("StrIntWrap(StrInt(oh,108))")
+          }
+        )          
       }
     }
 
@@ -197,15 +215,16 @@ object MiscTest extends TestSuite {
             <.div("i = ", i)
           )
         ).build
-      ReactTestUtils2.withRenderedSync(comp(234)) { d =>
+      ReactTestUtils2.withRendered_(comp(234))( d =>
         d.outerHTML.assert("<div>i = 234</div>")
+      ).map{ _ =>
+        assertEq(results.length, 1)
+        val r = results.head
+        assertEq(r.id, "blah")
+        assertEq(r.phase, "mount")
+        assertEq(r.phaseIsMount, true)
+        assertEq(r.phaseIsUpdate, false)
       }
-      assertEq(results.length, 1)
-      val r = results.head
-      assertEq(r.id, "blah")
-      assertEq(r.phase, "mount")
-      assertEq(r.phaseIsMount, true)
-      assertEq(r.phaseIsUpdate, false)
     }
 
     "durationFromDOMHighResTimeStamp" - {

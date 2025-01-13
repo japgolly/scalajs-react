@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.test
 
+import japgolly.scalajs.react.util.Effect
 import japgolly.scalajs.react.util.Effect.Async
 import org.scalajs.dom
 
@@ -34,4 +35,10 @@ trait TestDomWithRoot extends TestDom {
 
   @inline def unmount[F[_]: Async](): F[Unit] =
     root.unmount()
+
+  def withNode[F[_]: Effect](f: dom.Node => F[Unit]): F[Unit] = 
+    node.map(f).getOrElse(Effect[F].throwException(new RuntimeException("Node not rendered")))
+
+  def withNode_[F[_]: Effect](f: dom.Node => Unit): F[Unit] = 
+    withNode(n => Effect[F].delay(f(n)))
 }
