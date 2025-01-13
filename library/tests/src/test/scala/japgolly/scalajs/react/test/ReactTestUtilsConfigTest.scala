@@ -2,8 +2,8 @@ package japgolly.scalajs.react.test
 
 import japgolly.microlibs.testutil.TestUtil._
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.util.Effect
 import japgolly.scalajs.react.test.ReactTestUtilsConfig._
+import japgolly.scalajs.react.util.Effect
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom.console
 import scala.annotation.nowarn

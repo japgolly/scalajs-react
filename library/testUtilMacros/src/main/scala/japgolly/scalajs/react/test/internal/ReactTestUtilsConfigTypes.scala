@@ -1,7 +1,6 @@
 package japgolly.scalajs.react.test.internal
 
-import japgolly.scalajs.react.util.ConsoleHijack
-import japgolly.scalajs.react.util.Effect
+import japgolly.scalajs.react.util.{ConsoleHijack, Effect}
 
 object ReactTestUtilsConfigTypes {
 

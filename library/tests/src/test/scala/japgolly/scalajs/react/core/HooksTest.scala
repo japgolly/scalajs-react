@@ -14,12 +14,20 @@ import scala.scalajs.js
 import utest._
 
 object HooksTest extends AsyncTestSuite {
+  private type F[A] = AsyncCallback[A]
+  private val F = AsyncCallback
 
-  protected[core] def test[A](u: Unmounted)(f: DomTester => A): A =
-    withRenderedSync(u).map(d => new DomTester(d.root.asHtml()))(f)
+  protected[core] def test[A](u: Unmounted)(f: DomTester => F[A]): F[A] =
+    rendered(u).map(d => new DomTester(d.root.asHtml())).use(f)
 
-  protected[core] def testWithRoot[A](u: Unmounted)(f: (TestReactRoot, DomTester) => A): A =
-    withRenderedSync(u)(d => f(d.root, new DomTester(d.root.asHtml())))
+  protected[core] def test_[A](u: Unmounted)(f: DomTester => A): F[A] =
+    test(u)(t => F.pure(f(t)))
+
+  protected[core] def testWithRoot[A](u: Unmounted)(f: (TestReactRoot, DomTester) => F[A]): F[A] =
+    rendered(u).map(d => (d.root, new DomTester(d.root.asHtml()))).use{ case (t, d) => f(t, d) }
+
+  protected[core] def testWithRoot_[A](u: Unmounted)(f: (TestReactRoot, DomTester) => A): F[A] =
+    testWithRoot(u)((t, d) => F.pure(f(t, d)))
 
   private val incBy1 = Reusable.byRef((_: Int) + 1)
   private val incBy5 = Reusable.byRef((_: Int) + 5)
@@ -224,10 +232,11 @@ object HooksTest extends AsyncTestSuite {
       .render((_, h) => h.toString)
 
     assertEq(comp.displayName, "WithCustomHooks")
-    test(comp(PI(3))) { t =>
+    test_(comp(PI(3))) { t =>
       t.assertText("(3,ah)")
-    }
-    assertEq(ints.values, Vector(3, 30, 100))
+    }.map(_ =>
+      assertEq(ints.values, Vector(3, 30, 100))
+    )
   }
 
   private def testCustomMonadicHookComposition(): Unit = {
@@ -257,10 +266,11 @@ object HooksTest extends AsyncTestSuite {
       ScalaFnComponent.withDisplayName("WithCustomHooks")[PI](p => hook(p.pi).map(_.toString))
 
     assertEq(comp.displayName, "WithCustomHooks")
-    test(comp(PI(3))) { t =>
+    test_(comp(PI(3))) { t =>
       t.assertText("(3,ah)")
-    }
-    assertEq(ints.values, Vector(3, 30, 100))
+    }.map(_ =>
+      assertEq(ints.values, Vector(3, 30, 100))
+    )
   }  
 
   private def testLazyVal(): Unit = {
@@ -282,7 +292,9 @@ object HooksTest extends AsyncTestSuite {
     assertEq(comp.displayName, "TestComponent")
     test(comp(PI(10))) { t =>
       t.assertText("P=PI(10), v1=3, v2=12, v3=11")
-      t.clickButton(); t.assertText("P=PI(10), v1=6, v2=15, v3=14")
+      t.clickButton().map(_ =>
+       t.assertText("P=PI(10), v1=6, v2=15, v3=14")
+      )
     }
   }
 
@@ -301,7 +313,9 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp(PI(10))) { t =>
       t.assertText("P=PI(10), v1=1, v2=12, v3=13")
-      t.clickButton(); t.assertText("P=PI(10), v1=4, v2=15, v3=16")
+      t.clickButton().map(_ =>
+        t.assertText("P=PI(10), v1=4, v2=15, v3=16")
+      )
     }
   }
 
@@ -324,7 +338,9 @@ object HooksTest extends AsyncTestSuite {
     assertEq(comp.displayName, "HooksTest.comp (japgolly.scalajs.react.core)")
     test(comp(PI(10))) { t =>
       t.assertText("P=PI(10), v1=101, v2=112, v3=113")
-      t.clickButton(); t.assertText("P=PI(10), v1=104, v2=115, v3=116")
+      t.clickButton().map(_ =>
+        t.assertText("P=PI(10), v1=104, v2=115, v3=116")
+      )
     }
   }
 
@@ -351,9 +367,10 @@ object HooksTest extends AsyncTestSuite {
       t.assertText("3:8:17")
       assertEq(counterE.value, 10 + (5+3) + (5+3+1))
       counterE.value = 0
-      t.clickButton()
-      t.assertText("20:25:51") // +3 : +5 : +(5+20+1)
-      assertEq(counterE.value, 10 + (5+20) + (5+20+1))
+      t.clickButton().map{ _ =>
+        t.assertText("20:25:51") // +3 : +5 : +(5+20+1)
+        assertEq(counterE.value, 10 + (5+20) + (5+20+1))
+      }
     }
   }
 
@@ -378,11 +395,22 @@ object HooksTest extends AsyncTestSuite {
     val rndr = 4
 
     test(comp()) { t =>
-      assertEq(counter.value, 0); t.assertText("S=0, R1=1, R2=1")
-      t.clickButton(inc1); assertEq(counter.value, 1); t.assertText("S=0, R1=1, R2=1")
-      t.clickButton(inc9); assertEq(counter.value, 10); t.assertText("S=0, R1=1, R2=1")
-      t.clickButton(inc2); assertEq(counter.value, 12); t.assertText("S=0, R1=1, R2=1")
-      t.clickButton(rndr); assertEq(counter.value, 12); t.assertText("S=12, R1=1, R2=1")
+      assertEq(counter.value, 0)
+      t.assertText("S=0, R1=1, R2=1")
+      for {
+        _ <- t.clickButton(inc1)
+        _  = assertEq(counter.value, 1)
+        _  = t.assertText("S=0, R1=1, R2=1")
+        _ <- t.clickButton(inc9)
+        _  = assertEq(counter.value, 10)
+        _  = t.assertText("S=0, R1=1, R2=1")
+        _ <- t.clickButton(inc2)
+        _  = assertEq(counter.value, 12)
+        _  = t.assertText("S=0, R1=1, R2=1")
+        _ <- t.clickButton(rndr)
+        _  = assertEq(counter.value, 12)
+        _  = t.assertText("S=12, R1=1, R2=1")
+      } yield ()
     }
   }
 
@@ -408,11 +436,22 @@ object HooksTest extends AsyncTestSuite {
     val rndr = 4
 
     test(comp()) { t =>
-      assertEq(counter.value, 0); t.assertText("S=0, R1=1, R2=1")
-      t.clickButton(inc1); assertEq(counter.value, 1); t.assertText("S=0, R1=1, R2=1")
-      t.clickButton(inc9); assertEq(counter.value, 10); t.assertText("S=0, R1=1, R2=1")
-      t.clickButton(inc2); assertEq(counter.value, 12); t.assertText("S=0, R1=1, R2=1")
-      t.clickButton(rndr); assertEq(counter.value, 12); t.assertText("S=12, R1=1, R2=1")
+      assertEq(counter.value, 0)
+      t.assertText("S=0, R1=1, R2=1")
+      for {
+        _ <- t.clickButton(inc1)
+        _  = assertEq(counter.value, 1)
+        _  = t.assertText("S=0, R1=1, R2=1")
+        _ <- t.clickButton(inc9)
+        _  = assertEq(counter.value, 10)
+        _  = t.assertText("S=0, R1=1, R2=1")
+        _ <- t.clickButton(inc2)
+        _  = assertEq(counter.value, 12)
+        _  = t.assertText("S=0, R1=1, R2=1")
+        _ <- t.clickButton(rndr)
+        _  = assertEq(counter.value, 12)
+        _  = t.assertText("S=12, R1=1, R2=1")
+      } yield ()
     }
   }
 
@@ -441,13 +480,28 @@ object HooksTest extends AsyncTestSuite {
     val rndr  = 6
 
     test(comp(PI(7))) { t =>
-      assertEq(counter.value, 0); t.assertText("S=0, R1=1, R2=1, R3=1")
-      t.clickButton(inc9); assertEq(counter.value, 9); t.assertText("S=0, R1=1, R2=1, R3=1")
-      t.clickButton(inc11); assertEq(counter.value, 20); t.assertText("S=0, R1=1, R2=1, R3=1")
-      t.clickButton(inc10); assertEq(counter.value, 30); t.assertText("S=0, R1=1, R2=1, R3=1")
-      t.clickButton(inc8); assertEq(counter.value, 38); t.assertText("S=0, R1=1, R2=1, R3=1")
-      t.clickButton(inc7); assertEq(counter.value, 45); t.assertText("S=0, R1=1, R2=1, R3=1")
-      t.clickButton(rndr); assertEq(counter.value, 45); t.assertText("S=45, R1=1, R2=1, R3=1")
+      assertEq(counter.value, 0)
+      t.assertText("S=0, R1=1, R2=1, R3=1")
+      for {
+        _ <- t.clickButton(inc9)
+        _  = assertEq(counter.value, 9)
+        _  = t.assertText("S=0, R1=1, R2=1, R3=1")
+        _ <- t.clickButton(inc11)
+        _  = assertEq(counter.value, 20)
+        _  = t.assertText("S=0, R1=1, R2=1, R3=1")
+        _ <- t.clickButton(inc10)
+        _  = assertEq(counter.value, 30)
+        _  = t.assertText("S=0, R1=1, R2=1, R3=1")
+        _ <- t.clickButton(inc8)
+        _  = assertEq(counter.value, 38)
+        _  = t.assertText("S=0, R1=1, R2=1, R3=1")
+        _ <- t.clickButton(inc7)
+        _  = assertEq(counter.value, 45)
+        _  = t.assertText("S=0, R1=1, R2=1, R3=1")
+        _ <- t.clickButton(rndr)
+        _  = assertEq(counter.value, 45)
+        _  = t.assertText("S=45, R1=1, R2=1, R3=1")
+      } yield ()
     }
   }
 
@@ -476,16 +530,39 @@ object HooksTest extends AsyncTestSuite {
     depA.value = 10
     depB.value = 20
     test(comp()) { t =>
-      assertEq(counter.value, 0); t.assertText("S=0, R1=1, R2=1")
-      t.clickButton(incA); assertEq(counter.value, 10); t.assertText("S=0, R1=1, R2=1")
-      t.clickButton(incB0); assertEq(counter.value, 30); t.assertText("S=0, R1=1, R2=1")
-      t.clickButton(incB1); assertEq(counter.value, 51); t.assertText("S=0, R1=1, R2=1")
-      t.clickButton(rndr); assertEq(counter.value, 51); t.assertText("S=51, R1=1, R2=1")
-      depA.value = 100; t.clickButton(rndr); assertEq(counter.value, 51); t.assertText("S=51, R1=2, R2=1")
-      t.clickButton(incA); assertEq(counter.value, 151); t.assertText("S=51, R1=2, R2=1")
-      t.clickButton(incB0); assertEq(counter.value, 171); t.assertText("S=51, R1=2, R2=1")
-      depB.value = 200; t.clickButton(rndr); assertEq(counter.value, 171); t.assertText("S=171, R1=2, R2=2")
-      t.clickButton(incB1); assertEq(counter.value, 372); t.assertText("S=171, R1=2, R2=2")
+      assertEq(counter.value, 0)
+      t.assertText("S=0, R1=1, R2=1")
+      for {
+        _ <- t.clickButton(incA)
+        _  = assertEq(counter.value, 10)
+        _  = t.assertText("S=0, R1=1, R2=1")
+        _ <- t.clickButton(incB0)
+        _  = assertEq(counter.value, 30)
+        _  = t.assertText("S=0, R1=1, R2=1")
+        _ <- t.clickButton(incB1)
+        _  = assertEq(counter.value, 51)
+        _  = t.assertText("S=0, R1=1, R2=1")
+        _ <- t.clickButton(rndr)
+        _  = assertEq(counter.value, 51)
+        _  = t.assertText("S=51, R1=1, R2=1")
+        _  = depA.value = 100
+        _ <- t.clickButton(rndr)
+        _  = assertEq(counter.value, 51)
+        _  = t.assertText("S=51, R1=2, R2=1")
+        _ <- t.clickButton(incA)
+        _  = assertEq(counter.value, 151)
+        _  = t.assertText("S=51, R1=2, R2=1")
+        _ <- t.clickButton(incB0)
+        _  = assertEq(counter.value, 171)
+        _  = t.assertText("S=51, R1=2, R2=1")
+        _  = depB.value = 200
+        _ <- t.clickButton(rndr)
+        _  = assertEq(counter.value, 171)
+        _  = t.assertText("S=171, R1=2, R2=2")
+        _ <- t.clickButton(incB1)
+        _  = assertEq(counter.value, 372)
+        _  = t.assertText("S=171, R1=2, R2=2")
+      } yield ()
     }
   }
 
@@ -516,21 +593,52 @@ object HooksTest extends AsyncTestSuite {
     val d2  = 6 // d2 += 100
 
     test(comp(PI(3))) { t =>
-      assertEq(counter.value, 0); t.assertText("S=0, C0=1, C1=1, C2=1")
-      t.clickButton(c1); assertEq(counter.value, 10); t.assertText("S=0, C0=1, C1=1, C2=1")
-      t.clickButton(c0); assertEq(counter.value, 13); t.assertText("S=0, C0=1, C1=1, C2=1")
-      t.clickButton(c2b); assertEq(counter.value, 34); t.assertText("S=0, C0=1, C1=1, C2=1")
-      t.clickButton(c2a); assertEq(counter.value, 54); t.assertText("S=0, C0=1, C1=1, C2=1")
-      t.clickButton(d2); assertEq(counter.value, 54); t.assertText("S=54, C0=1, C1=1, C2=2") // d2=120
-      t.clickButton(c2a); assertEq(counter.value, 174); t.assertText("S=54, C0=1, C1=1, C2=2")
-      t.clickButton(c0); assertEq(counter.value, 177); t.assertText("S=54, C0=1, C1=1, C2=2")
-      t.clickButton(c1); assertEq(counter.value, 187); t.assertText("S=54, C0=1, C1=1, C2=2")
-      t.clickButton(d1); assertEq(counter.value, 187); t.assertText("S=187, C0=1, C1=2, C2=2") // d1=110
-      t.clickButton(c2a); assertEq(counter.value, 307); t.assertText("S=187, C0=1, C1=2, C2=2")
-      t.clickButton(c1); assertEq(counter.value, 417); t.assertText("S=187, C0=1, C1=2, C2=2")
-      t.clickButton(d1); assertEq(counter.value, 417); t.assertText("S=417, C0=1, C1=3, C2=2") // d1=210
-      t.clickButton(d1); assertEq(counter.value, 417); t.assertText("S=417, C0=1, C1=4, C2=2") // d1=310
-      t.clickButton(c1); assertEq(counter.value, 727); t.assertText("S=417, C0=1, C1=4, C2=2")
+      assertEq(counter.value, 0)
+      t.assertText("S=0, C0=1, C1=1, C2=1")
+      for {
+        _ <- t.clickButton(c1)
+        _  = assertEq(counter.value, 10)
+        _  = t.assertText("S=0, C0=1, C1=1, C2=1")
+        _ <- t.clickButton(c0)
+        _  = assertEq(counter.value, 13)
+        _  = t.assertText("S=0, C0=1, C1=1, C2=1")
+        _ <- t.clickButton(c2b)
+        _  = assertEq(counter.value, 34)
+        _  = t.assertText("S=0, C0=1, C1=1, C2=1")
+        _ <- t.clickButton(c2a)
+        _  = assertEq(counter.value, 54)
+        _  = t.assertText("S=0, C0=1, C1=1, C2=1")
+        _ <- t.clickButton(d2)
+        _  = assertEq(counter.value, 54)
+        _  = t.assertText("S=54, C0=1, C1=1, C2=2") // d2=120
+        _ <- t.clickButton(c2a)
+        _  = assertEq(counter.value, 174)
+        _  = t.assertText("S=54, C0=1, C1=1, C2=2")
+        _ <- t.clickButton(c0)
+        _  = assertEq(counter.value, 177)
+        _  = t.assertText("S=54, C0=1, C1=1, C2=2")
+        _ <- t.clickButton(c1)
+        _  = assertEq(counter.value, 187)
+        _  = t.assertText("S=54, C0=1, C1=1, C2=2")
+        _ <- t.clickButton(d1)
+        _  = assertEq(counter.value, 187)
+        _  = t.assertText("S=187, C0=1, C1=2, C2=2") // d1=110
+        _ <- t.clickButton(c2a)
+        _  = assertEq(counter.value, 307)
+        _  = t.assertText("S=187, C0=1, C1=2, C2=2")
+        _ <- t.clickButton(c1)
+        _  = assertEq(counter.value, 417)
+        _  = t.assertText("S=187, C0=1, C1=2, C2=2")
+        _ <- t.clickButton(d1)
+        _  = assertEq(counter.value, 417)
+        _  = t.assertText("S=417, C0=1, C1=3, C2=2") // d1=210
+        _ <- t.clickButton(d1)
+        _  = assertEq(counter.value, 417)
+        _  = t.assertText("S=417, C0=1, C1=4, C2=2") // d1=310
+        _ <- t.clickButton(c1)
+        _  = assertEq(counter.value, 727)
+        _  = t.assertText("S=417, C0=1, C1=4, C2=2")
+      } yield ()
     }
   }
 
@@ -562,21 +670,52 @@ object HooksTest extends AsyncTestSuite {
     val d2  = 6 // d2 += 100
 
     test(comp(PI(3))) { t =>
-      assertEq(counter.value, 0); t.assertText("S=0, C0=1, C1=1, C2=1")
-      t.clickButton(c1); assertEq(counter.value, 10); t.assertText("S=0, C0=1, C1=1, C2=1")
-      t.clickButton(c0); assertEq(counter.value, 13); t.assertText("S=0, C0=1, C1=1, C2=1")
-      t.clickButton(c2b); assertEq(counter.value, 34); t.assertText("S=0, C0=1, C1=1, C2=1")
-      t.clickButton(c2a); assertEq(counter.value, 54); t.assertText("S=0, C0=1, C1=1, C2=1")
-      t.clickButton(d2); assertEq(counter.value, 54); t.assertText("S=54, C0=1, C1=1, C2=2") // d2=120
-      t.clickButton(c2a); assertEq(counter.value, 174); t.assertText("S=54, C0=1, C1=1, C2=2")
-      t.clickButton(c0); assertEq(counter.value, 177); t.assertText("S=54, C0=1, C1=1, C2=2")
-      t.clickButton(c1); assertEq(counter.value, 187); t.assertText("S=54, C0=1, C1=1, C2=2")
-      t.clickButton(d1); assertEq(counter.value, 187); t.assertText("S=187, C0=1, C1=2, C2=2") // d1=110
-      t.clickButton(c2a); assertEq(counter.value, 307); t.assertText("S=187, C0=1, C1=2, C2=2")
-      t.clickButton(c1); assertEq(counter.value, 417); t.assertText("S=187, C0=1, C1=2, C2=2")
-      t.clickButton(d1); assertEq(counter.value, 417); t.assertText("S=417, C0=1, C1=3, C2=2") // d1=210
-      t.clickButton(d1); assertEq(counter.value, 417); t.assertText("S=417, C0=1, C1=4, C2=2") // d1=310
-      t.clickButton(c1); assertEq(counter.value, 727); t.assertText("S=417, C0=1, C1=4, C2=2")
+      assertEq(counter.value, 0)
+      t.assertText("S=0, C0=1, C1=1, C2=1")
+      for {
+        _ <- t.clickButton(c1)
+        _  = assertEq(counter.value, 10)
+        _  = t.assertText("S=0, C0=1, C1=1, C2=1")
+        _ <- t.clickButton(c0)
+        _  = assertEq(counter.value, 13)
+        _  = t.assertText("S=0, C0=1, C1=1, C2=1")
+        _ <- t.clickButton(c2b)
+        _  = assertEq(counter.value, 34)
+        _  = t.assertText("S=0, C0=1, C1=1, C2=1")
+        _ <- t.clickButton(c2a)
+        _  = assertEq(counter.value, 54)
+        _  = t.assertText("S=0, C0=1, C1=1, C2=1")
+        _ <- t.clickButton(d2)
+        _  = assertEq(counter.value, 54)
+        _  = t.assertText("S=54, C0=1, C1=1, C2=2") // d2=120
+        _ <- t.clickButton(c2a)
+        _  = assertEq(counter.value, 174)
+        _  = t.assertText("S=54, C0=1, C1=1, C2=2")
+        _ <- t.clickButton(c0)
+        _  = assertEq(counter.value, 177)
+        _  = t.assertText("S=54, C0=1, C1=1, C2=2")
+        _ <- t.clickButton(c1)
+        _  = assertEq(counter.value, 187)
+        _  = t.assertText("S=54, C0=1, C1=1, C2=2")
+        _ <- t.clickButton(d1)
+        _  = assertEq(counter.value, 187)
+        _  = t.assertText("S=187, C0=1, C1=2, C2=2") // d1=110
+        _ <- t.clickButton(c2a)
+        _  = assertEq(counter.value, 307)
+        _  = t.assertText("S=187, C0=1, C1=2, C2=2")
+        _ <- t.clickButton(c1)
+        _  = assertEq(counter.value, 417)
+        _  = t.assertText("S=187, C0=1, C1=2, C2=2")
+        _ <- t.clickButton(d1)
+        _  = assertEq(counter.value, 417)
+        _  = t.assertText("S=417, C0=1, C1=3, C2=2") // d1=210
+        _ <- t.clickButton(d1)
+        _  = assertEq(counter.value, 417)
+        _  = t.assertText("S=417, C0=1, C1=4, C2=2") // d1=310
+        _ <- t.clickButton(c1)
+        _  = assertEq(counter.value, 727)
+        _  = t.assertText("S=417, C0=1, C1=4, C2=2")
+      } yield ()
     }
   }
 
@@ -595,7 +734,7 @@ object HooksTest extends AsyncTestSuite {
       )
     }
 
-    test(comp()) { t =>
+    test_(comp()) { t =>
       t.assertText("100:123")
     }
   }
@@ -613,7 +752,7 @@ object HooksTest extends AsyncTestSuite {
       )
     }
 
-    test(comp()) { t =>
+    test_(comp()) { t =>
       t.assertText("100:123")
     }
   }
@@ -627,7 +766,7 @@ object HooksTest extends AsyncTestSuite {
       .useDebugValueBy($ => $.props.pi + $.hook1.value)
       .render($ => <.div($.props.pi))
 
-    test(comp(PI(3))) { t =>
+    test_(comp(PI(3))) { t =>
       t.assertText("3")
     }
   }
@@ -643,7 +782,7 @@ object HooksTest extends AsyncTestSuite {
       } yield <.div(p.pi)
     )
 
-    test(comp(PI(3))) { t =>
+    test_(comp(PI(3))) { t =>
       t.assertText("3")
     }
   }
@@ -764,10 +903,9 @@ object HooksTest extends AsyncTestSuite {
         .X_useEffect(counter1.incCB.ret(counter2.incCB))
         .render(_ => EmptyVdom)
 
-      test(comp()) { _ =>
+      test_(comp()) { _ =>
         assertEq(state(), "103:0")
-      }
-      assertEq(state(), "103:2")
+      }.map(_ => assertEq(state(), "103:2"))
     }
 
     def testConst(): Unit = {
@@ -784,9 +922,10 @@ object HooksTest extends AsyncTestSuite {
 
       test(comp()) { t =>
         assertEq(state(), "103:0")
-        t.clickButton(); assertEq(state(), "206:2")
-      }
-      assertEq(state(), "206:4")
+        t.clickButton().map(_ => assertEq(state(), "206:2"))
+      }.map(_ => 
+        assertEq(state(), "206:4")
+      )
     }
 
     def testConstBy(): Unit = {
@@ -801,9 +940,10 @@ object HooksTest extends AsyncTestSuite {
 
       test(comp()) { t =>
         assertEq(state(), "101:0")
-        t.clickButton(); assertEq(state(), "203:100")
-      }
-      assertEq(state(), "203:201")
+        t.clickButton().map(_ => assertEq(state(), "203:100"))
+      }.map(_ => 
+        assertEq(state(), "203:201")
+      )
     }
 
     def testOnMount(): Unit = {
@@ -819,9 +959,10 @@ object HooksTest extends AsyncTestSuite {
 
       test(comp()) { t =>
         assertEq(state(), "103:0")
-        t.clickButton(); assertEq(state(), "103:0")
-      }
-      assertEq(state(), "103:2")
+        t.clickButton().map(_ => assertEq(state(), "103:0"))
+      }.map(_ => 
+        assertEq(state(), "103:2")
+      )
     }
 
     def testOnMountBy(): Unit = {
@@ -836,9 +977,10 @@ object HooksTest extends AsyncTestSuite {
 
       test(comp()) { t =>
         assertEq(state(), "101:0")
-        t.clickButton(); assertEq(state(), "101:0")
-      }
-      assertEq(state(), "101:100")
+        t.clickButton().map(_ => assertEq(state(), "101:0"))
+      }.map(_ => 
+        assertEq(state(), "101:100")
+      )
     }
 
     def testWithDeps(): Unit = {
@@ -857,13 +999,25 @@ object HooksTest extends AsyncTestSuite {
 
       test(comp()) { t =>
         assertEq(state(), "111:0")
-        t.clickButton(); assertEq(state(), "111:0")
-        dep2.inc(); t.clickButton(); assertEq(state(), "211:0")
-        dep1.inc(); t.clickButton(); assertEq(state(), "212:1")
-        dep1.inc(); t.clickButton(); assertEq(state(), "213:2")
-        dep3.inc(); t.clickButton(); assertEq(state(), "223:12")
-      }
-      assertEq(state(), "223:23")
+        for {
+          _ <- t.clickButton()
+          _  = assertEq(state(), "111:0")
+          _  = dep2.inc()
+          _ <- t.clickButton()
+          _  = assertEq(state(), "211:0")
+          _  = dep1.inc()
+          _ <- t.clickButton()
+          _  = assertEq(state(), "212:1")
+          _  = dep1.inc()
+          _ <- t.clickButton()
+          _  = assertEq(state(), "213:2")
+          _  = dep3.inc()
+          _ <- t.clickButton()
+          _  = assertEq(state(), "223:12")
+        } yield ()
+      }.map(_ => 
+        assertEq(state(), "223:23")
+      )
     }
 
     def testWithDepsBy(): Unit = {
@@ -887,14 +1041,28 @@ object HooksTest extends AsyncTestSuite {
 
       test(comp(PI(1000))) { t =>
         assertEq(state(), "100)1110:0")
-        t.clickButton(); assertEq(state(), "200)1110:0")
-        dep2.inc(); t.clickButton(); assertEq(state(), "300)1410:0")
-        dep1.inc(); t.clickButton(); assertEq(state(), "400)2410:1000")
-        dep1.inc(); t.clickButton(); assertEq(state(), "500)3410:2000")
-        dep3.inc(); t.clickButton(); assertEq(state(), "600)3470:2010") // s'=100, d'=10, s=600, d=60
-        dep3.inc(); t.clickButton(); assertEq(state(), "700)3540:2070") // s'=600, d'=60, s=700, d=70
-      }
-      assertEq(state(), "700)3540:3140") // +1000 +0 +70
+        for {
+          _ <- t.clickButton()
+          _  = assertEq(state(), "200)1110:0")
+          _  = dep2.inc()
+          _ <- t.clickButton()
+          _  = assertEq(state(), "300)1410:0")
+          _  = dep1.inc()
+          _ <- t.clickButton()
+          _  = assertEq(state(), "400)2410:1000")
+          _  = dep1.inc()
+          _ <- t.clickButton()
+          _  = assertEq(state(), "500)3410:2000")
+          _  = dep3.inc()
+          _ <- t.clickButton()
+          _  = assertEq(state(), "600)3470:2010") // s'=100, d'=10, s=600, d=60
+          _  = dep3.inc()
+          _ <- t.clickButton()
+          _  = assertEq(state(), "700)3540:2070") // s'=600, d'=60, s=700, d=70
+        } yield ()
+      }.map(_ => 
+        assertEq(state(), "700)3540:3140") // +1000 +0 +70
+      )
     }
   } // UseEffectTests
 
@@ -916,10 +1084,11 @@ object HooksTest extends AsyncTestSuite {
         } yield EmptyVdom
       )
 
-      test(comp()) { _ =>
+      test_(comp()) { _ =>
         assertEq(state(), "103:0")
-      }
-      assertEq(state(), "103:2")
+      }.map(_ => 
+        assertEq(state(), "103:2")
+      )
     }
 
 
@@ -940,9 +1109,10 @@ object HooksTest extends AsyncTestSuite {
 
       test(comp()) { t =>
         assertEq(state(), "103:0")
-        t.clickButton(); assertEq(state(), "206:2")
-      }
-      assertEq(state(), "206:4")
+        t.clickButton().map(_ => assertEq(state(), "206:2"))
+      }.map(_ => 
+        assertEq(state(), "206:4")
+      )
     }
 
     def testOnMount(): Unit = {
@@ -959,9 +1129,10 @@ object HooksTest extends AsyncTestSuite {
 
       test(comp()) { t =>
         assertEq(state(), "101:0")
-        t.clickButton(); assertEq(state(), "101:0")
-      }
-      assertEq(state(), "101:100")
+        t.clickButton().map(_ => assertEq(state(), "101:0"))
+      }.map(_ => 
+        assertEq(state(), "101:100")
+      )
     }
 
     def testWithDeps(): Unit = {
@@ -987,14 +1158,28 @@ object HooksTest extends AsyncTestSuite {
 
       test(comp(PI(1000))) { t =>
         assertEq(state(), "100)1110:0")
-        t.clickButton(); assertEq(state(), "200)1110:0")
-        dep2.inc(); t.clickButton(); assertEq(state(), "300)1410:0")
-        dep1.inc(); t.clickButton(); assertEq(state(), "400)2410:1000")
-        dep1.inc(); t.clickButton(); assertEq(state(), "500)3410:2000")
-        dep3.inc(); t.clickButton(); assertEq(state(), "600)3470:2010") // s'=100, d'=10, s=600, d=60
-        dep3.inc(); t.clickButton(); assertEq(state(), "700)3540:2070") // s'=600, d'=60, s=700, d=70
-      }
-      assertEq(state(), "700)3540:3140") // +1000 +0 +70
+        for {
+          _ <- t.clickButton()
+          _  = assertEq(state(), "200)1110:0")
+          _  = dep2.inc()
+          _ <- t.clickButton()
+          _  = assertEq(state(), "300)1410:0")
+          _  = dep1.inc()
+          _ <- t.clickButton()
+          _  = assertEq(state(), "400)2410:1000")
+          _  = dep1.inc()
+          _ <- t.clickButton()
+          _  = assertEq(state(), "500)3410:2000")
+          _  = dep3.inc()
+          _ <- t.clickButton()
+          _  = assertEq(state(), "600)3470:2010") // s'=100, d'=10, s=600, d=60
+          _  = dep3.inc()
+          _ <- t.clickButton()
+          _  = assertEq(state(), "700)3540:2070") // s'=600, d'=60, s=700, d=70
+        } yield ()
+      }.map(_ => 
+        assertEq(state(), "700)3540:3140") // +1000 +0 +70
+      )
     }
   }  
 
@@ -1038,8 +1223,12 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp()) { t =>
       t.assertText("1:1")
-      t.clickButton(); t.assertText("2:2")
-      t.clickButton(); t.assertText("3:3")
+      for {
+        _ <- t.clickButton()
+        _  = t.assertText("2:2")
+        _ <- t.clickButton()
+        _  = t.assertText("3:3")
+      } yield ()
     }
   }
 
@@ -1056,8 +1245,12 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp()) { t =>
       t.assertText("1:1")
-      t.clickButton(); t.assertText("2:2")
-      t.clickButton(); t.assertText("3:3")
+      for {
+        _ <- t.clickButton()
+        _  = t.assertText("2:2")
+        _ <- t.clickButton()
+        _  = t.assertText("3:3")
+      } yield ()
     }
   }
 
@@ -1085,21 +1278,55 @@ object HooksTest extends AsyncTestSuite {
     dep1.value =  1
     dep2.value = 10
     test(comp()) { t =>
-      assertEq(counter.value, 0); t.assertText("C1=1, C2=1")
-      t.clickButton(c2); assertEq(counter.value, 10); t.assertText("C1=1, C2=1")
-      t.clickButton(c2); assertEq(counter.value, 20); t.assertText("C1=1, C2=1")
-      t.clickButton(c1); assertEq(counter.value, 21); t.assertText("C1=1, C2=1")
-      t.clickButton(s); assertEq(counter.value, 21); t.assertText("C1=1, C2=1")
-      t.clickButton(s); assertEq(counter.value, 21); t.assertText("C1=1, C2=1")
-      dep1.value = 17; t.clickButton(s); assertEq(counter.value, 21); t.assertText("C1=2, C2=1")
-      dep1.value = 7; t.clickButton(s); assertEq(counter.value, 21); t.assertText("C1=3, C2=1")
-      t.clickButton(c2); assertEq(counter.value, 31); t.assertText("C1=3, C2=1")
-      t.clickButton(c1); assertEq(counter.value, 38); t.assertText("C1=3, C2=1")
-      t.clickButton(s); assertEq(counter.value, 38); t.assertText("C1=3, C2=1")
-      dep2.value = 100; t.clickButton(s); assertEq(counter.value, 38); t.assertText("C1=3, C2=2")
-      t.clickButton(c2); assertEq(counter.value, 138); t.assertText("C1=3, C2=2")
-      t.clickButton(s); assertEq(counter.value, 138); t.assertText("C1=3, C2=2")
-      t.clickButton(c1); assertEq(counter.value, 145); t.assertText("C1=3, C2=2")
+      assertEq(counter.value, 0)
+      t.assertText("C1=1, C2=1")
+      for {
+        _ <- t.clickButton(c2)
+        _  = assertEq(counter.value, 10)
+        _  = t.assertText("C1=1, C2=1")
+        _ <- t.clickButton(c2)
+        _  = assertEq(counter.value, 20)
+        _  = t.assertText("C1=1, C2=1")
+        _ <- t.clickButton(c1)
+        _  = assertEq(counter.value, 21)
+        _  = t.assertText("C1=1, C2=1")
+        _ <- t.clickButton(s)
+        _  = assertEq(counter.value, 21)
+        _  = t.assertText("C1=1, C2=1")
+        _ <- t.clickButton(s)
+        _  = assertEq(counter.value, 21)
+        _  = t.assertText("C1=1, C2=1")
+        _  = dep1.value = 17
+        _ <- t.clickButton(s)
+        _  = assertEq(counter.value, 21)
+        _  = t.assertText("C1=2, C2=1")
+        _  = dep1.value = 7
+        _ <- t.clickButton(s)
+        _  = assertEq(counter.value, 21)
+        _  = t.assertText("C1=3, C2=1")
+        _ <- t.clickButton(c2)
+        _  = assertEq(counter.value, 31)
+        _  = t.assertText("C1=3, C2=1")
+        _ <- t.clickButton(c1)
+        _  = assertEq(counter.value, 38)
+        _  = t.assertText("C1=3, C2=1")
+        _ <- t.clickButton(s)
+        _  = assertEq(counter.value, 38)
+        _  = t.assertText("C1=3, C2=1")
+        _  = dep2.value = 100
+        _ <- t.clickButton(s)
+        _  = assertEq(counter.value, 38)
+        _  = t.assertText("C1=3, C2=2")
+        _ <- t.clickButton(c2)
+        _  = assertEq(counter.value, 138)
+        _  = t.assertText("C1=3, C2=2")
+        _ <- t.clickButton(s)
+        _  = assertEq(counter.value, 138)
+        _  = t.assertText("C1=3, C2=2")
+        _ <- t.clickButton(c1)
+        _  = assertEq(counter.value, 145)
+        _  = t.assertText("C1=3, C2=2")
+      } yield ()
     }
   }
 
@@ -1130,14 +1357,31 @@ object HooksTest extends AsyncTestSuite {
     val s3 = 5
 
     test(comp(PI(10))) { t =>
-      assertEq(counter.value, 0); t.assertText("S2=1, S3=5, C1=1, C2=1, C3=1")
-      t.clickButton(c2); assertEq(counter.value, 1); t.assertText("S2=1, S3=5, C1=1, C2=1, C3=1")
-      t.clickButton(c1); assertEq(counter.value, 11); t.assertText("S2=1, S3=5, C1=1, C2=1, C3=1")
-      t.clickButton(c3); assertEq(counter.value, 26); t.assertText("S2=1, S3=5, C1=1, C2=1, C3=1")
-      t.clickButton(s2); assertEq(counter.value, 26); t.assertText("S2=2, S3=5, C1=1, C2=2, C3=1")
-      t.clickButton(c2); assertEq(counter.value, 28); t.assertText("S2=2, S3=5, C1=1, C2=2, C3=1")
-      t.clickButton(s3); assertEq(counter.value, 28); t.assertText("S2=2, S3=6, C1=1, C2=2, C3=2")
-      t.clickButton(c3); assertEq(counter.value, 44); t.assertText("S2=2, S3=6, C1=1, C2=2, C3=2")
+      assertEq(counter.value, 0)
+      t.assertText("S2=1, S3=5, C1=1, C2=1, C3=1")
+      for {
+        _ <- t.clickButton(c2)
+        _  = assertEq(counter.value, 1)
+        _  = t.assertText("S2=1, S3=5, C1=1, C2=1, C3=1")
+        _ <- t.clickButton(c1)
+        _  = assertEq(counter.value, 11)
+        _  = t.assertText("S2=1, S3=5, C1=1, C2=1, C3=1")
+        _ <- t.clickButton(c3)
+        _  = assertEq(counter.value, 26)
+        _  = t.assertText("S2=1, S3=5, C1=1, C2=1, C3=1")
+        _ <- t.clickButton(s2)
+        _  = assertEq(counter.value, 26)
+        _  = t.assertText("S2=2, S3=5, C1=1, C2=2, C3=1")
+        _ <- t.clickButton(c2)
+        _  = assertEq(counter.value, 28)
+        _  = t.assertText("S2=2, S3=5, C1=1, C2=2, C3=1")
+        _ <- t.clickButton(s3)
+        _  = assertEq(counter.value, 28)
+        _  = t.assertText("S2=2, S3=6, C1=1, C2=2, C3=2")
+        _ <- t.clickButton(c3)
+        _  = assertEq(counter.value, 44)
+        _  = t.assertText("S2=2, S3=6, C1=1, C2=2, C3=2")
+      } yield ()
     }
   }
 
@@ -1169,14 +1413,31 @@ object HooksTest extends AsyncTestSuite {
     val s3 = 5
 
     test(comp(PI(10))) { t =>
-      assertEq(counter.value, 0); t.assertText("S2=1, S3=5, C1=1, C2=1, C3=1")
-      t.clickButton(c2); assertEq(counter.value, 1); t.assertText("S2=1, S3=5, C1=1, C2=1, C3=1")
-      t.clickButton(c1); assertEq(counter.value, 11); t.assertText("S2=1, S3=5, C1=1, C2=1, C3=1")
-      t.clickButton(c3); assertEq(counter.value, 26); t.assertText("S2=1, S3=5, C1=1, C2=1, C3=1")
-      t.clickButton(s2); assertEq(counter.value, 26); t.assertText("S2=2, S3=5, C1=1, C2=2, C3=1")
-      t.clickButton(c2); assertEq(counter.value, 28); t.assertText("S2=2, S3=5, C1=1, C2=2, C3=1")
-      t.clickButton(s3); assertEq(counter.value, 28); t.assertText("S2=2, S3=6, C1=1, C2=2, C3=2")
-      t.clickButton(c3); assertEq(counter.value, 44); t.assertText("S2=2, S3=6, C1=1, C2=2, C3=2")
+      assertEq(counter.value, 0)
+      t.assertText("S2=1, S3=5, C1=1, C2=1, C3=1")
+      for {
+        _ <- t.clickButton(c2)
+        _  = assertEq(counter.value, 1)
+        _  = t.assertText("S2=1, S3=5, C1=1, C2=1, C3=1")
+        _ <- t.clickButton(c1)
+        _  = assertEq(counter.value, 11)
+        _  = t.assertText("S2=1, S3=5, C1=1, C2=1, C3=1")
+        _ <- t.clickButton(c3)
+        _  = assertEq(counter.value, 26)
+        _  = t.assertText("S2=1, S3=5, C1=1, C2=1, C3=1")
+        _ <- t.clickButton(s2)
+        _  = assertEq(counter.value, 26)
+        _  = t.assertText("S2=2, S3=5, C1=1, C2=2, C3=1")
+        _ <- t.clickButton(c2)
+        _  = assertEq(counter.value, 28)
+        _  = t.assertText("S2=2, S3=5, C1=1, C2=2, C3=1")
+        _ <- t.clickButton(s3)
+        _  = assertEq(counter.value, 28)
+        _  = t.assertText("S2=2, S3=6, C1=1, C2=2, C3=1")
+        _ <- t.clickButton(c3)
+        _  = assertEq(counter.value, 44)
+        _  = t.assertText("S2=2, S3=6, C1=1, C2=2, C3=1")
+      } yield ()
     }
   }  
 
@@ -1185,7 +1446,7 @@ object HooksTest extends AsyncTestSuite {
       .useId
       .render((_, id) => <.div(id))
 
-    test(comp()) { t =>
+    test_(comp()) { t =>
       assertEq(t.getText.length, 4)
     }
   }
@@ -1195,7 +1456,7 @@ object HooksTest extends AsyncTestSuite {
       useId.map(id => <.div(id))
     }
 
-    test(comp()) { t =>
+    test_(comp()) { t =>
       assertEq(t.getText.length, 4)
     }
   }
@@ -1213,8 +1474,9 @@ object HooksTest extends AsyncTestSuite {
         
     test(comp()) { t =>
       assertEq(t.getText, "false")
-      t.clickButton()
-      assertEq(t.getText, "true")
+      t.clickButton().map(_ => 
+        assertEq(t.getText, "true")
+      )
     }
   }
 
@@ -1232,8 +1494,9 @@ object HooksTest extends AsyncTestSuite {
         
     test(comp()) { t =>
       assertEq(t.getText, "false")
-      t.clickButton()
-      assertEq(t.getText, "true")
+      t.clickButton().map(_ => 
+        assertEq(t.getText, "true")
+      )
     }
   }
 
@@ -1251,10 +1514,16 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp()) { t =>
       t.assertText("100")
-      t.clickButton(1); t.assertText("100")
-      t.clickButton(2); t.assertText("101")
-      t.clickButton(1); t.assertText("101")
-      t.clickButton(2); t.assertText("102")
+      for {
+        _ <- t.clickButton(1)
+        _  = t.assertText("100")
+        _ <- t.clickButton(2)
+        _  = t.assertText("101")
+        _ <- t.clickButton(1)
+        _  = t.assertText("101")
+        _ <- t.clickButton(2)
+        _  = t.assertText("102")
+      } yield ()
     }
   }
 
@@ -1274,10 +1543,16 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp(PI(4))) { t =>
       t.assertText("5:9")
-      t.clickButton(1); t.assertText("5:9")
-      t.clickButton(3); t.assertText("6:9")
-      t.clickButton(2); t.assertText("6:9")
-      t.clickButton(3); t.assertText("6:10")
+      for {
+        _ <- t.clickButton(1)
+        _  = t.assertText("5:9")
+        _ <- t.clickButton(3)
+        _  = t.assertText("6:9")
+        _ <- t.clickButton(2)
+        _  = t.assertText("6:9")
+        _ <- t.clickButton(3)
+        _  = t.assertText("6:10")
+      } yield ()
     }
   }
 
@@ -1298,10 +1573,16 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp(PI(4))) { t =>
       t.assertText("5:9")
-      t.clickButton(1); t.assertText("5:9")
-      t.clickButton(3); t.assertText("6:9")
-      t.clickButton(2); t.assertText("6:9")
-      t.clickButton(3); t.assertText("6:10")
+      for {
+        _ <- t.clickButton(1)
+        _  = t.assertText("5:9")
+        _ <- t.clickButton(3)
+        _  = t.assertText("6:9")
+        _ <- t.clickButton(2)
+        _  = t.assertText("6:9")
+        _ <- t.clickButton(3)
+        _  = t.assertText("6:10")
+      } yield ()
     }
   }  
 
@@ -1311,7 +1592,6 @@ object HooksTest extends AsyncTestSuite {
       .useRefToVdom[Input]
       .useState("x")
       .render { (_, inputRef, s) =>
-
         def onChange(e: ReactEventFromInput): Callback =
           s.setState(e.target.value)
 
@@ -1331,13 +1611,14 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp()) { t =>
       t.assertInputText("x")
-      t.clickButton()
-      assertEq(text, "x")
-
-      t.setInputText("hehe")
-      t.assertInputText("hehe")
-      t.clickButton()
-      assertEq(text, "hehe")
+      for {
+        _ <- t.clickButton()
+        _  = assertEq(text, "x")
+        _ <- t.setInputText("hehe")
+        _  = t.assertInputText("hehe")
+        _ <- t.clickButton()
+        _  = assertEq(text, "hehe")
+      } yield ()
     }
   }
 
@@ -1369,13 +1650,14 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp()) { t =>
       t.assertInputText("x")
-      t.clickButton()
-      assertEq(text, "x")
-
-      t.setInputText("hehe")
-      t.assertInputText("hehe")
-      t.clickButton()
-      assertEq(text, "hehe")
+      for {
+        _ <- t.clickButton()
+        _  = assertEq(text, "x")
+        _ <- t.setInputText("hehe")
+        _  = t.assertInputText("hehe")
+        _ <- t.clickButton()
+        _  = assertEq(text, "hehe")
+      } yield ()
     }
   }  
 
@@ -1395,9 +1677,14 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp(PI(666))) { t =>
       t.assertText("P=PI(666), s1=100, s2=766, s3=1532")
-      t.clickButton(1); t.assertText("P=PI(666), s1=101, s2=766, s3=1532")
-      t.clickButton(2); t.assertText("P=PI(666), s1=101, s2=877, s3=1532") // +101+10
-      t.clickButton(3); t.assertText("P=PI(666), s1=101, s2=877, s3=1733") // +101+100
+      for {
+        _ <- t.clickButton(1)
+        _  = t.assertText("P=PI(666), s1=101, s2=766, s3=1532")
+        _ <- t.clickButton(2)
+        _  = t.assertText("P=PI(666), s1=101, s2=877, s3=1532") // +101+10
+        _ <- t.clickButton(3)
+        _  = t.assertText("P=PI(666), s1=101, s2=877, s3=1733") // +101+100
+      } yield ()
     }
   }
 
@@ -1419,9 +1706,14 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp(PI(666))) { t =>
       t.assertText("P=PI(666), s1=100, s2=766, s3=1532")
-      t.clickButton(1); t.assertText("P=PI(666), s1=101, s2=766, s3=1532")
-      t.clickButton(2); t.assertText("P=PI(666), s1=101, s2=877, s3=1532") // +101+10
-      t.clickButton(3); t.assertText("P=PI(666), s1=101, s2=877, s3=1733") // +101+100
+      for {
+        _ <- t.clickButton(1)
+        _  = t.assertText("P=PI(666), s1=101, s2=766, s3=1532")
+        _ <- t.clickButton(2)
+        _  = t.assertText("P=PI(666), s1=101, s2=877, s3=1532") // +101+10
+        _ <- t.clickButton(3)
+        _  = t.assertText("P=PI(666), s1=101, s2=877, s3=1733") // +101+100
+      } yield ()
     }
   }  
 
@@ -1439,7 +1731,7 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp(PI(666))) { t =>
       t.assertText("P=PI(666), s1=100, s2=766, s3=1532")
-      t.clickButton(); t.assertText("P=PI(666), s1=101, s2=-766, s3=15320")
+      t.clickButton().map(_ => t.assertText("P=PI(666), s1=101, s2=-766, s3=15320"))
     }
   }
 
@@ -1465,14 +1757,22 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp()) { t =>
       t.assertText("S=4, R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r2_1); t.assertText("S=1, R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r1_2); t.assertText("S=2, R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r1_1); t.assertText("S=1, R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r2_2); t.assertText("S=2, R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r3); t.assertText("S=30, R1=1, R2=1, R3=2, R4=1")
-      t.clickButton(r4); t.assertText("S=40, R1=1, R2=1, R3=2, R4=1")
-      t.clickButton(r3); t.assertText("S=-30, R1=1, R2=1, R3=3, R4=1")
-      t.clickButton(r3); t.assertText("S=30, R1=1, R2=1, R3=4, R4=1")
+      for {
+        _ <- t.clickButton(r2_1)
+        _  = t.assertText("S=5, R1=1, R2=1, R3=1, R4=1")
+        _ <- t.clickButton(r1_2)
+        _  = t.assertText("S=15, R1=1, R2=1, R3=1, R4=1")
+        _ <- t.clickButton(r1_1)
+        _  = t.assertText("S=16, R1=1, R2=1, R3=1, R4=1")
+        _ <- t.clickButton(r2_2)
+        _  = t.assertText("S=26, R1=1, R2=1, R3=1, R4=1")
+        _ <- t.clickButton(r3)
+        _  = t.assertText("S=27, R1=1, R2=1, R3=1, R4=1")
+        _ <- t.clickButton(r4)
+        _  = t.assertText("S=28, R1=1, R2=1, R3=2, R4=1")
+        _ <- t.clickButton(r3)
+        _  = t.assertText("S=33, R1=1, R2=1, R3=2, R4=1")
+      } yield ()
     }
   }
 
@@ -1498,13 +1798,22 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp()) { t =>
       t.assertText("S=4, R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r2_1); t.assertText("S=5, R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r1_10); t.assertText("S=15, R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r1_1); t.assertText("S=16, R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r2_10); t.assertText("S=26, R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r3); t.assertText("S=27, R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r4); t.assertText("S=28, R1=1, R2=1, R3=2, R4=1")
-      t.clickButton(r3); t.assertText("S=33, R1=1, R2=1, R3=2, R4=1")
+      for {
+        _ <- t.clickButton(r2_1)
+        _  = t.assertText("S=5, R1=1, R2=1, R3=1, R4=1")
+        _ <- t.clickButton(r1_10)
+        _  = t.assertText("S=15, R1=1, R2=1, R3=1, R4=1")
+        _ <- t.clickButton(r1_1)
+        _  = t.assertText("S=16, R1=1, R2=1, R3=1, R4=1")
+        _ <- t.clickButton(r2_10)
+        _  = t.assertText("S=26, R1=1, R2=1, R3=1, R4=1")
+        _ <- t.clickButton(r3)
+        _  = t.assertText("S=27, R1=1, R2=1, R3=1, R4=1")
+        _ <- t.clickButton(r4)
+        _  = t.assertText("S=28, R1=1, R2=1, R3=2, R4=1")
+        _ <- t.clickButton(r3)
+        _  = t.assertText("S=33, R1=1, R2=1, R3=2, R4=1")
+      } yield ()
     }
   }
 
@@ -1524,7 +1833,7 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp(PI(666))) { t =>
       t.assertText("P=PI(666), s1=100, s2=766, s3=1532")
-      t.clickButton(); t.assertText("P=PI(666), s1=101, s2=-766, s3=15320")
+      t.clickButton().map(_ => t.assertText("P=PI(666), s1=101, s2=-766, s3=15320"))
     }
   }
 
@@ -1550,14 +1859,24 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp()) { t =>
       t.assertText("S=4, R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r2_1); t.assertText("S=1, R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r1_2); t.assertText("S=2, R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r1_1); t.assertText("S=1, R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r2_2); t.assertText("S=2, R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r3); t.assertText("S=30, R1=1, R2=1, R3=2, R4=1")
-      t.clickButton(r4); t.assertText("S=40, R1=1, R2=1, R3=2, R4=1")
-      t.clickButton(r3); t.assertText("S=-30, R1=1, R2=1, R3=3, R4=1")
-      t.clickButton(r3); t.assertText("S=30, R1=1, R2=1, R3=4, R4=1")
+      for {
+        _ <- t.clickButton(r2_1)
+        _  = t.assertText("S=1, R1=1, R2=1, R3=1, R4=1")
+        _ <- t.clickButton(r1_2)
+        _  = t.assertText("S=2, R1=1, R2=1, R3=1, R4=1")
+        _ <- t.clickButton(r1_1)
+        _  = t.assertText("S=1, R1=1, R2=1, R3=1, R4=1")
+        _ <- t.clickButton(r2_2)
+        _  = t.assertText("S=2, R1=1, R2=1, R3=1, R4=1")
+        _ <- t.clickButton(r3)
+        _  = t.assertText("S=30, R1=1, R2=1, R3=2, R4=1")
+        _ <- t.clickButton(r4)
+        _  = t.assertText("S=40, R1=1, R2=1, R3=2, R4=1")
+        _ <- t.clickButton(r3)
+        _  = t.assertText("S=-30, R1=1, R2=1, R3=3, R4=1")
+        _ <- t.clickButton(r3)
+        _  = t.assertText("S=30, R1=1, R2=1, R3=4, R4=1")
+      } yield ()
     }
   }
 
@@ -1583,13 +1902,22 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp()) { t =>
       t.assertText("S=4, R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r2_1); t.assertText("S=5, R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r1_10); t.assertText("S=15, R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r1_1); t.assertText("S=16, R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r2_10); t.assertText("S=26, R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r3); t.assertText("S=27, R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r4); t.assertText("S=28, R1=1, R2=1, R3=2, R4=1")
-      t.clickButton(r3); t.assertText("S=33, R1=1, R2=1, R3=2, R4=1")
+      for {
+        _ <- t.clickButton(r2_1)
+        _  = t.assertText("S=5, R1=1, R2=1, R3=1, R4=1")
+        _ <- t.clickButton(r1_10)
+        _  = t.assertText("S=15, R1=1, R2=1, R3=1, R4=1")
+        _ <- t.clickButton(r1_1)
+        _  = t.assertText("S=16, R1=1, R2=1, R3=1, R4=1")
+        _ <- t.clickButton(r2_10)
+        _  = t.assertText("S=26, R1=1, R2=1, R3=1, R4=1")
+        _ <- t.clickButton(r3)
+        _  = t.assertText("S=27, R1=1, R2=1, R3=1, R4=1")
+        _ <- t.clickButton(r4)
+        _  = t.assertText("S=28, R1=1, R2=1, R3=2, R4=1")
+        _ <- t.clickButton(r3)
+        _  = t.assertText("S=33, R1=1, R2=1, R3=2, R4=1")
+      } yield ()
     }
   }
 
@@ -1613,8 +1941,12 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp(PI(666))) { t =>
       t.assertText("P=PI(666), s1=PI(100), s2=PI(766), s3=PI(1532)")
-      t.clickButton(1); t.assertText("P=PI(666), s1=PI(102), s2=PI(-766), s3=PI(15320)")
-      t.clickButton(2); t.assertText("P=PI(666), s1=PI(102), s2=PI(766), s3=PI(15320)")
+      for {
+        _ <- t.clickButton(1)
+        _  = t.assertText("P=PI(666), s1=PI(102), s2=PI(766), s3=PI(1532)")
+        _ <- t.clickButton(2)
+        _  = t.assertText("P=PI(666), s1=PI(102), s2=PI(-766), s3=PI(15320)")
+      } yield ()
     }
   }
 
@@ -1642,15 +1974,26 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp()) { t =>
       t.assertText("S=PI(4), R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r2_1); t.assertText("S=PI(1), R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r1_2); t.assertText("S=PI(1), R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r3); t.assertText("S=PI(30), R1=1, R2=1, R3=2, R4=1")
-      t.clickButton(r4); t.assertText("S=PI(40), R1=1, R2=1, R3=2, R4=1")
-      t.clickButton(r2_2); t.assertText("S=PI(2), R1=1, R2=1, R3=3, R4=1")
-      t.clickButton(r1_1); t.assertText("S=PI(2), R1=1, R2=1, R3=3, R4=1")
-      t.clickButton(r3); t.assertText("S=PI(30), R1=1, R2=1, R3=4, R4=1")
-      t.clickButton(r3); t.assertText("S=PI(-30), R1=1, R2=1, R3=5, R4=1")
-      t.clickButton(r3); t.assertText("S=PI(30), R1=1, R2=1, R3=6, R4=1")
+      for {
+        _ <- t.clickButton(r2_1)
+        _  = t.assertText("S=PI(1), R1=1, R2=1, R3=1, R4=1")
+        _ <- t.clickButton(r1_2)
+        _  = t.assertText("S=PI(1), R1=1, R2=1, R3=1, R4=1")
+        _ <- t.clickButton(r3)
+        _  = t.assertText("S=PI(30), R1=1, R2=1, R3=2, R4=1")
+        _ <- t.clickButton(r4)
+        _  = t.assertText("S=PI(40), R1=1, R2=1, R3=2, R4=1")
+        _ <- t.clickButton(r2_2)
+        _  = t.assertText("S=PI(2), R1=1, R2=1, R3=3, R4=1")
+        _ <- t.clickButton(r1_1)
+        _  = t.assertText("S=PI(2), R1=1, R2=1, R3=3, R4=1")
+        _ <- t.clickButton(r3)
+        _  = t.assertText("S=PI(30), R1=1, R2=1, R3=4, R4=1")
+        _ <- t.clickButton(r3)
+        _  = t.assertText("S=PI(-30), R1=1, R2=1, R3=5, R4=1")
+        _ <- t.clickButton(r3)
+        _  = t.assertText("S=PI(30), R1=1, R2=1, R3=6, R4=1")
+      } yield ()
     }
   }
 
@@ -1673,11 +2016,18 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp()) { t =>
       t.assertText("S=PI(4), R0=1, R1=1, R2=1")
-      t.clickButton(inc2); t.assertText("S=PI(6), R0=1, R1=1, R2=1")
-      t.clickButton(inc4); t.assertText("S=PI(10), R0=1, R1=1, R2=1")
-      t.clickButton(inc1); t.assertText("S=PI(10), R0=1, R1=1, R2=1")
-      t.clickButton(inc4); t.assertText("S=PI(14), R0=1, R1=1, R2=1")
-      t.clickButton(inc2); t.assertText("S=PI(16), R0=1, R1=1, R2=1")
+      for {
+        _ <- t.clickButton(inc2)
+        _  = t.assertText("S=PI(6), R0=1, R1=1, R2=1")
+        _ <- t.clickButton(inc4)
+        _  = t.assertText("S=PI(10), R0=1, R1=1, R2=1")
+        _ <- t.clickButton(inc1)
+        _  = t.assertText("S=PI(10), R0=1, R1=1, R2=1")
+        _ <- t.clickButton(inc4)
+        _  = t.assertText("S=PI(14), R0=1, R1=1, R2=1")
+        _ <- t.clickButton(inc2)
+        _  = t.assertText("S=PI(16), R0=1, R1=1, R2=1")
+      } yield ()
     }
   }
 
@@ -1703,8 +2053,12 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp(PI(666))) { t =>
       t.assertText("P=PI(666), s1=PI(100), s2=PI(766), s3=PI(1532)")
-      t.clickButton(1); t.assertText("P=PI(666), s1=PI(102), s2=PI(-766), s3=PI(15320)")
-      t.clickButton(2); t.assertText("P=PI(666), s1=PI(102), s2=PI(766), s3=PI(15320)")
+      for {
+        _ <- t.clickButton(1)
+        _  = t.assertText("P=PI(666), s1=PI(102), s2=PI(-766), s3=PI(15320)")
+        _ <- t.clickButton(2)
+        _  = t.assertText("P=PI(666), s1=PI(102), s2=PI(766), s3=PI(15320)")
+      } yield ()
     }
   }
 
@@ -1732,15 +2086,26 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp()) { t =>
       t.assertText("S=PI(4), R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r2_1); t.assertText("S=PI(1), R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r1_2); t.assertText("S=PI(1), R1=1, R2=1, R3=1, R4=1")
-      t.clickButton(r3); t.assertText("S=PI(30), R1=1, R2=1, R3=2, R4=1")
-      t.clickButton(r4); t.assertText("S=PI(40), R1=1, R2=1, R3=2, R4=1")
-      t.clickButton(r2_2); t.assertText("S=PI(2), R1=1, R2=1, R3=3, R4=1")
-      t.clickButton(r1_1); t.assertText("S=PI(2), R1=1, R2=1, R3=3, R4=1")
-      t.clickButton(r3); t.assertText("S=PI(30), R1=1, R2=1, R3=4, R4=1")
-      t.clickButton(r3); t.assertText("S=PI(-30), R1=1, R2=1, R3=5, R4=1")
-      t.clickButton(r3); t.assertText("S=PI(30), R1=1, R2=1, R3=6, R4=1")
+      for {
+        _ <- t.clickButton(r2_1)
+        _  = t.assertText("S=PI(1), R1=1, R2=1, R3=1, R4=1")
+        _ <- t.clickButton(r1_2)
+        _  = t.assertText("S=PI(1), R1=1, R2=1, R3=1, R4=1")
+        _ <- t.clickButton(r3)
+        _  = t.assertText("S=PI(30), R1=1, R2=1, R3=2, R4=1")
+        _ <- t.clickButton(r4)
+        _  = t.assertText("S=PI(40), R1=1, R2=1, R3=2, R4=1")
+        _ <- t.clickButton(r2_2)
+        _  = t.assertText("S=PI(2), R1=1, R2=1, R3=3, R4=1")
+        _ <- t.clickButton(r1_1)
+        _  = t.assertText("S=PI(2), R1=1, R2=1, R3=3, R4=1")
+        _ <- t.clickButton(r3)
+        _  = t.assertText("S=PI(30), R1=1, R2=1, R3=4, R4=1")
+        _ <- t.clickButton(r3)
+        _  = t.assertText("S=PI(-30), R1=1, R2=1, R3=5, R4=1")
+        _ <- t.clickButton(r3)
+        _  = t.assertText("S=PI(30), R1=1, R2=1, R3=6, R4=1")
+      } yield ()
     }
   }
 
@@ -1763,11 +2128,18 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp()) { t =>
       t.assertText("S=PI(4), R0=1, R1=1, R2=1")
-      t.clickButton(inc2); t.assertText("S=PI(6), R0=1, R1=1, R2=1")
-      t.clickButton(inc4); t.assertText("S=PI(10), R0=1, R1=1, R2=1")
-      t.clickButton(inc1); t.assertText("S=PI(10), R0=1, R1=1, R2=1")
-      t.clickButton(inc4); t.assertText("S=PI(14), R0=1, R1=1, R2=1")
-      t.clickButton(inc2); t.assertText("S=PI(16), R0=1, R1=1, R2=1")
+      for {
+        _ <- t.clickButton(inc2)
+        _  = t.assertText("S=PI(6), R0=1, R1=1, R2=1")
+        _ <- t.clickButton(inc4)
+        _  = t.assertText("S=PI(10), R0=1, R1=1, R2=1")
+        _ <- t.clickButton(inc1)
+        _  = t.assertText("S=PI(10), R0=1, R1=1, R2=1")
+        _ <- t.clickButton(inc4)
+        _  = t.assertText("S=PI(14), R0=1, R1=1, R2=1")
+        _ <- t.clickButton(inc2)
+        _  = t.assertText("S=PI(16), R0=1, R1=1, R2=1")
+      } yield ()
     }
   }
 
@@ -1793,17 +2165,25 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp(PI(666))) { t =>
       t.assertText("P=PI(666), S1=100:1, S2=766:1, S3=1532:1")
-      t.clickButton(1); t.assertText("P=PI(666), S1=101:1, S2=-766:1, S3=15320:1")
-      t.clickButton(2); t.assertText("P=PI(666), S1=101:1, S2=-766:1, S3=15321:1")
-      assertEq(counter.value, 15321) // verify that the modState(cb) executes after the state update
-      t.clickButton(3); t.assertText("P=PI(666), S1=101:1, S2=-766:1, S3=15321:1")
-      assertEq(counter.value, 15322) // verify that the setState(None, cb) executes (and that ↖ the previous modState effect ↖ doesn't execute again)
-      t.clickButton(3); t.assertText("P=PI(666), S1=101:1, S2=-766:1, S3=15321:1")
-      assertEq(counter.value, 15323)
-      t.clickButton(2); t.assertText("P=PI(666), S1=101:1, S2=-766:1, S3=15322:1")
-      assertEq(counter.value, 15323 + 15322)
-      t.clickButton(4); t.assertText("P=PI(666), S1=1:1, S2=-766:1, S3=15322:1")
-      assertEq(counter.value, 15323 + 15322)
+      for {
+        _ <- t.clickButton(1)
+        _  = t.assertText("P=PI(666), S1=101:1, S2=766:1, S3=15320:1")
+        _ <- t.clickButton(2)
+        _  = t.assertText("P=PI(666), S1=101:1, S2=766:1, S3=15321:1")
+        _  = assertEq(counter.value, 15321) // verify that the modState(cb) executes after the state update
+        _ <- t.clickButton(3)
+        _  = t.assertText("P=PI(666), S1=101:1, S2=766:1, S3=15321:1")
+        _  = assertEq(counter.value, 15322) // verify that the setState(None, cb) executes (and that ↖ the previous modState effect ↖ doesn't execute again)
+        _ <- t.clickButton(3)
+        _  = t.assertText("P=PI(666), S1=101:1, S2=766:1, S3=15321:1")
+        _  = assertEq(counter.value, 15323)
+        _ <- t.clickButton(2)
+        _  = t.assertText("P=PI(666), S1=101:1, S2=766:1, S3=15322:1")
+        _  = assertEq(counter.value, 15323 + 15322)
+        _ <- t.clickButton(4)
+        _  = t.assertText("P=PI(666), S1=1:1, S2=766:1, S3=15322:1")
+        _  = assertEq(counter.value, 15323 + 15322)
+      } yield ()
     }
   }
 
@@ -1832,17 +2212,25 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp(PI(666))) { t =>
       t.assertText("P=PI(666), S1=100:1, S2=766:1, S3=1532:1")
-      t.clickButton(1); t.assertText("P=PI(666), S1=101:1, S2=-766:1, S3=15320:1")
-      t.clickButton(2); t.assertText("P=PI(666), S1=101:1, S2=-766:1, S3=15321:1")
-      assertEq(counter.value, 15321) // verify that the modState(cb) executes after the state update
-      t.clickButton(3); t.assertText("P=PI(666), S1=101:1, S2=-766:1, S3=15321:1")
-      assertEq(counter.value, 15322) // verify that the setState(None, cb) executes (and that ↖ the previous modState effect ↖ doesn't execute again)
-      t.clickButton(3); t.assertText("P=PI(666), S1=101:1, S2=-766:1, S3=15321:1")
-      assertEq(counter.value, 15323)
-      t.clickButton(2); t.assertText("P=PI(666), S1=101:1, S2=-766:1, S3=15322:1")
-      assertEq(counter.value, 15323 + 15322)
-      t.clickButton(4); t.assertText("P=PI(666), S1=1:1, S2=-766:1, S3=15322:1")
-      assertEq(counter.value, 15323 + 15322)
+      for {
+        _ <- t.clickButton(1)
+        _  = t.assertText("P=PI(666), S1=101:1, S2=766:1, S3=15320:1")
+        _ <- t.clickButton(2)
+        _  = t.assertText("P=PI(666), S1=101:1, S2=766:1, S3=15321:1")
+        _  = assertEq(counter.value, 15321) // verify that the modState(cb) executes after the state update
+        _ <- t.clickButton(3)
+        _  = t.assertText("P=PI(666), S1=101:1, S2=766:1, S3=15321:1")
+        _  = assertEq(counter.value, 15322) // verify that the setState(None, cb) executes (and that ↖ the previous modState effect ↖ doesn't execute again)
+        _ <- t.clickButton(3)
+        _  = t.assertText("P=PI(666), S1=101:1, S2=766:1, S3=15321:1")
+        _  = assertEq(counter.value, 15323)
+        _ <- t.clickButton(2)
+        _  = t.assertText("P=PI(666), S1=101:1, S2=766:1, S3=15322:1")
+        _  = assertEq(counter.value, 15323 + 15322)
+        _ <- t.clickButton(4)
+        _  = t.assertText("P=PI(666), S1=1:1, S2=766:1, S3=15322:1")
+        _  = assertEq(counter.value, 15323 + 15322)
+      } yield ()
     }
   }
 
@@ -1872,21 +2260,33 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp(PI(666))) { t =>
       t.assertText("P=PI(666), S1=100:1, S2=766:1, S3=1532:1, S4=330:1")
-      t.clickButton(1); t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15320:2, S4=330:1")
-      t.clickButton(2); t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15321:3, S4=330:1")
-      assertEq(counter.value, 15321) // verify that the modState(cb) executes after the state update
-      t.clickButton(3); t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15321:3, S4=330:1")
-      assertEq(counter.value, 15322) // verify that the setState(None, cb) executes (and that ↖ the previous modState effect ↖ doesn't execute again)
-      t.clickButton(3); t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15321:3, S4=330:1")
-      assertEq(counter.value, 15323)
-      t.clickButton(2); t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15322:4, S4=330:1")
-      assertEq(counter.value, 15323 + 15322)
-      t.clickButton(4); t.assertText("P=PI(666), S1=102:3, S2=-766:2, S3=15322:4, S4=330:1")
-      t.clickButton(4); t.assertText("P=PI(666), S1=103:4, S2=-766:2, S3=15322:4, S4=330:1")
-      assertEq(counter.value, 15323 + 15322)
-      t.clickButton(11); t.assertText("P=PI(666), S1=103:4, S2=-766:2, S3=15322:4, S4=340:2")
-      t.clickButton(10); t.assertText("P=PI(666), S1=103:4, S2=-766:2, S3=15322:4, S4=340:2") // reusability blocks update
-      t.clickButton(11); t.assertText("P=PI(666), S1=103:4, S2=-766:2, S3=15322:4, S4=350:3")
+      for {
+        _ <- t.clickButton(1)
+        _  = t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15320:2, S4=330:1")
+        _ <- t.clickButton(2)
+        _  = t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15321:3, S4=330:1")
+        _  = assertEq(counter.value, 15321) // verify that the modState(cb) executes after the state update
+        _ <- t.clickButton(3)
+        _  = t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15321:3, S4=330:1")
+        _  = assertEq(counter.value, 15322) // verify that the setState(None, cb) executes (and that ↖ the previous modState effect ↖ doesn't execute again)
+        _ <- t.clickButton(3)
+        _  = t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15321:3, S4=330:1")
+        _  = assertEq(counter.value, 15323)
+        _ <- t.clickButton(2)
+        _  = t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15322:4, S4=330:1")
+        _  = assertEq(counter.value, 15323 + 15322)
+        _ <- t.clickButton(4)
+        _  = t.assertText("P=PI(666), S1=102:3, S2=-766:2, S3=15322:4, S4=330:1")
+        _ <- t.clickButton(4)
+        _  = t.assertText("P=PI(666), S1=103:4, S2=-766:2, S3=15322:4, S4=330:1")
+        _  = assertEq(counter.value, 15323 + 15322)
+        _ <- t.clickButton(11)
+        _  = t.assertText("P=PI(666), S1=103:4, S2=-766:2, S3=15322:4, S4=340:2")
+        _ <- t.clickButton(10)
+        _  = t.assertText("P=PI(666), S1=103:4, S2=-766:2, S3=15322:4, S4=340:2") // reusability blocks update
+        _ <- t.clickButton(11)
+        _  = t.assertText("P=PI(666), S1=103:4, S2=-766:2, S3=15322:4, S4=350:3")
+      } yield ()
     }
   }
 
@@ -1918,21 +2318,34 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp(PI(666))) { t =>
       t.assertText("P=PI(666), S1=100:1, S2=766:1, S3=1532:1, S4=330:1")
-      t.clickButton(1); t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15320:2, S4=330:1")
-      t.clickButton(2); t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15321:3, S4=330:1")
-      assertEq(counter.value, 15321) // verify that the modState(cb) executes after the state update
-      t.clickButton(3); t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15321:3, S4=330:1")
-      assertEq(counter.value, 15322) // verify that the setState(None, cb) executes (and that ↖ the previous modState effect ↖ doesn't execute again)
-      t.clickButton(3); t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15321:3, S4=330:1")
-      assertEq(counter.value, 15323)
-      t.clickButton(2); t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15322:4, S4=330:1")
-      assertEq(counter.value, 15323 + 15322)
-      t.clickButton(4); t.assertText("P=PI(666), S1=102:3, S2=-766:2, S3=15322:4, S4=330:1")
-      t.clickButton(4); t.assertText("P=PI(666), S1=103:4, S2=-766:2, S3=15322:4, S4=330:1")
-      assertEq(counter.value, 15323 + 15322)
-      t.clickButton(11); t.assertText("P=PI(666), S1=103:4, S2=-766:2, S3=15322:4, S4=340:2")
-      t.clickButton(10); t.assertText("P=PI(666), S1=103:4, S2=-766:2, S3=15322:4, S4=340:2") // reusability blocks update
-      t.clickButton(11); t.assertText("P=PI(666), S1=103:4, S2=-766:2, S3=15322:4, S4=350:3")
+      for {
+        _ <- t.clickButton(1)
+        _  = t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15320:2, S4=330:1")
+        _ <- t.clickButton(2)
+        _  = t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15321:3, S4=330:1")
+        _  = assertEq(counter.value, 15321) // verify that the modState(cb) executes after the state update
+        _ <- t.clickButton(3)
+        _  = t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15321:3, S4=330:1")
+        _  = assertEq(counter.value, 15322) // verify that the setState(None, cb) executes (and that ↖ the previous modState effect ↖ doesn't execute again)
+        _ <- t.clickButton(3)
+        _  = t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15321:3, S4=330:1")
+        _  = assertEq(counter.value, 15323)
+        _ <- t.clickButton(2)
+        _  = t.assertText("P=PI(666), S1=101:2, S2=-766:2, S3=15322:4, S4=330:1")
+        _  = assertEq(counter.value, 15323 + 15322)
+        _ <- t.clickButton(4)
+        _  = t.assertText("P=PI(666), S1=1:1, S2=-766:2, S3=15322:4, S4=330:1")
+        _  = assertEq(counter.value, 15323 + 15322)
+        _ <- t.clickButton(4)
+        _  = t.assertText("P=PI(666), S1=2:2, S2=-766:2, S3=15322:4, S4=330:1")
+        _  = assertEq(counter.value, 15323 + 15322)
+        _ <- t.clickButton(11)
+        _  = t.assertText("P=PI(666), S1=2:2, S2=-766:2, S3=15322:4, S4=340:2")
+        _ <- t.clickButton(10)
+        _  = t.assertText("P=PI(666), S1=2:2, S2=-766:2, S3=15322:4, S4=340:2") // reusability blocks update
+        _ <- t.clickButton(11)
+        _  = t.assertText("P=PI(666), S1=2:2, S2=-766:2, S3=15322:4, S4=350:3")
+      } yield ()
     }
   }  
 
@@ -1957,13 +2370,22 @@ object HooksTest extends AsyncTestSuite {
 
     testWithRoot(wrapper(PI(3))) { (r, t) =>
       t.assertText("P=PI(3), S=20, ES=5, R=1")
-      r.renderSync(wrapper(PI(2))); t.assertText("P=PI(3), S=20, ES=5, R=1")
-      t.clickButton(1); t.assertText("P=PI(2), S=21, ES=5, R=2")
-      r.renderSync(wrapper(PI(2))); t.assertText("P=PI(2), S=21, ES=5, R=2")
-      r.renderSync(wrapper(PI(3))); t.assertText("P=PI(2), S=21, ES=5, R=2")
-      r.renderSync(wrapper(PI(4))); t.assertText("P=PI(4), S=21, ES=5, R=3")
-      t.clickButton(2); t.assertText("P=PI(4), S=21, ES=6, R=4")
-      r.renderSync(wrapper(PI(5))); t.assertText("P=PI(4), S=21, ES=6, R=4")
+      for {
+        _ <- r.render(wrapper(PI(2)))  
+        _  = t.assertText("P=PI(3), S=20, ES=5, R=1")
+        _ <- t.clickButton(1)
+        _  = t.assertText("P=PI(2), S=21, ES=5, R=2")
+        _ <- r.render(wrapper(PI(2)))
+        _  = t.assertText("P=PI(2), S=21, ES=5, R=2")
+        _ <- r.render(wrapper(PI(3)))
+        _  = t.assertText("P=PI(2), S=21, ES=5, R=2")
+        _ <- r.render(wrapper(PI(4)))
+        _  = t.assertText("P=PI(4), S=21, ES=5, R=3")
+        _ <- t.clickButton(2)
+        _  = t.assertText("P=PI(4), S=21, ES=6, R=4")
+        _ <- r.render(wrapper(PI(5)))
+        _  = t.assertText("P=PI(4), S=21, ES=6, R=4")
+      } yield ()
     }
   }
 
@@ -1993,19 +2415,27 @@ object HooksTest extends AsyncTestSuite {
         inner((p, s, incES, fu))
     }
 
-    ScalaComponent.builder[PI].render_P(comp(_)).build
+    val wrapper = ScalaFnComponent[PI](comp(_))
 
-    // withRenderedIntoBody(wrapper(PI(3))) { (m, root) =>
-    //   val t = new DomTester(root)
-    //   t.assertText("P=PI(3), S=20, ES=5, R=1")
-    //   replaceProps(wrapper, m)(PI(2)); t.assertText("P=PI(3), S=20, ES=5, R=1")
-    //   t.clickButton(1); t.assertText("P=PI(2), S=21, ES=5, R=2")
-    //   replaceProps(wrapper, m)(PI(2)); t.assertText("P=PI(2), S=21, ES=5, R=2")
-    //   replaceProps(wrapper, m)(PI(3)); t.assertText("P=PI(2), S=21, ES=5, R=2")
-    //   replaceProps(wrapper, m)(PI(4)); t.assertText("P=PI(4), S=21, ES=5, R=3")
-    //   t.clickButton(2); t.assertText("P=PI(4), S=21, ES=6, R=4")
-    //   replaceProps(wrapper, m)(PI(5)); t.assertText("P=PI(4), S=21, ES=6, R=4")
-    // }
+    testWithRoot(wrapper(PI(3))) { (r, t) =>
+      t.assertText("P=PI(3), S=20, ES=5, R=1")
+      for {
+        _ <- r.render(wrapper(PI(2)))  
+        _  = t.assertText("P=PI(3), S=20, ES=5, R=1")
+        _ <- t.clickButton(1)
+        _  = t.assertText("P=PI(2), S=21, ES=5, R=2")
+        _ <- r.render(wrapper(PI(2)))
+        _  = t.assertText("P=PI(2), S=21, ES=5, R=2")
+        _ <- r.render(wrapper(PI(3)))
+        _  = t.assertText("P=PI(2), S=21, ES=5, R=2")
+        _ <- r.render(wrapper(PI(4)))
+        _  = t.assertText("P=PI(4), S=21, ES=5, R=3")
+        _ <- t.clickButton(2)
+        _  = t.assertText("P=PI(4), S=21, ES=6, R=4")
+        _ <- r.render(wrapper(PI(5)))
+        _  = t.assertText("P=PI(4), S=21, ES=6, R=4")
+      } yield ()
+    }    
   }
 
   // See https://github.com/japgolly/scalajs-react/issues/1027
@@ -2030,8 +2460,12 @@ object HooksTest extends AsyncTestSuite {
 
     test(wrapper(PI(3))) { (t) =>
       t.assertText("P=PI(3), R=1")
-      t.clickButton(2); t.assertText("P=PI(4), R=2")
-      t.clickButton(1); t.assertText("P=PI(4), R=3")
+      for {
+        _ <- t.clickButton(1)
+        _  = t.assertText("P=PI(4), R=2")
+        _ <- t.clickButton(2)
+        _  = t.assertText("P=PI(4), R=2")
+      } yield ()
     }
   }
 
@@ -2049,10 +2483,16 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp()) { t =>
       t.assertText("100")
-      t.clickButton(1); t.assertText("100")
-      t.clickButton(2); t.assertText("101")
-      t.clickButton(1); t.assertText("101")
-      t.clickButton(2); t.assertText("102")
+      for {
+        _ <- t.clickButton(1)
+        _  = t.assertText("100")
+        _ <- t.clickButton(2)
+        _  = t.assertText("101")
+        _ <- t.clickButton(1)
+        _  = t.assertText("101")
+        _ <- t.clickButton(2)
+        _  = t.assertText("102")
+      } yield ()
     }
   }
 
@@ -2062,7 +2502,6 @@ object HooksTest extends AsyncTestSuite {
       .useRefToVdom[Input]
       .useState("x")
       .renderWithReuse { (_, inputRef, s) =>
-
         def onChange(e: ReactEventFromInput): Callback =
           s.setState(e.target.value)
 
@@ -2082,13 +2521,14 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp()) { t =>
       t.assertInputText("x")
-      t.clickButton()
-      assertEq(text, "x")
-
-      t.setInputText("hehe")
-      t.assertInputText("hehe")
-      t.clickButton()
-      assertEq(text, "hehe")
+      for {
+        _ <- t.clickButton()
+        _  = assertEq(text, "x")
+        _ <- t.setInputText("hehe")
+        _  = t.assertInputText("hehe")
+        _ <- t.clickButton()
+        _  = assertEq(text, "hehe")
+      } yield ()
     }
   }
 
@@ -2109,8 +2549,12 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp()) { (t) =>
       t.assertText("count=PI(0), stable=PI(0), rev=1")
-      t.clickButton(1); t.assertText("count=PI(1), stable=PI(0), rev=1")
-      t.clickButton(1); t.assertText("count=PI(2), stable=PI(2), rev=2")
+      for {
+        _ <- t.clickButton(1)
+        _  = t.assertText("count=PI(1), stable=PI(0), rev=1")
+        _ <- t.clickButton(1)
+        _  = t.assertText("count=PI(2), stable=PI(2), rev=2")
+      } yield ()
     }
   }  
 
@@ -2138,7 +2582,7 @@ object HooksTest extends AsyncTestSuite {
 
     test(comp()) { t =>
       t.assertText("s=100, inc=101, add=201")
-      t.clickButton(); t.assertText("s=101, inc=102, add=203")
+      t.clickButton().map(_ => t.assertText("s=101, inc=102, add=203"))
     }
   }
 
@@ -2173,11 +2617,13 @@ object HooksTest extends AsyncTestSuite {
 
       testWithRoot(comp()) { (r, t) =>
         t.assertText("i=0")
-        r.actSync(store.inc(true).runNow())
-        t.assertText("i=1")
+        r.act(store.inc(true).asAsyncCallback).map(_ => 
+          t.assertText("i=1")
+        )
+      }.map{ _ => 
+        assert(store.peekListener(true).isEmpty)
+        assert(store.peekListener(false).isEmpty)
       }
-      assert(store.peekListener(true).isEmpty)
-      assert(store.peekListener(false).isEmpty)
     }
 
     def testConstBy() = {
@@ -2192,11 +2638,13 @@ object HooksTest extends AsyncTestSuite {
 
       testWithRoot(comp(false)) { (r, t) =>
         t.assertText("i=0")
-        r.actSync(store.inc(false).runNow())
-        t.assertText("i=1")
+        r.act(store.inc(false).asAsyncCallback).map(_ => 
+          t.assertText("i=1")
+        )
+      }.map{ _ => 
+        assert(store.peekListener(true).isEmpty)
+        assert(store.peekListener(false).isEmpty)
       }
-      assert(store.peekListener(true).isEmpty)
-      assert(store.peekListener(false).isEmpty)
     }
 
     def testMonadicConst() = {
@@ -2210,11 +2658,13 @@ object HooksTest extends AsyncTestSuite {
 
       testWithRoot(comp()) { (r, t) =>
         t.assertText("i=0")
-        r.actSync(store.inc(true).runNow())
-        t.assertText("i=1")
+        r.act(store.inc(true).asAsyncCallback).map(_ => 
+          t.assertText("i=1")
+        )
+      }.map{_ => 
+        assert(store.peekListener(true).isEmpty)
+        assert(store.peekListener(false).isEmpty)
       }
-      assert(store.peekListener(true).isEmpty)
-      assert(store.peekListener(false).isEmpty)
     }
   }
 
@@ -2234,8 +2684,9 @@ object HooksTest extends AsyncTestSuite {
 
       test(comp()) { t =>
         t.clickButton()
-      }
-      assertEq(renders, List((0, 0, false), (1, 0, true), (1, 1, false)))
+      }.map(_ => 
+        assertEq(renders, List((0, 0, false), (1, 0, true), (1, 1, false)))
+      )
     }
 
     // initialValue was added in React 19 - Uncomment when we upgrade to React 19
@@ -2277,8 +2728,9 @@ object HooksTest extends AsyncTestSuite {
 
       test(comp()) { t =>
         t.clickButton()
-      }
-      assertEq(renders, List((0, 0, false), (1, 0, true), (1, 1, false)))
+      }.map(_ => 
+        assertEq(renders, List((0, 0, false), (1, 0, true), (1, 1, false)))
+      )
     }
   }
 
