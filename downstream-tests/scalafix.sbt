@@ -12,8 +12,6 @@ ThisBuild / semanticdbEnabled := true
 
 ThisBuild / semanticdbVersion := "4.12.0"
 
-ThisBuild / scalafixScalaBinaryVersion := "2.13"
-
 ThisBuild / scalafixDependencies += {
   val ver = version.value.stripSuffix("-SNAPSHOT") + "-SNAPSHOT"
   "com.github.japgolly.scalajs-react" %% "scalafix" % ver

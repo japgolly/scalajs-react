@@ -214,7 +214,6 @@ object ScalaJsReact {
     .dependsOn(coreBundleCallback) // Low priority
     .configure(commonSettings, preventPublication, utestSettings, addReactJsDependencies(Test))
     .settings(
-      // Test / parallelExecution := false,
       Test / scalacOptions --= Seq(
         "-deprecation",
         "-Xlint:adapted-args"
