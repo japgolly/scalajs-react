@@ -22,7 +22,7 @@ object CBIOBundleTests extends TestSuite {
     Globals.clear()
 
     "catnip" - {
-      ReactTestUtils2.withRendered(Catnip.Component("omg")).future { m =>
+      ReactTestUtils2.withRenderedSync(Catnip.Component("omg")).future { m =>
         delay(500).map { _ =>
           assertEq(Globals.catnipMounts, List("omg"))
           m.outerHTML.assert("<div>Hello(1) omg</div>")

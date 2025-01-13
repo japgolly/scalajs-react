@@ -23,11 +23,11 @@ object BroadcasterTest extends TestSuite {
     val b = new B
 
     "component" - {
-      ReactTestUtils2.withRendered(C(b)){ d => 
+      ReactTestUtils2.withRenderedSync(C(b)){ d => 
         DomTester.assertText(d.asHtml(), "Got: {}")
-        d.act(b.broadcast(2).runNow())
+        d.actSync(b.broadcast(2).runNow())
         DomTester.assertText(d.asHtml(), "Got: {2}")
-        d.act(b.broadcast(7).runNow())
+        d.actSync(b.broadcast(7).runNow())
         DomTester.assertText(d.asHtml(), "Got: {2,7}")
       }
     }

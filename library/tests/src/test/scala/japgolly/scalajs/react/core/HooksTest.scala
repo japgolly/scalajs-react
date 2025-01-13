@@ -16,10 +16,10 @@ import utest._
 object HooksTest extends TestSuite {
 
   protected[core] def test[A](u: Unmounted)(f: DomTester => A): A =
-    withRendered(u).map(d => new DomTester(d.root.asHtml()))(f)
+    withRenderedSync(u).map(d => new DomTester(d.root.asHtml()))(f)
 
   protected[core] def testWithRoot[A](u: Unmounted)(f: (TestReactRoot, DomTester) => A): A =
-    withRendered(u)(d => f(d.root, new DomTester(d.root.asHtml())))
+    withRenderedSync(u)(d => f(d.root, new DomTester(d.root.asHtml())))
 
   private val incBy1 = Reusable.byRef((_: Int) + 1)
   private val incBy5 = Reusable.byRef((_: Int) + 5)
@@ -1957,13 +1957,13 @@ object HooksTest extends TestSuite {
 
     testWithRoot(wrapper(PI(3))) { (r, t) =>
       t.assertText("P=PI(3), S=20, ES=5, R=1")
-      r.render(wrapper(PI(2))); t.assertText("P=PI(3), S=20, ES=5, R=1")
+      r.renderSync(wrapper(PI(2))); t.assertText("P=PI(3), S=20, ES=5, R=1")
       t.clickButton(1); t.assertText("P=PI(2), S=21, ES=5, R=2")
-      r.render(wrapper(PI(2))); t.assertText("P=PI(2), S=21, ES=5, R=2")
-      r.render(wrapper(PI(3))); t.assertText("P=PI(2), S=21, ES=5, R=2")
-      r.render(wrapper(PI(4))); t.assertText("P=PI(4), S=21, ES=5, R=3")
+      r.renderSync(wrapper(PI(2))); t.assertText("P=PI(2), S=21, ES=5, R=2")
+      r.renderSync(wrapper(PI(3))); t.assertText("P=PI(2), S=21, ES=5, R=2")
+      r.renderSync(wrapper(PI(4))); t.assertText("P=PI(4), S=21, ES=5, R=3")
       t.clickButton(2); t.assertText("P=PI(4), S=21, ES=6, R=4")
-      r.render(wrapper(PI(5))); t.assertText("P=PI(4), S=21, ES=6, R=4")
+      r.renderSync(wrapper(PI(5))); t.assertText("P=PI(4), S=21, ES=6, R=4")
     }
   }
 
@@ -2173,7 +2173,7 @@ object HooksTest extends TestSuite {
 
       testWithRoot(comp()) { (r, t) =>
         t.assertText("i=0")
-        r.act(store.inc(true).runNow())
+        r.actSync(store.inc(true).runNow())
         t.assertText("i=1")
       }
       assert(store.peekListener(true).isEmpty)
@@ -2192,7 +2192,7 @@ object HooksTest extends TestSuite {
 
       testWithRoot(comp(false)) { (r, t) =>
         t.assertText("i=0")
-        r.act(store.inc(false).runNow())
+        r.actSync(store.inc(false).runNow())
         t.assertText("i=1")
       }
       assert(store.peekListener(true).isEmpty)
@@ -2210,7 +2210,7 @@ object HooksTest extends TestSuite {
 
       testWithRoot(comp()) { (r, t) =>
         t.assertText("i=0")
-        r.act(store.inc(true).runNow())
+        r.actSync(store.inc(true).runNow())
         t.assertText("i=1")
       }
       assert(store.peekListener(true).isEmpty)

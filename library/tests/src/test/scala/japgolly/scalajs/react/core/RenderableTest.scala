@@ -10,7 +10,7 @@ import utest._
 object RenderableTest extends TestSuite {
 
   private def test[A: Renderable](source: A, expectHtml: String)(implicit l: Line): Unit =
-    ReactTestUtils2.withRendered(source) { r =>
+    ReactTestUtils2.withRenderedSync(source) { r =>
       r.outerHTML.assert(expectHtml)
     }
 

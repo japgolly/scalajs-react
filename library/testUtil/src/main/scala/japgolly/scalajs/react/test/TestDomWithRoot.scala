@@ -20,15 +20,18 @@ trait TestDomWithRoot extends TestDom {
   override type Self <: TestDomWithRoot
   val root: TestReactRoot
 
-  @inline def act[A](body: => A): A = 
+  @inline def actSync[A](body: => A): A = 
+    root.actSync(body)
+
+  @inline def act[F[_]: Async, A](body: F[A]): F[A] =
     root.act(body)
 
-  @inline def actAsync[F[_], A](body: F[A])(implicit F: Async[F]): F[A] =
-    root.actAsync(body)
+  @inline def act_[F[_]: Async, A](body: => A): F[A] =
+    root.act_(body)
 
-  @inline def actAsync_[F[_], A](body: => A)(implicit F: Async[F]): F[A] =
-    root.actAsync_(body)
+  @inline def unmountSync(): Unit =
+    root.unmountSync()
 
-  @inline def unmount(): Unit =
+  @inline def unmount[F[_]: Async](): F[Unit] =
     root.unmount()
 }

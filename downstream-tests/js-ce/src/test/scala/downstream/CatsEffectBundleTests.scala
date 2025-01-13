@@ -10,7 +10,7 @@ object CatsEffectBundleTests extends TestSuite {
     Globals.clear()
 
     "catnip" - {
-      ReactTestUtils2.withRendered(Catnip.Component("omg")) { m =>
+      ReactTestUtils2.withRenderedSync(Catnip.Component("omg")) { m =>
         assertEq(Globals.catnipMounts, List("omg"))
         m.outerHTML.assert("<div>Hello omg</div>")
       }

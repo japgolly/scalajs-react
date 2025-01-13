@@ -39,21 +39,24 @@ trait TestReactRoot extends TestContainer {
   @inline def raw =
     root.raw
 
-  def act[A](body: => A): A = 
+  def actSync[A](body: => A): A = 
+    ReactTestUtils2.actSync(body)
+
+  def act[F[_]: Async, A](body: F[A]): F[A] =
     ReactTestUtils2.act(body)
 
-  def actAsync[F[_], A](body: F[A])(implicit F: Async[F]): F[A] =
-    ReactTestUtils2.actAsync(body)
+  @inline def act_[F[_]: Async, A](body: => A): F[A] =
+    ReactTestUtils2.act_(body)
 
-  @inline def actAsync_[F[_], A](body: => A)(implicit F: Async[F]): F[A] =
-    ReactTestUtils2.actAsync_(body)
+  def renderSync[A: Renderable](unmounted: A): Unit =
+    actSync(root.render(unmounted))
 
-  def render[A](unmounted: A)(implicit r: Renderable[A]): Unit =
-    act(root.render(unmounted))
+  def render[F[_]: Async, A: Renderable](unmounted: A): F[Unit] =
+    act_(root.render(unmounted))
 
-  def unmount(): Unit =
-    act(root.unmount())
+  def unmountSync(): Unit =
+    actSync(root.unmount())
 
-  def unmountAsync[F[_]: Async](): F[Unit] =
-    actAsync_(root.unmount())
+  def unmount[F[_]: Async](): F[Unit] =
+    act_(root.unmount())
 }

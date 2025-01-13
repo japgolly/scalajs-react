@@ -28,7 +28,7 @@ class DomTester(root: Element) {
     val bs = root.querySelectorAll("button")
     assert(n > 0 && n <= bs.length, s"${bs.length} buttons found (n=$n)")
     val b = bs(n - 1).asInstanceOf[Button]
-    act(Simulate.click(b))
+    actSync(Simulate.click(b))
   }
 
   def assertInputText(expect: String)(implicit l: Line): Unit =
@@ -36,7 +36,7 @@ class DomTester(root: Element) {
 
   def setInputText(t: String): Unit = {
     val i = getInputText()
-    act(SimEvent.Change(t).simulate(i))
+    actSync(SimEvent.Change(t).simulate(i))
   }
 
   def getText: String =
