@@ -41,4 +41,10 @@ trait TestDomWithRoot extends TestDom {
 
   def withNode_[F[_]: Effect](f: dom.Node => Unit): F[Unit] = 
     withNode(n => Effect[F].delay(f(n)))
+
+  def actOnNode[F[_]: Async](f: dom.Node => F[Unit]): F[Unit] = 
+    withNode(n => act(f(n)))
+
+  def actOnNode_[F[_]: Async](f: dom.Node => Unit): F[Unit] = 
+    withNode(n => act_(f(n)))
 }

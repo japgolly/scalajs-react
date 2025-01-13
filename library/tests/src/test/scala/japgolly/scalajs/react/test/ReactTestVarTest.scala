@@ -78,12 +78,10 @@ object ReactTestVarTest extends AsyncTestSuite {
       ReactTestUtils2.withRendered(c(v.stateAccess)) { d =>
         v.onUpdate(d.root.renderSync(c(v.stateAccess)))
         d.outerHTML.assert("<div>1</div>")
-        d.withNode(n => 
-          d.act_(Simulate.click(n)).map{ _ =>
-            assertEq(v.value(), 2)
-            d.outerHTML.assert("<div>2</div>")
-          }
-        )
+        d.actOnNode_(Simulate.click(_)).map{ _ =>
+          assertEq(v.value(), 2)
+          d.outerHTML.assert("<div>2</div>")
+        }
       }
     }
   }

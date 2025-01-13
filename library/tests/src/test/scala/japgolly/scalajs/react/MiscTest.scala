@@ -97,10 +97,8 @@ object MiscTest extends AsyncTestSuite {
           .build
         ReactTestUtils2.withRendered(C()) { d =>
           d.select("span").innerHTML.assert("3")
-          d.withNode( n =>
-            d.act_(Simulate.click(n)).map(_ =>
-              d.select("span").innerHTML.assert("11")
-            )
+          d.actOnNode_(Simulate.click(_)).map(_ =>
+            d.select("span").innerHTML.assert("11")
           )
         }
       }
@@ -115,18 +113,16 @@ object MiscTest extends AsyncTestSuite {
             <.button($.state.toString, ^.onClick --> (add1 >> add7), ^.onDoubleClick --> $.setState(StrInt("oh", 100)))
           }
           .build
-        ReactTestUtils2.withRendered(C()) ( d =>
-          d.withNode{ n => 
-            d.innerHTML.assert("StrInt(yay,3)")
-            for {
-              _ <- d.act_(Simulate.click(n))
-              _  = d.innerHTML.assert("StrInt(yay,11)")
-              _ <- d.act_(Simulate.doubleClick(n))
-              _ <- d.act_(Simulate.click(n))
-            } yield
-              d.innerHTML.assert("StrInt(oh,108)")
-          }
-        )
+        ReactTestUtils2.withRendered(C()) { d =>
+          d.innerHTML.assert("StrInt(yay,3)")
+          for {
+            _ <- d.actOnNode_(Simulate.click(_))
+            _  = d.innerHTML.assert("StrInt(yay,11)")
+            _ <- d.actOnNode_(Simulate.doubleClick(_))
+            _ <- d.actOnNode_(Simulate.click(_))
+          } yield
+            d.innerHTML.assert("StrInt(oh,108)")
+        }
       }
 
       "zoomStateL" - {
@@ -140,16 +136,14 @@ object MiscTest extends AsyncTestSuite {
           }
           .build
         ReactTestUtils2.withRendered(C()) { d =>
-          d.withNode{ n => 
-            d.innerHTML.assert("StrInt(yay,3)")
-            for {
-              _ <- d.act_(Simulate.click(n))
-              _  = d.innerHTML.assert("StrInt(yay,11)")
-              _ <- d.act_(Simulate.doubleClick(n))
-              _ <- d.act_(Simulate.click(n))
-            } yield
-              d.innerHTML.assert("StrInt(oh,108)")
-          }
+          d.innerHTML.assert("StrInt(yay,3)")
+          for {
+            _ <- d.actOnNode_(Simulate.click(_))
+            _  = d.innerHTML.assert("StrInt(yay,11)")
+            _ <- d.actOnNode_(Simulate.doubleClick(_))
+            _ <- d.actOnNode_(Simulate.click(_))
+          } yield
+            d.innerHTML.assert("StrInt(oh,108)")
         }
       }
 
@@ -163,18 +157,16 @@ object MiscTest extends AsyncTestSuite {
             <.button($.state.toString, ^.onClick --> (add1 >> add7), ^.onDoubleClick --> $.setState(StrIntWrap(StrInt("oh", 100))))
           }
           .build
-        ReactTestUtils2.withRendered(C()) ( d =>
-          d.withNode{ n => 
-            d.innerHTML.assert("StrIntWrap(StrInt(yay,3))")
-            for {
-              _ <- d.act_(Simulate.click(n))
-              _  = d.innerHTML.assert("StrIntWrap(StrInt(yay,11))")
-              _ <- d.act_(Simulate.doubleClick(n))
-              _ <- d.act_(Simulate.click(n))
-            } yield
-              d.innerHTML.assert("StrIntWrap(StrInt(oh,108))")
-          }
-        )          
+        ReactTestUtils2.withRendered(C()) { d =>
+          d.innerHTML.assert("StrIntWrap(StrInt(yay,3))")
+          for {
+            _ <- d.actOnNode_(Simulate.click(_))
+            _  = d.innerHTML.assert("StrIntWrap(StrInt(yay,11))")
+            _ <- d.actOnNode_(Simulate.doubleClick(_))
+            _ <- d.actOnNode_(Simulate.click(_))
+          } yield
+            d.innerHTML.assert("StrIntWrap(StrInt(oh,108))")
+        }    
       }
     }
 
