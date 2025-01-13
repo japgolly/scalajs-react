@@ -5,7 +5,7 @@ import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import utest._
 
-object ReactTestVarTest extends TestSuite {
+object ReactTestVarTest extends AsyncTestSuite {
 
   override def tests = Tests {
 
@@ -75,12 +75,15 @@ object ReactTestVarTest extends TestSuite {
         .render_P(parent => <.div(parent.state.runNow(), ^.onClick --> parent.modState(_ + 1)))
         .build
       val v = ReactTestVar(1)
-      ReactTestUtils2.withRenderedSync(c(v.stateAccess)) { d =>
+      ReactTestUtils2.withRendered(c(v.stateAccess)) { d =>
         v.onUpdate(d.root.renderSync(c(v.stateAccess)))
         d.outerHTML.assert("<div>1</div>")
-        d.node.foreach(n => d.actSync(Simulate.click(n)))
-        assertEq(v.value(), 2)
-        d.outerHTML.assert("<div>2</div>")
+        d.node.map(n => 
+          d.act_(Simulate.click(n)).map{ _ =>
+            assertEq(v.value(), 2)
+            d.outerHTML.assert("<div>2</div>")
+          }
+        ).getOrElse(AsyncCallback.unit)
       }
     }
   }
