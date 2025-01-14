@@ -1,6 +1,5 @@
 package japgolly.scalajs.react.facade
 
-import scala.annotation.nowarn
 import scala.scalajs.js
 import scala.scalajs.js.annotation._
 
@@ -9,7 +8,6 @@ import scala.scalajs.js.annotation._
 object ReactDOMServer extends ReactDOMServer
 
 @js.native
-@nowarn("cat=unused")
 trait ReactDOMServer extends js.Object {
 
   val version: String = js.native

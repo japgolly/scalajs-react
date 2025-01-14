@@ -132,14 +132,14 @@ object Js extends JsBaseComponentTemplate[facade.React.ComponentClassP] {
     new Template.MountedWithRoot[Id, DefaultA, P, S]()(UnsafeSync.id, DefaultA)
         with MountedRoot[Id, DefaultA, P, S, R] {
 
-      override implicit def F    = UnsafeSync.id
-      override implicit def A    = DefaultA
-      override def root          = this
-      override val raw           = r
-      override def props         = raw.props
-      override def propsChildren = PropsChildren.fromRawProps(raw.props)
-      override def state         = raw.state
-      override def getDOMNode    = ComponentDom.findDOMNode(raw)
+      override implicit def F: UnsafeSync[Id]       = UnsafeSync.id
+      override implicit def A: Async[Async.Untyped] = DefaultA
+      override def root                             = this
+      override val raw                              = r
+      override def props                            = raw.props
+      override def propsChildren                    = PropsChildren.fromRawProps(raw.props)
+      override def state                            = raw.state
+      override def getDOMNode                       = ComponentDom.findDOMNode(raw)
 
       override def setState[G[_]](state: S, callback: => G[Unit])(implicit G: Dispatch[G]): Unit =
         raw.setState(state, G.dispatchFn(callback))
