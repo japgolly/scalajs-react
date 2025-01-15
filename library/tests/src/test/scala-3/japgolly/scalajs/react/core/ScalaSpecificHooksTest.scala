@@ -33,9 +33,10 @@ object ScalaSpecificHooksTest {
       t.assertText("3:5:9")
       assertEq(counter.value, 10 + (5+3) + (5+3+1))
       counter.value = 0
-      t.clickButton()
-      t.assertText("4:5:9")
-      assertEq(counter.value, 10 + (5+4) + (5+4+1))
+      t.clickButton().map{ _ => 
+        t.assertText("4:5:9")
+        assertEq(counter.value, 10 + (5+4) + (5+4+1))
+      }
     }
   }
 

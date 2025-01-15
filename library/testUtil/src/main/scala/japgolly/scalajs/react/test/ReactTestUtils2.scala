@@ -3,10 +3,10 @@ package japgolly.scalajs.react.test
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.hooks.Hooks
 import japgolly.scalajs.react.internal.CoreGeneral._
-import japgolly.scalajs.react.test.internal.WithDsl
+import japgolly.scalajs.react.test.internal.{Resource, WithDsl}
 import japgolly.scalajs.react.util.DefaultEffects.{Sync => DS}
 import japgolly.scalajs.react.util.Effect._
-import japgolly.scalajs.react.util.{ImplicitUnit, JsUtil}
+import japgolly.scalajs.react.util.{Effect, ImplicitUnit, JsUtil}
 import org.scalajs.dom.html.Element
 import org.scalajs.dom.{console, document}
 
@@ -58,9 +58,9 @@ trait ReactTestUtils2 extends japgolly.scalajs.react.test.internal.ReactTestUtil
     *
     * This helps make your tests run closer to what real users would experience when using your application.
     */
-  def act[A](body: => A): A = {
+  def actSync[A](body: => A): A = {
     var a = Option.empty[A]
-    reactRaw.act(() => { a = Some(body) })
+    reactRaw.actSync(() => { a = Some(body) })
     a.getOrElse(throw new RuntimeException("React.act didn't seem to complete."))
   }
 
@@ -77,17 +77,17 @@ trait ReactTestUtils2 extends japgolly.scalajs.react.test.internal.ReactTestUtil
     *
     * This helps make your tests run closer to what real users would experience when using your application.
     */
-  def actAsync[F[_], A](body: F[A])(implicit F: Async[F]): F[A] = {
+  def act[F[_], A](body: F[A])(implicit F: Async[F]): F[A] = {
     F.flatMap(F.delay(new Hooks.Var(Option.empty[A]))) { ref =>
       def setAsync(a: A): F[Unit] = F.delay(DS.runSync(ref.set(Some(a))))
       val body2 = F.flatMap(body)(setAsync)
-      val body3 = F.fromJsPromise(reactRaw.actAsync(F.toJsPromise(body2)))
+      val body3 = F.fromJsPromise(reactRaw.act(F.toJsPromise(body2)))
       F.map(body3)(_ => ref.value.getOrElse(throw new RuntimeException("React.act didn't seem to complete.")))
     }
   }
 
-  @inline def actAsync[F[_], A](body: => A)(implicit F: Async[F]): F[A] =
-    actAsync(F.delay(body))
+  @inline def act_[F[_], A](body: => A)(implicit F: Async[F]): F[A] =
+    act(F.delay(body))
 
   def newElement(): Element = {
     val cont = document.createElement("div").domAsHtml
@@ -110,31 +110,37 @@ trait ReactTestUtils2 extends japgolly.scalajs.react.test.internal.ReactTestUtil
     h
   }
 
-  val withElement: WithDsl[Element, ImplicitUnit] =
+  val withElementSync: WithDsl[Element, ImplicitUnit] =
     WithDsl(newElement())(removeElement)
 
-  val withReactRoot: WithDsl[TestReactRoot, ImplicitUnit] =
-    withElement.mapResource(TestReactRoot(_))(_.unmount())
+  def withElement[F[_]: Async]: Resource[F, Element] =
+    Resource.make(Effect[F].delay(newElement()), e => Effect[F].delay(removeElement(e)))
 
-  def withRendered[A](unmounted: A): WithDsl[TestDomWithRoot, Renderable[A]] =
+  val withReactRootSync: WithDsl[TestReactRoot, ImplicitUnit] =
+    withElementSync.mapResource(TestReactRoot(_))(_.unmountSync())
+
+  def withReactRoot[F[_]: Async]: Resource[F, TestReactRoot] = 
+    withElement[F].flatMap{ e => 
+      Resource.make_[F, TestReactRoot](TestReactRoot(e), _.unmount[F]())
+    }
+
+  def withRenderedSync[A](unmounted: A): WithDsl[TestDomWithRoot, Renderable[A]] =
     WithDsl.apply[TestDomWithRoot, Renderable[A]] { (renderable, cleanup) =>
-      val root = withReactRoot.setup(implicitly, cleanup)
-      act(root.render(unmounted)(renderable))
+      val root = withReactRootSync.setup(implicitly, cleanup)
+      root.renderSync(unmounted)(renderable)
       root.selectFirstChild()
     }
 
-  def renderAsync[F[_], A](
-    unmounted: A
-  )(implicit F: Async[F], renderable: Renderable[A]): F[TestDomWithRoot] =
-    F.flatMap(F.pure(ReactTestUtils2.withReactRoot.setup(implicitly, new WithDsl.Cleanup)))(
-      root => F.map(actAsync(root.render(unmounted)))(_ => root.selectFirstChild())
-    )
-
-  def withRenderedAsync[F[_], A](
-    unmounted: A
-  )(use: TestDomWithRoot => F[Unit]
-  )(implicit F: Async[F], renderable: Renderable[A]): F[Unit] =
-    F.flatMap(renderAsync(unmounted)) { d =>
-      F.finallyRun(use(d), actAsync(d.unmount()))
+  def rendered[F[_]: Async, A: Renderable](unmounted: A): Resource[F, TestDomWithRoot] =
+    withReactRoot[F].flatMap { root =>
+      Resource.eval[F, TestDomWithRoot](
+        Effect[F].map(root.render(unmounted))(_ => root.selectFirstChild())
+      )
     }
+
+  def withRendered[F[_]: Async, A: Renderable, B](unmounted: A)(f: TestDomWithRoot => F[B]): F[B] =
+    rendered(unmounted).use(f)
+
+  def withRendered_[F[_]: Async, A: Renderable, B](unmounted: A)(f: TestDomWithRoot => B): F[B] =
+    rendered(unmounted).use_(f)
 }

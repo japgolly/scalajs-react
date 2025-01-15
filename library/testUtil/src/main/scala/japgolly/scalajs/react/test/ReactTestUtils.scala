@@ -279,7 +279,7 @@ trait ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtilE
     new WithRenderedDsl[M, Element] {
       override def apply[A](f: (M, Element) => A): A =
         withNewBodyElement { parent =>
-          aroundReact {
+          aroundReact.sync {
             val c = act(RawReactDOM.render(u.raw, parent))
             try
               f(u.mountRawOrNull(c), parent)
@@ -357,7 +357,7 @@ trait ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtilE
   def withRenderedIntoDocument[M](u: Unmounted[M]): WithRenderedDsl[M, Element] =
     new WithRenderedDsl[M, Element] {
       override def apply[A](f: (M, Element) => A): A =
-        aroundReact {
+        aroundReact.sync {
           val c = act(raw.renderIntoDocument(u.raw))
           try {
             val p = parentElement(c)

@@ -246,7 +246,7 @@ object CtorType {
       new Summoner[P, C] {
         override type CT[-p, +u] = T[p, u]
         override val summon = f
-        override implicit val pf = p
+        override implicit val pf: Profunctor[T] = p
       }
 
     implicit def summonN[P <: js.Object](implicit s: Singleton[P]): Summoner.Aux[P, ChildrenArg.None, Nullary] =

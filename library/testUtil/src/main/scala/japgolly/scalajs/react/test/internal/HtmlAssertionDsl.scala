@@ -20,11 +20,11 @@ object HtmlAssertionDsl {
     }
 
   def node(name     : String,
-           node     : => dom.Node,
+           node     : => Option[dom.Node],
            onElement: dom.Element => String,
            onNode   : dom.Node => String = _.nodeValue): HtmlAssertionDsl = {
     def read(sanitise: String => String): String =
-      node match {
+      node.fold(""){
         case e: dom.Element => sanitise(onElement(e))
         case n              => onNode(n)
       }

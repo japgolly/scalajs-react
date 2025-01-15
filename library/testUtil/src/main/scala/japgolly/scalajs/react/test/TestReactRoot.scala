@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.test
 
+import japgolly.scalajs.react.util.Effect.Async
 import japgolly.scalajs.react.{facade => mainFacade, _}
 import org.scalajs.dom
 
@@ -13,7 +14,7 @@ object TestReactRoot {
     @inline def c = container
     new TestReactRoot {
       override type Self = TestDomWithRoot
-      override protected def Self(n2: dom.Node) = TestDomWithRoot(this, n2)
+      override protected def Self(n2: Option[dom.Node]) = TestDomWithRoot(this, n2)
       override def root = r
 
       override def container = c
@@ -38,9 +39,24 @@ trait TestReactRoot extends TestContainer {
   @inline def raw =
     root.raw
 
-  def render[A](unmounted: A)(implicit r: Renderable[A]): Unit =
-    ReactTestUtils2.act(root.render(unmounted))
+  def actSync[A](body: => A): A = 
+    ReactTestUtils2.actSync(body)
 
-  def unmount(): Unit =
-    ReactTestUtils2.act(root.unmount())
+  def act[F[_]: Async, A](body: F[A]): F[A] =
+    ReactTestUtils2.act(body)
+
+  @inline def act_[F[_]: Async, A](body: => A): F[A] =
+    ReactTestUtils2.act_(body)
+
+  def renderSync[A: Renderable](unmounted: A): Unit =
+    actSync(root.render(unmounted))
+
+  def render[F[_]: Async, A: Renderable](unmounted: A): F[Unit] =
+    act_(root.render(unmounted))
+
+  def unmountSync(): Unit =
+    actSync(root.unmount())
+
+  def unmount[F[_]: Async](): F[Unit] =
+    act_(root.unmount())
 }

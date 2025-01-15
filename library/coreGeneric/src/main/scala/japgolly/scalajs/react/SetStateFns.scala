@@ -11,8 +11,8 @@ final class SetStateFn[F[_], A[_], S](underlyingFn: (Option[S], F[Unit]) => F[Un
   override type WithEffect     [G[_]] = SetStateFn[G, A, S]
   override type WithAsyncEffect[G[_]] = SetStateFn[F, G, S]
 
-  override protected implicit def F = FF
-  override protected implicit def A = AA
+  override protected implicit def F: UnsafeSync[F] = FF
+  override protected implicit def A: Async[A] = AA
 
   override def withEffect[G[_]](implicit G: UnsafeSync[G]) =
     G.subst[F, WithEffect](this)(new SetStateFn(G.transSyncFn2C(underlyingFn)(F))(G, A))(F)
@@ -51,8 +51,8 @@ final class ModStateFn[F[_], A[_], S](underlyingFn: (S => Option[S], F[Unit]) =>
   override type WithEffect     [G[_]] = ModStateFn[G, A, S]
   override type WithAsyncEffect[G[_]] = ModStateFn[F, G, S]
 
-  override protected implicit def F = FF
-  override protected implicit def A = AA
+  override protected implicit def F: UnsafeSync[F] = FF
+  override protected implicit def A: Async[A] = AA
 
   override def withEffect[G[_]](implicit G: UnsafeSync[G]) =
     G.subst[F, WithEffect](this)(new ModStateFn(G.transSyncFn2C(underlyingFn)(F))(G, A))(F)
@@ -94,8 +94,8 @@ final class ModStateWithPropsFn[F[_], A[_], P, S](underlyingFn: ((S, P) => Optio
   override type WithEffect     [G[_]] = ModStateWithPropsFn[G, A, P, S]
   override type WithAsyncEffect[G[_]] = ModStateWithPropsFn[F, G, P, S]
 
-  override protected implicit def F = FF
-  override protected implicit def A = AA
+  override protected implicit def F: UnsafeSync[F] = FF
+  override protected implicit def A: Async[A] = AA
 
   override def withEffect[G[_]](implicit G: UnsafeSync[G]) =
     G.subst[F, WithEffect](this)(new ModStateWithPropsFn(G.transSyncFn2C(underlyingFn)(F))(G, A))(F)

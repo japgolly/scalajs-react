@@ -7,10 +7,10 @@ import japgolly.scalajs.react.vdom.html_<^._
 import sourcecode.Line
 import utest._
 
-object RenderableTest extends TestSuite {
+object RenderableTest extends AsyncTestSuite {
 
-  private def test[A: Renderable](source: A, expectHtml: String)(implicit l: Line): Unit =
-    ReactTestUtils2.withRendered(source) { r =>
+  private def test[A: Renderable](source: A, expectHtml: String)(implicit l: Line): AsyncCallback[Unit] =
+    ReactTestUtils2.withRendered_(source) { r =>
       r.outerHTML.assert(expectHtml)
     }
 

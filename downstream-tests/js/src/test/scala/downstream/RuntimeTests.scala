@@ -12,8 +12,9 @@ import scala.scalajs.js
 import scala.scalajs.LinkingInfo.developmentMode
 import scala.util.Try
 import utest._
+import japgolly.scalajs.react.AsyncTestSuite
 
-object RuntimeTests extends TestSuite {
+object RuntimeTests extends AsyncTestSuite {
 
   val compNameAuto      = CompileTimeInfo.sysProp("japgolly.scalajs.react.component.names.implicit")
   val compNameAll       = CompileTimeInfo.sysProp("japgolly.scalajs.react.component.names.all")
@@ -64,45 +65,51 @@ object RuntimeTests extends TestSuite {
       val (promise, completePromise) = JsUtil.newPromise[Unit]()
       val io = IO(completePromise(Try(()))())
 
-      ReactTestUtils2.withRendered(Carrot.Props("1", io).render) { m =>
-        m.root.render(Carrot.Props("1").render)
-        m.root.render(Carrot.Props("2").render)
-      }
-      ReactTestUtils2.withRendered(Pumpkin.Component("1")) { m =>
-        m.root.render(Pumpkin.Component("1"))
-        m.root.render(Pumpkin.Component("2"))
-      }
-
-      assertEq(Globals.carrotMountsA, 1)
-      assertEq(Globals.carrotMountsB, 1)
-      assertEq(Globals.carrotRenders, expectedCarrots)
-      assertEq(Globals.pumpkinRenders, expectedPumpkins)
-
-      AsyncCallback
-        .fromJsPromise(promise)
-        .map(_ => s"carrots: ${Globals.carrotRenders}/3, pumpkins: ${Globals.pumpkinRenders}/3, reusabilityLog: ${Globals.reusabilityLog.length}")
-        .timeoutMs(3000)
-        .map(_.get)
-        .unsafeToFuture()
+      for {
+        _ <- ReactTestUtils2.withRendered(Carrot.Props("1", io).render) { m =>
+          for {
+            _ <- m.root.render(Carrot.Props("1").render)
+            _ <- m.root.render(Carrot.Props("2").render)
+          } yield ()
+        }
+        _ <- ReactTestUtils2.withRendered(Pumpkin.Component("1")) { m =>
+          for {
+            _ <- m.root.render(Pumpkin.Component("1"))
+            _ <- m.root.render(Pumpkin.Component("2"))
+          } yield ()
+        }
+        _ = assertEq(Globals.carrotMountsA, 1)
+        _ = assertEq(Globals.carrotMountsB, 1)
+        _ = assertEq(Globals.carrotRenders, expectedCarrots)
+        _ = assertEq(Globals.pumpkinRenders, expectedPumpkins)
+        _ <-
+          AsyncCallback
+            .fromJsPromise(promise)
+            .map(_ => s"carrots: ${Globals.carrotRenders}/3, pumpkins: ${Globals.pumpkinRenders}/3, reusabilityLog: ${Globals.reusabilityLog.length}")
+            .timeoutMs(3000)
+            .map(_.get)
+      } yield ()
     }
 
     "testWarnings" - {
 
       "react" - {
         val c = ScalaFnComponent[Int](i => <.p(<.td(s"i = $i")))
-        val t = Try(ReactTestUtils2.withRendered(c(123))(_ => ()))
-        assertEq(t.isFailure, testWarningsReact.contains("react"))
+        ReactTestUtils2.withRendered_(c(123))(_ => ()).attemptTry.map { t =>
+          assertEq(t.isFailure, testWarningsReact.contains("react"))
+        }
       }
 
       "unlreated" - {
         val c = ScalaFnComponent[Int](i => <.p(s"i = $i"))
-        val t = Try(ReactTestUtils2.withRendered(c(123)) { _ =>
+        ReactTestUtils2.withRendered_(c(123)) { _ =>
           console.info(".")
           console.log(".")
           console.warn(".")
           console.error(".")
-        })
-        assertEq(t.isFailure, false)
+        }.attemptTry.map { t =>
+          assertEq(t.isFailure, false)
+        }
       }
     }
   }

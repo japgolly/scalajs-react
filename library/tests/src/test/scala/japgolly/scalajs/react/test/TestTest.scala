@@ -7,11 +7,9 @@ import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom
 import org.scalajs.dom.document
 import scala.annotation.nowarn
-import scala.concurrent.Promise
-import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import utest._
 
-object TestTest extends TestSuite {
+object TestTest extends AsyncTestSuite {
 
   lazy val A = ScalaComponent.builder[Unit]("A").render_C(c => <.p(^.cls := "AA", c)).build
   lazy val B = ScalaComponent.builder[Unit]("B").renderStatic(<.p(^.cls := "BB", "hehehe")).build
@@ -47,13 +45,13 @@ object TestTest extends TestSuite {
 
     "withRendered" - {
 
-      "plainElement" - ReactTestUtils2.withRendered(<.div("Good")) { r =>
+      "plainElement" - ReactTestUtils2.withRendered_(<.div("Good")) { r =>
         r.outerHTML.assert("<div>Good</div>")
         r.innerHTML.assert("Good")
         r.root.outerHTML.assert("<div><div>Good</div></div>")
       }
 
-      "scalaComponent" - ReactTestUtils2.withRendered(B()) { r =>
+      "scalaComponent" - ReactTestUtils2.withRendered_(B()) { r =>
         r.outerHTML.assert("""<p class="BB">hehehe</p>""")
         r.innerHTML.assert("""hehehe""")
         r.root.outerHTML.assert("""<div><p class="BB">hehehe</p></div>""")
@@ -66,9 +64,10 @@ object TestTest extends TestSuite {
         ReactTestUtils2.withRendered(IC()) { r =>
           def s = r.querySelector("span")
           val a = s.innerHTML
-          Simulate.click(inputRef.unsafeGet())
-          val b = s.innerHTML
-          assertNotEq(a, b)
+          r.act_(Simulate.click(inputRef.unsafeGet())).map { _ =>
+            val b = s.innerHTML
+            assertNotEq(a, b)
+          }
         }
       }
 
@@ -85,9 +84,10 @@ object TestTest extends TestSuite {
           ReactTestUtils2.withRendered(IDC()) { r =>
             def s = r.querySelector("span")
             val a = s.innerHTML
-            simF(inputRef.unsafeGet())
-            val b = s.innerHTML
-            assertNotEq(a, b)
+            r.act_(simF(inputRef.unsafeGet())).map { _ =>
+              val b = s.innerHTML
+              assertNotEq(a, b)
+            }
           }
         }
 
@@ -171,14 +171,14 @@ object TestTest extends TestSuite {
           <.div(^.onClick ==> onClick)
         }.build
         ReactTestUtils2.withRendered(c()) { r =>
-          Simulate.click(r.node)
-        }
-        assertEq(ok, true)
+          r.actOnNode_(Simulate.click(_))
+        }.map(_ => assertEq(ok, true))
       }
 
       "change" - ReactTestUtils2.withRendered(IT()) { t =>
-        SimEvent.Change("hehe").simulate(t.node)
-        assertEq(t.asInput().value, "HEHE")
+        t.actOnNode_(SimEvent.Change("hehe").simulate(_)).map( _ =>
+          assertEq(t.asInput().value, "HEHE")
+        )
       }
 
       "focusChangeBlur" - {
@@ -189,10 +189,11 @@ object TestTest extends TestSuite {
             e("change") >> T.setState(ev.target.value)
           <.input.text(^.value := T.state, ^.onFocus --> e("focus"), ^.onChange ==> chg, ^.onBlur --> e("blur")).withRef(inputRef)
         }).build
-        ReactTestUtils2.withRendered(C()) { _ =>
-          Simulation.focusChangeBlur("good") run inputRef.unsafeGet()
-          assertEq(events, Vector("focus", "change", "blur"))
-          assertEq(inputRef.unsafeGet().value, "good")
+        ReactTestUtils2.withRendered(C()) { t =>
+          t.act_(Simulation.focusChangeBlur("good") run inputRef.unsafeGet()).map{ _ =>
+            assertEq(events, Vector("focus", "change", "blur"))
+            assertEq(inputRef.unsafeGet().value, "good")
+          }
         }
       }
 
@@ -200,17 +201,18 @@ object TestTest extends TestSuite {
         var count = 0
         def tgt = {
           count += 1
-          t.select("input").node
+          t.select("input").node.get
         }
-        Simulation.focusChangeBlur("-") run tgt
-        assertEq(count, 3)
+        t.act_(Simulation.focusChangeBlur("-") run tgt).map( _ =>
+          assertEq(count, 3)
+        )
       }
     }
 
-    "withRendered" - {
+    "withRendered_" - {
       def inspectBody() = document.body.childElementCount
       val body1 = inspectBody()
-      ReactTestUtils2.withRendered(IC()) { t =>
+      ReactTestUtils2.withRendered_(IC()) { t =>
         t.outerHTML.assertStartsWith("<label><input ")
         assertNotEq(body1, inspectBody())
 
@@ -219,36 +221,22 @@ object TestTest extends TestSuite {
         assert(document.activeElement == inputRef.unsafeGet())
         inputRef.unsafeGet().blur()
         assert(document.activeElement != inputRef.unsafeGet())
-      }
-      assertEq(body1, inspectBody())
-    }
-
-    "withRenderedFuture" - {
-      var r: TestReactRoot = null
-      val promise: Promise[Unit] = Promise[Unit]()
-      val future = ReactTestUtils2.withRendered(IC()).future { t =>
-        r = t.root
-        assertEq(r.isEmpty(), false)
-        t.outerHTML.assertStartsWith("<label><input ")
-        promise.future
-      }
-
-      promise.success(())
-
-      future.map { _ => assertEq(r.isEmpty(), true) }
+      }.map(_ => assertEq(body1, inspectBody()))
     }
 
     "replaceProps" - ReactTestUtils2.withRendered(CP("start")) { d =>
       d.outerHTML.assert("<div>none → start</div>")
-      d.root.render(CP("started"))
-      d.outerHTML.assert("<div>start → started</div>")
-      d.root.render(CP("done!"))
-      d.outerHTML.assert("<div>started → done!</div>")
+      for {
+        _ <- d.root.render(CP("started"))
+        _  = d.outerHTML.assert("<div>start → started</div>")
+        _ <- d.root.render(CP("done!"))
+        _  = d.outerHTML.assert("<div>started → done!</div>")
+      } yield ()
     }
 
     "removeReactInternals" - {
       val c = ScalaComponent.static("")(<.div(<.br, "hello", <.hr))
-      ReactTestUtils2.withRendered(c()) { t =>
+      ReactTestUtils2.withRendered_(c()) { t =>
         // val orig = t.asHtml().outerHTML
         // val after = ReactTestUtils2.removeReactInternals(orig)
         // assertEq("<div><br>hello<hr></div>", after)
@@ -260,10 +248,9 @@ object TestTest extends TestSuite {
     "act" - {
       // Just making sure the facade and types align
       var called = false
-      ReactTestUtils2.act {
+      ReactTestUtils2.act_ {
         called = true
-      }
-      assertEq(called, true)
+      }.map(_ => assertEq(called, true))
     }
 
     // Disabled due to https://github.com/scala-js/scala-js-env-jsdom-nodejs/issues/44

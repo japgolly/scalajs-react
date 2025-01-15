@@ -180,7 +180,7 @@ object React extends React {
 }
 
 @js.native
-trait React extends Hooks with Act {
+trait React extends Hooks with Testing {
   import React._
 
   final def createContext[A](defaultValue: A): React.Context[A] = js.native
