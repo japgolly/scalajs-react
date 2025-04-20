@@ -49,7 +49,7 @@ trait JsBaseComponentTemplate[RawComponent[_ <: js.Object] <: js.Any] {
       override def root = this
       override val raw = rc
       override val ctor = c
-      override implicit def ctorPF = pf
+      override implicit def ctorPF: Profunctor[CT] = pf
       override def mapRaw(f: Raw => Raw) = componentRoot(f(rc), c)(pf)
       override def cmapCtorProps[P2](f: P2 => P) = mappedC(this)(f, identityFn, identityFn, pf)
       override def mapUnmounted[U2](f: U => U2) = mappedC(this)(identityFn, identityFn, f, pf)
@@ -68,7 +68,7 @@ trait JsBaseComponentTemplate[RawComponent[_ <: js.Object] <: js.Any] {
       override def root = from.root
       override val raw = from.raw
       override val ctor = mc(from.ctor).dimap(cp, mu)
-      override implicit def ctorPF = pf
+      override implicit def ctorPF: Profunctor[CT2] = pf
       override def mapRaw(f: Raw => Raw) = mappedC(from.mapRaw(f))(cp, mc, mu, pf)
       override def cmapCtorProps[P3](f: P3 => P2) = mappedC(from)(cp compose f, mc, mu, pf)
       override def mapUnmounted[U3](f: U2 => U3) = mappedC(from)(cp, mc, f compose mu, pf)

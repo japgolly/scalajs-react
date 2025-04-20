@@ -95,7 +95,7 @@ object ImplicitsForVdomNode {
     def toTagMod(f: A => TagMod): TagMod =
       TagMod.fromTraversableOnce(as.iterator.map(f))
 
-    def toVdomArray(f: A => VdomNode): VdomArray =
+    def toVdomArray(implicit f: A => VdomNode): VdomArray =
       VdomArray.empty() ++= as
   }
 }
