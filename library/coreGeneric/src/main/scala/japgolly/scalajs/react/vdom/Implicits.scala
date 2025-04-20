@@ -47,7 +47,7 @@ trait ImplicitsForVdomAttr extends ImplicitsForVdomAttr1 {
 
 object ImplicitsForTagMod {
   final class OptionExt[O[_], A](o: O[A])(implicit O: OptionLike[O]) {
-    def whenDefined(implicit f: A => TagMod): TagMod =
+    def whenDefined(f: A => TagMod): TagMod =
       O.fold(o, TagMod.empty)(f)
   }
 }
@@ -64,11 +64,11 @@ object ImplicitsForVdomNode {
   final class TraversableOnceExt[A](private val as: IterableOnce[A]) extends AnyVal {
 
     /** Like `.mkString(String)` in Scala stdlib. */
-    def mkReactFragment(sep: VdomNode)(implicit f: A => VdomNode): VdomElement =
-      mkReactFragment(VdomNode.empty, sep, VdomNode.empty)
+    def mkReactFragment(sep: VdomNode)(f: A => VdomNode): VdomElement =
+      mkReactFragment(VdomNode.empty, sep, VdomNode.empty)(f)
 
     /** Like `.mkString(String, String, String)` in Scala stdlib. */
-    def mkReactFragment(start: VdomNode, sep: VdomNode, end: VdomNode)(implicit f: A => VdomNode): VdomElement = {
+    def mkReactFragment(start: VdomNode, sep: VdomNode, end: VdomNode)(f: A => VdomNode): VdomElement = {
       val b = List.newBuilder[VdomNode]
       if (start ne VdomNode.empty) b += start
       Util.intercalateInto(b, as.iterator.map(f), sep)
@@ -77,11 +77,11 @@ object ImplicitsForVdomNode {
     }
 
     /** Like `.mkString(String)` in Scala stdlib. */
-    def mkTagMod(sep: TagMod)(implicit f: A => TagMod): TagMod =
-      mkTagMod(VdomNode.empty, sep, VdomNode.empty)
+    def mkTagMod(sep: TagMod)(f: A => TagMod): TagMod =
+      mkTagMod(VdomNode.empty, sep, VdomNode.empty)(f)
 
     /** Like `.mkString(String, String, String)` in Scala stdlib. */
-    def mkTagMod(start: TagMod, sep: TagMod, end: TagMod)(implicit f: A => TagMod): TagMod = {
+    def mkTagMod(start: TagMod, sep: TagMod, end: TagMod)(f: A => TagMod): TagMod = {
       val b = Vector.newBuilder[TagMod]
       if (start ne VdomNode.empty) b += start
       Util.intercalateInto(b, as.iterator.map(f), sep)
@@ -89,13 +89,13 @@ object ImplicitsForVdomNode {
       TagMod.fromTraversableOnce(b.result())
     }
 
-    def toReactFragment(implicit f: A => VdomNode): VdomElement =
+    def toReactFragment(f: A => VdomNode): VdomElement =
       ReactFragment(as.iterator.map(f).toList: _*)
 
-    def toTagMod(implicit f: A => TagMod): TagMod =
+    def toTagMod(f: A => TagMod): TagMod =
       TagMod.fromTraversableOnce(as.iterator.map(f))
 
-    def toVdomArray(implicit f: A => VdomNode): VdomArray =
+    def toVdomArray(f: A => VdomNode): VdomArray =
       VdomArray.empty() ++= as
   }
 }
