@@ -37,7 +37,7 @@ Includes a router, testing utils, performance utils, more.
   - [Other](doc/EXTRA.md)
 - [Testing](doc/TESTING.md)
 - [Live Examples & Demos](https://japgolly.github.io/scalajs-react/)
-- [Changelogs](doc/changelog) — [**v2.1.1** (Latest)](doc/changelog/2.1.1.md)
+- [Changelogs](doc/changelog) — [**v2.1.3** (Latest)](doc/changelog/2.1.3.md)
 
 
 ##### External Resources
