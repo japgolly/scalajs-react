@@ -120,10 +120,14 @@ object HookComponentBuilder {
         step.next(init, f)
 
       override def render(f: Ctx => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
-        ScalaFn.withChildren((p: P, pc: PropsChildren) => f(HookCtx.withChildren(p, pc)))
+        ScalaFn.withChildren((p: P, pc: PropsChildren) => {
+          val h = HookCtx.withChildren(p, pc)
+          init(h)
+          f(h)
+        })
 
       def render(f: (P, PropsChildren) => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs]): Component[P, s.CT] =
-        ScalaFn.withChildren(f)
+        render((ctx: Ctx) => f(ctx.props, ctx.propsChildren))
 
       override def renderWithReuseBy[A](reusableInputs: Ctx => A)(f: A => VdomNode)(implicit s: CtorType.Summoner[Box[P], Children.Varargs], r: Reusability[A]): Component[P, s.CT] =
         customBy(ctx => CustomHook.shouldComponentUpdate(f).apply(() => reusableInputs(ctx)))
