@@ -1288,6 +1288,19 @@ object HooksTest extends TestSuite {
     }
   }
 
+  private def testOnMountWithPropsChildren(): Unit = {
+    var text = "uninitialised"
+    val comp = ScalaFnComponent.withHooks[Unit]
+      .withPropsChildren
+      .useEffectOnMount(Callback { text = "ok" })
+      .render(_.propsChildren)
+
+    test(comp(123)) { t =>
+      assertEq(text, "ok")
+      t.assertText("123")
+    }
+  }
+
   // ===================================================================================================================
 
   override def tests = Tests {
@@ -1316,6 +1329,7 @@ object HooksTest extends TestSuite {
       "depsBy" - testWithDepsBy()
       "mount" - testOnMount()
       "mountBy" - testOnMountBy()
+      "mountWithPropsChildren" - testOnMountWithPropsChildren()
     }
     "useForceUpdate" - testUseForceUpdate()
     "useLayoutEffect" - {
