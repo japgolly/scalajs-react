@@ -24,9 +24,9 @@ friends directly, but if you want your library to be effect-agnostic then follow
 
     ```diff
      libraryDependencies ++= Seq(
-    -  "com.github.japgolly.scalajs-react" %%% "core"                % ScalaJsReactVer,
-    +  "com.github.japgolly.scalajs-react" %%% "core-generic"        % ScalaJsReactVer,
-    +  "com.github.japgolly.scalajs-react" %%% "util-dummy-defaults" % ScalaJsReactVer % Provided,
+    -  "io.github.japgolly.scalajs-react" %%% "core"                % ScalaJsReactVer,
+    +  "io.github.japgolly.scalajs-react" %%% "core-generic"        % ScalaJsReactVer,
+    +  "io.github.japgolly.scalajs-react" %%% "util-dummy-defaults" % ScalaJsReactVer % Provided,
      )
     ```
 
@@ -42,7 +42,7 @@ friends directly, but if you want your library to be effect-agnostic then follow
 
     1. Create `scalafix.sbt` with:
         ```scala
-        ThisBuild / scalafixDependencies       += "com.github.japgolly.scalajs-react" %% "scalafix" % "2.1.3"
+        ThisBuild / scalafixDependencies       += "io.github.japgolly.scalajs-react" %% "scalafix" % "2.1.3"
         ThisBuild / scalafixScalaBinaryVersion := "2.13"
         ThisBuild / semanticdbEnabled          := true
         ThisBuild / semanticdbVersion          := "4.4.23"

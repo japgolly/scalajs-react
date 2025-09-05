@@ -21,21 +21,21 @@ libraryDependencies ++= Seq(
 
   // Optional extensions for Cats / Cats Effect
   // (Note: these need to come before "core")
-  "com.github.japgolly.scalajs-react" %%% "core-ext-cats"        % ScalaJsReactVer,
-  "com.github.japgolly.scalajs-react" %%% "core-ext-cats_effect" % ScalaJsReactVer,
+  "io.github.japgolly.scalajs-react" %%% "core-ext-cats"        % ScalaJsReactVer,
+  "io.github.japgolly.scalajs-react" %%% "core-ext-cats_effect" % ScalaJsReactVer,
 
   // Mandatory
-  "com.github.japgolly.scalajs-react" %%% "core"                 % ScalaJsReactVer,
+  "io.github.japgolly.scalajs-react" %%% "core"                 % ScalaJsReactVer,
 
   // Optional utils exclusive to scalajs-react
-  "com.github.japgolly.scalajs-react" %%% "extra"                % ScalaJsReactVer,
+  "io.github.japgolly.scalajs-react" %%% "extra"                % ScalaJsReactVer,
 
   // Optional extensions to `core` & `extra` for Monocle
-  "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle2"   % ScalaJsReactVer,
-  "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3"   % ScalaJsReactVer,
+  "io.github.japgolly.scalajs-react" %%% "extra-ext-monocle2"   % ScalaJsReactVer,
+  "io.github.japgolly.scalajs-react" %%% "extra-ext-monocle3"   % ScalaJsReactVer,
 
   // For unit tests
-  "com.github.japgolly.scalajs-react" %%% "test"                 % ScalaJsReactVer % Test,
+  "io.github.japgolly.scalajs-react" %%% "test"                 % ScalaJsReactVer % Test,
 )
 ```
 
@@ -76,22 +76,22 @@ libraryDependencies ++= Seq(
 
   // Optionally include scalajs-react Callback classes
   // (Note: these need to come before "core-bundle-cats_effect")
-  "com.github.japgolly.scalajs-react" %%% "callback"                 % ScalaJsReactVer,
-  "com.github.japgolly.scalajs-react" %%% "callback-ext-cats"        % ScalaJsReactVer,
-  "com.github.japgolly.scalajs-react" %%% "callback-ext-cats_effect" % ScalaJsReactVer,
+  "io.github.japgolly.scalajs-react" %%% "callback"                 % ScalaJsReactVer,
+  "io.github.japgolly.scalajs-react" %%% "callback-ext-cats"        % ScalaJsReactVer,
+  "io.github.japgolly.scalajs-react" %%% "callback-ext-cats_effect" % ScalaJsReactVer,
 
   // Mandatory
-  "com.github.japgolly.scalajs-react" %%% "core-bundle-cats_effect"  % ScalaJsReactVer,
+  "io.github.japgolly.scalajs-react" %%% "core-bundle-cats_effect"  % ScalaJsReactVer,
 
   // Optional utils exclusive to scalajs-react
-  "com.github.japgolly.scalajs-react" %%% "extra"                    % ScalaJsReactVer,
+  "io.github.japgolly.scalajs-react" %%% "extra"                    % ScalaJsReactVer,
 
   // Optional extensions to `core` & `extra` for Monocle
-  "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle2"       % ScalaJsReactVer,
-  "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3"       % ScalaJsReactVer,
+  "io.github.japgolly.scalajs-react" %%% "extra-ext-monocle2"       % ScalaJsReactVer,
+  "io.github.japgolly.scalajs-react" %%% "extra-ext-monocle3"       % ScalaJsReactVer,
 
   // For unit tests
-  "com.github.japgolly.scalajs-react" %%% "test"                     % ScalaJsReactVer % Test,
+  "io.github.japgolly.scalajs-react" %%% "test"                     % ScalaJsReactVer % Test,
 )
 ```
 

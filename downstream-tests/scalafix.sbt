@@ -16,5 +16,5 @@ ThisBuild / scalafixScalaBinaryVersion := "2.13"
 
 ThisBuild / scalafixDependencies += {
   val ver = version.value.stripSuffix("-SNAPSHOT") + "-SNAPSHOT"
-  "com.github.japgolly.scalajs-react" %% "scalafix" % ver
+  "io.github.japgolly.scalajs-react" %% "scalafix" % ver
 }

@@ -3,7 +3,7 @@ import org.scalajs.linker.interface._
 import Dependencies._
 import Lib._
 
-ThisBuild / organization := "com.github.japgolly.scalajs-react-test"
+ThisBuild / organization := "io.github.japgolly.scalajs-react-test"
 ThisBuild / shellPrompt  := ((s: State) => Project.extract(s).currentRef.project + "> ")
 
 def scalacCommonFlags: Seq[String] = Seq(
@@ -151,10 +151,10 @@ lazy val js = project
     libraryDependencies ++= {
       val ver = version.value
       Seq(
-        "com.github.japgolly.scalajs-react" %%% "core" % ver,
-        "com.github.japgolly.scalajs-react" %%% "core-ext-cats_effect" % ver,
-        "com.github.japgolly.scalajs-react" %%% "extra" % ver,
-        "com.github.japgolly.scalajs-react" %%% "test" % ver % Test,
+        "io.github.japgolly.scalajs-react" %%% "core" % ver,
+        "io.github.japgolly.scalajs-react" %%% "core-ext-cats_effect" % ver,
+        "io.github.japgolly.scalajs-react" %%% "extra" % ver,
+        "io.github.japgolly.scalajs-react" %%% "test" % ver % Test,
         Dep.microlibsCompileTime.value % Test,
         Dep.microlibsTestUtil.value % Test,
         Dep.scalaJsJavaTime.value % Test,
@@ -178,9 +178,9 @@ lazy val jsCE = project
     libraryDependencies ++= {
       val ver = version.value
       Seq(
-        "com.github.japgolly.scalajs-react" %%% "core-bundle-cats_effect" % ver,
-        "com.github.japgolly.scalajs-react" %%% "extra" % ver,
-        "com.github.japgolly.scalajs-react" %%% "test" % ver % Test,
+        "io.github.japgolly.scalajs-react" %%% "core-bundle-cats_effect" % ver,
+        "io.github.japgolly.scalajs-react" %%% "extra" % ver,
+        "io.github.japgolly.scalajs-react" %%% "test" % ver % Test,
         Dep.microlibsCompileTime.value % Test,
         Dep.microlibsTestUtil.value % Test,
         Dep.scalaJsJavaTime.value % Test,
@@ -199,9 +199,9 @@ lazy val jsCBIO = project
     libraryDependencies ++= {
       val ver = version.value
       Seq(
-        "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io" % ver,
-        "com.github.japgolly.scalajs-react" %%% "extra" % ver,
-        "com.github.japgolly.scalajs-react" %%% "test" % ver % Test,
+        "io.github.japgolly.scalajs-react" %%% "core-bundle-cb_io" % ver,
+        "io.github.japgolly.scalajs-react" %%% "extra" % ver,
+        "io.github.japgolly.scalajs-react" %%% "test" % ver % Test,
         Dep.microlibsCompileTime.value % Test,
         Dep.microlibsTestUtil.value % Test,
         Dep.scalaJsJavaTime.value % Test,
@@ -218,8 +218,8 @@ lazy val generic = project
     libraryDependencies ++= {
       val ver = version.value
       Seq(
-        "com.github.japgolly.scalajs-react" %%% "core-generic" % ver,
-        "com.github.japgolly.scalajs-react" %%% "util-dummy-defaults" % ver % Provided,
+        "io.github.japgolly.scalajs-react" %%% "core-generic" % ver,
+        "io.github.japgolly.scalajs-react" %%% "util-dummy-defaults" % ver % Provided,
       )
     },
   )
