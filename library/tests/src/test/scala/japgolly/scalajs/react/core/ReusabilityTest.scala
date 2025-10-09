@@ -280,22 +280,22 @@ object ReusabilityTest extends TestSuite {
       val logSink = new LogSink
 
       "nonReusable" - {
-        Reusability.never.logNonReusable(log = logSink.log).test(0, 0)
+        Reusability.never[Int].logNonReusable(log = logSink.log).test(0, 0)
         assertEq(logSink.messages, List("Non-reusability:\n- 0\n- 0"))
       }
 
       "reusable" - {
-        Reusability.always.logNonReusable(log = logSink.log).test(0, 0)
+        Reusability.always[Int].logNonReusable(log = logSink.log).test(0, 0)
         assertEq(logSink.messages, List.empty)
       }
 
       "formatting" - {
-        Reusability.never.logNonReusable(log = logSink.log, fmt = (_, x, y) => s"$x, $y").test(0, 0)
+        Reusability.never[Int].logNonReusable(log = logSink.log, fmt = (_, x, y) => s"$x, $y").test(0, 0)
         assertEq(logSink.messages, List("0, 0"))
       }
 
       "title" - {
-        Reusability.never.logNonReusable(log = logSink.log, title = "Sidebar:").test(0, 0)
+        Reusability.never[Int].logNonReusable(log = logSink.log, title = "Sidebar:").test(0, 0)
         assertEq(logSink.messages, List("Sidebar:\n- 0\n- 0"))
       }
 

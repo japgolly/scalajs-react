@@ -3,9 +3,7 @@ package japgolly.scalajs.react.internal
 import japgolly.scalajs.react.callback._
 import japgolly.scalajs.react.util.Trampoline
 import japgolly.scalajs.react.{ReactEventTypes, Reusability, Reusable}
-import scala.annotation.nowarn
 
-@nowarn("cat=unused")
 trait ReactCallbackExtensions {
   import ReactCallbackExtensions._
 

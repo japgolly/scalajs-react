@@ -8,7 +8,6 @@ import japgolly.scalajs.react.util.Effect._
 import japgolly.scalajs.react.util.Semigroup
 import japgolly.scalajs.react.vdom.VdomNode
 import japgolly.scalajs.react.{Children, CtorType, PropsChildren, UpdateSnapshot, facade}
-import scala.annotation.nowarn
 
 object ComponentBuilder {
   import Lifecycle._
@@ -499,7 +498,6 @@ object ComponentBuilder {
       * This use case is not common, but it may occur in UIs like a chat thread that need to handle scroll position in a
       * special way.
       */
-    @nowarn("cat=unused")
     def getSnapshotBeforeUpdate[G[_], SS](f: GetSnapshotBeforeUpdate[P, S, B] => G[SS])
                                          (implicit ev: UpdateSnapshot.SafetyProof[US], G: Sync[G]): LastStep[P, C, S, B, UpdateSnapshot.Some[SS]] =
       setLC[UpdateSnapshot.Some[SS]](lifecycle.resetSnapshot(None, Some(DS.transSyncFn1(f))))

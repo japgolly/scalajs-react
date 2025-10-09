@@ -3,7 +3,6 @@ package japgolly.scalajs.react
 import japgolly.scalajs.react.CtorType._
 import japgolly.scalajs.react.internal.FacadeExports.Key
 import japgolly.scalajs.react.internal._
-import scala.annotation.nowarn
 import scala.scalajs.js
 
 /** Describes how a component uses `.props.children`. */
@@ -263,7 +262,6 @@ object CtorType {
           facade.React.createElement[P](rc, p, formatChildren(c): _*)
         }, noMod))
 
-    @nowarn("cat=unused")
     implicit def summonPC[P <: js.Object](implicit w: Singleton.Not[P]): Summoner.Aux[P, ChildrenArg.Varargs, PropsAndChildren] =
       Summoner[P, ChildrenArg.Varargs, PropsAndChildren](rc =>
         new PropsAndChildren[P, facade.React.ComponentElement[P]]((p, mm, c) => {
@@ -271,7 +269,6 @@ object CtorType {
           facade.React.createElement[P](rc, p2, formatChildren(c): _*)
         }, noMod))
 
-    @nowarn("cat=unused")
     implicit def summonP[P <: js.Object](implicit w: Singleton.Not[P]): Summoner.Aux[P, ChildrenArg.None, Props] =
       Summoner[P, ChildrenArg.None, Props](rc =>
         new Props[P, facade.React.ComponentElement[P]]((p, mm) => {
@@ -292,4 +289,3 @@ object CtorType {
         c.map(_.rawNode)
   }
 }
-
