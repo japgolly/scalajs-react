@@ -33,7 +33,11 @@ dryrun=
 # dryrun=-n
 
 # See how much memory is available
-free -h
+if [ "$(uname)" == "Darwin" ]; then # https://apple.stackexchange.com/a/94258
+  vm_stat | perl -ne '/page size of (\d+)/ and $size=$1; /Pages\s+([^:]+)[^\d]+(\d+)/ and printf("%-16s % 16.2f Mi\n", "$1:", $2 * $size / 1048576);'
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+  free -h
+fi
 echo
 
 # Test upstream
