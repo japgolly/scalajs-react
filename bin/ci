@@ -40,6 +40,12 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 fi
 echo
 
+# Show versions
+java -version
+echo
+echo "Node $(node --version)"
+echo
+
 # Test upstream
 rm -rf */target/scala-*/{,test-}classes
 cmd=(
