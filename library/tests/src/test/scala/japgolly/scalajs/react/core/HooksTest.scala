@@ -262,7 +262,7 @@ object HooksTest extends AsyncTestSuite {
       } yield (x, s)
     val _ : Int => HookResult[(Int, String)] = hook(_)
 
-    val comp = 
+    val comp =
       ScalaFnComponent.withDisplayName("WithCustomHooks")[PI](p => hook(p.pi).map(_.toString))
 
     assertEq(comp.displayName, "WithCustomHooks")
@@ -271,7 +271,7 @@ object HooksTest extends AsyncTestSuite {
     }.map(_ =>
       assertEq(ints.values, Vector(3, 30, 100))
     )
-  }  
+  }
 
   private def testLazyVal(): Unit = {
     val counter = new Counter
@@ -421,7 +421,7 @@ object HooksTest extends AsyncTestSuite {
         c1 <- useCallback(counter.incCB(9))
         c2 <- useCallback((i: Int) => counter.incCB(i))
         s  <- useState(0)
-      } yield 
+      } yield
         <.div(
           "S=", counter.value,
           ", R1=", ReusableCallbackComponent(c1),
@@ -923,7 +923,7 @@ object HooksTest extends AsyncTestSuite {
       test(comp()) { t =>
         assertEq(state(), "103:0")
         t.clickButton().map(_ => assertEq(state(), "206:2"))
-      }.map(_ => 
+      }.map(_ =>
         assertEq(state(), "206:4")
       )
     }
@@ -941,7 +941,7 @@ object HooksTest extends AsyncTestSuite {
       test(comp()) { t =>
         assertEq(state(), "101:0")
         t.clickButton().map(_ => assertEq(state(), "203:100"))
-      }.map(_ => 
+      }.map(_ =>
         assertEq(state(), "203:201")
       )
     }
@@ -960,7 +960,7 @@ object HooksTest extends AsyncTestSuite {
       test(comp()) { t =>
         assertEq(state(), "103:0")
         t.clickButton().map(_ => assertEq(state(), "103:0"))
-      }.map(_ => 
+      }.map(_ =>
         assertEq(state(), "103:2")
       )
     }
@@ -978,7 +978,7 @@ object HooksTest extends AsyncTestSuite {
       test(comp()) { t =>
         assertEq(state(), "101:0")
         t.clickButton().map(_ => assertEq(state(), "101:0"))
-      }.map(_ => 
+      }.map(_ =>
         assertEq(state(), "101:100")
       )
     }
@@ -1015,7 +1015,7 @@ object HooksTest extends AsyncTestSuite {
           _ <- t.clickButton()
           _  = assertEq(state(), "223:12")
         } yield ()
-      }.map(_ => 
+      }.map(_ =>
         assertEq(state(), "223:23")
       )
     }
@@ -1060,7 +1060,7 @@ object HooksTest extends AsyncTestSuite {
           _ <- t.clickButton()
           _  = assertEq(state(), "700)3540:2070") // s'=600, d'=60, s=700, d=70
         } yield ()
-      }.map(_ => 
+      }.map(_ =>
         assertEq(state(), "700)3540:3140") // +1000 +0 +70
       )
     }
@@ -1086,7 +1086,7 @@ object HooksTest extends AsyncTestSuite {
 
       test_(comp()) { _ =>
         assertEq(state(), "103:0")
-      }.map(_ => 
+      }.map(_ =>
         assertEq(state(), "103:2")
       )
     }
@@ -1105,12 +1105,12 @@ object HooksTest extends AsyncTestSuite {
           s <- useState(321)
         } yield <.button(^.onClick --> s.modState(_ + 1))
       )
-      
+
 
       test(comp()) { t =>
         assertEq(state(), "103:0")
         t.clickButton().map(_ => assertEq(state(), "206:2"))
-      }.map(_ => 
+      }.map(_ =>
         assertEq(state(), "206:4")
       )
     }
@@ -1130,7 +1130,7 @@ object HooksTest extends AsyncTestSuite {
       test(comp()) { t =>
         assertEq(state(), "101:0")
         t.clickButton().map(_ => assertEq(state(), "101:0"))
-      }.map(_ => 
+      }.map(_ =>
         assertEq(state(), "101:100")
       )
     }
@@ -1177,36 +1177,36 @@ object HooksTest extends AsyncTestSuite {
           _ <- t.clickButton()
           _  = assertEq(state(), "700)3540:2070") // s'=600, d'=60, s=700, d=70
         } yield ()
-      }.map(_ => 
+      }.map(_ =>
         assertEq(state(), "700)3540:3140") // +1000 +0 +70
       )
     }
-  }  
+  }
 
   private object UseEffectMonadic extends UseEffectHub {
-    protected def X_useEffect[A](effect: A)(implicit a: UseEffectArg[A]): HookResult[Unit] = 
+    protected def X_useEffect[A](effect: A)(implicit a: UseEffectArg[A]): HookResult[Unit] =
       useEffect(effect)
-    protected def X_useEffectOnMount[A](effect: A)(implicit a: UseEffectArg[A]): HookResult[Unit] = 
+    protected def X_useEffectOnMount[A](effect: A)(implicit a: UseEffectArg[A]): HookResult[Unit] =
       useEffectOnMount(effect)
-    protected def X_useEffectWithDeps[D, A](deps: => D)(effect: D => A)(implicit a: UseEffectArg[A], r: Reusability[D]): HookResult[Unit] = 
+    protected def X_useEffectWithDeps[D, A](deps: => D)(effect: D => A)(implicit a: UseEffectArg[A], r: Reusability[D]): HookResult[Unit] =
       useEffectWithDeps(deps)(effect)
   }
 
   private object UseLayoutEffectMonadic extends UseEffectHub {
-    protected def X_useEffect[A](effect: A)(implicit a: UseEffectArg[A]): HookResult[Unit] = 
+    protected def X_useEffect[A](effect: A)(implicit a: UseEffectArg[A]): HookResult[Unit] =
       useLayoutEffect(effect)
-    protected def X_useEffectOnMount[A](effect: A)(implicit a: UseEffectArg[A]): HookResult[Unit] = 
+    protected def X_useEffectOnMount[A](effect: A)(implicit a: UseEffectArg[A]): HookResult[Unit] =
       useLayoutEffectOnMount(effect)
-    protected def X_useEffectWithDeps[D, A](deps: => D)(effect: D => A)(implicit a: UseEffectArg[A], r: Reusability[D]): HookResult[Unit] = 
+    protected def X_useEffectWithDeps[D, A](deps: => D)(effect: D => A)(implicit a: UseEffectArg[A], r: Reusability[D]): HookResult[Unit] =
       useLayoutEffectWithDeps(deps)(effect)
   }
 
   private object UseInsertionEffectMonadic extends UseEffectHub {
-    protected def X_useEffect[A](effect: A)(implicit a: UseEffectArg[A]): HookResult[Unit] = 
+    protected def X_useEffect[A](effect: A)(implicit a: UseEffectArg[A]): HookResult[Unit] =
       useInsertionEffect(effect)
-    protected def X_useEffectOnMount[A](effect: A)(implicit a: UseEffectArg[A]): HookResult[Unit] = 
+    protected def X_useEffectOnMount[A](effect: A)(implicit a: UseEffectArg[A]): HookResult[Unit] =
       useInsertionEffectOnMount(effect)
-    protected def X_useEffectWithDeps[D, A](deps: => D)(effect: D => A)(implicit a: UseEffectArg[A], r: Reusability[D]): HookResult[Unit] = 
+    protected def X_useEffectWithDeps[D, A](deps: => D)(effect: D => A)(implicit a: UseEffectArg[A], r: Reusability[D]): HookResult[Unit] =
       useInsertionEffectWithDeps(deps)(effect)
   }
 
@@ -1439,7 +1439,7 @@ object HooksTest extends AsyncTestSuite {
         _  = t.assertText("S2=2, S3=6, C1=1, C2=2, C3=1")
       } yield ()
     }
-  }  
+  }
 
   private def testUseId(): Unit = {
     val comp = ScalaFnComponent.withHooks[Unit]
@@ -1467,14 +1467,14 @@ object HooksTest extends AsyncTestSuite {
       .useState(false)
       .render { (_, transition, state) =>
         <.button(
-          ^.onClick --> transition.startTransition(state.modState(!_)), 
+          ^.onClick --> transition.startTransition(state.modState(!_)),
           state.value.toString()
         )
       }
-        
+
     test(comp()) { t =>
       assertEq(t.getText, "false")
-      t.clickButton().map(_ => 
+      t.clickButton().map(_ =>
         assertEq(t.getText, "true")
       )
     }
@@ -1487,14 +1487,14 @@ object HooksTest extends AsyncTestSuite {
         state      <- useState(false)
       } yield
         <.button(
-          ^.onClick --> transition.startTransition(state.modState(!_)), 
+          ^.onClick --> transition.startTransition(state.modState(!_)),
           state.value.toString()
         )
    }
-        
+
     test(comp()) { t =>
       assertEq(t.getText, "false")
-      t.clickButton().map(_ => 
+      t.clickButton().map(_ =>
         assertEq(t.getText, "true")
       )
     }
@@ -1584,7 +1584,7 @@ object HooksTest extends AsyncTestSuite {
         _  = t.assertText("6:10")
       } yield ()
     }
-  }  
+  }
 
   private def testUseRefVdom(): Unit = {
     var text = "uninitialised"
@@ -1659,7 +1659,7 @@ object HooksTest extends AsyncTestSuite {
         _  = assertEq(text, "hehe")
       } yield ()
     }
-  }  
+  }
 
   private def testUseReducer(): Unit = {
     def add(n: Int): (Int, Int) => Int = _ + _ + n
@@ -1715,7 +1715,7 @@ object HooksTest extends AsyncTestSuite {
         _  = t.assertText("P=PI(666), s1=101, s2=877, s3=1733") // +101+100
       } yield ()
     }
-  }  
+  }
 
   private def testUseState(): Unit = {
     val comp = ScalaFnComponent.withHooks[PI]
@@ -2208,7 +2208,7 @@ object HooksTest extends AsyncTestSuite {
         )
       }
     }
-      
+
 
     test(comp(PI(666))) { t =>
       t.assertText("P=PI(666), S1=100:1, S2=766:1, S3=1532:1")
@@ -2347,7 +2347,7 @@ object HooksTest extends AsyncTestSuite {
         _  = t.assertText("P=PI(666), S1=2:2, S2=-766:2, S3=15322:4, S4=350:3")
       } yield ()
     }
-  }  
+  }
 
   private def testRenderWithReuse(): Unit = {
     implicit val reusability: Reusability[PI] = Reusability.by[PI, Int](_.pi >> 1)
@@ -2371,7 +2371,7 @@ object HooksTest extends AsyncTestSuite {
     testWithRoot(wrapper(PI(3))) { (r, t) =>
       t.assertText("P=PI(3), S=20, ES=5, R=1")
       for {
-        _ <- r.render(wrapper(PI(2)))  
+        _ <- r.render(wrapper(PI(2)))
         _  = t.assertText("P=PI(3), S=20, ES=5, R=1")
         _ <- t.clickButton(1)
         _  = t.assertText("P=PI(2), S=21, ES=5, R=2")
@@ -2394,7 +2394,7 @@ object HooksTest extends AsyncTestSuite {
     var renders = 0
     var extState = 5
 
-    val inner = 
+    val inner =
       React.memo(
         ScalaFnComponent[(PI, Hooks.UseState[Int], Reusable[Callback], Reusable[Callback])] { case (p, s, incES, fu) =>
           renders += 1
@@ -2411,7 +2411,7 @@ object HooksTest extends AsyncTestSuite {
         s <- useState(20)
         incES <- useCallback(Callback(extState += 1))
         fu <- useForceUpdate
-      } yield 
+      } yield
         inner((p, s, incES, fu))
     }
 
@@ -2420,7 +2420,7 @@ object HooksTest extends AsyncTestSuite {
     testWithRoot(wrapper(PI(3))) { (r, t) =>
       t.assertText("P=PI(3), S=20, ES=5, R=1")
       for {
-        _ <- r.render(wrapper(PI(2)))  
+        _ <- r.render(wrapper(PI(2)))
         _  = t.assertText("P=PI(3), S=20, ES=5, R=1")
         _ <- t.clickButton(1)
         _  = t.assertText("P=PI(2), S=21, ES=5, R=2")
@@ -2435,7 +2435,7 @@ object HooksTest extends AsyncTestSuite {
         _ <- r.render(wrapper(PI(5)))
         _  = t.assertText("P=PI(4), S=21, ES=6, R=4")
       } yield ()
-    }    
+    }
   }
 
   // See https://github.com/japgolly/scalajs-react/issues/1027
@@ -2533,7 +2533,7 @@ object HooksTest extends AsyncTestSuite {
   }
 
   private def testUseReused(): Unit = {
-    implicit val reusePIByRounding: Reusability[PI] = Reusability.by(_.pi / 2) 
+    implicit val reusePIByRounding: Reusability[PI] = Reusability.by(_.pi / 2)
 
     val comp = ScalaFnComponent[Unit] { _ =>
       for {
@@ -2556,7 +2556,7 @@ object HooksTest extends AsyncTestSuite {
         _  = t.assertText("count=PI(2), stable=PI(2), rev=2")
       } yield ()
     }
-  }  
+  }
 
   private def testFromFunction() = {
     val jsHook1: js.Function1[Int, Int] = _ + 1
@@ -2617,10 +2617,10 @@ object HooksTest extends AsyncTestSuite {
 
       testWithRoot(comp()) { (r, t) =>
         t.assertText("i=0")
-        r.act(store.inc(true).asAsyncCallback).map(_ => 
+        r.act(store.inc(true).asAsyncCallback).map(_ =>
           t.assertText("i=1")
         )
-      }.map{ _ => 
+      }.map{ _ =>
         assert(store.peekListener(true).isEmpty)
         assert(store.peekListener(false).isEmpty)
       }
@@ -2638,10 +2638,10 @@ object HooksTest extends AsyncTestSuite {
 
       testWithRoot(comp(false)) { (r, t) =>
         t.assertText("i=0")
-        r.act(store.inc(false).asAsyncCallback).map(_ => 
+        r.act(store.inc(false).asAsyncCallback).map(_ =>
           t.assertText("i=1")
         )
-      }.map{ _ => 
+      }.map{ _ =>
         assert(store.peekListener(true).isEmpty)
         assert(store.peekListener(false).isEmpty)
       }
@@ -2658,10 +2658,10 @@ object HooksTest extends AsyncTestSuite {
 
       testWithRoot(comp()) { (r, t) =>
         t.assertText("i=0")
-        r.act(store.inc(true).asAsyncCallback).map(_ => 
+        r.act(store.inc(true).asAsyncCallback).map(_ =>
           t.assertText("i=1")
         )
-      }.map{_ => 
+      }.map{_ =>
         assert(store.peekListener(true).isEmpty)
         assert(store.peekListener(false).isEmpty)
       }
@@ -2684,7 +2684,7 @@ object HooksTest extends AsyncTestSuite {
 
       test(comp()) { t =>
         t.clickButton()
-      }.map(_ => 
+      }.map(_ =>
         assertEq(renders, List((0, 0, false), (1, 0, true), (1, 1, false)))
       )
     }
@@ -2728,9 +2728,22 @@ object HooksTest extends AsyncTestSuite {
 
       test(comp()) { t =>
         t.clickButton()
-      }.map(_ => 
+      }.map(_ =>
         assertEq(renders, List((0, 0, false), (1, 0, true), (1, 1, false)))
       )
+    }
+  }
+
+  private def testOnMountWithPropsChildren(): Unit = {
+    var text = "uninitialised"
+    val comp = ScalaFnComponent.withHooks[Unit]
+      .withPropsChildren
+      .useEffectOnMount(Callback { text = "ok" })
+      .render(_.propsChildren)
+
+    test_(comp(123)) { t =>
+      assertEq(text, "ok")
+      t.assertText("123")
     }
   }
 
@@ -2769,6 +2782,7 @@ object HooksTest extends AsyncTestSuite {
       "depsBy" - testWithDepsBy()
       "mount" - testOnMount()
       "mountBy" - testOnMountBy()
+      "mountWithPropsChildren" - testOnMountWithPropsChildren()
     }
     "useEffect (monadic)" - {
       import UseEffectMonadic._
@@ -2828,7 +2842,7 @@ object HooksTest extends AsyncTestSuite {
     "useRef (monadic)" - {
       "manual" - testMonadicUseRefManual()
       "vdom" - testMonadicUseRefVdom()
-    }    
+    }
     "useReducer" - testUseReducer()
     "useReducer (monadic)" - testMonadicUseReducer()
     "useState" - {
@@ -2844,7 +2858,7 @@ object HooksTest extends AsyncTestSuite {
         "set" - testMonadicUseStateSetStateReusability()
         "mod" - testMonadicUseStateModStateReusability()
       }
-    }    
+    }
     "useStateWithReuse" - {
       "state" - testUseStateWithReuse()
       "reusability" - {

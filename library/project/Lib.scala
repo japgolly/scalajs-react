@@ -5,7 +5,6 @@ import com.jsuereth.sbtpgp.PgpKeys._
 import org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
-import xerial.sbt.Sonatype.autoImport._
 import Dependencies._
 
 object Lib {

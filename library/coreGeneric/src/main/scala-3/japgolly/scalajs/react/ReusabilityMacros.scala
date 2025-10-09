@@ -188,7 +188,7 @@ object ReusabilityMacros {
       var set = Set.empty[String]
       for (e <- es)
         if set.contains(e)
-        then quotes.reflect.report.throwError(s"Duplicate field specified: \"$e\"")
+        then quotes.reflect.report.errorAndAbort(s"Duplicate field specified: \"$e\"")
         else set += e
       new FieldExclusions(set)
     }
@@ -219,7 +219,7 @@ object ReusabilityMacros {
           then s"Specified field ${fs.head} doesn't exist."
           else s"Specified fields ${fs.mkString(", ")} don't exist."
         val err = s"Failed to derive a Reusability instance for ${Type.show[A]}: $subErr"
-        quotes.reflect.report.throwError(err)
+        quotes.reflect.report.errorAndAbort(err)
       }
   }
 
