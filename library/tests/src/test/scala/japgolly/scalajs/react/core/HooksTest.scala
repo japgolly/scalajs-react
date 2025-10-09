@@ -2734,6 +2734,19 @@ object HooksTest extends AsyncTestSuite {
     }
   }
 
+  private def testOnMountWithPropsChildren(): Unit = {
+    var text = "uninitialised"
+    val comp = ScalaFnComponent.withHooks[Unit]
+      .withPropsChildren
+      .useEffectOnMount(Callback { text = "ok" })
+      .render(_.propsChildren)
+
+    test(comp(123)) { t =>
+      assertEq(text, "ok")
+      t.assertText("123")
+    }
+  }
+
   // ===================================================================================================================
 
   override def tests = Tests {
@@ -2769,6 +2782,7 @@ object HooksTest extends AsyncTestSuite {
       "depsBy" - testWithDepsBy()
       "mount" - testOnMount()
       "mountBy" - testOnMountBy()
+      "mountWithPropsChildren" - testOnMountWithPropsChildren()
     }
     "useEffect (monadic)" - {
       import UseEffectMonadic._
