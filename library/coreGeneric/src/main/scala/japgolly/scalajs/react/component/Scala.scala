@@ -73,15 +73,15 @@ object Scala {
     new Template.MountedWithRoot[Id, DefaultA, P, S]()(UnsafeSync.id, DefaultA)
         with MountedRoot[Id, DefaultA, P, S, B] {
 
-      override implicit def F    = UnsafeSync.id
-      override implicit def A    = DefaultA
-      override def root          = this
-      override val js            = x
-      override val raw           = x.raw
-      override def props         = x.props.unbox
-      override def propsChildren = x.propsChildren
-      override def state         = x.state.unbox
-      override def getDOMNode    = x.getDOMNode
+      override implicit def F: UnsafeSync[Id]  = UnsafeSync.id
+      override implicit def A: Async[DefaultA] = DefaultA
+      override def root                        = this
+      override val js                          = x
+      override val raw                         = x.raw
+      override def props                       = x.props.unbox
+      override def propsChildren               = x.propsChildren
+      override def state                       = x.state.unbox
+      override def getDOMNode                  = x.getDOMNode
 
       override def setState[G[_]](newState: S, callback: => G[Unit])(implicit G: Dispatch[G]) =
         x.setState(Box(newState), callback)

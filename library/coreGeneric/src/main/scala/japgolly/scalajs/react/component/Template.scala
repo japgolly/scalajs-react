@@ -50,12 +50,12 @@ object Template {
     override type WithMappedProps[P3]    = Mapped[F, A, P3, S2]
     override type WithMappedState[S3]    = Mapped[F, A, P2, S3]
 
-    override implicit def F    = ft
-    override implicit def A    = at
-    override def getDOMNode    = ft.transSync(from.getDOMNode)
-    override def propsChildren = ft.transSync(from.propsChildren)
-    override def props         = ft.transSync[Id, P2](mp(from.props))
-    override def state         = ft.transSync[Id, S2](ls.get(from.state))
+    override implicit def F: UnsafeSync[F] = ft
+    override implicit def A: Async[A]      = at
+    override def getDOMNode                = ft.transSync(from.getDOMNode)
+    override def propsChildren             = ft.transSync(from.propsChildren)
+    override def props                     = ft.transSync[Id, P2](mp(from.props))
+    override def state                     = ft.transSync[Id, S2](ls.get(from.state))
 
     override def forceUpdate[G[_]](callback: => G[Unit])(implicit G: Dispatch[G]) =
       ft.transSync(from.forceUpdate(callback))

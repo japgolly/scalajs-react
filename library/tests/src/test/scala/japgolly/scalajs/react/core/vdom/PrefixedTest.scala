@@ -153,7 +153,7 @@ object PrefixedTest extends TestSuite {
     "optional" - {
       "option" - {
         def some[A](a: A): Option[A] = Some(a)
-        @nowarn("cat=unused") def none[A](a: A): Option[A] = None
+        def none[A](a: A): Option[A] = None
         "attr_some"    - test(<.div(^.cls   :=? some("hi")       ), """<div class="hi"></div>""")
         "attr_none"    - test(<.div(^.cls   :=? none("h1")       ), """<div></div>""")
         "style_some"   - test(<.div(^.color :=? some("red")      ), """<div style="color:red"></div>""")

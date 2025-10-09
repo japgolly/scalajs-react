@@ -5,7 +5,6 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.router
 import japgolly.scalajs.react.test.ReactTestUtils2.removeReactInternals
 import java.util.regex.Pattern
-import scala.annotation.nowarn
 import scala.reflect.ClassTag
 import scala.scalajs.js
 import sourcecode.Line
@@ -151,7 +150,6 @@ trait TestUtil
     err
   }
 
-  @nowarn("cat=unused")
   def assertCompiles[A](a: => A): Unit = ()
 }
 

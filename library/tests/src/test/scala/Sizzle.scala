@@ -1,12 +1,10 @@
 package sizzle
 
-import scala.annotation.nowarn
 import scala.scalajs.js
 import scala.scalajs.js.annotation._
 
 @JSGlobal
 @js.native
-@nowarn("cat=unused")
 object Sizzle extends js.Object {
 
   type DOM    = org.scalajs.dom.Element

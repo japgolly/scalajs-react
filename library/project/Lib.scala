@@ -29,6 +29,7 @@ object Lib {
   def scalac2Flags = Seq(
     "-opt:l:inline",
     "-opt-inline-from:japgolly.scalajs.react.**",
+    "-Wconf:cat=lint-infer-any&msg=kind-polymorphic:s", // https://github.com/scala/bug/issues/13128
     "-Wunused:explicits",                            // Warn if an explicit parameter is unused.
     "-Wunused:implicits",                            // Warn if an implicit parameter is unused.
     "-Wunused:imports",                              // Warn if an import selector is not referenced.

@@ -2,9 +2,7 @@ package ghpages.examples
 
 import ghpages.GhPagesMacros
 import ghpages.examples.util.SideBySide
-import scala.annotation.nowarn
 
-@nowarn("cat=unused")
 object HooksExample {
 
   val jsSource =

@@ -358,7 +358,7 @@ object RouterP2Test extends TestSuite {
       }
 
       "overloads" - {
-        @nowarn("cat=unused") def test(f: RoutingRule[Int, Unit] => Any): Unit = ()
+        def test(f: RoutingRule[Int, Unit] => Any): Unit = ()
 
         "c"  - test(_.addCondition(CallbackTo(true)))
         "ca" - test(_.addConditionWithFallback(CallbackTo(true), RedirectToPath[Int](null, null)))
