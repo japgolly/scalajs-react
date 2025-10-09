@@ -46,6 +46,13 @@ echo
 echo "Node $(node --version)"
 echo
 
+# Configure jsdom
+cmd=(npm install)
+echo "> $(printf "%s\n    " "${cmd[@]}")"
+[[ $dryrun == "-n" ]] || "${cmd[@]}"
+npm -g list
+npm list
+
 # Test upstream
 rm -rf */target/scala-*/{,test-}classes
 cmd=(
