@@ -20,9 +20,11 @@ jobs:
         include:
           - java: 18.0.1
             scala: 2
+            node: 24.10.0
           - java: 11.0.15
             scala: 3
-    name: Scala v${{ matrix.scala }} / Java v${{ matrix.java }}
+            node: 16.20.2
+    name: Scala v${{ matrix.scala }} / Java v${{ matrix.java }} / Node v${{ matrix.node }}
     steps:
 
       - name: Git checkout
@@ -34,6 +36,7 @@ jobs:
         uses: japgolly/setup-everything-scala@v3.1
         with:
           java-version: adoptium@1.${{ matrix.java }}
+          node-version: ${{ matrix.node }}
 
       - name: Build and test
         shell: bash
