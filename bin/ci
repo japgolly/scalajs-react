@@ -33,8 +33,25 @@ dryrun=
 # dryrun=-n
 
 # See how much memory is available
-free -h
+if [ "$(uname)" == "Darwin" ]; then # https://apple.stackexchange.com/a/94258
+  vm_stat | perl -ne '/page size of (\d+)/ and $size=$1; /Pages\s+([^:]+)[^\d]+(\d+)/ and printf("%-16s % 16.2f Mi\n", "$1:", $2 * $size / 1048576);'
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+  free -h
+fi
 echo
+
+# Show versions
+java -version
+echo
+echo "Node $(node --version)"
+echo
+
+# Configure jsdom
+cmd=(npm install)
+echo "> $(printf "%s\n    " "${cmd[@]}")"
+[[ $dryrun == "-n" ]] || "${cmd[@]}"
+npm -g list
+npm list
 
 # Test upstream
 rm -rf */target/scala-*/{,test-}classes
