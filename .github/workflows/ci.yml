@@ -23,7 +23,7 @@ jobs:
             node: 24.10.0
           - java: 11.0.15
             scala: 3
-            node: 16.20.2
+            node: 18.20.8
     name: Scala v${{ matrix.scala }} / Java v${{ matrix.java }} / Node v${{ matrix.node }}
     steps:
 
@@ -36,6 +36,7 @@ jobs:
         uses: japgolly/setup-everything-scala@v3.1
         with:
           java-version: adoptium@1.${{ matrix.java }}
+          jsdom-version: 26.1.0
           node-version: ${{ matrix.node }}
 
       - name: Build and test
