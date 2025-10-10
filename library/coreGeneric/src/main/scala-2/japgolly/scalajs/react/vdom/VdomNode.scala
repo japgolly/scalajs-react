@@ -10,10 +10,11 @@ trait VdomNode extends TagMod {
   override def applyTo(b: VdomBuilder): Unit =
     b.appendChild(rawNode)
 
-  @deprecated("Use ReactDOM.createRoot and root.render instead", "2.2.0 / React v18")
+  @deprecated("Use ReactDOMClient.createRoot and root.render instead", "2.2.0 / React v18")
   @inline final def renderIntoDOM(container: facade.ReactDOM.Container): facade.React.ComponentUntyped =
     facade.ReactDOM.render(rawNode, container)
 
+  @deprecated("Use ReactDOMClient.createRoot and root.render instead", "2.2.0 / React v18")
   @inline final def renderIntoDOM[G[_]](container: facade.ReactDOM.Container, callback: => G[Unit])(implicit G: Dispatch[G]): facade.React.ComponentUntyped =
     facade.ReactDOM.render(rawNode, container, G.dispatchFn(callback))
 }

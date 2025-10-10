@@ -12,20 +12,22 @@ object ReactDOM extends ReactDOM
 @js.native
 trait ReactDOM extends js.Object {
 
-  final type Container          = dom.Element | dom.Document | dom.DocumentFragment
+  final type Container = dom.Element | dom.Document | dom.DocumentFragment
 
   val version: String = js.native
 
-  @deprecated("Use createRoot instead", "2.2.0 / React v18")
+  @deprecated("Use createRoot and root.render instead", "2.2.0 / React v18")
   final def render(element: React.Node, container: Container): React.ComponentUntyped = js.native
 
+  @deprecated("Use createRoot and root.render instead", "2.2.0 / React v18")
   final def render(element  : React.Node,
                    container: Container,
                    callback : js.Function0[Any]): React.ComponentUntyped = js.native
 
-   @deprecated("Use hydrateRoot instead", "2.2.0 / React v18")
+  @deprecated("Use hydrateRoot instead", "2.2.0 / React v18")
   final def hydrate(element: React.Node, container: Container): React.ComponentUntyped = js.native
 
+  @deprecated("Use hydrateRoot instead", "2.2.0 / React v18")
   final def hydrate(element  : React.Node,
                     container: Container,
                     callback : js.Function0[Any]): React.ComponentUntyped = js.native
