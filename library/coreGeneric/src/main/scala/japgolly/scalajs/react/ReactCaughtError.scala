@@ -19,7 +19,11 @@ final case class ReactCaughtError(rawError: js.Any, rawInfo: facade.React.ErrorI
     try "" + rawError catch {case _: Throwable => ""}
 
   @inline def componentStack: String =
-    rawInfo.componentStack
+    rawInfo.componentStack.getOrElse("")
+
+  /** @since 2.2.0 / React 18 */
+  @inline def digest: String =
+    rawInfo.digest.getOrElse("")
 
   def dynError: js.Dynamic =
     rawError.asInstanceOf[js.Dynamic]
