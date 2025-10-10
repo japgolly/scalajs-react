@@ -4,6 +4,7 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
+import scala.scalajs.js
 import sourcecode.Line
 import utest._
 
@@ -22,10 +23,15 @@ object ScalaFnComponentTest extends TestSuite {
 
   val JustChildren = ScalaFnComponent.justChildren(c => <.h4(c))
 
+  val JsUndefOrProps = ScalaFnComponent[js.UndefOr[Int]](i => i)
+
   val c1 = <.i("good")
   val c2 = "222"
 
   override def tests = Tests {
+    "jsDef" - assertRender(JsUndefOrProps(3), "3")
+    "jsUndef" - assertRender(JsUndefOrProps(()), "")
+
     "int"          - assertRender(IntProps(7),                "<code>7² = 49</code>")
     "caseClass"    - assertRender(CaseClassProps(Add(11, 8)), "<code>11 + 8 = 19</code>")
     "withChild"    - assertRender(WithChildren(3)(c1),        "<div>i=3<i>good</i></div>")
