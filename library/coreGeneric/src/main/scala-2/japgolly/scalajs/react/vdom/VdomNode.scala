@@ -36,7 +36,6 @@ object VdomNode {
 }
 
 trait VdomNodeScalaSpecificImplicits {
-  // I have no idea why I don't need to prevent Unit or Boolean here, but the tests say its fine /shrug
   @inline implicit def vdomNodeFromRawReactNode(v: facade.React.Node): VdomNode =
     VdomNode(v)
 }

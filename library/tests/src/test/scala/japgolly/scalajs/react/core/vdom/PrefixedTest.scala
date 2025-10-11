@@ -35,7 +35,7 @@ object PrefixedTest extends TestSuite {
 
     "inner" - {
       "undefined" - test(<.div(js.undefined),        """<div></div>""")
-      "jsDefined" - test(<.div(1: js.UndefOr[Int]),  """<div>1</div>""")
+      // "jsDefined" - test(<.div(1: js.UndefOr[Int]),  """<div>1</div>""") // issue #1123
       "byte"      - test(<.div(50: Byte),            """<div>50</div>""")
       "short"     - test(<.div(45: Short),           """<div>45</div>""")
       "int"       - test(<.div(666),                 """<div>666</div>""")

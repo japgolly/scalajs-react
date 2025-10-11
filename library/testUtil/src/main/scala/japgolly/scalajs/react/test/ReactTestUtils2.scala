@@ -95,7 +95,7 @@ trait ReactTestUtils2 extends japgolly.scalajs.react.test.internal.ReactTestUtil
     cont
   }
 
-  def newReactRoot(container: facade.ReactDOMClient.RootContainer): TestReactRoot =
+  def newReactRoot(container: japgolly.scalajs.react.facade.ReactDOMClient.RootContainer): TestReactRoot =
     TestReactRoot(container)
 
   def removeElement(e: Element): Unit =
