@@ -97,7 +97,10 @@ object StateSnapshotZoomTest extends TestSuite {
 
         def render(state: X): VdomElement = {
           val ss = setStateFn(state)
-          Middle.Props("Demo", ss).render
+          <.div(
+            <.aside(state.toString),
+            Middle.Props("Demo", ss).render,
+          )
         }
       }
 
@@ -112,31 +115,30 @@ object StateSnapshotZoomTest extends TestSuite {
 
     def counts() = (Middle.renders, intRenders, strRenders)
 
-    ReactTestUtils.withNewBodyElement { mountNode =>
-      val mounted = Top.Comp().renderIntoDOM(mountNode)
-      def dom() = mounted.getDOMNode.asMounted().asElement()
+    ReactTestUtils2.withRenderedSync(Top.Comp()) { t =>
+      def dom() = t.asElement()
       def intDom() = dom().querySelector("span")
       def strDom() = dom().querySelector("strong")
-      def values() = mounted.state -> counts()
+      def values() = counts()
 
-      assertOuterHTML(dom(), "<div><h3>Demo</h3><span>0</span><strong>yo</strong></div>")
-      assertEq(values(), X(0, "yo") -> (1, 1, 1))
-
-      Simulate click intDom()
-      assertOuterHTML(dom(), "<div><h3>Demo</h3><span>1</span><strong>yo</strong></div>")
-      assertEq(values(), X(1, "yo") -> (2, 2, 1)) // notice that StrComp didn't re-render
-
-      Simulate click strDom()
-      assertOuterHTML(dom(), "<div><h3>Demo</h3><span>1</span><strong>yo!</strong></div>")
-      assertEq(values(), X(1, "yo!") -> (3, 2, 2)) // notice that IntComp didn't re-render
+      assertOuterHTML(dom(), "<div><aside>X(0,yo)</aside><div><h3>Demo</h3><span>0</span><strong>yo</strong></div></div>")
+      assertEq(values(), (1, 1, 1))
 
       Simulate click intDom()
-      assertOuterHTML(dom(), "<div><h3>Demo</h3><span>2</span><strong>yo!</strong></div>")
-      assertEq(values(), X(2, "yo!") -> (4, 3, 2)) // notice that StrComp didn't re-render
+      assertOuterHTML(dom(), "<div><aside>X(1,yo)</aside><div><h3>Demo</h3><span>1</span><strong>yo</strong></div></div>")
+      assertEq(values(), (2, 2, 1)) // notice that StrComp didn't re-render
 
       Simulate click strDom()
-      assertOuterHTML(dom(), "<div><h3>Demo</h3><span>2</span><strong>yo!!</strong></div>")
-      assertEq(values(), X(2, "yo!!") -> (5, 3, 3)) // notice that IntComp didn't re-render
+      assertOuterHTML(dom(), "<div><aside>X(1,yo!)</aside><div><h3>Demo</h3><span>1</span><strong>yo!</strong></div></div>")
+      assertEq(values(), (3, 2, 2)) // notice that IntComp didn't re-render
+
+      Simulate click intDom()
+      assertOuterHTML(dom(), "<div><aside>X(2,yo!)</aside><div><h3>Demo</h3><span>2</span><strong>yo!</strong></div></div>")
+      assertEq(values(), (4, 3, 2)) // notice that StrComp didn't re-render
+
+      Simulate click strDom()
+      assertOuterHTML(dom(), "<div><aside>X(2,yo!!)</aside><div><h3>Demo</h3><span>2</span><strong>yo!!</strong></div></div>")
+      assertEq(values(), (5, 3, 3)) // notice that IntComp didn't re-render
     }
 
   } // testReZoomWithReuse

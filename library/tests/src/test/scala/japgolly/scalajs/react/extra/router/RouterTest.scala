@@ -87,46 +87,43 @@ object RouterTest extends TestSuite {
 
   // -------------------------------------------------------------------------------------------------------------------
 
-  private def testSim() = {
+  private def testSim(): Unit = {
     import MyPage.{Root, Hello, Greet, QueryParamPage}
     val base = RouterTestHelp.localBaseUrl_/
     val router = Router(base, MyPage.config.logToConsole)
-    val c = ReactTestUtils.renderIntoDocument(router())
-    def node = c.getDOMNode.asMounted().asElement()
-    def html = node.outerHTML
+    ReactTestUtils2.withElementSync { container =>
+      ReactTestUtils2.actSync(ReactDOMClient.createRoot(container).render(router()))
+      def html = container.outerHTML
 
-    def testView(routeSuffix: String, p: MyPage): Unit = {
-      val h = html
-      assertEq(window.location.href, base.+(routeSuffix).value)
-      assertMaybeContains(h, "Router Demo",  p == Root)
-      assertMaybeContains(h, """>Back<""",   p != Root)
-      assertMaybeContains(h, "Hello there",  p == Hello)
-      assertMaybeContains(h, "your name is", p match {case Greet(_) => true; case _ => false})
-    }
-    def assertRoot()         = testView("",          Root)
-    def assertRouteHello()   = testView("/hello",    Hello)
-    def assertRouteNameBob() = testView("/name/bob", Greet("bob"))
+      def testView(routeSuffix: String, p: MyPage): Unit = {
+        val h = html
+        assertEq(window.location.href, base.+(routeSuffix).value)
+        assertMaybeContains(h, "Router Demo",  p == Root)
+        assertMaybeContains(h, """>Back<""",   p != Root)
+        assertMaybeContains(h, "Hello there",  p == Hello)
+        assertMaybeContains(h, "your name is", p match {case Greet(_) => true; case _ => false})
+      }
+      def assertRoot()         = testView("",          Root)
+      def assertRouteHello()   = testView("/hello",    Hello)
+      def assertRouteNameBob() = testView("/name/bob", Greet("bob"))
 
-    def assertRouteQueryParam() = testView("/queryParams?a=123&b=456&c=Hello+bob%21",
-      QueryParamPage(Map("a" -> "123", "b" -> "456", "c"-> "Hello bob!")))
+      def assertRouteQueryParam() = testView("/queryParams?a=123&b=456&c=Hello+bob%21",
+        QueryParamPage(Map("a" -> "123", "b" -> "456", "c"-> "Hello bob!")))
 
-    def click(css: String): Unit = {
-      Simulation.click run Sizzle(css, node).sole()
-    }
-    def clickBack()       = click("a.back")
-    def clickHello()      = click("a.hello")
-    def clickNameBob()    = click("a.n1")
-    def clickQueryParam() = click("a.queryParam")
+      def click(css: String): Unit = {
+        Simulation.click run Sizzle(css, container).sole()
+      }
+      def clickBack()       = click("a.back")
+      def clickHello()      = click("a.hello")
+      def clickNameBob()    = click("a.n1")
+      def clickQueryParam() = click("a.queryParam")
 
-    try {
       assertRoot()
       clickHello();      assertRouteHello()
       clickBack();       assertRoot()
       clickNameBob();    assertRouteNameBob()
       clickBack();       assertRoot()
       clickQueryParam(); assertRouteQueryParam()
-    } finally {
-      ReactDOM unmountComponentAtNode node
     }
   }
 
