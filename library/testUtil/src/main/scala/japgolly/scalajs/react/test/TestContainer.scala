@@ -25,8 +25,11 @@ trait TestContainer extends TestDom {
 
   def container: mainFacade.ReactDOM.Container
 
-  final def node: Option[dom.Node] =
-    Some(fold(identity, identity, identity))
+  final def asNode: dom.Node =
+    fold(identity, identity, identity)
+
+  override final def node: Some[dom.Node] =
+    Some(asNode)
 
   def fold[A](onElement         : dom.Element          => A,
               onDocument        : dom.Document         => A,

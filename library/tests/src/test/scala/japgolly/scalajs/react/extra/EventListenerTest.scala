@@ -1,8 +1,7 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.test.ReactTestUtils
-import japgolly.scalajs.react.test.TestUtil._
+import japgolly.scalajs.react.test.ReactTestUtils2
 import japgolly.scalajs.react.vdom.html_<^._
 import org.scalajs.dom._
 import utest._
@@ -17,20 +16,21 @@ object EventListenerTest extends TestSuite {
     .build
 
   override def tests = Tests {
-    val c = ReactTestUtils.renderIntoDocument(C())
+    ReactTestUtils2.withRenderedSync(C()) { t =>
 
-    def dispatch(name: String) = {
-      val args: EventInit = new EventInit{}
-      args.bubbles = true
-      args.cancelable = true
-      val e = new Event(name, args)
-      c.getDOMNode.asMounted().asElement() dispatchEvent e
+      def dispatch(name: String) = {
+        val args: EventInit = new EventInit{}
+        args.bubbles = true
+        args.cancelable = true
+        val e = new Event(name, args)
+        ReactTestUtils2.actSync(t.asElement() dispatchEvent e)
+      }
+
+      t.outerHTML.assert("<div>Hit 0 times</div>")
+      dispatch("xx")
+      t.outerHTML.assert("<div>Hit 0 times</div>")
+      dispatch("hello")
+      t.outerHTML.assert("<div>Hit 1 times</div>")
     }
-
-    assertEq(c.state, 0)
-    dispatch("xx")
-    assertEq(c.state, 0)
-    dispatch("hello")
-    assertEq(c.state, 1)
   }
 }
