@@ -1,5 +1,6 @@
 package japgolly.scalajs.react
 
+import japgolly.scalajs.react.util.Effect.Sync
 import scala.scalajs.js
 
 /** Classes for specifying options for React. */
@@ -9,6 +10,10 @@ object ReactOptions {
   final case class CreateRoot(identifierPrefix  : js.UndefOr[String]       = js.undefined,
                               onRecoverableError: ReactCaughtError => Unit = null,
                              ) { self =>
+
+    def withOnRecoverableError[F[_]](f: ReactCaughtError => F[Unit])(implicit F: Sync[F]): CreateRoot =
+      copy(onRecoverableError = e => F.runSync(f(e)))
+
     def raw(): facade.CreateRootOptions = {
       val o = js.Dynamic.literal().asInstanceOf[facade.CreateRootOptions]
       o.identifierPrefix   = self.identifierPrefix
@@ -21,6 +26,10 @@ object ReactOptions {
   final case class HydrateRoot(identifierPrefix  : js.UndefOr[String]       = js.undefined,
                                onRecoverableError: ReactCaughtError => Unit = null,
                              ) { self =>
+
+    def withOnRecoverableError[F[_]](f: ReactCaughtError => F[Unit])(implicit F: Sync[F]): HydrateRoot =
+      copy(onRecoverableError = e => F.runSync(f(e)))
+
     def raw(): facade.HydrateRootOptions = {
       val o = js.Dynamic.literal().asInstanceOf[facade.HydrateRootOptions]
       o.identifierPrefix   = self.identifierPrefix
