@@ -17,7 +17,8 @@ object LinkingTest {
 
     test {
       ScalaComponent.builder[Int]("")
-        .renderBackend[B2]
+        .backend(new B2(_))
+        .render(_.backend.render)
         .configure(Reusability.shouldComponentUpdateAndLog("omg"))
         .configure(Reusability.shouldComponentUpdateAnd(_.log("omg")))
         .configure(ReusabilityOverlay.install)

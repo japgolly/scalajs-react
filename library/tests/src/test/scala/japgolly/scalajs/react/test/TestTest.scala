@@ -37,7 +37,7 @@ object TestTest extends AsyncTestSuite {
   @nowarn("cat=deprecation")
   val CP = ScalaComponent.builder[String]("asd")
     .backend(_ => new CP)
-    .renderBackend
+    .renderP(_.backend.render(_))
     .componentWillReceiveProps(i => Callback(i.backend.prev = i.currentProps))
     .build
 

@@ -42,7 +42,8 @@ object ReusabilityTest extends TestSuite {
 
     val outerComponent = ScalaComponent.builder[M]("Demo")
       .initialStateFromProps(identity)
-      .renderBackend[Backend]
+      .backend(new Backend(_))
+      .renderS(_.backend.render(_))
       .build
 
     class Backend($: BackendScope[M, M]) {

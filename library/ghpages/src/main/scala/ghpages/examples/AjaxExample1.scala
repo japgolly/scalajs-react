@@ -127,7 +127,8 @@ object AjaxExample1 {
 
   val Main = ScalaComponent.builder[Unit]
     .initialState(State(None, None))
-    .renderBackend[Backend]
+    .backend(new Backend(_))
+    .renderS(_.backend.render(_))
     .build
 
   // EXAMPLE:END

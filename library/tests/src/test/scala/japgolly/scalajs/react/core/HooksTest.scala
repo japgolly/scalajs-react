@@ -71,7 +71,8 @@ object HooksTest extends AsyncTestSuite {
   }
   private val ReusableSetIntComponent =
     ScalaComponent.builder[Reusable[Int => Callback]]
-      .renderBackend[ReusableSetIntComponent]
+      .backend(_ => new ReusableSetIntComponent)
+      .renderP(_.backend.render(_))
       .configure(Reusability.shouldComponentUpdate)
       .build
 
@@ -87,7 +88,8 @@ object HooksTest extends AsyncTestSuite {
   }
   private val ReusableModIntComponent =
     ScalaComponent.builder[Reusable[(Int => Int) => Callback]]
-      .renderBackend[ReusableModIntComponent]
+      .backend(_ => new ReusableModIntComponent)
+      .renderP(_.backend.render(_))
       .configure(Reusability.shouldComponentUpdate)
       .build
 
@@ -100,7 +102,8 @@ object HooksTest extends AsyncTestSuite {
   }
   private val ReusableCallbackComponent =
     ScalaComponent.builder[Reusable[Callback]]
-      .renderBackend[ReusableCallbackComponent]
+      .backend(_ => new ReusableCallbackComponent)
+      .renderP(_.backend.render(_))
       .configure(Reusability.shouldComponentUpdate)
       .build
 
@@ -116,7 +119,8 @@ object HooksTest extends AsyncTestSuite {
   }
   private val ReusableStateSnapshotComponent =
     ScalaComponent.builder[StateSnapshot[Int]]
-      .renderBackend[ReusableStateSnapshotComponent]
+      .backend(_ => new ReusableStateSnapshotComponent)
+      .renderP(_.backend.render(_))
       .configure(Reusability.shouldComponentUpdate)
       .build
 

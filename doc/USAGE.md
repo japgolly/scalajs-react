@@ -119,15 +119,9 @@ object MyComponent {
 
 3. _(Optional)_ If you want a backend (explained below) for your component
    (and you do for non-trivial components), call `.backend`.
-   If your backend has a `.render` function, instead of `.backend` here you can call `.renderBackend`
-   which will use a macro to instantiate your backend, and automatically choose the
-   appropriate `.render` function in the next step, bypassing it for you.
 
 4. Choose from one of the many available `render` functions.
    Use your IDE to see the methods and the differences in their type signatures.
-   Alternatively, if you (for whatever reason) manually created a backend in the previous step
-   and your backend has a `render` function, you can call `.renderBackend` here to have the
-   builder automatically select the appropriate `render` function.
 
 5. _(Optional)_ Type in the name of one of the React lifecycle hooks (eg. `componentDidMount`)
    to add that hook to your component.
@@ -173,59 +167,6 @@ emphasises type-safety and provides different types for the component's scope at
 Instead they should be placed in some arbitrary class you may provide, called a _backend_.
 
 See the [online timer demo](http://japgolly.github.io/scalajs-react/#examples/timer) for an example.
-
-As mentioned above, for the extremely common case of having a backend class with a `render` method,
-the builder comes with a `.renderBackend` method.
-It will locate the `render` method, determine what the arguments need (props/state/propsChildren) by examining the
-types or the arg names when the types are ambiguous, and create the appropriate function at compile-time.
-If can also automate the creation of the backend, see below.
-
-Example before: _(yuk!)_
-
-```scala
-type State = Vector[String]
-
-class Backend(bs: BackendScope[Unit, State]) {
-  def render: VdomElement = {
-    val s = bs.state.runNow()  // yuk!! .runNow() is unsafe
-    <.div(
-      <.div(s.length, " items found:"),
-      <.ol(s.toTagMod(i => <.li(i))))
-  }
-}
-
-val Example = ScalaComponent.builder[Unit]
-  .initialState(Vector("hello", "world"))
-  .backend(new Backend(_))
-  .render(_.backend.render)
-  .build
-```
-
-After:
-
-```scala
-class Backend(bs: BackendScope[Unit, State]) {
-  def render(s: State): VdomElement = // ← Accept props, state and/or propsChildren as argument
-    <.div(
-      <.div(s.length, " items found:"),
-      <.ol(s.toTagMod(i => <.li(i))))
-}
-
-val Example = ScalaComponent.builder[Unit]
-  .initialState(Vector("hello", "world"))
-  .renderBackend[Backend]  // ← Use Backend class and backend.render
-  .build
-```
-
-You can also create a backend yourself and still use `.renderBackend`:
-
-```scala
-val Example = ScalaComponent.builder[Unit]
-  .initialState(Vector("hello", "world"))
-  .backend(new Backend(_)) // ← Fine! Do it yourself!
-  .renderBackend           // ← Use backend.render
-  .build
-```
 
 # Using Components
 

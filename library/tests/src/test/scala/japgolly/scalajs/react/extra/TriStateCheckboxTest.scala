@@ -25,7 +25,8 @@ object TriStateCheckboxTest extends TestSuite {
 
     val Component = ScalaComponent.builder[Unit]
       .initialState(0)
-      .renderBackend[Backend]
+      .backend(new Backend(_))
+      .renderS(_.backend.render(_))
       .build
 
     def test() = {

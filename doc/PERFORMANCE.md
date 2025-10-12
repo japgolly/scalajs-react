@@ -298,7 +298,8 @@ type PersonData = String
 
 val topComponent = ScalaComponent.builder[State]("Demo")
   .initialStateFromProps(identity)
-  .renderBackend[Backend]
+  .backend(new Backend(_))
+  .renderS(_.backend.render(_))
   .build
 
 class Backend(bs: BackendScope[_, State]) {
@@ -415,7 +416,8 @@ class Backend(bs: BackendScope[State, State]) {
 
 val topComponent = ScalaComponent.builder[State]("Demo")
   .initialState_P(identity)
-  .renderBackend[Backend]
+  .backend(new Backend(_))
+  .renderS(_.backend.render(_))
   .build
 
 lazy val stringEditor = ScalaComponent.builder[StateSnapshot[String]]("StringEditor")

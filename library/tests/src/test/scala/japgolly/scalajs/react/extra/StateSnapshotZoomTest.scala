@@ -81,7 +81,8 @@ object StateSnapshotZoomTest extends TestSuite {
       }
 
       val Comp = ScalaComponent.builder[Props]("")
-        .renderBackend[Backend]
+        .backend(new Backend(_))
+        .renderP(_.backend.render(_))
         .configure(Reusability.shouldComponentUpdate)
         .build
     }
@@ -102,7 +103,8 @@ object StateSnapshotZoomTest extends TestSuite {
 
       val Comp = ScalaComponent.builder[Unit]("")
         .initialState(X(0, "yo"))
-        .renderBackend[Backend]
+        .backend(new Backend(_))
+        .renderS(_.backend.render(_))
         .build
     }
 
