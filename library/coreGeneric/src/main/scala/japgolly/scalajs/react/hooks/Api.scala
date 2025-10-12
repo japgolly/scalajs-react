@@ -339,8 +339,8 @@ object Api {
     final def useLayoutEffectWithDepsBy[D, A](deps: Ctx => D)(effect: Ctx => D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
       customBy(ctx => ReusableEffect.useLayoutEffect(deps(ctx))(effect(ctx)))
 
-    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any 
-      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates 
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any
+      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates
       * scheduled inside useLayoutEffect will be flushed synchronously, before the browser has a chance to paint.
       *
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
@@ -349,12 +349,14 @@ object Api {
       * If you'd only like to execute the effect when certain values have changed, then use [[useInsertionEffectWithDeps]].
       *
       * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
+      *
+      * @since 3.0.0 / React 18.0.0
       */
     final def useInsertionEffect[A](effect: A)(implicit a: UseEffectArg[A], step: Step): step.Self =
       useInsertionEffectBy(_ => effect)
 
-    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any 
-      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates 
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any
+      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates
       * scheduled inside useLayoutEffect will be flushed synchronously, before the browser has a chance to paint.
       *
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
@@ -363,12 +365,14 @@ object Api {
       * If you'd only like to execute the effect when certain values have changed, then use [[useInsertionEffectWithDeps]].
       *
       * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
+      *
+      * @since 3.0.0 / React 18.0.0
       */
     final def useInsertionEffectBy[A](effect: Ctx => A)(implicit a: UseEffectArg[A], step: Step): step.Self =
       self(ctx => UseEffect.unsafeCreateInsertion(effect(ctx)))
 
-    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any 
-      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates 
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any
+      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates
       * scheduled inside useLayoutEffect will be flushed synchronously, before the browser has a chance to paint.
       *
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
@@ -376,12 +380,14 @@ object Api {
       * This will only execute the effect when your component is mounted.
       *
       * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
+      *
+      * @since 3.0.0 / React 18.0.0
       */
     final def useInsertionEffectOnMount[A](effect: A)(implicit a: UseEffectArg[A], step: Step): step.Self =
       useInsertionEffectOnMountBy(_ => effect)
 
-    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any 
-      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates 
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any
+      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates
       * scheduled inside useLayoutEffect will be flushed synchronously, before the browser has a chance to paint.
       *
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
@@ -389,12 +395,14 @@ object Api {
       * This will only execute the effect when your component is mounted.
       *
       * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
+      *
+      * @since 3.0.0 / React 18.0.0
       */
     final def useInsertionEffectOnMountBy[A](effect: Ctx => A)(implicit a: UseEffectArg[A], step: Step): step.Self =
       self(ctx => UseEffect.unsafeCreateInsertionOnMount(effect(ctx)))
 
-    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any 
-      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates 
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any
+      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates
       * scheduled inside useLayoutEffect will be flushed synchronously, before the browser has a chance to paint.
       *
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
@@ -402,12 +410,14 @@ object Api {
       * This will only execute the effect when values in the first argument change.
       *
       * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
+      *
+      * @since 3.0.0 / React 18.0.0
       */
     final def useInsertionEffectWithDeps[D, A](deps: => D)(effect: D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
       custom(ReusableEffect.useInsertionEffect(deps)(effect))
 
-    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any 
-      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates 
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any
+      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates
       * scheduled inside useLayoutEffect will be flushed synchronously, before the browser has a chance to paint.
       *
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
@@ -415,6 +425,8 @@ object Api {
       * This will only execute the effect when values in the first argument change.
       *
       * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
+      *
+      * @since 3.0.0 / React 18.0.0
       */
     final def useInsertionEffectWithDepsBy[D, A](deps: Ctx => D)(effect: Ctx => D => A)(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
       customBy(ctx => ReusableEffect.useInsertionEffect(deps(ctx))(effect(ctx)))
@@ -556,8 +568,10 @@ object Api {
       next(ctx => UseStateWithReuse.unsafeCreate(initialState(ctx)))
 
     /** Generates unique IDs that can be passed to accessibility attributes.
-      * 
+      *
       * @see https://react.dev/reference/react/useId
+      *
+      * @since 3.0.0 / React 18.0.0
       */
     final def useId(implicit step: Step): step.Next[String] =
       customBy(_ => UseId())
@@ -570,50 +584,58 @@ object Api {
       * **If some state update causes a component to suspend, that state update should be wrapped in a transition.**
       *
       * @see {@link https://react.dev/reference/react/useTransition}
+      *
+      * @since 3.0.0 / React 18.0.0
       */
     final def useTransition(implicit step: Step): step.Next[UseTransition] =
       customBy(_ => UseTransition())
 
-    /**
-      * Lets you subscribe to an external store.
+    /** Lets you subscribe to an external store.
       *
       * @see
       *   {@link https://react.dev/reference/react/useSyncExternalStore}
+      *
+      * @since 3.0.0 / React 18.0.0
       */
     @inline final def useSyncExternalStore[F[_], A](subscribe: F[Unit] => F[F[Unit]], getSnapshot: F[A])(implicit F: Sync[F], step: Step): step.Next[A] =
       useSyncExternalStore(subscribe, getSnapshot, js.undefined)
 
-    /**
-      * Lets you subscribe to an external store.
+    /** Lets you subscribe to an external store.
       *
       * @see
       *   {@link https://react.dev/reference/react/useSyncExternalStore}
+      *
+      * @since 3.0.0 / React 18.0.0
       */
     final def useSyncExternalStore[F[_], A](subscribe: F[Unit] => F[F[Unit]], getSnapshot: F[A], getServerSnapshot: js.UndefOr[F[A]])(implicit F: Sync[F], step: Step): step.Next[A] =
       customBy(_ => UseSyncExternalStore(subscribe, getSnapshot, getServerSnapshot))
 
-    /**
-      * Lets you subscribe to an external store.
+    /** Lets you subscribe to an external store.
       *
       * @see
       *   {@link https://react.dev/reference/react/useSyncExternalStore}
+      *
+      * @since 3.0.0 / React 18.0.0
       */
     @inline final def useSyncExternalStoreBy[F[_], A](subscribe: Ctx => F[Unit] => F[F[Unit]], getSnapshot: Ctx => F[A])(implicit F: Sync[F], step: Step): step.Next[A] =
       useSyncExternalStoreBy(subscribe, getSnapshot, js.undefined)
-    /**
-      * Lets you subscribe to an external store.
+
+    /** Lets you subscribe to an external store.
       *
       * @see
       *   {@link https://react.dev/reference/react/useSyncExternalStore}
+      *
+      * @since 3.0.0 / React 18.0.0
       */
     final def useSyncExternalStoreBy[F[_], A](subscribe: Ctx => F[Unit] => F[F[Unit]], getSnapshot: Ctx => F[A], getServerSnapshot: js.UndefOr[Ctx => F[A]])(implicit F: Sync[F], step: Step): step.Next[A] =
       customBy(ctx => UseSyncExternalStore(subscribe(ctx), getSnapshot(ctx), getServerSnapshot.map(_(ctx))))
 
-    /**
-      * Lets you defer updating a part of the UI.
+    /** Lets you defer updating a part of the UI.
       *
       * @see
       *   {@link https://react.dev/reference/react/useDeferredValue}
+      *
+      * @since 3.0.0 / React 18.0.0
       */
     final def useDeferredValue[A](value: Ctx => A)(implicit step: Step): step.Next[A] =
       // initialValue was added in React 19 - Replace when we upgrade to React 19
@@ -773,8 +795,8 @@ object Api {
     final def useLayoutEffectOnMountBy[A](effect: CtxFn[A])(implicit a: UseEffectArg[A], step: Step): step.Self =
       useLayoutEffectOnMountBy(step.squash(effect)(_))
 
-    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any 
-      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates 
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any
+      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates
       * scheduled inside useLayoutEffect will be flushed synchronously, before the browser has a chance to paint.
       *
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
@@ -783,12 +805,14 @@ object Api {
       * If you'd only like to execute the effect when certain values have changed, then use [[useInsertionEffectWithDeps]].
       *
       * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
+      *
+      * @since 3.0.0 / React 18.0.0
       */
     final def useInsertionEffectBy[A](effect: CtxFn[A])(implicit a: UseEffectArg[A], step: Step): step.Self =
       useInsertionEffectBy(step.squash(effect)(_))
 
-    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any 
-      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates 
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any
+      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates
       * scheduled inside useLayoutEffect will be flushed synchronously, before the browser has a chance to paint.
       *
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
@@ -796,12 +820,14 @@ object Api {
       * This will only execute the effect when values in the first argument change.
       *
       * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
+      *
+      * @since 3.0.0 / React 18.0.0
       */
     final def useInsertionEffectWithDepsBy[D, A](deps: CtxFn[D])(effect: CtxFn[D => A])(implicit a: UseEffectArg[A], r: Reusability[D], step: Step): step.Self =
       useInsertionEffectWithDepsBy(step.squash(deps)(_))(step.squash(effect)(_))
 
-    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any 
-      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates 
+    /** The signature is identical to [[useEffect]], but it fires synchronously after all DOM mutations, but before any
+      * layout Effects fire. Use this to insert styles before any Effects fire that may need to read layout. Updates
       * scheduled inside useLayoutEffect will be flushed synchronously, before the browser has a chance to paint.
       *
       * Prefer the standard [[useEffect]] when possible to avoid blocking visual updates.
@@ -809,6 +835,8 @@ object Api {
       * This will only execute the effect when your component is mounted.
       *
       * @see https://react.dev/reference/react/useInsertionEffect#useInsertionEffect
+      *
+      * @since 3.0.0 / React 18.0.0
       */
     final def useInsertionEffectOnMountBy[A](effect: CtxFn[A])(implicit a: UseEffectArg[A], step: Step): step.Self =
       useInsertionEffectOnMountBy(step.squash(effect)(_))
@@ -870,14 +898,19 @@ object Api {
       *
       * @see
       *   {@link https://react.dev/reference/react/useSyncExternalStore}
+      *
+      * @since 3.0.0 / React 18.0.0
       */
     @inline final def useSyncExternalStoreBy[F[_], A](subscribe: CtxFn[F[Unit] => F[F[Unit]]], getSnapshot: CtxFn[F[A]])(implicit F: Sync[F], step: Step): step.Next[A] =
       useSyncExternalStoreBy(subscribe, getSnapshot, js.undefined)
+
     /**
       * Lets you subscribe to an external store.
       *
       * @see
       *   {@link https://react.dev/reference/react/useSyncExternalStore}
+      *
+      * @since 3.0.0 / React 18.0.0
       */
     final def useSyncExternalStoreBy[F[_], A](subscribe: CtxFn[F[Unit] => F[F[Unit]]], getSnapshot: CtxFn[F[A]], getServerSnapshot: js.UndefOr[CtxFn[F[A]]])(implicit F: Sync[F], step: Step): step.Next[A] =
       useSyncExternalStoreBy(ctx => step.squash(subscribe)(ctx), ctx => step.squash(getSnapshot)(ctx), getServerSnapshot.map(f => ctx => step.squash(f)(ctx)))
@@ -887,6 +920,8 @@ object Api {
       *
       * @see
       *   {@link https://react.dev/reference/react/useDeferredValue}
+      *
+      * @since 3.0.0 / React 18.0.0
       */
     @inline final def useDeferredValue[A](value: CtxFn[A])(implicit step: Step): step.Next[A] =
       useDeferredValue(ctx => step.squash(value)(ctx))
