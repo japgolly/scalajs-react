@@ -29,7 +29,7 @@ object TestReactRoot {
   *
   * As an example `testRoot.innerHTML.assert("<div>Welcome</div>")`
   *
-  * @since 2.2.0 / React 18
+  * @since 3.0.0 / React 18
   */
 trait TestReactRoot extends TestContainer {
   override type Self <: TestDomWithRoot
@@ -39,7 +39,7 @@ trait TestReactRoot extends TestContainer {
   @inline def raw =
     root.raw
 
-  def actSync[A](body: => A): A = 
+  def actSync[A](body: => A): A =
     ReactTestUtils2.actSync(body)
 
   def act[F[_]: Async, A](body: F[A]): F[A] =

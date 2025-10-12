@@ -60,7 +60,7 @@ object WithDsl {
   * @tparam A The resource type.
   * @tparam I Type of an implicit value required on resource use.
   *
-  * @since 2.2.0
+  * @since 3.0.0
   */
 trait WithDsl[A, I] { self =>
   import WithDsl._

@@ -19,7 +19,7 @@ object TestContainer {
   *
   * As an example `testContainer.innerHTML.assert("<div>Welcome</div>")`
   *
-  * @since 2.2.0
+  * @since 3.0.0
   */
 trait TestContainer extends TestDom {
 

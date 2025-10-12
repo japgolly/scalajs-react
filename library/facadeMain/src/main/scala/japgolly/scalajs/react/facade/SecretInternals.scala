@@ -5,11 +5,11 @@ import scala.scalajs.js
 @js.native
 trait SecretInternals extends js.Object {
 
-  @deprecated("Removed in React 18", "2.2.0")
+  @deprecated("Removed in React 18", "3.0.0")
   final val SchedulerTracing: SchedulerTracing = js.native
 }
 
-@deprecated("Removed in React 18", "2.2.0")
+@deprecated("Removed in React 18", "3.0.0")
 @js.native
 trait SchedulerTracing extends js.Object {
 

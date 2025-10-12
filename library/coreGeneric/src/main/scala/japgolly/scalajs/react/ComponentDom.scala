@@ -87,7 +87,7 @@ object ComponentDom {
         case n           => throw new RuntimeException(s"Expected a dom.Text; got $n")
       }
 
-    @deprecated("Call .node and pattern match as needed", "2.2.0")
+    @deprecated("Call .node and pattern match as needed", "3.0.0")
     def fold[A](text: dom.Text => A, element: dom.Element => A): A
   }
 
@@ -95,13 +95,13 @@ object ComponentDom {
     override def toElement = Some(element)
     override def node = element
     override def raw = element
-    @deprecated("Call .node and pattern match as needed", "2.2.0")
+    @deprecated("Call .node and pattern match as needed", "3.0.0")
     override def fold[A](text: dom.Text => A, f: dom.Element => A) = f(element)
   }
 
   final case class Node(node: dom.Node) extends Mounted {
     override def raw = node
-    @deprecated("Call .node and pattern match as needed", "2.2.0")
+    @deprecated("Call .node and pattern match as needed", "3.0.0")
     override def fold[A](text: dom.Text => A, element: dom.Element => A) =
       node match {
         case t: dom.Text => text(t)
@@ -109,6 +109,6 @@ object ComponentDom {
       }
   }
 
-  @deprecated("Use Node instead", "2.2.0") type Text = Node
-  @deprecated("Use Node instead", "2.2.0") val  Text = Node
+  @deprecated("Use Node instead", "3.0.0") type Text = Node
+  @deprecated("Use Node instead", "3.0.0") val  Text = Node
 }

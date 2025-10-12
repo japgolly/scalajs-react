@@ -21,7 +21,7 @@ final case class ReactCaughtError(rawError: js.Any, rawInfo: facade.React.ErrorI
   @inline def componentStack: String =
     rawInfo.componentStack.getOrElse("")
 
-  /** @since 2.2.0 / React 18 */
+  /** @since 3.0.0 / React 18 */
   @inline def digest: String =
     rawInfo.digest.getOrElse("")
 

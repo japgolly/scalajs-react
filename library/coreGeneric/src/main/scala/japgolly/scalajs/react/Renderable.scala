@@ -5,7 +5,7 @@ import japgolly.scalajs.react.vdom.VdomNode
 
 /** Typeclass for anything that React can render.
   *
-  * @since v2.2.0 / React 18
+  * @since v3.0.0 / React 18
   */
 @inline final case class Renderable[-A](raw: A => facade.React.Node) extends AnyVal {
   @inline def apply(a: A): facade.React.Node =
