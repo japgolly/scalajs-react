@@ -75,7 +75,7 @@ object Profiler {
                                 baseDurationMs  : Double,
                                 startTime       : Double,
                                 commitTime      : Double,
-                                @deprecated("Removed in React 18", "3.0.0") rawInteractions: js.Iterable[facade.Interaction],
+                                @deprecated("Removed in React 18", "3.0.0") rawInteractions: js.UndefOr[js.Iterable[facade.Interaction]],
                                ) {
 
     def phaseIsMount: Boolean =
@@ -97,13 +97,15 @@ object Profiler {
       */
     @deprecated("Removed in React 18", "3.0.0")
     lazy val interactions: Vector[Interaction] =
-      rawInteractions.iterator.map(Interaction.fromRaw).toVector
+      rawInteractions.fold(Vector.empty[Interaction])(_.iterator.map(Interaction.fromRaw).toVector)
   }
 
+  @deprecated("Removed in React 18", "3.0.0")
   final case class Interaction(id       : Int,
                                name     : String,
                                timestamp: Double)
 
+  @deprecated("Removed in React 18", "3.0.0")
   object Interaction {
     def fromRaw(r: facade.Interaction): Interaction =
       apply(
