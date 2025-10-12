@@ -80,7 +80,8 @@ object CatsEffectExample {
 
   val CounterAndLog = ScalaComponent.builder[Unit]
     .initialState("Ready.")
-    .renderBackend[CounterAndLog]
+    .backend(new CounterAndLog(_))
+    .renderS(_.backend.render(_))
     .build
 
   // What about mounting?

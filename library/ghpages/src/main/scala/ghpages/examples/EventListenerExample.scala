@@ -18,7 +18,8 @@ object EventListenerExample {
 
   val Main = ScalaComponent.builder[Unit]
     .initialState("Local mouseenter events + local/global click events will appear here.")
-    .renderBackend[Backend]
+    .backend(new Backend(_))
+    .renderS(_.backend.render(_))
 
     // Listen to mouseenter events within the component
     .configure(EventListener[MouseEvent].install("mouseenter", _.backend.logMouseEnter))

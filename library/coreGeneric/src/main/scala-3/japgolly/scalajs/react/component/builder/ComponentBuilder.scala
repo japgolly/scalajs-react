@@ -119,11 +119,6 @@ object ComponentBuilder {
     * A backend like a class that is created when your component mounts and remains until it is unmounted.
     *
     * If you don't need a backend, you can skip this step or explicitly use `.noBackend`.
-    *
-    * Making common cases convenient, you can even use `.renderBackend` or `.renderBackendWithChildren` to take care
-    * of both this and the following step automatically, using macros to save you typing boring boilerplate.
-    * If you have an unhealthy fear of macros you can ignore then and do it all manually too; the macros don't have any
-    * special privileges.
     */
   final class Step2[P, S](name: String, initState: InitState[P, S]) {
 
@@ -141,6 +136,7 @@ object ComponentBuilder {
      *   .renderBackend
      * }}}
      */
+    @deprecated("Call .backend(new B(_)) and then .render or one of its variants", "3.0.0")
     inline def renderBackend[B]: LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
       backend(ComponentBuilderMacros.newBackendFn[P, S, B]).renderBackend
 
@@ -152,6 +148,7 @@ object ComponentBuilder {
      *   .renderBackendWithChildren
      * }}}
      */
+    @deprecated("Call .backend(new B(_)) and then .render or one of its variants", "3.0.0")
     inline def renderBackendWithChildren[B]: LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
       backend(ComponentBuilderMacros.newBackendFn[P, S, B]).renderBackendWithChildren
   }
@@ -166,9 +163,6 @@ object ComponentBuilder {
     * manually specify the types for all arguments including stuff you don't need.
     *
     * If you're using a backend, then it's highly recommended that you put your render function in the backend.
-    * When you do that, make sure it's called `.render` and then here in the builder, use the `.renderBackend` or
-    * `.renderBackendWithChildren` methods which will use a macro to inspect your backend's render method and provide
-    * everything it needs automatically.
     */
   final class Step3[P, S, B](name: String, initState: InitState[P, S], backendFn: NewBackendFn[P, S, B]) {
 
@@ -245,6 +239,7 @@ object ComponentBuilder {
      * Use a method named `render` in the backend, automatically populating its arguments with props and state
      * where needed.
      */
+    @deprecated("Call .render or one of its variants", "3.0.0")
     inline def renderBackend: LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
       renderWith(ComponentBuilderMacros.renderBackendFn)
 
@@ -252,6 +247,7 @@ object ComponentBuilder {
      * Use a method named `render` in the backend, automatically populating its arguments with props, state, and
      * propsChildren where needed.
      */
+    @deprecated("Call .render or one of its variants", "3.0.0")
     inline def renderBackendWithChildren: LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
       renderWith(ComponentBuilderMacros.renderBackendWithChildrenFn)
   }

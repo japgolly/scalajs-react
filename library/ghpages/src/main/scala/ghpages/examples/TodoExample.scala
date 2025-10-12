@@ -97,7 +97,8 @@ object TodoExample {
 
   val TodoApp = ScalaComponent.builder[Unit]
     .initialState(State(Nil, ""))
-    .renderBackend[Backend]
+    .backend(new Backend(_))
+    .renderS(_.backend.render(_))
     .build
 
   // EXAMPLE:END

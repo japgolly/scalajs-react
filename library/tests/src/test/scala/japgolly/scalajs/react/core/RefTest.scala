@@ -21,7 +21,7 @@ object RefTest extends TestSuite {
       val ref = newRef
       def render = renderFn(ref)
     }
-    val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].build
+    val C = ScalaComponent.builder[Unit]("X").backend(_ => new Backend()).render(_.backend.render).build
     ReactTestUtils.withNewBodyElement { mountNode =>
       val mounted = C().renderIntoDOM(mountNode)
       assertRendered(mounted.getDOMNode.asMounted().asHtml(), expectedHtml(expectedRefHtml))
@@ -40,7 +40,7 @@ object RefTest extends TestSuite {
       def addDataAttr = input.foreach(_.setAttribute(attr, V))
       def render = <.div(<.input.text(^.defaultValue := "2").withRef(input))
     }
-    val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].componentDidMount(_.backend.addDataAttr).build
+    val C = ScalaComponent.builder[Unit]("X").backend(_ => new Backend()).render(_.backend.render).componentDidMount(_.backend.addDataAttr).build
     ReactTestUtils.withNewBodyElement { mountNode =>
       val mounted = C().renderIntoDOM(mountNode)
       assertEq(mounted.getDOMNode.asMounted().asElement().querySelector("input").getAttribute(attr), V)
@@ -54,7 +54,7 @@ object RefTest extends TestSuite {
       def addDataAttr = circle.foreach(_.setAttribute(attr, V))
       def render = <.svg(<.circle().withRef(circle))
     }
-    val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].componentDidMount(_.backend.addDataAttr).build
+    val C = ScalaComponent.builder[Unit]("X").backend(_ => new Backend()).render(_.backend.render).componentDidMount(_.backend.addDataAttr).build
     ReactTestUtils.withNewBodyElement { mountNode =>
       val mounted = C().renderIntoDOM(mountNode)
       assertEq(mounted.getDOMNode.asMounted().asElement().querySelector("circle").getAttribute(attr), V)
@@ -72,7 +72,7 @@ object RefTest extends TestSuite {
         val ref = Ref.toScalaComponent(InnerScala.C)
         def render = <.div(ref.component(123))
       }
-      val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].build
+      val C = ScalaComponent.builder[Unit]("X").backend(_ => new Backend()).render(_.backend.render).build
       ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = C().renderIntoDOM(mountNode)
         assertEq(mounted.backend.ref.unsafeGet().backend.secret, 666)
@@ -84,7 +84,7 @@ object RefTest extends TestSuite {
         val ref = Ref.toScalaComponent(InnerScala.C)
         def render = <.div(InnerScala.C.withRef(ref)(123))
       }
-      val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].build
+      val C = ScalaComponent.builder[Unit]("X").backend(_ => new Backend()).render(_.backend.render).build
       ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = C().renderIntoDOM(mountNode)
         assertEq(mounted.backend.ref.unsafeGet().backend.secret, 666)
@@ -96,7 +96,7 @@ object RefTest extends TestSuite {
         val ref = Ref.toScalaComponent(InnerScala.C)
         def render = <.div(ref.component.withKey(555555555)(123))
       }
-      val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].build
+      val C = ScalaComponent.builder[Unit]("X").backend(_ => new Backend()).render(_.backend.render).build
       ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = C().renderIntoDOM(mountNode)
         assertEq(mounted.backend.ref.unsafeGet().backend.secret, 666)
@@ -112,7 +112,7 @@ object RefTest extends TestSuite {
         val ref = Ref.toJsComponent(InnerJs)
         def render = <.div(ref.component())
       }
-      val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].build
+      val C = ScalaComponent.builder[Unit]("X").backend(_ => new Backend()).render(_.backend.render).build
       ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = C().renderIntoDOM(mountNode)
         mounted.backend.ref.unsafeGet().raw.inc() // compilation and evaluation without error is test enough
@@ -124,7 +124,7 @@ object RefTest extends TestSuite {
         val ref = Ref.toJsComponent(InnerJs)
         def render = <.div(InnerJs.withRef(ref)())
       }
-      val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].build
+      val C = ScalaComponent.builder[Unit]("X").backend(_ => new Backend()).render(_.backend.render).build
       ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = C().renderIntoDOM(mountNode)
         mounted.backend.ref.unsafeGet().raw.inc() // compilation and evaluation without error is test enough
@@ -136,7 +136,7 @@ object RefTest extends TestSuite {
         val ref = Ref.toJsComponent(InnerJs)
         def render = <.div(ref.component.withKey(555555555)())
       }
-      val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].build
+      val C = ScalaComponent.builder[Unit]("X").backend(_ => new Backend()).render(_.backend.render).build
       ReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = C().renderIntoDOM(mountNode)
         mounted.backend.ref.unsafeGet().raw.inc() // compilation and evaluation without error is test enough
@@ -235,7 +235,7 @@ object RefTest extends TestSuite {
         def gimmeHtmlNow() = $.getDOMNode.runNow().asMounted().asHtml().outerHTML
         def render(p: Int) = <.h1(s"Scala$p")
       }
-      private lazy val InnerScala = ScalaComponent.builder[Int]("Scala").renderBackend[InnerScalaBackend].build
+      private lazy val InnerScala = ScalaComponent.builder[Int]("Scala").backend(new InnerScalaBackend(_)).renderP(_.backend.render(_)).build
 
       private lazy val Forwarder = React.forwardRef.toScalaComponent(InnerScala)[String]((label, ref) =>
         <.div(label, InnerScala.withOptionalRef(ref)(123)))
@@ -247,7 +247,7 @@ object RefTest extends TestSuite {
           val ref = Ref.toScalaComponent(InnerScala)
           def render = Forwarder.withRef(ref)("noice")
         }
-        val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].build
+        val C = ScalaComponent.builder[Unit]("X").backend(_ => new Backend()).render(_.backend.render).build
         ReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = C().renderIntoDOM(mountNode)
           assertRendered(mounted.getDOMNode.asMounted().asHtml(), "<div>noice<h1>Scala123</h1></div>")
@@ -260,7 +260,7 @@ object RefTest extends TestSuite {
           val ref = Ref.toScalaComponent[Int, Unit, InnerScalaBackend]
           def render = Forwarder.withRef(ref)("noice")
         }
-        val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].build
+        val C = ScalaComponent.builder[Unit]("X").backend(_ => new Backend()).render(_.backend.render).build
         ReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = C().renderIntoDOM(mountNode)
           assertRendered(mounted.getDOMNode.asMounted().asHtml(), "<div>noice<h1>Scala123</h1></div>")
@@ -273,7 +273,7 @@ object RefTest extends TestSuite {
           val ref = Ref.toScalaComponent(InnerScala).map(_.backend.gimmeHtmlNow())
           def render = Forwarder.withRef(ref)("noice")
         }
-        val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].build
+        val C = ScalaComponent.builder[Unit]("X").backend(_ => new Backend()).render(_.backend.render).build
         ReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = C().renderIntoDOM(mountNode)
           assertRendered(mounted.getDOMNode.asMounted().asHtml(), "<div>noice<h1>Scala123</h1></div>")
@@ -308,7 +308,7 @@ object RefTest extends TestSuite {
           val ref = Ref.toJsComponent(InnerJs)
           def render = Forwarder.withRef(ref)("noice")
         }
-        val C = ScalaComponent.builder[Unit]("X").renderBackend[Backend].build
+        val C = ScalaComponent.builder[Unit]("X").backend(_ => new Backend()).render(_.backend.render).build
         ReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = C().renderIntoDOM(mountNode)
           assertRendered(mounted.getDOMNode.asMounted().asHtml(), "<div>noice<div>State = 123 + 500</div></div>")
