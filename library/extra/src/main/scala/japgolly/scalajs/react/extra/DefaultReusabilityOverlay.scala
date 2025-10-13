@@ -2,6 +2,7 @@ package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.ReusabilityOverlay.Comp
+import japgolly.scalajs.react.internal.CoreGeneral.ScalaFnComponent
 import japgolly.scalajs.react.util.DefaultEffects.{Sync => DS}
 import japgolly.scalajs.react.util.DomUtil._
 import japgolly.scalajs.react.util.Effect.Sync
@@ -149,24 +150,26 @@ class DefaultReusabilityOverlay[F[_]]($: Comp, options: DefaultReusabilityOverla
   }
 
   val create = F.delay {
-
-    // Create
     val tmp = document.createElement("div").domAsHtml
     document.body.appendChild(tmp)
-    options.template.template.renderIntoDOM(tmp, F.delay {
-      val outer = tmp.firstChild
-      document.body.replaceChild(outer, tmp)
 
-      // Customise
-      outer.addEventListener("click", (_: Any) => F.runSync(onClick))
+    val component = ScalaFnComponent.withHooks[Unit]
+      .useEffectOnMount(F.delay {
+        val outer = tmp.firstChild
+        document.body.replaceChild(outer, tmp)
 
-      // Store
-      val good = options.template good outer
-      val bad  = options.template bad outer
-      overlay  = Some(Nodes(outer, good, bad))
-    })
+        // Customise
+        outer.addEventListener("click", (_: Any) => F.runSync(onClick))
 
-    ()
+        // Store
+        val good = options.template good outer
+        val bad  = options.template bad outer
+        overlay  = Some(Nodes(outer, good, bad))
+      })
+      .render(_ => options.template.template)
+
+    val root = ReactDOMClient.createRoot(tmp)
+    root.render(component())
   }
 
   def withNodes(f: Nodes => Unit): F[Unit] =
