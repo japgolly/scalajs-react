@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.core
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.test.ReactTestUtils
+import japgolly.scalajs.react.test.{ReactTestUtils, ReactTestUtils2}
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
 import scala.scalajs.js
@@ -118,9 +118,8 @@ object JsComponentEs6PTest extends JsComponentTest {
       }
 
       "withKey" - {
-        ReactTestUtils.withNewBodyElement { mountNode =>
-          val n = C.withKey("k")(JsProps("X"))(H1).renderIntoDOM(mountNode).getDOMNode.asMounted().asElement()
-          assertOuterHTML(n, "<div>Hello X<h1>Huge</h1></div>")
+        ReactTestUtils2.withRenderedSync(C.withKey("k")(JsProps("X"))(H1)) { t  =>
+          t.outerHTML.assert("<div>Hello X<h1>Huge</h1></div>")
         }
       }
     }
@@ -230,9 +229,8 @@ object JsComponentEs6STest extends JsComponentTest {
         assert(Component() eq Component())
 
       "withKey" - {
-        ReactTestUtils.withNewBodyElement { mountNode =>
-          val n = Component.withKey("k")().renderIntoDOM(mountNode).getDOMNode.asMounted().asElement()
-          assertOuterHTML(n, "<div>State = 123 + 500</div>")
+        ReactTestUtils2.withRenderedSync(Component.withKey("k")()) { t =>
+          t.outerHTML.assert("<div>State = 123 + 500</div>")
         }
       }
     }
@@ -273,13 +271,11 @@ object JsComponentEs6STest extends JsComponentTest {
       }
 
       "withKey" - {
-        ReactTestUtils.withNewBodyElement { mountNode =>
-          val n = C.withKey("k")(H1).renderIntoDOM(mountNode).getDOMNode.asMounted().asElement()
-          assertOuterHTML(n, "<div>State = 123 + 500<h1>Huge</h1></div>")
+        ReactTestUtils2.withRenderedSync(C.withKey("k")(H1)) { t =>
+          t.outerHTML.assert("<div>State = 123 + 500<h1>Huge</h1></div>")
         }
       }
     }
 
   }
 }
-

@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.core
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.test.ReactTestUtils
+import japgolly.scalajs.react.test.ReactTestUtils2
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import scala.scalajs.js
@@ -37,16 +37,8 @@ object JsFnComponentTest extends TestSuite {
         assertEq(unmounted.propsChildren.count, 0)
         assertEq(unmounted.propsChildren.isEmpty, true)
         assertEq(unmounted.key, None)
-//        assertEq(unmounted.ref, None)
-        ReactTestUtils.withNewBodyElement { mountNode =>
-          unmounted.renderIntoDOM(mountNode)
-          val n = mountNode
-          assertOuterHTML(n, "<div><div>Hello Bob</div></div>")
-//          assertEq(mounted.isMounted, true)
-//          assertEq(mounted.props.name, "Bob")
-//          assertEq(mounted.propsChildren.count, 0)
-//          assertEq(mounted.propsChildren.isEmpty, true)
-//          assertEq(mounted.state, null)
+        ReactTestUtils2.withRenderedSync(unmounted) { t =>
+          t.root.outerHTML.assert("<div><div>Hello Bob</div></div>")
         }
       }
 
@@ -56,16 +48,8 @@ object JsFnComponentTest extends TestSuite {
         assertEq(unmounted.propsChildren.count, 0)
         assertEq(unmounted.propsChildren.isEmpty, true)
         assertEq(unmounted.key, Some("hehe": Key))
-//        assertEq(unmounted.ref, None)
-        ReactTestUtils.withNewBodyElement { mountNode =>
-          unmounted.renderIntoDOM(mountNode)
-          val n = mountNode
-          assertOuterHTML(n, "<div><div>Hello Bob</div></div>")
-//          assertEq(mounted.isMounted, true)
-//          assertEq(mounted.props.name, "Bob")
-//          assertEq(mounted.propsChildren.count, 0)
-//          assertEq(mounted.propsChildren.isEmpty, true)
-//          assertEq(mounted.state, null)
+        ReactTestUtils2.withRenderedSync(unmounted) { t =>
+          t.root.outerHTML.assert("<div><div>Hello Bob</div></div>")
         }
       }
 
