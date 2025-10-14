@@ -11,7 +11,8 @@ for how to write tests for real-world scalajs-react applications.
 #### Contents
 
 - [Setup](#setup)
-- [`ReactTestUtils`](#reacttestutils)
+- [`ReactTestUtils2`](#reacttestutils2-since-300)
+- [`ReactTestUtils [DEPRECATED IN 3.0.0]`](#reacttestutils-deprecated-in-300)
 - [`Simulate` and `Simulation`](#simulate-and-simulation)
 - [`Testing props changes`](#testing-props-changes)
 - [`ReactTestVar`](#reacttestvar)
