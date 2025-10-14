@@ -58,7 +58,7 @@ object ScalaFnComponentTest extends TestSuite {
           <.button("Update state", ^.onClick --> $.setState(nextState)),
           c(s)))
         .build
-      ReactTestUtils2.withRenderedSync(w()) { t =>
+      ReactTestUtils.withRenderedSync(w()) { t =>
         def setState(a: Add): Unit = {
           nextState = a
           Simulate.click(t.querySelector("button"))
@@ -84,7 +84,7 @@ object ScalaFnComponentTest extends TestSuite {
         <.span(p)
       }
       val C = ScalaComponent.builder[Int].render_P(F(_)).build
-      ReactTestUtils2.withRenderedSync(C(7)) { t =>
+      ReactTestUtils.withRenderedSync(C(7)) { t =>
         def test(expectedRenders: Int, expectedHtml: Int)(implicit q: Line): Unit = {
           val a = (renders, t.outerHTML())
           val e = (expectedRenders, s"<span>$expectedHtml</span>")
@@ -107,7 +107,7 @@ object ScalaFnComponentTest extends TestSuite {
         <.span(p)
       }
       val C = ScalaComponent.builder[Int].render_P(F(_)).build
-      ReactTestUtils2.withRenderedSync(C(7)) { t =>
+      ReactTestUtils.withRenderedSync(C(7)) { t =>
         def test(expectedRenders: Int, expectedHtml: Int)(implicit q: Line): Unit = {
           val a = (renders, t.outerHTML())
           val e = (expectedRenders, s"<span>$expectedHtml</span>")

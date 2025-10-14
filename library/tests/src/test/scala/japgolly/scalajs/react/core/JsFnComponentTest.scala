@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.core
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.test.ReactTestUtils2
+import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import scala.scalajs.js
@@ -37,7 +37,7 @@ object JsFnComponentTest extends TestSuite {
         assertEq(unmounted.propsChildren.count, 0)
         assertEq(unmounted.propsChildren.isEmpty, true)
         assertEq(unmounted.key, None)
-        ReactTestUtils2.withRenderedSync(unmounted) { t =>
+        ReactTestUtils.withRenderedSync(unmounted) { t =>
           t.root.outerHTML.assert("<div><div>Hello Bob</div></div>")
         }
       }
@@ -48,7 +48,7 @@ object JsFnComponentTest extends TestSuite {
         assertEq(unmounted.propsChildren.count, 0)
         assertEq(unmounted.propsChildren.isEmpty, true)
         assertEq(unmounted.key, Some("hehe": Key))
-        ReactTestUtils2.withRenderedSync(unmounted) { t =>
+        ReactTestUtils.withRenderedSync(unmounted) { t =>
           t.root.outerHTML.assert("<div><div>Hello Bob</div></div>")
         }
       }

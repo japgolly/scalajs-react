@@ -115,7 +115,7 @@ object StateSnapshotZoomTest extends TestSuite {
 
     def counts() = (Middle.renders, intRenders, strRenders)
 
-    ReactTestUtils2.withRenderedSync(Top.Comp()) { t =>
+    ReactTestUtils.withRenderedSync(Top.Comp()) { t =>
       def dom() = t.asElement()
       def intDom() = dom().querySelector("span")
       def strDom() = dom().querySelector("strong")

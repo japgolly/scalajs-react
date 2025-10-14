@@ -11,7 +11,7 @@ for how to write tests for real-world scalajs-react applications.
 #### Contents
 
 - [Setup](#setup)
-- [`ReactTestUtils2`](#reacttestutils2-since-300)
+- [`ReactTestUtils`](#reacttestutils-since-300)
 - [`LegacyReactTestUtils [DEPRECATED IN 3.0.0]`](#legacyreacttestutils-deprecated-in-300)
 - [`Simulate` and `Simulation`](#simulate-and-simulation)
 - [`Testing props changes`](#testing-props-changes)
@@ -40,9 +40,9 @@ for how to write tests for real-world scalajs-react applications.
        commonJSName "ReactTestUtils"
    ```
 
-# `ReactTestUtils2 [SINCE 3.0.0]`
+# `ReactTestUtils [SINCE 3.0.0]`
 
-Read through the following for how to test with `ReactTestUtils2`.
+Read through the following for how to test with `ReactTestUtils`.
 
 ```scala
 import japgolly.scalajs.react._
@@ -66,7 +66,7 @@ object TestUtilsDemo extends TestSuite {
   override def tests = Tests {
 
     // First we render the component
-    ReactTestUtils2.withRenderedSync(Component("Axe")) { t =>
+    ReactTestUtils.withRenderedSync(Component("Axe")) { t =>
 
       // We have a variety of ways to test the HTML
       t.outerHTML.assert("<div><p>Hi Axe. You clicked 0 times</p><button>Click me</button></div>")

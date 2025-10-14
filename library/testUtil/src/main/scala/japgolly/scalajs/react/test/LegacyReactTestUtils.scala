@@ -15,7 +15,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
 import scala.scalajs.js.|
 
-@deprecated("Migrate to React 18 and ReactTestUtils2. This will be replaced by ReactTestUtils2 in scalajs-react 3.0.0.", "3.0.0 / React 18")
+@deprecated("Migrate to React 18 and ReactTestUtils.", "3.0.0 / React 18")
 object LegacyReactTestUtils extends LegacyReactTestUtils {
   @inline def raw = japgolly.scalajs.react.test.facade.ReactTestUtils
 
@@ -133,7 +133,7 @@ object LegacyReactTestUtils extends LegacyReactTestUtils {
   } // Internals
 }
 
-@deprecated("Migrate to React 18 and ReactTestUtils2. This will be replaced by ReactTestUtils2 in scalajs-react 3.0.0.", "3.0.0 / React 18")
+@deprecated("Migrate to React 18 and ReactTestUtils.", "3.0.0 / React 18")
 trait LegacyReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtilExtensions {
   import LegacyReactTestUtils._
   import LegacyReactTestUtils.Internals._

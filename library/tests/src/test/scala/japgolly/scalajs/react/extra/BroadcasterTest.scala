@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.test.ReactTestUtils2
+import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.vdom.html_<^._
 import utest._
 
@@ -23,7 +23,7 @@ object BroadcasterTest extends AsyncTestSuite {
     val b = new B
 
     "component" - {
-      ReactTestUtils2.withRendered(C(b)){ d => 
+      ReactTestUtils.withRendered(C(b)){ d =>
         d.innerHTML.assert("Got: {}")
         for {
           _ <- d.act_(b.broadcast(2).runNow())

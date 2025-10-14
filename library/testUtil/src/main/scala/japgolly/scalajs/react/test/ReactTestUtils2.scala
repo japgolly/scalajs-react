@@ -10,10 +10,10 @@ import japgolly.scalajs.react.util.{Effect, ImplicitUnit, JsUtil}
 import org.scalajs.dom.html.Element
 import org.scalajs.dom.{console, document}
 
-object ReactTestUtils2 extends ReactTestUtils2 {
+object ReactTestUtils extends ReactTestUtils {
   IsReactActEnvironment = true
 
-  private[ReactTestUtils2] object Internals {
+  private[ReactTestUtils] object Internals {
     val reactDataAttrRegex = """\s+data-react\S*?\s*?=\s*?".*?"""".r
     val reactTextCommentRegex = """<!-- /?react-text[: ].*?-->""".r
 
@@ -28,8 +28,8 @@ object ReactTestUtils2 extends ReactTestUtils2 {
   } // Internals
 }
 
-trait ReactTestUtils2 extends japgolly.scalajs.react.test.internal.ReactTestUtilExtensions {
-  import ReactTestUtils2.Internals._
+trait ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtilExtensions {
+  import ReactTestUtils.Internals._
 
   private val reactRaw = japgolly.scalajs.react.facade.React
 

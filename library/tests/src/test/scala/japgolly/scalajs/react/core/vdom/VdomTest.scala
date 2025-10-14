@@ -69,16 +69,16 @@ object VdomTest extends AsyncTestSuite {
     }
 
     "portal" - {
-      ReactTestUtils2.withElement.use { portalTarget =>
+      ReactTestUtils.withElement.use { portalTarget =>
         val comp = ScalaComponent.static("tmp")(
             <.div(
               "Here we go...",
               ReactPortal(<.div("NICE"), portalTarget)
             )
           )
-        ReactTestUtils2.withRendered_(comp()) { d =>
-          val compHtml = ReactTestUtils2.removeReactInternals(d.asHtml().outerHTML)
-          val portalHtml = ReactTestUtils2.removeReactInternals(portalTarget.innerHTML)
+        ReactTestUtils.withRendered_(comp()) { d =>
+          val compHtml = ReactTestUtils.removeReactInternals(d.asHtml().outerHTML)
+          val portalHtml = ReactTestUtils.removeReactInternals(portalTarget.innerHTML)
           assertEq((compHtml, portalHtml), ("<div>Here we go...</div>", "<div>NICE</div>"))
         }
       }
@@ -105,13 +105,13 @@ object VdomTest extends AsyncTestSuite {
           }
           .build
 
-      ReactTestUtils2.withRendered_(c()) { d =>
+      ReactTestUtils.withRendered_(c()) { d =>
         def txt() = d.asInput().value
         for {
           _ <- d.act_(SimEvent.Keyboard.Enter.simulateKeyDown(d.asHtml()))
           _ = assertEq(txt(), "enter!")
           _ <- d.act_(SimEvent.Keyboard.Space.simulateKeyDown(d.asHtml()))
-          _ = assertEq(txt(), "SPACE!") 
+          _ = assertEq(txt(), "SPACE!")
         } yield ()
       }
     }
@@ -131,7 +131,7 @@ object VdomTest extends AsyncTestSuite {
             }
             .build
 
-        ReactTestUtils2.withRendered_(c()) { _ =>
+        ReactTestUtils.withRendered_(c()) { _ =>
           assert(value.isInstanceOf[html.Input])
         }.map(_ => assert(value eq null))
       }
@@ -150,7 +150,7 @@ object VdomTest extends AsyncTestSuite {
             }
             .build
 
-        ReactTestUtils2.withRendered_(c()) { _ =>
+        ReactTestUtils.withRendered_(c()) { _ =>
           val x = ref.get.runNow()
           assert(x.isDefined)
         }.map(_ => assert(ref.get.runNow().isEmpty))

@@ -69,7 +69,7 @@ object MiscTest extends AsyncTestSuite {
             <.option(^.value := "c")("c"))
         ).build
 
-      ReactTestUtils2.withRendered_(s()) { d =>
+      ReactTestUtils.withRendered_(s()) { d =>
         val sel = d.asSelect()
         val selectedOptions = sel.options.filter(_.selected).map(_.value)
         assertSet(selectedOptions.toSet, Set("a", "c"))
@@ -95,7 +95,7 @@ object MiscTest extends AsyncTestSuite {
             <.button(<.span($.state), ^.onClick --> (add1 >> add7))
           }
           .build
-        ReactTestUtils2.withRendered(C()) { d =>
+        ReactTestUtils.withRendered(C()) { d =>
           d.select("span").innerHTML.assert("3")
           d.actOnNode_(Simulate.click(_)).map(_ =>
             d.select("span").innerHTML.assert("11")
@@ -113,7 +113,7 @@ object MiscTest extends AsyncTestSuite {
             <.button($.state.toString, ^.onClick --> (add1 >> add7), ^.onDoubleClick --> $.setState(StrInt("oh", 100)))
           }
           .build
-        ReactTestUtils2.withRendered(C()) { d =>
+        ReactTestUtils.withRendered(C()) { d =>
           d.innerHTML.assert("StrInt(yay,3)")
           for {
             _ <- d.actOnNode_(Simulate.click(_))
@@ -135,7 +135,7 @@ object MiscTest extends AsyncTestSuite {
             <.button($.state.toString, ^.onClick --> (add1 >> add7), ^.onDoubleClick --> $.setState(StrInt("oh", 100)))
           }
           .build
-        ReactTestUtils2.withRendered(C()) { d =>
+        ReactTestUtils.withRendered(C()) { d =>
           d.innerHTML.assert("StrInt(yay,3)")
           for {
             _ <- d.actOnNode_(Simulate.click(_))
@@ -157,7 +157,7 @@ object MiscTest extends AsyncTestSuite {
             <.button($.state.toString, ^.onClick --> (add1 >> add7), ^.onDoubleClick --> $.setState(StrIntWrap(StrInt("oh", 100))))
           }
           .build
-        ReactTestUtils2.withRendered(C()) { d =>
+        ReactTestUtils.withRendered(C()) { d =>
           d.innerHTML.assert("StrIntWrap(StrInt(yay,3))")
           for {
             _ <- d.actOnNode_(Simulate.click(_))
@@ -166,7 +166,7 @@ object MiscTest extends AsyncTestSuite {
             _ <- d.actOnNode_(Simulate.click(_))
           } yield
             d.innerHTML.assert("StrIntWrap(StrInt(oh,108))")
-        }    
+        }
       }
     }
 
@@ -207,7 +207,7 @@ object MiscTest extends AsyncTestSuite {
             <.div("i = ", i)
           )
         ).build
-      ReactTestUtils2.withRendered_(comp(234))( d =>
+      ReactTestUtils.withRendered_(comp(234))( d =>
         d.outerHTML.assert("<div>i = 234</div>")
       ).map{ _ =>
         assertEq(results.length, 1)

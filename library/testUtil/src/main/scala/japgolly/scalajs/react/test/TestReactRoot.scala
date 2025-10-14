@@ -40,13 +40,13 @@ trait TestReactRoot extends TestContainer {
     root.raw
 
   def actSync[A](body: => A): A =
-    ReactTestUtils2.actSync(body)
+    ReactTestUtils.actSync(body)
 
   def act[F[_]: Async, A](body: F[A]): F[A] =
-    ReactTestUtils2.act(body)
+    ReactTestUtils.act(body)
 
   @inline def act_[F[_]: Async, A](body: => A): F[A] =
-    ReactTestUtils2.act_(body)
+    ReactTestUtils.act_(body)
 
   def renderSync[A: Renderable](unmounted: A): Unit =
     actSync(root.render(unmounted))

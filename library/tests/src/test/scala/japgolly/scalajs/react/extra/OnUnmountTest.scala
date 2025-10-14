@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.test.ReactTestUtils2
+import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import utest._
@@ -22,7 +22,7 @@ object OnUnmountTest extends TestSuite {
     .build
 
   override def tests = Tests {
-    ReactTestUtils2.withReactRootSync { r =>
+    ReactTestUtils.withReactRootSync { r =>
       r.renderSync(C())
       assertEq(i, 1)
       r.renderSync(())

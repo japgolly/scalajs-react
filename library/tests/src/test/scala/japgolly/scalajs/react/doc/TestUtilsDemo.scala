@@ -27,7 +27,7 @@ object TestUtilsDemo extends TestSuite {
   override def tests = Tests {
 
     // First we render the component
-    ReactTestUtils2.withRenderedSync(Component("Axe")) { t =>
+    ReactTestUtils.withRenderedSync(Component("Axe")) { t =>
 
       // We have a variety of ways to test the HTML
       t.outerHTML.assert("<div><p>Hi Axe. You clicked 0 times</p><button>Click me</button></div>")
