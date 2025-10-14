@@ -110,7 +110,7 @@ object Hooks {
       facade.React.useInsertionEffect(a.toJs(effect))
 
     def unsafeCreateInsertionOnMount[A](effect: A)(implicit a: UseEffectArg[A]): Unit =
-      facade.React.useInsertionEffect(a.toJs(effect), new js.Array[Any])      
+      facade.React.useInsertionEffect(a.toJs(effect), new js.Array[Any])
   }
 
   object ReusableEffect {
@@ -468,7 +468,7 @@ object Hooks {
   type UseTransition = UseTransitionF[D.Sync]
 
   object UseTransition {
-    @inline def apply(): CustomHook[Unit, UseTransition] = 
+    @inline def apply(): CustomHook[Unit, UseTransition] =
       CustomHook.delay(UseTransitionF(facade.React.useTransition())(D.Sync))
   }
 

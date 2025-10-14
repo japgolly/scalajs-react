@@ -63,8 +63,8 @@ object React {
   /** Similar to `useTransition` but allows uses where hooks are not available.
     *
     * @param callback A _synchronous_ function which causes state updates that can be deferred.
-    * 
-    * @since 2.2.0 / React 18.0.0
+    *
+    * @since 3.0.0 / React 18.0.0
     */
   def startTransition[F[_]](callback: => F[Unit])(implicit F: Sync[F]) =
     F.delay(facade.React.startTransition(F.toJsFn(callback)))

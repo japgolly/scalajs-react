@@ -19,14 +19,17 @@ object TestContainer {
   *
   * As an example `testContainer.innerHTML.assert("<div>Welcome</div>")`
   *
-  * @since 2.2.0
+  * @since 3.0.0
   */
 trait TestContainer extends TestDom {
 
   def container: mainFacade.ReactDOM.Container
 
-  final def node: Option[dom.Node] =
-    Some(fold(identity, identity, identity))
+  final def asNode: dom.Node =
+    fold(identity, identity, identity)
+
+  override final def node: Some[dom.Node] =
+    Some(asNode)
 
   def fold[A](onElement         : dom.Element          => A,
               onDocument        : dom.Document         => A,

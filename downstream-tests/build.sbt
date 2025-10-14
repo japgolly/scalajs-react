@@ -1,4 +1,3 @@
-import Dependencies.Dep.utest
 import java.util.Properties
 import org.scalajs.linker.interface._
 import Dependencies._
@@ -71,7 +70,7 @@ lazy val cleanTestAll = taskKey[Unit]("cleanTestAll")
 
 val enableJSCE = System.getProperty("downstream_tests.enableJSCE") != null
 
-val utestCE = Def.setting("org.typelevel" %%% "cats-effect-testing-utest" % "1.6.0" % Test)
+val utestCE = Def.setting("org.typelevel" %%% "cats-effect-testing-utest" % "1.6.0")
 
 lazy val root = Project("root", file("."))
   .configure(commonSettings)
@@ -187,7 +186,7 @@ lazy val jsCE = project
         "com.github.japgolly.scalajs-react" %%% "core-bundle-cats_effect" % ver,
         "com.github.japgolly.scalajs-react" %%% "extra" % ver,
         "com.github.japgolly.scalajs-react" %%% "test" % ver % Test,
-        utestCE.value,
+        utestCE.value % Test,
         Dep.microlibsCompileTime.value % Test,
         Dep.microlibsTestUtil.value % Test,
         Dep.scalaJsJavaTime.value % Test,
@@ -212,7 +211,7 @@ lazy val jsCBIO = project
         "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io" % ver,
         "com.github.japgolly.scalajs-react" %%% "extra" % ver,
         "com.github.japgolly.scalajs-react" %%% "test" % ver % Test,
-        utestCE.value,
+        utestCE.value % Test,
         Dep.microlibsCompileTime.value % Test,
         Dep.microlibsTestUtil.value % Test,
         Dep.scalaJsJavaTime.value % Test,
@@ -223,7 +222,6 @@ lazy val jsCBIO = project
       (ProvidedJS / "polyfill.js") % Test
     ),
   )
-  
 
 lazy val generic = project
   .enablePlugins(ScalaJSPlugin)

@@ -8,7 +8,7 @@ object ReactDOMClient {
   /** Create a React root for the supplied container and return the root. The root can be used to render a React element
     * into the DOM with `.render`.
     *
-    * @since v2.2.0 / React v18
+    * @since v3.0.0 / React v18
     */
   def createRoot(container: raw.RootContainer): ReactRoot =
     ReactRoot(raw.createRoot(container))
@@ -16,7 +16,7 @@ object ReactDOMClient {
   /** Create a React root for the supplied container and return the root. The root can be used to render a React element
     * into the DOM with `.render`.
     *
-    * @since v2.2.0 / React v18
+    * @since v3.0.0 / React v18
     */
   def createRoot(container: raw.RootContainer, options: ReactOptions.CreateRoot): ReactRoot =
     ReactRoot(raw.createRoot(container, options.raw()))
@@ -24,7 +24,7 @@ object ReactDOMClient {
   /** Same as [[createRoot()]], but is used to hydrate a container whose HTML contents were rendered by
     * [[ReactDOMServer]]. React will attempt to attach event listeners to the existing markup.
     *
-    * @since v2.2.0 / React v18
+    * @since v3.0.0 / React v18
     */
   def hydrateRoot[A](container: raw.HydrationContainer, element: A)(implicit r: Renderable[A]): ReactRoot =
     ReactRoot(raw.hydrateRoot(container, r(element)))
@@ -32,7 +32,7 @@ object ReactDOMClient {
   /** Same as [[createRoot()]], but is used to hydrate a container whose HTML contents were rendered by
     * [[ReactDOMServer]]. React will attempt to attach event listeners to the existing markup.
     *
-    * @since v2.2.0 / React v18
+    * @since v3.0.0 / React v18
     */
   def hydrateRoot[A](container: raw.HydrationContainer, element: A, options: ReactOptions.HydrateRoot)
                     (implicit r: Renderable[A]): ReactRoot =

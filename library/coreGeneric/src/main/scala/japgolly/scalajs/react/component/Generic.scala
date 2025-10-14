@@ -95,10 +95,11 @@ object Generic {
     final def mountRawOrNull(c: facade.React.ComponentUntyped | Null): M =
       if (c == null) null.asInstanceOf[M] else mountRaw(JsUtil.notNull(c))
 
-    @deprecated("Use ReactDOM.createRoot and root.render instead", "2.2.0 / React v18")
+    @deprecated("Use ReactDOMClient.createRoot and root.render instead", "3.0.0 / React v18")
     def renderIntoDOM(container: facade.ReactDOM.Container): Mounted =
       mountRaw(facade.ReactDOM.render(raw, container))
 
+    @deprecated("Use ReactDOMClient.createRoot and root.render instead", "3.0.0 / React v18")
     def renderIntoDOM[G[_]](container: facade.ReactDOM.Container, callback: => G[Unit])(implicit G: Dispatch[G]): Mounted =
       mountRaw(facade.ReactDOM.render(raw, container, G.dispatchFn(callback)))
   }

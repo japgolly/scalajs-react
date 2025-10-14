@@ -11,7 +11,8 @@ for how to write tests for real-world scalajs-react applications.
 #### Contents
 
 - [Setup](#setup)
-- [`ReactTestUtils`](#reacttestutils)
+- [`ReactTestUtils2`](#reacttestutils2-since-300)
+- [`ReactTestUtils [DEPRECATED IN 3.0.0]`](#reacttestutils-deprecated-in-300)
 - [`Simulate` and `Simulation`](#simulate-and-simulation)
 - [`Testing props changes`](#testing-props-changes)
 - [`ReactTestVar`](#reacttestvar)
@@ -39,7 +40,53 @@ for how to write tests for real-world scalajs-react applications.
        commonJSName "ReactTestUtils"
    ```
 
-# `ReactTestUtils`
+# `ReactTestUtils2 [SINCE 3.0.0]`
+
+Read through the following for how to test with `ReactTestUtils2`.
+
+```scala
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.test._
+import japgolly.scalajs.react.vdom.html_<^._
+import utest._
+
+object TestUtilsDemo extends TestSuite {
+
+  // This is a sample component that we will test
+  val Component = ScalaFnComponent[String](props =>
+    for {
+      count <- useState(0)
+    } yield
+      <.div(
+        <.p(s"Hi $props. You clicked ${count.value} times"),
+        <.button("Click me", ^.onClick --> count.modState(_ + 1)),
+      )
+  )
+
+  override def tests = Tests {
+
+    // First we render the component
+    ReactTestUtils2.withRenderedSync(Component("Axe")) { t =>
+
+      // We have a variety of ways to test the HTML
+      t.outerHTML.assert("<div><p>Hi Axe. You clicked 0 times</p><button>Click me</button></div>")
+      t.root.outerHTML.assert("<div><div><p>Hi Axe. You clicked 0 times</p><button>Click me</button></div></div>")
+      t.innerHTML.assertContains("You clicked 0 times")
+
+      // Let's click the button
+      Simulate.click(t.querySelector("button"))
+      t.innerHTML.assertContains("You clicked 1 times")
+
+      // Let's change the props
+      t.root.renderSync(Component("Bob"))
+      t.innerHTML.assertContains("Hi Bob. You clicked 1 times")
+    }
+
+  }
+}
+```
+
+# `ReactTestUtils [DEPRECATED IN 3.0.0]`
 
 The main bucket of testing utilities lies in `japgolly.scalajs.react.test.ReactTestUtils`.
 

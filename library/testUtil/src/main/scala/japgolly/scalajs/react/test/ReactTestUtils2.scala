@@ -95,6 +95,9 @@ trait ReactTestUtils2 extends japgolly.scalajs.react.test.internal.ReactTestUtil
     cont
   }
 
+  def newReactRoot(container: japgolly.scalajs.react.facade.ReactDOMClient.RootContainer): TestReactRoot =
+    TestReactRoot(container)
+
   def removeElement(e: Element): Unit =
     warnOnError("Failed to remove element: " + e) {
       document.body.removeChild(e)
@@ -119,8 +122,8 @@ trait ReactTestUtils2 extends japgolly.scalajs.react.test.internal.ReactTestUtil
   val withReactRootSync: WithDsl[TestReactRoot, ImplicitUnit] =
     withElementSync.mapResource(TestReactRoot(_))(_.unmountSync())
 
-  def withReactRoot[F[_]: Async]: Resource[F, TestReactRoot] = 
-    withElement[F].flatMap{ e => 
+  def withReactRoot[F[_]: Async]: Resource[F, TestReactRoot] =
+    withElement[F].flatMap{ e =>
       Resource.make_[F, TestReactRoot](TestReactRoot(e), _.unmount[F]())
     }
 

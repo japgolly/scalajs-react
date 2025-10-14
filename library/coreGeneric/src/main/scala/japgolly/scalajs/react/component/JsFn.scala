@@ -119,10 +119,11 @@ object JsFn extends JsBaseComponentTemplate[facade.React.StatelessFunctionalComp
     override def mapUnmountedProps[P2](f: P => P2): UnmountedSimple[P2, M]
     override def mapMounted[M2](f: M => M2): UnmountedSimple[P, M2]
 
-    @deprecated("Use ReactDOM.createRoot and root.render instead", "2.2.0 / React v18")
+    @deprecated("Use ReactDOMClient.createRoot and root.render instead", "3.0.0 / React v18")
     override final def renderIntoDOM(container: facade.ReactDOM.Container): this.Mounted =
       postRender(facade.ReactDOM.render(raw, container))
 
+    @deprecated("Use ReactDOMClient.createRoot and root.render instead", "3.0.0 / React v18")
     override final def renderIntoDOM[G[_]](container: facade.ReactDOM.Container, callback: => G[Unit])(implicit G: Dispatch[G]): this.Mounted =
       postRender(facade.ReactDOM.render(raw, container, G.dispatchFn(callback)))
 

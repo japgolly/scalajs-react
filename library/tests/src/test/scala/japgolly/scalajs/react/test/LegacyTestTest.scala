@@ -12,6 +12,7 @@ import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import sizzle.Sizzle
 import utest._
 
+@nowarn("cat=deprecation")
 object LegacyTestTest extends TestSuite {
 
   lazy val A = ScalaComponent.builder[Unit]("A").render_C(c => <.p(^.cls := "AA", c)).build

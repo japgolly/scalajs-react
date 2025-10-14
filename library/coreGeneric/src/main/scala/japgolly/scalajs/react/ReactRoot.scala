@@ -4,7 +4,7 @@ package japgolly.scalajs.react
   *
   * Can be used to render a React element into the DOM with `.render`.
   *
-  * @since v2.2.0 / React 18
+  * @since v3.0.0 / React 18
   */
 @inline final case class ReactRoot(raw: facade.RootType) {
 

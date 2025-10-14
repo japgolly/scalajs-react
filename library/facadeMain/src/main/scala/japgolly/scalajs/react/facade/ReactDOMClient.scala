@@ -29,22 +29,14 @@ trait RootType extends js.Object {
 
 @js.native
 trait CreateRootOptions extends js.Object {
-  var identifierPrefix                   : js.UndefOr[String]
-  var onRecoverableError                 : js.UndefOr[Any => Unit]
-  var unstable_concurrentUpdatesByDefault: js.UndefOr[Boolean]
-  var unstable_strictMode                : js.UndefOr[Boolean]
-  // var transitionCallbacks                : js.UndefOr[TransitionTracingCallbacks]
+  var identifierPrefix  : js.UndefOr[String]
+  var onRecoverableError: js.UndefOr[js.Function2[js.Any, React.ErrorInfo, Unit]]
 }
 
 @js.native
 trait HydrateRootOptions extends js.Object {
-  var identifierPrefix                   : js.UndefOr[String]
-  var onRecoverableError                 : js.UndefOr[Any => Unit]
-  var unstable_concurrentUpdatesByDefault: js.UndefOr[Boolean]
-  var unstable_strictMode                : js.UndefOr[Boolean]
-  // var hydratedSources                    : js.UndefOr[Array[MutableSource[any]]]
-  // var onHydrated                         : js.UndefOr[Comment => Unit]
-  // var onDeleted                          : js.UndefOr[Comment => Unit]
+  var identifierPrefix  : js.UndefOr[String]
+  var onRecoverableError: js.UndefOr[js.Function2[js.Any, React.ErrorInfo, Unit]]
 }
 
 // @js.native

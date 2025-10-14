@@ -23,7 +23,7 @@ object TestDom {
   *
   * As an example `testDom.outerHTML.assert("<div>Welcome</div>")`
   *
-  * @since 2.2.0
+  * @since 3.0.0
   */
 trait TestDom {
 
@@ -56,7 +56,7 @@ trait TestDom {
       case None    => throw new RuntimeException(s"No child of $node found matching '$selectors'")
     }
 
-  def selectFirstChild(): Self = 
+  def selectFirstChild(): Self =
     Self(firstChild())
 
   // -------------------------------------------------------------------------------------------------------------------

@@ -2,7 +2,7 @@ package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.components.TriStateCheckbox
-import japgolly.scalajs.react.test.ReactTestUtils._
+import japgolly.scalajs.react.test.ReactTestUtils2._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.vdom.html_<^._
@@ -30,7 +30,10 @@ object TriStateCheckboxTest extends TestSuite {
       .build
 
     def test() = {
-      withRenderedIntoBody(Component()).withParent { p =>
+      withElementSync { p =>
+        val r = newReactRoot(p)
+        r.renderSync(Component())
+
         assertEq(p.textContent, "s=0")
         val i = p.querySelector("input")
 

@@ -1,7 +1,8 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.test.ReactTestUtils
+import japgolly.scalajs.react.test.ReactTestUtils2
+import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import utest._
 
@@ -20,15 +21,12 @@ object OnUnmountTest extends TestSuite {
     .componentDidMountConst(inc_i)
     .build
 
-  val Outer = ScalaComponent.builder[Unit]("")
-    .initialState(true)
-    .render_S(s => if (s) C() else <.div)
-    .build
-
   override def tests = Tests {
-    val c = ReactTestUtils.renderIntoDocument(Outer())
-    assert(i == 1)
-    c.setState(false)
-    assert(i == 0)
+    ReactTestUtils2.withReactRootSync { r =>
+      r.renderSync(C())
+      assertEq(i, 1)
+      r.renderSync(())
+      assertEq(i, 0)
+    }
   }
 }
