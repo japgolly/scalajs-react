@@ -164,7 +164,7 @@ object CustomConfig extends ScalaJsReactConfig.Defaults {
 
 # `.test.warnings.react`
 
-When using `ReactTestUtils`, this setting can be used to catch React warnings and turn them into exceptions.
+When using `LegacyReactTestUtils`, this setting can be used to catch React warnings and turn them into exceptions.
 
 ### Usage:
 
@@ -196,7 +196,7 @@ object ExampleTest extends TestSuite {
   override def tests = Tests {
     "example" - {
       val comp = ScalaFnComponent[Int](i => <.p(<.td(s"i = $i")))
-      ReactTestUtils.withRenderedIntoBody(comp(123)).withParent { m =>
+      LegacyReactTestUtils.withRenderedIntoBody(comp(123)).withParent { m =>
         val html = m.outerHTML
         assert(html == "<p><td>i = 123</td></p>")
       }

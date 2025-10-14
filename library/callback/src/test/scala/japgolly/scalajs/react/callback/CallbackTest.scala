@@ -29,7 +29,7 @@ object CallbackTest extends TestSuite {
         .render_S(s => <.div("state = ", s))
         .build
 
-      val x = ReactTestUtils renderIntoDocument X()
+      val x = LegacyReactTestUtils renderIntoDocument X()
 
       "direct" - {
         var i = 10

@@ -16,7 +16,7 @@ import scala.scalajs.js
 import scala.scalajs.js.|
 
 @deprecated("Migrate to React 18 and ReactTestUtils2. This will be replaced by ReactTestUtils2 in scalajs-react 3.0.0.", "3.0.0 / React 18")
-object ReactTestUtils extends ReactTestUtils {
+object LegacyReactTestUtils extends LegacyReactTestUtils {
   @inline def raw = japgolly.scalajs.react.test.facade.ReactTestUtils
 
   @deprecated("Use .withNewDocumentElementAsync", "2.0.0")
@@ -51,7 +51,7 @@ object ReactTestUtils extends ReactTestUtils {
     def withParent[A](f: R      => F[A]): F[A] = apply((_, r) => f(r))
   }
 
-  private[ReactTestUtils] object Internals {
+  private[LegacyReactTestUtils] object Internals {
 
     val reactDataAttrRegex = """\s+data-react\S*?\s*?=\s*?".*?"""".r
     val reactTextCommentRegex = """<!-- /?react-text[: ].*?-->""".r
@@ -134,9 +134,9 @@ object ReactTestUtils extends ReactTestUtils {
 }
 
 @deprecated("Migrate to React 18 and ReactTestUtils2. This will be replaced by ReactTestUtils2 in scalajs-react 3.0.0.", "3.0.0 / React 18")
-trait ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtilExtensions {
-  import ReactTestUtils._
-  import ReactTestUtils.Internals._
+trait LegacyReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtilExtensions {
+  import LegacyReactTestUtils._
+  import LegacyReactTestUtils.Internals._
 
   type Unmounted[M] = GenericComponent.Unmounted[_, M]
   type Mounted      = GenericComponent.MountedRaw
@@ -273,7 +273,7 @@ trait ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtilE
   /** Renders a component into the document body via [[ReactDOM.render()]],
     * then unmounts and cleans up after use.
     *
-    * Unlike [[ReactTestUtils.renderIntoDocument()]], this allows DOM focus to work.
+    * Unlike [[LegacyReactTestUtils.renderIntoDocument()]], this allows DOM focus to work.
     */
   def withRenderedIntoBody[M](u: Unmounted[M]): WithRenderedDsl[M, Element] =
     new WithRenderedDsl[M, Element] {
@@ -291,7 +291,7 @@ trait ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtilE
 
   /** Renders a component into the document body via [[ReactDOM.render()]].
     *
-    * Unlike [[ReactTestUtils.renderIntoDocument()]], this allows DOM focus to work.
+    * Unlike [[LegacyReactTestUtils.renderIntoDocument()]], this allows DOM focus to work.
     */
   def renderIntoBody[M](u: Unmounted[M]): M = {
     val c = act(RawReactDOM.render(u.raw, newBodyElement()))
@@ -351,7 +351,7 @@ trait ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtilE
       act(removeNewDocumentElement(e))
   }
 
-  /** Renders a component into detached DOM via [[ReactTestUtils.renderIntoDocument()]],
+  /** Renders a component into detached DOM via [[LegacyReactTestUtils.renderIntoDocument()]],
     * then unmounts and cleans up after use.
     */
   def withRenderedIntoDocument[M](u: Unmounted[M]): WithRenderedDsl[M, Element] =
@@ -373,7 +373,7 @@ trait ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtilE
     attemptFuture(use(e)).andThen { case _ => act(removeNewDocumentElement(e)) }
   }
 
-  /** Renders a component into detached DOM via [[ReactTestUtils.renderIntoDocument()]],
+  /** Renders a component into detached DOM via [[LegacyReactTestUtils.renderIntoDocument()]],
     * and asynchronously waits for the Future to complete before unmounting.
     */
   def withRenderedIntoDocumentFuture[M, A](u: Unmounted[M])(f: M => Future[A])(implicit ec: ExecutionContext): Future[A] =
@@ -400,7 +400,7 @@ trait ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtilE
 
   /** Renders a component then unmounts and cleans up after use.
     *
-    * @param intoBody Whether to use [[renderIntoBody()]] or [[ReactTestUtils.renderIntoDocument()]].
+    * @param intoBody Whether to use [[renderIntoBody()]] or [[LegacyReactTestUtils.renderIntoDocument()]].
     */
   def withRendered[M](u: Unmounted[M], intoBody: Boolean): WithRenderedDsl[M, Element] =
     if (intoBody)

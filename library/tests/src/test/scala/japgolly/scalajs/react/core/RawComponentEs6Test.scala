@@ -3,7 +3,7 @@ package japgolly.scalajs.react.core
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.test.TestUtil._
-import japgolly.scalajs.react.test.{InferenceHelpers, ReactTestUtils}
+import japgolly.scalajs.react.test.{InferenceHelpers, LegacyReactTestUtils}
 import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
 import scala.annotation.nowarn
 import scala.scalajs.js
@@ -32,7 +32,7 @@ object RawComponentEs6PTest extends TestSuite {
 
     "displayName" - {
       assertEq(BasicComponent.displayName, "HelloRaw6")
-//      ReactTestUtils.withRenderedIntoDocument(BasicComponent(BasicProps("X"))) { m =>
+//      LegacyReactTestUtils.withRenderedIntoDocument(BasicComponent(BasicProps("X"))) { m =>
 //        println(inspectObject(m.raw))
 //        assertEq(m.raw.displayName, "HelloRaw6")
 //      }
@@ -52,7 +52,7 @@ object RawComponentEs6PTest extends TestSuite {
       assertEq(unmounted.propsChildren.isEmpty, true)
       assertEq(unmounted.key, None)
       assertEq(unmounted.ref, None)
-      ReactTestUtils.withNewBodyElement { mountNode =>
+      LegacyReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = unmounted.renderIntoDOM(mountNode)
         val n = mounted.getDOMNode.asMounted().asElement()
         assertOuterHTML(n, "<div>Hello Bob</div>")
@@ -66,7 +66,7 @@ object RawComponentEs6PTest extends TestSuite {
     }
 
     "withKey" - {
-      ReactTestUtils.withNewBodyElement { mountNode =>
+      LegacyReactTestUtils.withNewBodyElement { mountNode =>
         val u = BasicComponent.withKey("k")(BasicProps("Bob"))
         assertEq(u.key, Option[Key]("k"))
         val m = u.renderIntoDOM(mountNode)
@@ -81,7 +81,7 @@ object RawComponentEs6PTest extends TestSuite {
       val c2 = BasicComponent.mapCtorType(_ withProps BasicProps("hello!"))
       val unmounted = c2()
       assertEq(unmounted.props.name, "hello!")
-      ReactTestUtils.withNewBodyElement { mountNode =>
+      LegacyReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = unmounted.renderIntoDOM(mountNode)
         val n = mounted.getDOMNode.asMounted().asElement()
         assertOuterHTML(n, "<div>Hello hello!</div>")
@@ -150,7 +150,7 @@ object RawComponentEs6PTest extends TestSuite {
         .componentWillReceiveProps(x => x.backend.receive(x.currentProps, x.nextProps))
         .build
 
-      ReactTestUtils.withNewBodyElement { mountNode =>
+      LegacyReactTestUtils.withNewBodyElement { mountNode =>
         assertMountCount(0)
 
         var mounted = Comp(Props(1, 2, 3)).renderIntoDOM(mountNode)
@@ -211,7 +211,7 @@ object RawComponentEs6STest extends TestSuite {
       assert(unmounted.propsChildren.isEmpty)
       assertEq(unmounted.key, None)
       assertEq(unmounted.ref, None)
-      ReactTestUtils.withNewBodyElement { mountNode =>
+      LegacyReactTestUtils.withNewBodyElement { mountNode =>
         val mounted = unmounted.renderIntoDOM(mountNode)
         val n = mounted.getDOMNode.asMounted().asElement()
 

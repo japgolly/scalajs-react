@@ -3,7 +3,7 @@ package japgolly.scalajs.react.test
 import scala.scalajs.js
 
 /**
- * Allows composition and abstraction of `ReactTestUtils.Simulate` procedures.
+ * Allows composition and abstraction of `LegacyReactTestUtils.Simulate` procedures.
  */
 class Simulation(_run: (() => ReactOrDomNode) => Unit) {
 
