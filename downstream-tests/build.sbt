@@ -63,6 +63,11 @@ def commonSettings: Project => Project = _
                               case (2, _) => scalac2Flags
                               case (3, _) => scalac3Flags
                             }.value,
+    scalacOptions ++= // Required since sbt 1.6.0
+      sys.props.iterator
+        .filter(_._1.matches("(downstream_tests|japgolly).*"))
+        .map(x => s"-D${x._1}=${x._2}")
+        .toSeq,
     dependencyOverrides ++= globalDependencyOverrides.value,
   )
 
