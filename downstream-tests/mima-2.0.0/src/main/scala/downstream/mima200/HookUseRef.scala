@@ -2,7 +2,7 @@ package downstream.mima200
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.DomTester
-import japgolly.scalajs.react.test.ReactTestUtils._
+import japgolly.scalajs.react.test.LegacyReactTestUtils._
 import japgolly.scalajs.react.vdom.html_<^._
 
 // As part of https://github.com/japgolly/scalajs-react/issues/1037,

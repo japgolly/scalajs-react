@@ -91,8 +91,8 @@ object RouterTest extends TestSuite {
     import MyPage.{Root, Hello, Greet, QueryParamPage}
     val base = RouterTestHelp.localBaseUrl_/
     val router = Router(base, MyPage.config.logToConsole)
-    ReactTestUtils2.withElementSync { container =>
-      ReactTestUtils2.actSync(ReactDOMClient.createRoot(container).render(router()))
+    ReactTestUtils.withElementSync { container =>
+      ReactTestUtils.actSync(ReactDOMClient.createRoot(container).render(router()))
       def html = container.outerHTML
 
       def testView(routeSuffix: String, p: MyPage): Unit = {

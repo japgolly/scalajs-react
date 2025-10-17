@@ -2,7 +2,7 @@ package japgolly.scalajs.react.test
 
 import japgolly.microlibs.testutil.TestUtil._
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.test.ReactTestUtils2._
+import japgolly.scalajs.react.test.ReactTestUtils._
 import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.util.Effect.Async
 import org.scalajs.dom.html.{Button, Element, Input}

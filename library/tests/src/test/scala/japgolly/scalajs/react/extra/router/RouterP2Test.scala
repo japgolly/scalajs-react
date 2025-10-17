@@ -163,13 +163,13 @@ object RouterP2Test extends TestSuite {
     val ctx = new Ctx(42)
 
     val sim = SimHistory(base.abs)
-    val container = ReactTestUtils2.newElement()
+    val container = ReactTestUtils.newElement()
     val root = TestReactRoot(container)
     root.renderSync(router(ctx))
 
     def forceUpdate() = root.renderSync(router(ctx))
     def html = container.outerHTML
-    def ctlSetSync(p: MyPage2): Unit = ReactTestUtils2.actSync(ctl.set(p).runNow())
+    def ctlSetSync(p: MyPage2): Unit = ReactTestUtils.actSync(ctl.set(p).runNow())
     def currentPage(): Option[MyPage2] = lgc.parseUrl(AbsUrl(dom.window.location.href)).flatMap(config.rules.parse(_).runNow().toOption)
     isUserLoggedIn = false
 
@@ -273,7 +273,7 @@ object RouterP2Test extends TestSuite {
       var i = 0
       val ctl2 = ctl.onSet(Callback(i += 1) >> _)
       isUserLoggedIn = true
-      ReactTestUtils2.actSync(ctl2.set(PrivatePage2).runNow())
+      ReactTestUtils.actSync(ctl2.set(PrivatePage2).runNow())
       assertEq(currentPage(), Some(PrivatePage2))
       assertContains(html, secret)
       assertEq(i, 1)
@@ -338,7 +338,7 @@ object RouterP2Test extends TestSuite {
         assertContains(html, "Private #1 (42)")
 
         isUserLoggedIn = false
-        ReactTestUtils2.actSync(ctl.refresh.runNow())
+        ReactTestUtils.actSync(ctl.refresh.runNow())
         assertContains(html, ">Home (42)</span>") // not at link cos current page
         assertNotContains(html, "Private page") // not logged in
       }
@@ -349,7 +349,7 @@ object RouterP2Test extends TestSuite {
         assertContains(html, "Private #3 (42)")
 
         isUserLoggedIn = false
-        ReactTestUtils2.actSync(ctl.refresh.runNow())
+        ReactTestUtils.actSync(ctl.refresh.runNow())
         assertContains(html, "AccessDenied")
       }
 
@@ -359,7 +359,7 @@ object RouterP2Test extends TestSuite {
         assertContains(html, "Private #4 (42)")
 
         isUserLoggedIn = false
-        ReactTestUtils2.actSync(ctl.refresh.runNow())
+        ReactTestUtils.actSync(ctl.refresh.runNow())
         assertContains(html, "AccessDenied")
       }
 

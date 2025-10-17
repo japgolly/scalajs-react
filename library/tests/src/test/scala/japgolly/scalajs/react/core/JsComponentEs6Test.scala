@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.core
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.test.{ReactTestUtils, ReactTestUtils2}
+import japgolly.scalajs.react.test.{LegacyReactTestUtils, ReactTestUtils}
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
 import scala.scalajs.js
@@ -36,7 +36,7 @@ object JsComponentEs6PTest extends JsComponentTest {
       def p = JsProps("Bob")
       "c" - assertEq(Component.displayName, n)
       "u" - assertEq(Component(p).displayName, n)
-      "m" - assertEq(ReactTestUtils.withRenderedIntoDocument(Component(p))(_.displayName), n)
+      "m" - assertEq(LegacyReactTestUtils.withRenderedIntoDocument(Component(p))(_.displayName), n)
     }
 
     "noChildren" - {
@@ -47,7 +47,7 @@ object JsComponentEs6PTest extends JsComponentTest {
         assertEq(unmounted.propsChildren.isEmpty, true)
         assertEq(unmounted.key, None)
         assertEq(unmounted.ref, None)
-        ReactTestUtils.withNewBodyElement { mountNode =>
+        LegacyReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = unmounted.renderIntoDOM(mountNode)
           val n = mounted.getDOMNode.asMounted().asElement()
           assertOuterHTML(n, "<div>Hello Bob</div>")
@@ -66,7 +66,7 @@ object JsComponentEs6PTest extends JsComponentTest {
         assertEq(unmounted.propsChildren.isEmpty, true)
         assertEq(unmounted.key, Some("hehe": Key))
         assertEq(unmounted.ref, None)
-        ReactTestUtils.withNewBodyElement { mountNode =>
+        LegacyReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = unmounted.renderIntoDOM(mountNode)
           val n = mounted.getDOMNode.asMounted().asElement()
           assertOuterHTML(n, "<div>Hello Bob</div>")
@@ -105,7 +105,7 @@ object JsComponentEs6PTest extends JsComponentTest {
         assertEq(unmounted.propsChildren.isEmpty, false)
         assertEq(unmounted.key, None)
         assertEq(unmounted.ref, None)
-        ReactTestUtils.withNewBodyElement { mountNode =>
+        LegacyReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = unmounted.renderIntoDOM(mountNode)
           val n = mounted.getDOMNode.asMounted().asElement()
           assertOuterHTML(n, "<div>Hello X<h1>Huge</h1></div>")
@@ -118,7 +118,7 @@ object JsComponentEs6PTest extends JsComponentTest {
       }
 
       "withKey" - {
-        ReactTestUtils2.withRenderedSync(C.withKey("k")(JsProps("X"))(H1)) { t  =>
+        ReactTestUtils.withRenderedSync(C.withKey("k")(JsProps("X"))(H1)) { t  =>
           t.outerHTML.assert("<div>Hello X<h1>Huge</h1></div>")
         }
       }
@@ -157,7 +157,7 @@ object JsComponentEs6STest extends JsComponentTest {
       def n = "Statey"
       "c" - assertEq(Component.displayName, n)
       "u" - assertEq(Component().displayName, n)
-      "m" - assertEq(ReactTestUtils.withRenderedIntoDocument(Component())(_.displayName), n)
+      "m" - assertEq(LegacyReactTestUtils.withRenderedIntoDocument(Component())(_.displayName), n)
     }
 
     "noChildren" - {
@@ -170,7 +170,7 @@ object JsComponentEs6STest extends JsComponentTest {
         assertEq(unmounted.propsChildren.isEmpty, true)
         assertEq(unmounted.key, None)
         assertEq(unmounted.ref, None)
-        ReactTestUtils.withNewBodyElement { mountNode =>
+        LegacyReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = unmounted.renderIntoDOM(mountNode)
           val n = mounted.getDOMNode.asMounted().asElement()
           var s = JsState(123, 500)
@@ -229,7 +229,7 @@ object JsComponentEs6STest extends JsComponentTest {
         assert(Component() eq Component())
 
       "withKey" - {
-        ReactTestUtils2.withRenderedSync(Component.withKey("k")()) { t =>
+        ReactTestUtils.withRenderedSync(Component.withKey("k")()) { t =>
           t.outerHTML.assert("<div>State = 123 + 500</div>")
         }
       }
@@ -257,7 +257,7 @@ object JsComponentEs6STest extends JsComponentTest {
         assertEq(unmounted.propsChildren.isEmpty, false)
         assertEq(unmounted.key, None)
         assertEq(unmounted.ref, None)
-        ReactTestUtils.withNewBodyElement { mountNode =>
+        LegacyReactTestUtils.withNewBodyElement { mountNode =>
           val mounted = unmounted.renderIntoDOM(mountNode)
           val n = mounted.getDOMNode.asMounted().asElement()
 
@@ -271,7 +271,7 @@ object JsComponentEs6STest extends JsComponentTest {
       }
 
       "withKey" - {
-        ReactTestUtils2.withRenderedSync(C.withKey("k")(H1)) { t =>
+        ReactTestUtils.withRenderedSync(C.withKey("k")(H1)) { t =>
           t.outerHTML.assert("<div>State = 123 + 500<h1>Huge</h1></div>")
         }
       }

@@ -4,7 +4,7 @@ import japgolly.scalajs.react.Hooks.UseEffectArg
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.hooks.HookResult
-import japgolly.scalajs.react.test.ReactTestUtils2._
+import japgolly.scalajs.react.test.ReactTestUtils._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.test.{DomTester, TestReactRoot}
 import japgolly.scalajs.react.vdom.html_<^._

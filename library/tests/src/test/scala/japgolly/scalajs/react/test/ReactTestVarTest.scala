@@ -75,7 +75,7 @@ object ReactTestVarTest extends AsyncTestSuite {
         .render_P(parent => <.div(parent.state.runNow(), ^.onClick --> parent.modState(_ + 1)))
         .build
       val v = ReactTestVar(1)
-      ReactTestUtils2.withRendered(c(v.stateAccess)) { d =>
+      ReactTestUtils.withRendered(c(v.stateAccess)) { d =>
         v.onUpdate(d.root.renderSync(c(v.stateAccess)))
         d.outerHTML.assert("<div>1</div>")
         d.actOnNode_(Simulate.click(_)).map{ _ =>

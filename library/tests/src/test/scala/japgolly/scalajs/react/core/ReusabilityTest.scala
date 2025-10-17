@@ -318,7 +318,7 @@ object ReusabilityTest extends TestSuite {
         val pic1b = Picture(1, "eqwrg", "seafr")
         val pic2  = Picture(2, "asdf", "qer")
 
-        ReactTestUtils2.withRenderedSync(component(Props("n", None, pic1a))) { t =>
+        ReactTestUtils.withRenderedSync(component(Props("n", None, pic1a))) { t =>
           def test(expectDelta: Int, s: Props): Unit = {
             val a = renderCount
             nextState = s
@@ -345,7 +345,7 @@ object ReusabilityTest extends TestSuite {
         import SampleComponent2._
         val data1: M = Map(1 -> "One", 2 -> "Two", 3 -> "Three")
         val data2: M = Map(1 -> "One", 2 -> "Two", 3 -> "33333")
-        ReactTestUtils2.withRenderedSync(outerComponent(data1)) { t =>
+        ReactTestUtils.withRenderedSync(outerComponent(data1)) { t =>
           assertEq((outerRenderCount, innerRenderCount), (1, 3))
           // println()
           // println(">>> c.forceUpdate")

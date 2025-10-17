@@ -11,8 +11,8 @@ for how to write tests for real-world scalajs-react applications.
 #### Contents
 
 - [Setup](#setup)
-- [`ReactTestUtils2`](#reacttestutils2-since-300)
-- [`ReactTestUtils [DEPRECATED IN 3.0.0]`](#reacttestutils-deprecated-in-300)
+- [`ReactTestUtils`](#reacttestutils-since-300)
+- [`LegacyReactTestUtils [DEPRECATED IN 3.0.0]`](#legacyreacttestutils-deprecated-in-300)
 - [`Simulate` and `Simulation`](#simulate-and-simulation)
 - [`Testing props changes`](#testing-props-changes)
 - [`ReactTestVar`](#reacttestvar)
@@ -40,9 +40,12 @@ for how to write tests for real-world scalajs-react applications.
        commonJSName "ReactTestUtils"
    ```
 
-# `ReactTestUtils2 [SINCE 3.0.0]`
+# `ReactTestUtils [SINCE 3.0.0]`
 
-Read through the following for how to test with `ReactTestUtils2`.
+`ReactTestUtils` has been rewritten for scalajs-react v3 and React v18.
+What used to be `ReactTestUtils` prior to scalajs-react v3 has been renamed to `LegacyReactTestUtils`.
+
+Read through the following for how to test with `ReactTestUtils`.
 
 ```scala
 import japgolly.scalajs.react._
@@ -66,7 +69,7 @@ object TestUtilsDemo extends TestSuite {
   override def tests = Tests {
 
     // First we render the component
-    ReactTestUtils2.withRenderedSync(Component("Axe")) { t =>
+    ReactTestUtils.withRenderedSync(Component("Axe")) { t =>
 
       // We have a variety of ways to test the HTML
       t.outerHTML.assert("<div><p>Hi Axe. You clicked 0 times</p><button>Click me</button></div>")
@@ -86,9 +89,11 @@ object TestUtilsDemo extends TestSuite {
 }
 ```
 
-# `ReactTestUtils [DEPRECATED IN 3.0.0]`
+# `LegacyReactTestUtils [DEPRECATED IN 3.0.0]`
 
-The main bucket of testing utilities lies in `japgolly.scalajs.react.test.ReactTestUtils`.
+This used to be called `ReactTestUtils` prior to scalajs-react v3 and React v18.
+
+The main bucket of testing utilities lies in `japgolly.scalajs.react.test.LegacyReactTestUtils`.
 
 Half of the methods delegate to React.JS's [React.addons.TestUtils](https://facebook.github.io/react/docs/test-utils.html)
 (for which there is a raw facade in `japgolly.scalajs.react.test.raw.ReactAddonsTestUtils` if you're interested).
@@ -116,7 +121,7 @@ The other half are new functions added specifically in scalajs-react.
 
 There's only one magic implicit method this time around:
 Mounted components get `.outerHtmlScrubbed()` which is shorthand for
-`ReactTestUtils.removeReactInternals(m.getDOMNode.outerHTML)`.
+`LegacyReactTestUtils.removeReactInternals(m.getDOMNode.outerHTML)`.
 
 # `Simulate` and `Simulation`
 
@@ -161,8 +166,20 @@ s run component
 
 # Testing props changes
 
-When you want to simulate a parent component re-rendering a child component with different props,
-you can test the child directly using `ReactTestUtils.{modify,replace}Props`.
+If you're using scalajs-react v3 and React v18, simply call `.render` from your React root. Example:
+
+```scala
+ReactTestUtils.withRendered(Carrot.Props("1").render) { t =>
+  for {
+    _ <- t.root.render(Carrot.Props("1").render)
+    _ <- t.root.render(Carrot.Props("2").render)
+  } yield ()
+}
+```
+
+If you're not using scalajs-react v3 and React v18, then
+when you want to simulate a parent component re-rendering a child component with different props,
+you can test the child directly using `LegacyReactTestUtils.{modify,replace}Props`.
 
 Example of code to test:
 
@@ -181,13 +198,13 @@ val CP = ScalaComponent.builder[String]("asd")
 Example test case:
 
 ```scala
-ReactTestUtils.withRenderedIntoDocument(CP("start")) { m =>
+LegacyReactTestUtils.withRenderedIntoDocument(CP("start")) { m =>
   assert(m.outerHtmlScrubbed(), "<div>none → start</div>")
 
-  ReactTestUtils.modifyProps(CP, m)(_ + "ed")
+  LegacyReactTestUtils.modifyProps(CP, m)(_ + "ed")
   assert(m.outerHtmlScrubbed(), "<div>start → started</div>")
 
-  ReactTestUtils.replaceProps(CP, m)("done!")
+  LegacyReactTestUtils.replaceProps(CP, m)("done!")
   assert(m.outerHtmlScrubbed(), "<div>started → done!</div>")
 }
 ```
@@ -227,7 +244,7 @@ object ExampleTest extends TestSuite {
   override def tests = TestSuite {
 
     val nameVar = ReactTestVar("guy")
-    ReactTestUtils.withRenderedIntoDocument(NameChanger(nameVar.stateSnapshot())) { m =>
+    LegacyReactTestUtils.withRenderedIntoDocument(NameChanger(nameVar.stateSnapshot())) { m =>
       SimEvent.Change("bob").simulate(m)
       assert(nameVar.value() == "bob")
     }
@@ -245,7 +262,7 @@ via `.forceUpdate`.
 val component: ScalaComponent[StateAccessPure[Int], Unit, Unit] = ...
 
 val testVar = ReactTestVar(1)
-ReactTestUtils.withRenderedIntoDocument(component(testVar.stateAccess)) { m =>
+LegacyReactTestUtils.withRenderedIntoDocument(component(testVar.stateAccess)) { m =>
   testVar.onUpdate(m.forceUpdate) // Update the component when it changes the state
 
   assert(m.outerHtmlScrubbed() == "<div>1</div>")
@@ -273,7 +290,7 @@ for how to write tests for real-world scalajs-react applications.
 
 # Fatal React warnings
 
-The easiest way to make `ReactTestUtils` to turn React warnings into runtime exceptions,
+The easiest way to make `LegacyReactTestUtils` to turn React warnings into runtime exceptions,
 is via a [config option](./CONFIG.md#testwarningsreact).
 
 Alternatively, you can do any of the following...
@@ -287,7 +304,7 @@ Alternatively, you can do any of the following...
   }
   ```
 
-- Installing for all `ReactTestUtils` usage
+- Installing for all `LegacyReactTestUtils` usage
 
   ```scala
   import japgolly.scalajs.react.test.ReactTestUtilsConfig

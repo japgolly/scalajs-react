@@ -5,7 +5,7 @@ import japgolly.microlibs.compiletime.CompileTimeInfo
 import japgolly.microlibs.testutil.TestUtil._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
-import japgolly.scalajs.react.test.ReactTestUtils2
+import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.util.JsUtil
 import org.scalajs.dom.console
 import scala.scalajs.js
@@ -66,13 +66,13 @@ object RuntimeTests extends AsyncTestSuite {
       val io = IO(completePromise(Try(()))())
 
       for {
-        _ <- ReactTestUtils2.withRendered(Carrot.Props("1", io).render) { m =>
+        _ <- ReactTestUtils.withRendered(Carrot.Props("1", io).render) { m =>
           for {
             _ <- m.root.render(Carrot.Props("1").render)
             _ <- m.root.render(Carrot.Props("2").render)
           } yield ()
         }
-        _ <- ReactTestUtils2.withRendered(Pumpkin.Component("1")) { m =>
+        _ <- ReactTestUtils.withRendered(Pumpkin.Component("1")) { m =>
           for {
             _ <- m.root.render(Pumpkin.Component("1"))
             _ <- m.root.render(Pumpkin.Component("2"))
@@ -95,14 +95,14 @@ object RuntimeTests extends AsyncTestSuite {
 
       "react" - {
         val c = ScalaFnComponent[Int](i => <.p(<.td(s"i = $i")))
-        ReactTestUtils2.withRendered_(c(123))(_ => ()).attemptTry.map { t =>
+        ReactTestUtils.withRendered_(c(123))(_ => ()).attemptTry.map { t =>
           assertEq(t.isFailure, testWarningsReact.contains("react"))
         }
       }
 
       "unlreated" - {
         val c = ScalaFnComponent[Int](i => <.p(s"i = $i"))
-        ReactTestUtils2.withRendered_(c(123)) { _ =>
+        ReactTestUtils.withRendered_(c(123)) { _ =>
           console.info(".")
           console.log(".")
           console.warn(".")
