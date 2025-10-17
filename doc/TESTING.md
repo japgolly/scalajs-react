@@ -42,6 +42,9 @@ for how to write tests for real-world scalajs-react applications.
 
 # `ReactTestUtils [SINCE 3.0.0]`
 
+`ReactTestUtils` has been rewritten for scalajs-react v3 and React v18.
+What used to be `ReactTestUtils` prior to scalajs-react v3 has been renamed to `LegacyReactTestUtils`.
+
 Read through the following for how to test with `ReactTestUtils`.
 
 ```scala
@@ -87,6 +90,8 @@ object TestUtilsDemo extends TestSuite {
 ```
 
 # `LegacyReactTestUtils [DEPRECATED IN 3.0.0]`
+
+This used to be called `ReactTestUtils` prior to scalajs-react v3 and React v18.
 
 The main bucket of testing utilities lies in `japgolly.scalajs.react.test.LegacyReactTestUtils`.
 
@@ -161,7 +166,19 @@ s run component
 
 # Testing props changes
 
-When you want to simulate a parent component re-rendering a child component with different props,
+If you're using scalajs-react v3 and React v18, simply call `.render` from your React root. Example:
+
+```scala
+ReactTestUtils.withRendered(Carrot.Props("1").render) { t =>
+  for {
+    _ <- t.root.render(Carrot.Props("1").render)
+    _ <- t.root.render(Carrot.Props("2").render)
+  } yield ()
+}
+```
+
+If you're not using scalajs-react v3 and React v18, then
+when you want to simulate a parent component re-rendering a child component with different props,
 you can test the child directly using `LegacyReactTestUtils.{modify,replace}Props`.
 
 Example of code to test:
