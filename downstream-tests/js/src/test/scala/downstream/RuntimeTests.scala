@@ -96,8 +96,9 @@ object RuntimeTests extends AsyncTestSuite {
       "react" - {
         val c = ScalaFnComponent[Int](i => <.p(<.td(s"i = $i")))
         ReactTestUtils.withRendered_(c(123))(_ => ()).attemptTry.map { t =>
+          println(testWarningsReact)
+          println(t.toEither)
           assertEq(t.isFailure, testWarningsReact.contains("fatal"))
-          (testWarningsReact, t.toEither)
         }
       }
 
