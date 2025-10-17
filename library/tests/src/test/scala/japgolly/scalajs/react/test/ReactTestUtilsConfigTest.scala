@@ -28,9 +28,10 @@ object ReactTestUtilsConfigTest extends AsyncTestSuite {
     "warnings" - {
       "react" - AroundReact.fatalReactWarnings {
         val c = ScalaFnComponent[Int](i => <.p(<.td(s"i = $i")))
-        ReactTestUtils.withRendered_(c(123))(_ => ()).attemptTry.map( t =>
+        ReactTestUtils.withRendered_(c(123))(_ => ()).attemptTry.map { t =>
           assertEq(t.isFailure, true)
-        )
+          t.toEither
+        }
       }
 
       "unlreated" - AroundReact.fatalReactWarnings {
