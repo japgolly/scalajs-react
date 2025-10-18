@@ -4,7 +4,6 @@ import cats.effect.IO
 import japgolly.microlibs.compiletime.CompileTimeInfo
 import japgolly.microlibs.testutil.TestUtil._
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.util.JsUtil
 import scala.scalajs.js
