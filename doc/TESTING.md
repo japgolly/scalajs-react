@@ -290,10 +290,7 @@ for how to write tests for real-world scalajs-react applications.
 
 # Fatal React warnings
 
-The easiest way to make `ReactTestUtils` or `LegacyReactTestUtils` to turn React warnings into runtime exceptions,
-is via a [config option](./CONFIG.md#testwarningsreact).
-
-Alternatively, you can do any of the following...
+To turn React warnings into runtime exceptions, do any of the following...
 
 - Wrapping a test
 
