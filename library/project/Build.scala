@@ -251,7 +251,7 @@ object ScalaJsReact {
 
   lazy val util = project
     .dependsOn(utilFallbacks % Provided)
-    .configure(commonSettings, publicationSettings, hasNoTests, disableScalaDoc3, prohibitDefaultEffects)
+    .configure(commonSettings, publicationSettings, utestSettings, disableScalaDoc3, prohibitDefaultEffects)
     .settings(
       libraryDependencies += Dep.scalaJsDom.value,
     )
