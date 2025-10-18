@@ -25,6 +25,16 @@ If this is important to you or your organisation, feel free to reach out and spo
 
 # Compile-Time Settings: Usage
 
+First add this to your sbt:
+
+```scala
+scalacOptions ++= // Required since sbt 1.6.0
+  sys.props.iterator
+    .filter(_._1.contains("japgolly"))
+    .map(x => s"-D${x._1}=${x._2}")
+    .toSeq
+```
+
 Currently, you have to specify compile-time settings to `sbt` directly when you start it.
 
 Examples:
