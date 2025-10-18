@@ -17,6 +17,9 @@ trait Effect[F[_]] extends Monad[F] {
 
   @inline final def throwException[A](t: Throwable): F[A] =
     delay(throw t)
+
+  def onError[A, B](fa: => F[A], f: Throwable => F[B]): F[A] =
+    handleError[A, A](fa)(t => finallyRun(throwException[A](t), f(t)))
 }
 
 object Effect extends EffectFallbacks {

@@ -19,19 +19,23 @@ class Resource[F[_]: Effect, A](private val acquire: F[A], private val release: 
     var aOpt: Option[A] = None
     var bReleaseOpt: Option[B => F[Unit]] = None
 
-    Resource.make(
-      F.flatMap(acquire){ a =>
-        aOpt = Some(a)
-        val other: Resource[F, B] = f(a)
-        bReleaseOpt = Some(other.release)
-        other.acquire
-      },
-      b =>
-        (aOpt, bReleaseOpt) match {
-          case (Some(a), Some(bRelease)) => F.finallyRun(bRelease(b), release(a))
-          case _ => F.throwException(new IllegalStateException("Resource.flatMap: release attempted without acquire being invoked") )
+    val newAcquire: F[B] = F.flatMap(acquire) { a =>
+      aOpt = Some(a)
+      val acquireB: F[B] =
+        F.flatMap(F.delay(f(a))) { otherResource =>
+          bReleaseOpt = Some(otherResource.release)
+          otherResource.acquire
         }
-    )
+      F.onError(acquireB, _ => release(a))
+    }
+
+    val newRelease: B => F[Unit] = b =>
+      (aOpt, bReleaseOpt) match {
+        case (Some(a), Some(bRelease)) => F.finallyRun(bRelease(b), release(a))
+        case _ => F.throwException(new IllegalStateException("Resource.flatMap: release attempted without a successful acquire"))
+      }
+
+    Resource.make[F, B](newAcquire, newRelease)
   }
 
   def map[B](f: A => B): Resource[F, B] =
