@@ -120,11 +120,18 @@ trait ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtilE
     Resource.make(Effect[F].delay(newElement()), e => Effect[F].delay(removeElement(e)))
 
   val withReactRootSync: WithDsl[TestReactRoot, ImplicitUnit] =
-    withElementSync.mapResource(TestReactRoot(_))(_.unmountSync())
+    withElementSync
+      .mapResource(e => {
+        val stop = ReactTestUtilsConfig.aroundReact.start()
+        (e, stop)
+      })(_._2())
+      .mapResource(x => TestReactRoot(x._1))(_.unmountSync())
 
-  def withReactRoot[F[_]: Async]: Resource[F, TestReactRoot] =
-    withElement[F].flatMap{ e =>
-      Resource.make_[F, TestReactRoot](TestReactRoot(e), _.unmount[F]())
+  def withReactRoot[F[_]](implicit F: Async[F]): Resource[F, TestReactRoot] =
+    withElement[F].flatMap { e =>
+      Resource.make_[F, () => Unit](ReactTestUtilsConfig.aroundReact.start(), stop => F.delay(stop())).flatMap { _ =>
+        Resource.make_[F, TestReactRoot](TestReactRoot(e), _.unmount[F]())
+      }
     }
 
   def withRenderedSync[A](unmounted: A): WithDsl[TestDomWithRoot, Renderable[A]] =

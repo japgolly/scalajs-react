@@ -20,6 +20,7 @@ def scalacCommonFlags: Seq[String] = Seq(
 )
 
 def scalac2Flags = Seq(
+  "-Wconf:cat=lint-infer-any&msg=kind-polymorphic:s", // https://github.com/scala/bug/issues/13128
   "-Wunused:explicits",                            // Warn if an explicit parameter is unused.
   "-Wunused:implicits",                            // Warn if an implicit parameter is unused.
   "-Wunused:imports",                              // Warn if an import selector is not referenced.
@@ -63,6 +64,11 @@ def commonSettings: Project => Project = _
                               case (2, _) => scalac2Flags
                               case (3, _) => scalac3Flags
                             }.value,
+    scalacOptions ++= // Required since sbt 1.6.0
+      sys.props.iterator
+        .filter(_._1.matches("(downstream_tests|japgolly).*"))
+        .map(x => s"-D${x._1}=${x._2}")
+        .toSeq,
     dependencyOverrides ++= globalDependencyOverrides.value,
   )
 

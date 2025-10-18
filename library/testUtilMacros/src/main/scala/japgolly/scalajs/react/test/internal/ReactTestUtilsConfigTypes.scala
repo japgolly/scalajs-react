@@ -26,12 +26,14 @@ object ReactTestUtilsConfigTypes {
   object AroundReact {
 
     object id extends AroundReact {
+      override def toString = "AroundReact.id"
       override def start(): () => Unit = () => ()
       override def sync[A](body: => A): A = body
       override def apply[F[_]: Effect, A](body: F[A]): F[A] = body
     }
 
     object fatalReactWarnings extends AroundReact {
+      override def toString = "AroundReact.fatalReactWarnings"
       val consoleHijack = ConsoleHijack.fatalReactWarnings
       override def start(): () => Unit =
         consoleHijack.install()

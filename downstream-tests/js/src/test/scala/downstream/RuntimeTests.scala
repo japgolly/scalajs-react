@@ -4,10 +4,8 @@ import cats.effect.IO
 import japgolly.microlibs.compiletime.CompileTimeInfo
 import japgolly.microlibs.testutil.TestUtil._
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.util.JsUtil
-import org.scalajs.dom.console
 import scala.scalajs.js
 import scala.scalajs.LinkingInfo.developmentMode
 import scala.util.Try
@@ -16,10 +14,9 @@ import japgolly.scalajs.react.AsyncTestSuite
 
 object RuntimeTests extends AsyncTestSuite {
 
-  val compNameAuto      = CompileTimeInfo.sysProp("japgolly.scalajs.react.component.names.implicit")
-  val compNameAll       = CompileTimeInfo.sysProp("japgolly.scalajs.react.component.names.all")
-  val configClass       = CompileTimeInfo.sysProp("japgolly.scalajs.react.config.class")
-  val testWarningsReact = CompileTimeInfo.sysProp("japgolly.scalajs.react.test.warnings.react")
+  val compNameAuto = CompileTimeInfo.sysProp("japgolly.scalajs.react.component.names.implicit")
+  val compNameAll  = CompileTimeInfo.sysProp("japgolly.scalajs.react.component.names.all")
+  val configClass  = CompileTimeInfo.sysProp("japgolly.scalajs.react.config.class")
 
   val dsCfg1 = configClass.contains("downstream.DownstreamConfig1")
   val dsCfg2 = configClass.contains("downstream.DownstreamConfig2")
@@ -91,26 +88,5 @@ object RuntimeTests extends AsyncTestSuite {
       } yield ()
     }
 
-    "testWarnings" - {
-
-      "react" - {
-        val c = ScalaFnComponent[Int](i => <.p(<.td(s"i = $i")))
-        ReactTestUtils.withRendered_(c(123))(_ => ()).attemptTry.map { t =>
-          assertEq(t.isFailure, testWarningsReact.contains("react"))
-        }
-      }
-
-      "unlreated" - {
-        val c = ScalaFnComponent[Int](i => <.p(s"i = $i"))
-        ReactTestUtils.withRendered_(c(123)) { _ =>
-          console.info(".")
-          console.log(".")
-          console.warn(".")
-          console.error(".")
-        }.attemptTry.map { t =>
-          assertEq(t.isFailure, false)
-        }
-      }
-    }
   }
 }

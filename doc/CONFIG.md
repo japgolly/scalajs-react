@@ -6,7 +6,6 @@
   * [`.component.names.all`](#componentnamesall)
   * [`.component.names.implicit`](#componentnamesimplicit)
   * [`.config.class` *(Scala 3 only)*](#configclass-scala-3-only)
-  * [`.test.warnings.react`](#testwarningsreact)
 * Runtime Settings *(development-mode only)*
   * [Usage](#runtime-settings-usage)
   * [`Reusability.disableGloballyInDev()`](#reusabilitydisablegloballyindev)
@@ -25,6 +24,16 @@ This may (and should) change in the future.
 If this is important to you or your organisation, feel free to reach out and sponsor the required work.
 
 # Compile-Time Settings: Usage
+
+First add this to your sbt:
+
+```scala
+scalacOptions ++= // Required since sbt 1.6.0
+  sys.props.iterator
+    .filter(_._1.contains("japgolly"))
+    .map(x => s"-D${x._1}=${x._2}")
+    .toSeq
+```
 
 Currently, you have to specify compile-time settings to `sbt` directly when you start it.
 
@@ -161,60 +170,6 @@ object CustomConfig extends ScalaJsReactConfig.Defaults {
 }
 ```
 
-
-# `.test.warnings.react`
-
-When using `LegacyReactTestUtils`, this setting can be used to catch React warnings and turn them into exceptions.
-
-### Usage:
-
-```
-sbt -Djapgolly.scalajs.react.test.warnings.react=warn|fatal
-```
-
-| Setting | Outcome |
-| -- | -- |
-| `warn` (default) | Print warnings and move on |
-| `fatal`  | Throw warnings as exceptions |
-
-### Example:
-
-```
-sbt -Djapgolly.scalajs.react.test.warnings.react=fatal
-```
-
-```scala
-package com.example
-
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.test._
-import japgolly.scalajs.react.vdom.html_<^._
-import utest._
-
-object ExampleTest extends TestSuite {
-
-  override def tests = Tests {
-    "example" - {
-      val comp = ScalaFnComponent[Int](i => <.p(<.td(s"i = $i")))
-      LegacyReactTestUtils.withRenderedIntoBody(comp(123)).withParent { m =>
-        val html = m.outerHTML
-        assert(html == "<p><td>i = 123</td></p>")
-      }
-    }
-  }
-}
-```
-
-Running the above test will fail with this error message:
-
-```
-scala.scalajs.js.JavaScriptException: Warning: validateDOMNesting(...): <td> cannot appear as a child of <p>.
-  at td
-  at p
-  at $c_sjs_js_Any$.fromFunction1__F1__sjs_js_Function1
-```
-
-
 # Runtime Settings: Usage
 
 Runtime settings are designed for use in development-mode only (`fastOptJS`).
@@ -241,7 +196,8 @@ object Main {
 
     // Start app
     val container = dom.document.getElementById("root")
-    MyApp().renderIntoDOM(container)
+    val root = ReactDOMClient.createRoot(container)
+    root.render(MyApp())
   }
 }
 ```
@@ -293,7 +249,8 @@ object Main {
 
     // Start app
     val container = dom.document.getElementById("root")
-    MyApp().renderIntoDOM(container)
+    val root = ReactDOMClient.createRoot(container)
+    root.render(MyApp())
   }
 }
 ```
