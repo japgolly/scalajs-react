@@ -15,6 +15,7 @@ package object test
       ReactTestVarF(a)
   }
 
+  @deprecated("Class-based components are now a legacy feature. Upgrade to hook-based components.", "3.0.0 / React v18")
   implicit def reactOrDomNodeFromMounted(m: GenericComponent.MountedRaw): ReactOrDomNode =
     ReactDOM.findDOMNode(m.raw).get.raw
 
