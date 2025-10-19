@@ -5,6 +5,7 @@ import japgolly.scalajs.react.util.Effect.Dispatch
 import org.scalajs.dom.{Event, EventTarget}
 import scala.scalajs.js
 
+@deprecated("EventListenerF is deprecated.", "3.0.0 / React v18")
 class EventListenerF[F[_]] {
   import EventListenerF.{defaultTarget, OfEventType}
 
@@ -37,6 +38,7 @@ class EventListenerF[F[_]] {
       useCapture)
 }
 
+@deprecated("EventListenerF is deprecated.", "3.0.0 / React v18")
 object EventListenerF {
 
   def defaultTarget[P, S, B]: ScalaComponent.MountedImpure[P, S, B] => EventTarget =

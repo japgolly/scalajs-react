@@ -8,6 +8,7 @@ package object extra
 
   object Ajax extends AjaxF[Sync, Async]
 
+  @deprecated("EventListener is deprecated.", "3.0.0 / React v18")
   object EventListener extends EventListenerF[Sync]
 
   type StateSnapshot[S] = japgolly.scalajs.react.extra.StateSnapshotF.StateSnapshot[S]
