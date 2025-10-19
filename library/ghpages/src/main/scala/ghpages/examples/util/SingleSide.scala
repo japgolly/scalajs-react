@@ -9,16 +9,17 @@ object SingleSide {
     def apply() = singleSideComponent(this)
   }
 
-  val singleSideComponent = ScalaComponent.builder[Content]
-    .render_P(p =>
-      <.div(
+  val singleSideComponent = ScalaFnComponent[Content] { p =>
+    for {
+      ref <- CodeSnippets.useSyntaxHighlighting
+    } yield
+      <.div.withRef(ref)(
         <.section(^.cls := "demo",
           <.div(^.cls := "demo", p.el)),
         <.hr,
         <.h3("Source"),
         <.div(^.cls := "row",
           <.div(^.cls := "col-md-10",
-            CodeSnippets.scala(p.scalaSource)))))
-    .configure(CodeSnippets.installSyntaxHighlighting)
-    .build
+            CodeSnippets.scala(p.scalaSource))))
+  }
 }

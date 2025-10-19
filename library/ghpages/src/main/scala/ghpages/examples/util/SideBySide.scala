@@ -9,9 +9,11 @@ object SideBySide {
     def apply() = sideBySideComponent(this)
   }
 
-  val sideBySideComponent = ScalaComponent.builder[Content]
-    .render_P(p =>
-      <.div(
+  val sideBySideComponent = ScalaFnComponent[Content] { p =>
+    for {
+      ref <- CodeSnippets.useSyntaxHighlighting
+    } yield
+      <.div.withRef(ref)(
         <.section(^.cls := "demo",
           <.div(^.cls := "demo", p.el)),
         <.hr,
@@ -21,8 +23,6 @@ object SideBySide {
             CodeSnippets.js(p.jsSource)),
           <.div(^.cls := "col-md-6",
             <.h3("Scala source"),
-            CodeSnippets.scala(p.scalaSource)))))
-    .configure(CodeSnippets.installSyntaxHighlighting)
-    .build
-
+            CodeSnippets.scala(p.scalaSource))))
+  }
 }
