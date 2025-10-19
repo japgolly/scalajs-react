@@ -70,8 +70,8 @@ object ReusabilityOverlay {
 }
 
 trait ReusabilityOverlay[F[_]] {
-  def onMount  : F[Unit]
-  def onUnmount: F[Unit]
-  val logGood  : F[Unit]
+  def onMount               : F[Unit]
+  def onUnmount             : F[Unit]
+  val logGood               : F[Unit]
   def logBad(reason: String): F[Unit]
 }

@@ -57,59 +57,56 @@ class TriStateCheckboxF[F[_]](implicit F: Sync[F]) {
   case class Props(state       : State,
                    setNextState: F[Unit],
                    disabled    : Boolean = false,
-                   tagMod      : Reusable[TagMod] = Reusable.emptyVdom,
+                   tagMod      : TagMod = TagMod.empty,
                   ) {
     @inline def render: VdomElement = Component(this)
-  }
-
-  private def render($: ScalaComponent.MountedPure[Props, Unit, Unit], p: Props) = {
-    val props = F.transSync($.props)(DefaultEffects.Sync)
-    val setNext = F.flatMap(props)(p => if (p.disabled) F.empty else p.setNextState) // Only access .setNextState inside Sync for Reusability
-    <.input.checkbox(
-      p.tagMod,
-      ^.disabled := p.disabled,
-      TagMod.unless(p.disabled)(eventHandlers(setNext)))
-  }
-
-  /**
-   * Clicking or pressing space = change.
-   */
-  def eventHandlers(onChange: F[Unit]): TagMod = {
-    def handleKey(e: ReactKeyboardEventFromHtml): F[Unit] =
-      F.delay {
-        EffectUtil.unsafeAsEventDefaultOption_(e)(
-          EffectUtil.unsafeKeyCodeSwitch(e) {
-            case KeyCode.Space => F.runSync(onChange)
-          }
-        )
-      }
-    TagMod(
-      ^.onClick   --> onChange,
-      ^.onKeyDown ==> handleKey)
-  }
-
-  private def updateDom[P, S, B]($: ScalaComponent.MountedImpure[P, S, B], nextProps: Props): F[Unit] = {
-    val s = nextProps.state
-    F.delay {
-      $.getDOMNode.toElement.map(_.domCast[Input]).foreach { d =>
-        d.checked       = s == Checked
-        d.indeterminate = s == Indeterminate
-      }
-    }
   }
 
   implicit val reusabilityState: Reusability[State] =
     Reusability.by_==
 
-  implicit val reusabilityProps: Reusability[Props] =
-    Reusability.caseClassExcept("setNextState") // .setNextState is never accessed outside of a Sync[Unit]
+  val Component = {
 
-  val Component = ScalaComponent.builder[Props]("TriStateCheckbox")
-    .stateless
-    .noBackend
-    .render(i => render(i.mountedPure, i.props))
-    .componentDidMount(i => updateDom(i.mountedImpure, i.props))
-    .componentDidUpdate(i => updateDom(i.mountedImpure, i.currentProps))
-    .configure(Reusability.shouldComponentUpdate)
-    .build
+    /** Clicking or pressing space = change. */
+    def eventHandlers(onChange: F[Unit]): TagMod = {
+      def handleKey(e: ReactKeyboardEventFromHtml): F[Unit] =
+        F.delay {
+          EffectUtil.unsafeAsEventDefaultOption_(e)(
+            EffectUtil.unsafeKeyCodeSwitch(e) {
+              case KeyCode.Space => F.runSync(onChange)
+            }
+          )
+        }
+      TagMod(
+        ^.onClick   --> onChange,
+        ^.onKeyDown ==> handleKey)
+    }
+
+    def updateDom(dom: Input, nextState: State): F[Unit] =
+      F.delay {
+        dom.checked       = nextState == Checked
+        dom.indeterminate = nextState == Indeterminate
+      }
+
+    ScalaFnComponent
+      .withHooks[Props]
+      .useRefToVdom[Input]
+      .useEffectWithDepsBy((props, _) => props.state) { (_, ref) => state =>
+        F.flatMap(
+          F.transSync(ref.get)(DefaultEffects.Sync)
+        ) {
+          case Some(input) => updateDom(input, state)
+          case None        => F.empty
+        }
+      }
+      .render { (props, ref) =>
+        val setNext = if (props.disabled) F.empty else props.setNextState
+
+        <.input.checkbox.withRef(ref)(
+          props.tagMod,
+          ^.disabled := props.disabled,
+          TagMod.unless(props.disabled)(eventHandlers(setNext))
+        )
+      }
+  }
 }
