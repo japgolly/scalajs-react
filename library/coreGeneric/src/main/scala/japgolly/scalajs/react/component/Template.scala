@@ -52,6 +52,7 @@ object Template {
 
     override implicit def F: UnsafeSync[F] = ft
     override implicit def A: Async[A]      = at
+    @deprecated("Add a ref directly to the element you want to reference.", "3.0.0")
     override def getDOMNode                = ft.transSync(from.getDOMNode)
     override def propsChildren             = ft.transSync(from.propsChildren)
     override def props                     = ft.transSync[Id, P2](mp(from.props))

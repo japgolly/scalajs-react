@@ -139,6 +139,8 @@ object Js extends JsBaseComponentTemplate[facade.React.ComponentClassP] {
       override def props                            = raw.props
       override def propsChildren                    = PropsChildren.fromRawProps(raw.props)
       override def state                            = raw.state
+
+      @deprecated("Add a ref directly to the element you want to reference.", "3.0.0")
       override def getDOMNode                       = ComponentDom.findDOMNode(raw)
 
       override def setState[G[_]](state: S, callback: => G[Unit])(implicit G: Dispatch[G]): Unit =
