@@ -29,7 +29,7 @@ object GhPages {
     )
       .notFound(redirectToPage(Home)(SetRouteVia.HistoryReplace))
       .renderWith(layout)
-      .verify(Home, Eg(ExamplesJs.Hello), Eg(ExamplesScala.Ajax1), Doco)
+      .verify(Home, Eg(ExamplesJs.Hello), Eg(ExamplesScala.EventListen), Doco)
   }
 
   def layout(c: RouterCtl[Page], r: Resolution[Page]) =
