@@ -9,6 +9,7 @@ import scala.scalajs.js
 /**
  * Heavily inspired by https://github.com/redsunsoft/react-render-visualizer
  */
+@deprecated("ReusabilityOverlays are deprecated and will be removed in the next major release.", "3.0.0 / React v18")
 object ReusabilityOverlay {
   type Comp = ScalaComponent.MountedImpure[Any, Any, Any]
 
@@ -69,6 +70,7 @@ object ReusabilityOverlay {
   }
 }
 
+@deprecated("ReusabilityOverlays are deprecated and will be removed in the next major release.", "3.0.0 / React v18")
 trait ReusabilityOverlay[F[_]] {
   def onMount               : F[Unit]
   def onUnmount             : F[Unit]
