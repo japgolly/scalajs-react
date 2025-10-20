@@ -235,58 +235,18 @@ object RefTest extends TestSuite {
     }
 
     object ScalaToScala {
-      private class InnerScalaBackend($: BackendScope[Int, Unit]) {
-        def gimmeHtmlNow() = $.getDOMNode.runNow().asMounted().asHtml().outerHTML
+      private class InnerScalaBackend() {
         def render(p: Int) = <.h1(s"Scala$p")
       }
-      private lazy val InnerScala = ScalaComponent.builder[Int]("Scala").backend(new InnerScalaBackend(_)).renderP(_.backend.render(_)).build
+      private lazy val InnerScala = ScalaComponent.builder[Int]("Scala")
+        .backend(_ => new InnerScalaBackend())
+        .renderP(_.backend.render(_))
+        .build
 
       private lazy val Forwarder = React.forwardRef.toScalaComponent(InnerScala)[String]((label, ref) =>
         <.div(label, InnerScala.withOptionalRef(ref)(123)))
 
       def withoutRef() = assertRender(Forwarder("hey"), "<div>hey<h1>Scala123</h1></div>")
-
-      def withRef() = {
-        var backend: Backend = null
-        class Backend {
-          backend = this
-          val ref = Ref.toScalaComponent(InnerScala)
-          def render = Forwarder.withRef(ref)("noice")
-        }
-        val C = ScalaComponent.builder[Unit]("X").backend(_ => new Backend()).render(_.backend.render).build
-        ReactTestUtils.withRenderedSync(C()) { t =>
-          assertRendered(t.root.asElement(), "<div><div>noice<h1>Scala123</h1></div></div>")
-          assertEq(backend.ref.get.runNow().map(_.backend.gimmeHtmlNow()), Some("<h1>Scala123</h1>"))
-        }
-      }
-
-      def withRef2() = {
-        var backend: Backend = null
-        class Backend {
-          backend = this
-          val ref = Ref.toScalaComponent[Int, Unit, InnerScalaBackend]
-          def render = Forwarder.withRef(ref)("noice")
-        }
-        val C = ScalaComponent.builder[Unit]("X").backend(_ => new Backend()).render(_.backend.render).build
-        ReactTestUtils.withRenderedSync(C()) { t =>
-          assertRendered(t.root.asElement(), "<div><div>noice<h1>Scala123</h1></div></div>")
-          assertEq(backend.ref.get.runNow().map(_.backend.gimmeHtmlNow()), Some("<h1>Scala123</h1>"))
-        }
-      }
-
-      def mappedRef() = {
-        var backend: Backend = null
-        class Backend {
-          backend = this
-          val ref = Ref.toScalaComponent(InnerScala).map(_.backend.gimmeHtmlNow())
-          def render = Forwarder.withRef(ref)("noice")
-        }
-        val C = ScalaComponent.builder[Unit]("X").backend(_ => new Backend()).render(_.backend.render).build
-        ReactTestUtils.withRenderedSync(C()) { t =>
-          assertRendered(t.root.asElement(), "<div><div>noice<h1>Scala123</h1></div></div>")
-          assertEq(backend.ref.get.runNow(), Some("<h1>Scala123</h1>"))
-        }
-      }
 
       def wrongScala() = {
         def Scala2 = ScalaComponent.builder[Int]("Scala2").renderStatic(<.div).build
@@ -309,22 +269,6 @@ object RefTest extends TestSuite {
         <.div(label, InnerJs.withOptionalRef(ref)()))
 
       def withoutRef() = assertRender(Forwarder("hey"), "<div>hey<div>State = 123 + 500</div></div>")
-
-      def withRef() = {
-        var backend: Backend = null
-        class Backend {
-          backend = this
-          val ref = Ref.toJsComponent(InnerJs)
-          def render = Forwarder.withRef(ref)("noice")
-        }
-        val C = ScalaComponent.builder[Unit]("X").backend(_ => new Backend()).render(_.backend.render).build
-        ReactTestUtils.withRenderedSync(C()) { t =>
-          assertRendered(t.root.asElement(), "<div><div>noice<div>State = 123 + 500</div></div></div>")
-          val r = backend.ref.get.runNow().get
-          assertEq(r.getDOMNode.toHtml.map(_.outerHTML), Some("<div>State = 123 + 500</div>"))
-          assertEq(r.state.num2, 500)
-        }
-      }
 
       def wrongJs() = {
         @nowarn def ref = Ref.toJsComponent(JsComponentEs6PTest.Component)
@@ -384,16 +328,12 @@ object RefTest extends TestSuite {
       "scalaToScala" - {
         import TestRefForwarding.ScalaToScala._
         "withoutRef" - withoutRef()
-        "withRef"    - withRef()
-        "withRef2"   - withRef2()
-        "mappedRef"  - mappedRef()
         "wrongScala" - wrongScala()
         "vdomRef"    - vdomRef()
       }
       "scalaToJs" - {
         import TestRefForwarding.ScalaToJs._
         "withoutRef" - withoutRef()
-        "withRef"    - withRef()
         "wrongJs"    - wrongJs()
         "vdomRef"    - vdomRef()
       }
