@@ -11,11 +11,13 @@ jobs:
     strategy:
       matrix:
         include:
-          - java: 14
+          - java: 18.0.1
             scala: 2
-          - java: 11
+            node: 24.10.0
+          - java: 11.0.15
             scala: 3
-    name: Scala v${{ matrix.scala }} / Java v${{ matrix.java }}
+            node: 18.20.8
+    name: Scala v${{ matrix.scala }} / Java v${{ matrix.java }} / Node v${{ matrix.node }}
     steps:
       - name: Git checkout
         uses: actions/checkout@v5
@@ -25,7 +27,9 @@ jobs:
       - name: Setup Scala
         uses: japgolly/setup-everything-scala@v3.1
         with:
-          java-version: adopt@1.${{ matrix.java }}
+          java-version: adoptium@1.${{ matrix.java }}
+          jsdom-version: 26.1.0
+          node-version: ${{ matrix.node }}
 
       - name: Build and test
         shell: bash
