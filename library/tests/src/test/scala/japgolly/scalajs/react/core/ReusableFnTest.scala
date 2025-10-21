@@ -6,6 +6,7 @@ import japgolly.scalajs.react.test._
 import utest.{assert => _, _}
 
 object ReusableFnTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
   object Fs {
     type F1[A] = Int ~=> A

@@ -20,7 +20,7 @@ object ConsoleHijackTest extends TestSuite {
 
       "error_hit"  - testThrows(console.error("Warning: this is a test"))
       "error_miss" - testPass(console.error("this is a test"))
-      "warn_hit"  - testPass(console.warn("Warning: this is a test"))
+      "warn_hit"  - testThrows(console.warn("Warning: this is a test"))
       "warn_miss" - testPass(console.warn("this is a test"))
     }
   }

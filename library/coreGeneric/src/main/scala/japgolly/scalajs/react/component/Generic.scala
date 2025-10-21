@@ -135,7 +135,9 @@ object Generic {
              type WithMappedProps[P2]    <: MountedSimple[F, A, P2, S]
     def mapProps[P2](f: P => P2): WithMappedProps[P2]
 
+    @deprecated("Add a ref directly to the element you want to reference.", "3.0.0")
     def getDOMNode: F[ComponentDom]
+
     def props: F[Props]
     def propsChildren: F[PropsChildren]
 

@@ -10,6 +10,7 @@ object ReactDOM {
   @inline def version = facade.ReactDOM.version
 
   /** For mounted components, use .getDOMNode */
+  @deprecated("findDOMNode is deprecated and will be removed in the next major release. Instead, add a ref directly to the element you want to reference.", "3.0.0 / React v18")
   def findDOMNode(componentOrElement: dom.Element | facade.React.ComponentUntyped): Option[ComponentDom.Mounted] =
     ComponentDom.findDOMNode(componentOrElement).mounted
 

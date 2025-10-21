@@ -5,6 +5,7 @@ import japgolly.scalajs.react.test.TestUtil._
 import utest._
 
 object ReusableTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
   def assertReusable[A](a: A, b: A)(implicit r: Reusability[A]): Unit =
     assert(a ~=~ b)

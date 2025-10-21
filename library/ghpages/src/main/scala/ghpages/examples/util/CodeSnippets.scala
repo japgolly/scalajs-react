@@ -20,13 +20,21 @@ object CodeSnippets {
   val scala: String => VdomTag =
     apply("scala")
 
-  def installSyntaxHighlighting[P, C <: Children, S, B, U <: UpdateSnapshot] =
-    (_: ScalaComponent.Builder[P, C, S, B, U])
-      .componentDidMount (_.getDOMNode.toElement.fold(Callback.empty)(applySyntaxHighlighting))
-      .componentDidUpdate(_.getDOMNode.toElement.fold(Callback.empty)(applySyntaxHighlighting))
+  val useSyntaxHighlighting: HookResult[Ref.ToVdom[Element]] =
+    for {
+      ref <- useRefToVdom[Element]
+      _ <- useEffect(applySyntaxHighlightingToRef(ref))
+    } yield ref
 
-  private def applySyntaxHighlighting(root: Element) = Callback {
-    val nodeList = root.querySelectorAll("pre code").toArray
-    nodeList.foreach(global.hljs highlightBlock _)
-  }
+  private def applySyntaxHighlightingToRef(ref: Ref.ToVdom[Element]): Callback =
+    for {
+      el <- ref.get.asCBO
+      _ <- applySyntaxHighlighting(el)
+    } yield ()
+
+  private def applySyntaxHighlighting(root: Element): Callback =
+    Callback {
+      val nodeList = root.querySelectorAll("pre code").toArray
+      nodeList.foreach(global.hljs highlightBlock _)
+    }
 }

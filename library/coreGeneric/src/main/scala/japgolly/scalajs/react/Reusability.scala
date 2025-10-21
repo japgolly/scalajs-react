@@ -509,6 +509,8 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
     def currentState  = self.currentState
     def nextProps     = self.nextProps
     def nextState     = self.nextState
+
+    @deprecated("Add a ref directly to the element you want to reference.", "3.0.0")
     def getDOMNode    = self.getDOMNode
 
     val updateProps: Boolean = currentProps ~/~ nextProps

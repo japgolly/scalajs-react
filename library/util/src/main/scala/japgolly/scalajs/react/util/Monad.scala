@@ -5,6 +5,9 @@ trait Monad[F[_]] {
   def map    [A, B](fa: F[A])(f: A => B)   : F[B]
   def flatMap[A, B](fa: F[A])(f: A => F[B]): F[B]
 
+  def flatten[A](ffa: F[F[A]]): F[A] =
+    flatMap(ffa)(identity)
+
   val unit: F[Unit] = pure(())
 
   def tailrec[A, B](a: A)(f: A => F[Either[A, B]]): F[B]

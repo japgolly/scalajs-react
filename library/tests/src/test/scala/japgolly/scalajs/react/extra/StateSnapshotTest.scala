@@ -7,6 +7,7 @@ import scala.annotation.nowarn
 import utest._
 
 object StateSnapshotTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
   def assertReusable[A](a: A, b: A)(implicit r: Reusability[A]): Unit = assert(a ~=~ b)
   def assertNotReusable[A](a: A, b: A)(implicit r: Reusability[A]): Unit = assert(a ~/~ b)

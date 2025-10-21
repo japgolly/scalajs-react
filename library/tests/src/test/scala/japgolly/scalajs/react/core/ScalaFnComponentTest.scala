@@ -9,6 +9,7 @@ import sourcecode.Line
 import utest._
 
 object ScalaFnComponentTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
   val IntProps = ScalaFnComponent[Int](i => <.code(s"$i² = ${i * i}"))
 

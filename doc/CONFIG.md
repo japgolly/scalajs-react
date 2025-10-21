@@ -9,7 +9,7 @@
 * Runtime Settings *(development-mode only)*
   * [Usage](#runtime-settings-usage)
   * [`Reusability.disableGloballyInDev()`](#reusabilitydisablegloballyindev)
-  * [`ReusabilityOverlay.overrideGloballyInDev()`](#reusabilityoverlayoverridegloballyindev)
+  * ~~[`ReusabilityOverlay.overrideGloballyInDev()`](#reusabilityoverlayoverridegloballyindev)~~
   * [Custom `ReusabilityOverride`](#custom-reusabilityoverride)
 
 
@@ -210,6 +210,8 @@ This globally disables `Reusability.shouldComponentUpdate` so that it doesn't no
 
 
 # `ReusabilityOverlay.overrideGloballyInDev()`
+
+**[ReusabilityOverlay has been deprecated in v3 with no replacement — use React's Profiler instead]**
 
 *Note: Runtime settings only affect development-mode (`fastOptJS`) and must be applied before any components are created.*
 

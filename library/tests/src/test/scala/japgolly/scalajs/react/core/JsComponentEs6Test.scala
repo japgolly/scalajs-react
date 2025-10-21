@@ -1,13 +1,14 @@
 package japgolly.scalajs.react.core
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.test.{LegacyReactTestUtils, ReactTestUtils}
+import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
 import scala.scalajs.js
 import utest._
 
 abstract class JsComponentTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
   final val H1: facade.React.Element =
     facade.React.createElement("h1", null, "Huge")
 }
@@ -36,7 +37,6 @@ object JsComponentEs6PTest extends JsComponentTest {
       def p = JsProps("Bob")
       "c" - assertEq(Component.displayName, n)
       "u" - assertEq(Component(p).displayName, n)
-      "m" - assertEq(LegacyReactTestUtils.withRenderedIntoDocument(Component(p))(_.displayName), n)
     }
 
     "noChildren" - {
@@ -47,15 +47,8 @@ object JsComponentEs6PTest extends JsComponentTest {
         assertEq(unmounted.propsChildren.isEmpty, true)
         assertEq(unmounted.key, None)
         assertEq(unmounted.ref, None)
-        LegacyReactTestUtils.withNewBodyElement { mountNode =>
-          val mounted = unmounted.renderIntoDOM(mountNode)
-          val n = mounted.getDOMNode.asMounted().asElement()
-          assertOuterHTML(n, "<div>Hello Bob</div>")
-          // assertEq(mounted.isMounted, yesItsMounted)
-          assertEq(mounted.props.name, "Bob")
-          assertEq(mounted.propsChildren.count, 0)
-          assertEq(mounted.propsChildren.isEmpty, true)
-          assertEq(mounted.state, null)
+        ReactTestUtils.withRenderedSync(unmounted) { t =>
+          t.outerHTML.assert("<div>Hello Bob</div>")
         }
       }
 
@@ -66,15 +59,8 @@ object JsComponentEs6PTest extends JsComponentTest {
         assertEq(unmounted.propsChildren.isEmpty, true)
         assertEq(unmounted.key, Some("hehe": Key))
         assertEq(unmounted.ref, None)
-        LegacyReactTestUtils.withNewBodyElement { mountNode =>
-          val mounted = unmounted.renderIntoDOM(mountNode)
-          val n = mounted.getDOMNode.asMounted().asElement()
-          assertOuterHTML(n, "<div>Hello Bob</div>")
-          // assertEq(mounted.isMounted, yesItsMounted)
-          assertEq(mounted.props.name, "Bob")
-          assertEq(mounted.propsChildren.count, 0)
-          assertEq(mounted.propsChildren.isEmpty, true)
-          assertEq(mounted.state, null)
+        ReactTestUtils.withRenderedSync(unmounted) { t =>
+          t.outerHTML.assert("<div>Hello Bob</div>")
         }
       }
 
@@ -105,15 +91,8 @@ object JsComponentEs6PTest extends JsComponentTest {
         assertEq(unmounted.propsChildren.isEmpty, false)
         assertEq(unmounted.key, None)
         assertEq(unmounted.ref, None)
-        LegacyReactTestUtils.withNewBodyElement { mountNode =>
-          val mounted = unmounted.renderIntoDOM(mountNode)
-          val n = mounted.getDOMNode.asMounted().asElement()
-          assertOuterHTML(n, "<div>Hello X<h1>Huge</h1></div>")
-          // assertEq(mounted.isMounted, yesItsMounted)
-          assertEq(mounted.props.name, "X")
-          assertEq(mounted.propsChildren.count, 1)
-          assertEq(mounted.propsChildren.isEmpty, false)
-          assertEq(mounted.state, null)
+        ReactTestUtils.withRenderedSync(unmounted) { t =>
+          t.outerHTML.assert("<div>Hello X<h1>Huge</h1></div>")
         }
       }
 
@@ -148,8 +127,8 @@ object JsComponentEs6STest extends JsComponentTest {
   lazy val Component = JsComponent[Null, Children.None, JsState](RawComp).addFacade[JsMethods]
 
   override def tests = Tests {
-    def JsState1(num1: Int): JsState =
-      js.Dynamic.literal("num1" -> num1).asInstanceOf[JsState]
+    // def JsState1(num1: Int): JsState =
+    //   js.Dynamic.literal("num1" -> num1).asInstanceOf[JsState]
     def JsState(num1: Int, num2: Int): JsState =
       js.Dynamic.literal("num1" -> num1, "num2" -> num2).asInstanceOf[JsState]
 
@@ -157,71 +136,18 @@ object JsComponentEs6STest extends JsComponentTest {
       def n = "Statey"
       "c" - assertEq(Component.displayName, n)
       "u" - assertEq(Component().displayName, n)
-      "m" - assertEq(LegacyReactTestUtils.withRenderedIntoDocument(Component())(_.displayName), n)
     }
 
     "noChildren" - {
       "main" - {
-        def setNum1(n: Int)(s: JsState): JsState = JsState(n, s.num2)
-        var callCount = 0
-        val incCallCount = Callback(callCount += 1)
         val unmounted = Component()
         assertEq(unmounted.propsChildren.count, 0)
         assertEq(unmounted.propsChildren.isEmpty, true)
         assertEq(unmounted.key, None)
         assertEq(unmounted.ref, None)
-        LegacyReactTestUtils.withNewBodyElement { mountNode =>
-          val mounted = unmounted.renderIntoDOM(mountNode)
-          val n = mounted.getDOMNode.asMounted().asElement()
-          var s = JsState(123, 500)
-          var cc = 0
-
-          def test(children: Int = 0, incCallCount: Boolean = false): Unit = {
-            if (incCallCount) cc += 1
-            assertOuterHTML(n, s"<div>State = ${s.num1} + ${s.num2}</div>")
-            assertEq((mounted.state.num1, mounted.state.num2), (s.num1, s.num2))
-            assertEq("propsChildren.count", mounted.propsChildren.count, children)
-            assertEq("propsChildren.isEmpty", mounted.propsChildren.isEmpty, children == 0)
-            assertEq("callCount", callCount, cc)
-          }
-
-          test()
-
-          s = JsState(50, s.num2)
-          mounted.setState(JsState1(50), incCallCount)
-          test(incCallCount = true)
-
-          s = JsState(300, 11)
-          mounted.setStateOption(Some(s), incCallCount)
-          test(incCallCount = true)
-
-          mounted.setStateOption(None, incCallCount)
-          test(incCallCount = true)
-
-          s = JsState(88, s.num2)
-          mounted.modState(setNum1(88)(_), incCallCount)
-          test(incCallCount = true)
-
-          s = JsState(828, s.num2)
-          mounted.modStateOption(x => Some(setNum1(828)(x)), incCallCount)
-          test(incCallCount = true)
-
-          mounted.modStateOption(_ => None, incCallCount)
-          test(incCallCount = true)
-
-          s = JsState(666, 500)
-          mounted.setState(s)
-          test()
-
-          mounted.raw.inc()
-          s = JsState(667, s.num2)
-          test()
-
-          val zoomed = mounted.zoomState(_.num2)(n => s => JsState(s.num1, n))
-          assertEq(zoomed.state, 500)
-          zoomed.modState(_ + 1)
-          s = JsState(s.num1, 501)
-          test()
+        ReactTestUtils.withRenderedSync(unmounted) { t =>
+          val s = JsState(123, 500)
+          t.outerHTML.assert(s"<div>State = ${s.num1} + ${s.num2}</div>")
         }
       }
 
@@ -257,16 +183,8 @@ object JsComponentEs6STest extends JsComponentTest {
         assertEq(unmounted.propsChildren.isEmpty, false)
         assertEq(unmounted.key, None)
         assertEq(unmounted.ref, None)
-        LegacyReactTestUtils.withNewBodyElement { mountNode =>
-          val mounted = unmounted.renderIntoDOM(mountNode)
-          val n = mounted.getDOMNode.asMounted().asElement()
-
-          assertOuterHTML(n, "<div>State = 123 + 500<h1>Huge</h1></div>")
-          // assertEq(mounted.isMounted, yesItsMounted)
-          assertEq(mounted.propsChildren.count, 1)
-          assertEq(mounted.propsChildren.isEmpty, false)
-          assertEq(mounted.state.num1, 123)
-          assertEq(mounted.state.num2, 500)
+        ReactTestUtils.withRenderedSync(unmounted) { t =>
+          t.outerHTML.assert("<div>State = 123 + 500<h1>Huge</h1></div>")
         }
       }
 

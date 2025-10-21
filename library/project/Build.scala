@@ -35,6 +35,7 @@ object ScalaJsReact {
       ghpages,
       ghpagesMacros,
       scalafixRules,
+      testsDep,
       tests,
       testUtilMacros,
       testUtil,
@@ -214,14 +215,35 @@ object ScalaJsReact {
     .dependsOn(coreBundleCallback) // Low priority
     .configure(commonSettings, preventPublication, utestSettings, addReactJsDependencies(Test))
     .settings(
+      Test / scalacOptions -= "-Xlint:adapted-args",
+      Test / scalacOptions += "-Wconf:cat=deprecation:e", // error on deprecation, that's what testsDep is for
+      libraryDependencies ++= Seq(
+        Dep.nyayaProp.value % Test,
+        Dep.nyayaGen.value % Test,
+        Dep.nyayaTest.value % Test,
+        Dep.scalaJsJavaTime.value % Test,
+        Dep.scalaJsSecureRandom.value % Test,
+      ),
+      jsDependencies ++= Seq(
+        Dep.sizzleJs(Test).value,
+        (ProvidedJS / "polyfill.js") % Test,
+        (ProvidedJS / "component-es6.js" dependsOn Dep.reactDom.dev) % Test,
+        (ProvidedJS / "component-fn.js"  dependsOn Dep.reactDom.dev) % Test,
+        (ProvidedJS / "forward-ref.js"   dependsOn Dep.reactDom.dev) % Test,
+      ),
+    )
+
+  lazy val testsDep = project
+    .in(file("tests-dep"))
+    .dependsOn(testUtil, coreExtCatsEffect)
+    .dependsOn(coreBundleCallback) // Low priority
+    .configure(commonSettings, preventPublication, utestSettings, addReactJsDependencies(Test))
+    .settings(
       Test / scalacOptions --= Seq(
         "-deprecation",
         "-Xlint:adapted-args"
       ),
       libraryDependencies ++= Seq(
-        Dep.nyayaProp.value % Test,
-        Dep.nyayaGen.value % Test,
-        Dep.nyayaTest.value % Test,
         Dep.scalaJsJavaTime.value % Test,
         Dep.scalaJsSecureRandom.value % Test,
       ),

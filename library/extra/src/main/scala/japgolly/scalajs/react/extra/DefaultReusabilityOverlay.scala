@@ -11,6 +11,7 @@ import org.scalajs.dom.html.Element
 import org.scalajs.dom.{CSSStyleDeclaration, Node, console, document, window}
 import scala.concurrent.duration._
 
+@deprecated("ReusabilityOverlays are deprecated and will be removed in the next major release.", "3.0.0 / React v18")
 object DefaultReusabilityOverlay {
 
   /** When you're in dev-mode (i.e. `fastOptJS`), this overrides [[Reusability.shouldComponentUpdate]] to use overlays. */
@@ -125,6 +126,7 @@ object DefaultReusabilityOverlay {
 
 }
 
+@deprecated("ReusabilityOverlays are deprecated and will be removed in the next major release.", "3.0.0 / React v18")
 class DefaultReusabilityOverlay[F[_]]($: Comp, options: DefaultReusabilityOverlay.Options[F])(implicit F: Sync[F]) extends ReusabilityOverlay[F] with TimerSupportF[F] {
   import DefaultReusabilityOverlay.{Nodes, autoLiftHtml}
 

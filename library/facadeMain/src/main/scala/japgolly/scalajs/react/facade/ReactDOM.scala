@@ -41,6 +41,7 @@ trait ReactDOM extends js.Object {
   final type DomNode = dom.Node
   // ==========================================================================
 
+  @deprecated("findDOMNode is deprecated and will be removed in the next major release. Instead, add a ref directly to the element you want to reference.", "3.0.0 / React v18")
   @throws[js.JavaScriptException]("if arg isn't a React component or its unmounted")
   final def findDOMNode(componentOrElement: dom.Element | React.ComponentUntyped): DomNode | Null = js.native
 

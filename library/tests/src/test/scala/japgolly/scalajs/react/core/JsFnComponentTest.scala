@@ -9,6 +9,7 @@ import scala.scalajs.js.annotation._
 import utest._
 
 object JsFnComponentTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
   @JSGlobal("FnComp")
   @js.native
   object RawComp extends js.Object

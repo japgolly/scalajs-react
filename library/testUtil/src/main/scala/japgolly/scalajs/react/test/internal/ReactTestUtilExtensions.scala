@@ -8,12 +8,15 @@ import org.scalajs.dom
 object ReactTestUtilExtensions {
 
   implicit final class ReactTestExt_MountedSimple[F[_], A[_], P, S](private val m: Generic.MountedSimple[F, A, P, S]) extends AnyVal {
+
+    @deprecated("Class-based components are now a legacy feature. Upgrade to hook-based components.", "3.0.0 / React v18")
     def outerHtmlScrubbed()(implicit F: UnsafeSync[F]): String =
       F.runSync(m.getDOMNode).asMounted().node match {
         case e: dom.Element => ReactTestUtils.removeReactInternals(e.outerHTML)
         case n              => n.nodeValue
       }
 
+    @deprecated("Class-based components are now a legacy feature. Upgrade to hook-based components.", "3.0.0 / React v18")
     def showDom()(implicit F: UnsafeSync[F]): String =
       F.runSync(m.getDOMNode).show(ReactTestUtils.removeReactInternals)
   }

@@ -7,6 +7,7 @@ import scala.scalajs.js
 import utest._
 
 object ContextTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
   case class X()
 

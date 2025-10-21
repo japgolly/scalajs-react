@@ -12,6 +12,7 @@ import utest._
 // =====================================================================================================================
 
 object TestUtilsDemo extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
   // This is a sample component that we will test
   val Component = ScalaFnComponent[String](props =>

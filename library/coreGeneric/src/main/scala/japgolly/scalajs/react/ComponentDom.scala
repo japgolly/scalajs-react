@@ -48,6 +48,7 @@ object ComponentDom {
       case null | ()      => Unmounted
     }
 
+  @deprecated("findDOMNode is deprecated and will be removed in the next major release. Instead, add a ref directly to the element you want to reference.", "3.0.0 / React v18")
   def findDOMNode(a: dom.Element | facade.React.ComponentUntyped): ComponentDom = {
     val b: facade.ReactDOM.DomNode | Null =
       try facade.ReactDOM.findDOMNode(a)

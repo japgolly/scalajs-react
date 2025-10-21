@@ -9,6 +9,7 @@ import japgolly.scalajs.react.vdom.html_<^._
 import utest._
 
 object TriStateCheckboxTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
   private object OnKeyDown {
 

@@ -81,6 +81,8 @@ object Scala {
       override def props                       = x.props.unbox
       override def propsChildren               = x.propsChildren
       override def state                       = x.state.unbox
+
+      @deprecated("Add a ref directly to the element you want to reference.", "3.0.0")
       override def getDOMNode                  = x.getDOMNode
 
       override def setState[G[_]](newState: S, callback: => G[Unit])(implicit G: Dispatch[G]) =
