@@ -35,7 +35,7 @@ object ScalaJsReact {
       ghpages,
       ghpagesMacros,
       scalafixRules,
-      tests17,
+      testsDep,
       tests,
       testUtilMacros,
       testUtil,
@@ -235,7 +235,8 @@ object ScalaJsReact {
       ),
     )
 
-  lazy val tests17 = project
+  lazy val testsDep = project
+    .in(file("tests-dep"))
     .dependsOn(testUtil, coreExtCatsEffect)
     .dependsOn(coreBundleCallback) // Low priority
     .configure(commonSettings, preventPublication, utestSettings, addReactJsDependencies(Test))
