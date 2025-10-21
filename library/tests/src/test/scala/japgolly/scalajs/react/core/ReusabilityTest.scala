@@ -12,6 +12,7 @@ import sourcecode.Line
 import utest._
 
 object ReusabilityTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
   object SampleComponent1 {
     case class Picture(id: Long, url: String, title: String)

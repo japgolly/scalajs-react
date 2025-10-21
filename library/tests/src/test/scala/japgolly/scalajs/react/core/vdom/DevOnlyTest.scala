@@ -8,6 +8,7 @@ import utest._
 
 // Also checked with bin/test-elision via Travis CI
 object DevOnlyTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
   private def test(t: VdomTag)(dev: => String, prod: => String): Unit = {
     val exp = if (developmentMode) dev else prod
@@ -30,8 +31,8 @@ object DevOnlyTest extends TestSuite {
       "<div>123</div>")
 
   private def testStyle() =
-    test(div(VdomStyle.devOnly("devonly-test") := "!DEVONLY-TEST!", 123))(
-      """<div style="devonly-test:!DEVONLY-TEST!">123</div>""",
+    test(div(VdomStyle.devOnly("devonly") := "!DEVONLY-TEST!", 123))(
+      """<div style="devonly:!DEVONLY-TEST!">123</div>""",
       "<div>123</div>")
 
   val tests = Tests {

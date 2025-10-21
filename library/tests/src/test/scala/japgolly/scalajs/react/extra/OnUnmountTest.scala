@@ -7,6 +7,7 @@ import japgolly.scalajs.react.vdom.html_<^._
 import utest._
 
 object OnUnmountTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
   var i = 0
 

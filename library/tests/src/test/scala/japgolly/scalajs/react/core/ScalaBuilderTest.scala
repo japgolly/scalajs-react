@@ -8,6 +8,7 @@ import scala.annotation.nowarn
 import utest._
 
 object ScalaBuilderTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
   // ======
   // Stages

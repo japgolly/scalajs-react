@@ -9,6 +9,7 @@ import utest._
 // https://github.com/lampepfl/dotty-feature-requests/issues/161
 // https://github.com/lampepfl/dotty/pull/11686
 object ReusabilityTest2 extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
   sealed trait X
   object X {

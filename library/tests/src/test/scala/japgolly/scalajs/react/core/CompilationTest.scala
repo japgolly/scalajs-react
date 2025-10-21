@@ -1,7 +1,6 @@
 package japgolly.scalajs.react.core
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.extra._
 import scala.annotation.nowarn
 
 sealed trait CompilationTest {
@@ -46,11 +45,6 @@ sealed trait CompilationTest {
     step1.backend[B1pc](_ => new B1pc).renderBackendWithChildren
     step1.backend[B2](new B2(_)).renderBackend
     step1.backend[B3a](new B3a(_)).renderBackend
-
-    step1.renderBackend[B2]
-      .configure(Reusability.shouldComponentUpdateAndLog("omg"))
-      .configure(Reusability.shouldComponentUpdateAnd(_.log("omg")))
-      .configure(ReusabilityOverlay.install)
   }
 
   // ===================================================================================================================

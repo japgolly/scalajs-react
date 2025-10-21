@@ -5,6 +5,8 @@ import scala.reflect.ClassTag
 import utest.TestSuite
 
 abstract class AsyncTestSuite extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
+
   private val Tag = implicitly[ClassTag[AsyncCallback[Any]]]
 
   override def utestWrap(path: Seq[String], runBody: => Future[Any])(implicit ec: ExecutionContext): Future[Any] = {

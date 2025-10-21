@@ -11,6 +11,7 @@ import scala.util.Try
 import utest.{test => _, _}
 
 object DslTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
   val noPageDsl = new RouterConfigDsl[Nothing, Unit]
 

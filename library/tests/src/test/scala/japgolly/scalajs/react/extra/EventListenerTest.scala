@@ -7,12 +7,22 @@ import org.scalajs.dom._
 import utest._
 
 object EventListenerTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
-  val C = ScalaComponent.builder[Unit]("")
+  private class Backend() extends OnUnmount {
+    val ref = Ref.toVdom[html.Div]
+    def render(state: Int) = <.div.withRef(ref)(s"Hit $state times")
+  }
+
+  private val C = ScalaComponent.builder[Unit]("")
     .initialState(0)
-    .backend(_ => OnUnmount())
-    .renderS((_, state) => <.div(s"Hit $state times"))
-    .configure(EventListener.install("hello", _.modState(_ + 1)))
+    .backend(_ => new Backend())
+    .renderS(_.backend.render(_))
+    .configure(EventListener.install2(
+      "hello",
+      _.modState(_ + 1),
+      _.backend.ref.get.runNow().get
+    ))
     .build
 
   override def tests = Tests {
