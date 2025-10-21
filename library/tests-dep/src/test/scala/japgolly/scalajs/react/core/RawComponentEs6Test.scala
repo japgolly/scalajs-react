@@ -10,7 +10,6 @@ import scala.scalajs.js
 import scala.scalajs.js.|
 import utest._
 
-@nowarn("cat=deprecation")
 object RawComponentEs6PTest extends TestSuite {
 
   case class BasicProps(name: String)

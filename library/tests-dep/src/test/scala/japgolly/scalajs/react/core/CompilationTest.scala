@@ -4,6 +4,7 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.internal.CoreGeneral.BackendScope
 import japgolly.scalajs.react.vdom.Exports.VdomNode
+import scala.annotation.nowarn
 
 sealed trait CompilationTest {
   import CompilationTest._
@@ -20,6 +21,7 @@ sealed trait CompilationTest {
 }
 
 object CompilationTest {
+  @nowarn("cat=unused")
   class B2($: BackendScope[Int, Unit]) {
     def render = VdomNode.cast(123)
   }

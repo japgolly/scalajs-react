@@ -4,10 +4,8 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.test.{InferenceHelpers, LegacyReactTestUtils, Simulate}
 import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
-import scala.annotation.nowarn
 import utest._
 
-@nowarn("cat=deprecation")
 object ScalaComponentPTest extends TestSuite {
 
   private case class BasicProps(name: String)
