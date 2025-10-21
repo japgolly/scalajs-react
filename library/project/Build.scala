@@ -215,9 +215,8 @@ object ScalaJsReact {
     .dependsOn(coreBundleCallback) // Low priority
     .configure(commonSettings, preventPublication, utestSettings, addReactJsDependencies(Test))
     .settings(
-      Test / scalacOptions --= Seq(
-        "-Xlint:adapted-args"
-      ),
+      Test / scalacOptions -= "-Xlint:adapted-args",
+      Test / scalacOptions += "-Wconf:cat=deprecation:e", // error on deprecation, that's what testsDep is for
       libraryDependencies ++= Seq(
         Dep.nyayaProp.value % Test,
         Dep.nyayaGen.value % Test,
