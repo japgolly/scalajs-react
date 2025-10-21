@@ -48,13 +48,17 @@ final class ConsoleHijack(val config: ConsoleHijack.Config) {
 
 object ConsoleHijack {
 
-  lazy val fatalReactWarnings: ConsoleHijack =
-    Error.handleWith { i =>
+  lazy val fatalReactWarnings: ConsoleHijack = {
+    val handler: Handler = i =>
       if (i.msg.startsWith("Warning: "))
         i.throwException()
       else
         i.fallthrough()
-    }
+    Error.handleWith(handler) ++ Warn.handleWith(handler)
+  }
+
+  lazy val fatalWarnings: ConsoleHijack =
+    Warn.handleWith(_.throwException())
 
   def apply(cfg: (Method, Handler)*): ConsoleHijack =
     apply(cfg.toMap)

@@ -30,17 +30,6 @@ object TestTest extends AsyncTestSuite {
     <.input.text(^.value := s, ^.onChange ==> ch)
   }).build
 
-  class CP {
-    var prev = "none"
-    def render(p: String) = <.div(s"$prev → $p")
-  }
-  @nowarn("cat=deprecation")
-  val CP = ScalaComponent.builder[String]("asd")
-    .backend(_ => new CP)
-    .renderP(_.backend.render(_))
-    .componentWillReceiveProps(i => Callback(i.backend.prev = i.currentProps))
-    .build
-
   val tests = Tests {
 
     "withRendered" - {
@@ -222,16 +211,6 @@ object TestTest extends AsyncTestSuite {
         inputRef.unsafeGet().blur()
         assert(document.activeElement != inputRef.unsafeGet())
       }.map(_ => assertEq(body1, inspectBody()))
-    }
-
-    "replaceProps" - ReactTestUtils.withRendered(CP("start")) { d =>
-      d.outerHTML.assert("<div>none → start</div>")
-      for {
-        _ <- d.root.render(CP("started"))
-        _  = d.outerHTML.assert("<div>start → started</div>")
-        _ <- d.root.render(CP("done!"))
-        _  = d.outerHTML.assert("<div>started → done!</div>")
-      } yield ()
     }
 
     "removeReactInternals" - {

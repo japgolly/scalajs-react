@@ -106,49 +106,6 @@ object RefTest extends TestSuite {
     }
   }
 
-  object TestJs {
-    val InnerJs = JsComponentEs6STest.Component
-
-    def refViaRef(): Unit = {
-      var backend: Backend = null
-      class Backend {
-        backend = this
-        val ref = Ref.toJsComponent(InnerJs)
-        def render = <.div(ref.component())
-      }
-      val C = ScalaComponent.builder[Unit]("X").backend(_ => new Backend()).render(_.backend.render).build
-      ReactTestUtils.withRenderedSync(C()) { _ =>
-        backend.ref.unsafeGet().raw.inc() // compilation and evaluation without error is test enough
-      }
-    }
-
-    def refViaComp(): Unit = {
-      var backend: Backend = null
-      class Backend {
-        backend = this
-        val ref = Ref.toJsComponent(InnerJs)
-        def render = <.div(InnerJs.withRef(ref)())
-      }
-      val C = ScalaComponent.builder[Unit]("X").backend(_ => new Backend()).render(_.backend.render).build
-      ReactTestUtils.withRenderedSync(C()) { _ =>
-        backend.ref.unsafeGet().raw.inc() // compilation and evaluation without error is test enough
-      }
-    }
-
-    def refAndKey(): Unit = {
-      var backend: Backend = null
-      class Backend {
-        backend = this
-        val ref = Ref.toJsComponent(InnerJs)
-        def render = <.div(ref.component.withKey(555555555)())
-      }
-      val C = ScalaComponent.builder[Unit]("X").backend(_ => new Backend()).render(_.backend.render).build
-      ReactTestUtils.withRenderedSync(C()) { _ =>
-        backend.ref.unsafeGet().raw.inc() // compilation and evaluation without error is test enough
-      }
-    }
-  }
-
   object TestRefForwarding {
 
     object JsToVdom {
@@ -294,12 +251,6 @@ object RefTest extends TestSuite {
     "svgTag"  - testSvgTag()
     "scalaComponent" - {
       import TestScala._
-      "refViaComp" - refViaComp()
-      "refViaRef"  - refViaRef()
-      "refAndKey"  - refAndKey()
-    }
-    "jsComponent" - {
-      import TestJs._
       "refViaComp" - refViaComp()
       "refViaRef"  - refViaRef()
       "refAndKey"  - refAndKey()

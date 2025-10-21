@@ -63,10 +63,10 @@ object MiscTest extends AsyncTestSuite {
 
     "selectWithMultipleValues" - {
       val s = ScalaComponent.builder[Unit]("s").renderStatic(
-          <.select(^.multiple := true, ^.value := js.Array("a", "c"))(
-            <.option(^.value := "a")("a"),
-            <.option(^.value := "b")("b"),
-            <.option(^.value := "c")("c"))
+          <.select(^.multiple := true, ^.value := js.Array("a", "c"), ^.onChange --> Callback.empty)(
+            <.option(^.value := "a", "a"),
+            <.option(^.value := "b", "b"),
+            <.option(^.value := "c", "c"))
         ).build
 
       ReactTestUtils.withRendered_(s()) { d =>

@@ -81,19 +81,27 @@ object UnprefixedTest extends TestSuite {
     }
 
     "VdomArray" - {
-      "ctorRN" - test(div(VdomArray(vdomNode, vdomNode)), "<div><h1>cool</h1><h1>cool</h1></div>")
-      "ctorMix" - test(div(VdomArray(vdomNode, br, vdomElement)), "<div><h1>cool</h1><br/><p></p></div>")
+      def jsComp1 = JsComponentEs6PTest.Component.withKey(1)(JsComponentEs6PTest.JsProps("yo"))
+      def jsComp2 = JsComponentEs6PTest.Component.withKey(2)(JsComponentEs6PTest.JsProps("yo2"))
+      def vdomNode1   : VdomNode    = H1.withKey("1")("cool1")
+      def vdomNode2   : VdomNode    = H1.withKey("2")("cool2")
+      def vdomTag1    : VdomTag     = span(key := 1)
+      def vdomTag2    : VdomTag     = span(key := 2)
+      def vdomElement1: VdomElement = p(key := 1)
+      def vdomElement2: VdomElement = p(key := 2)
+      "ctorRN" - test(div(VdomArray(vdomNode1, vdomNode2)), "<div><h1>cool1</h1><h1>cool2</h1></div>")
+      "ctorMix" - test(div(VdomArray(vdomNode1, br(key := 3), vdomElement2)), "<div><h1>cool1</h1><br/><p></p></div>")
       "toVdomArray" - {
-        "seqVdomNode"  - test(div(Seq     (vdomNode   , vdomNode    ).toVdomArray), "<div><h1>cool</h1><h1>cool</h1></div>")
-        "lstVdomTag"   - test(div(List    (vdomTag    , vdomTag     ).toVdomArray), "<div><span></span><span></span></div>")
-        "strVdomEl"    - test(div(Stream  (vdomElement, vdomElement ).toVdomArray), "<div><p></p><p></p></div>")
-     // "seqTagMod"    - test(div(Seq     (tagMod     , tagMod      ).toVdomArray), """<div class="ho ho"></div>""")
-        "seqTagHtml"   - test(div(Seq     (span       , span        ).toVdomArray), "<div><span></span><span></span></div>")
-        "seqCompScala" - test(div(Seq     (H1("a")    , CA("b")     ).toVdomArray), """<div><h1>a</h1><div>b</div></div>""")
-        "seqCompJS"    - test(div(Seq     (jsComp     , jsComp      ).toVdomArray), "<div><div>Hello yo</div><div>Hello yo</div></div>")
-        "vecCompMix"   - test(div(Vector  (jsComp     , jsComp      ).toVdomArray), "<div><div>Hello yo</div><div>Hello yo</div></div>")
-        "arrayScala"   - test(div(Array   (vdomNode   , vdomNode    ).toVdomArray), "<div><h1>cool</h1><h1>cool</h1></div>")
-        "arrayJs"      - test(div(js.Array(vdomNode   , vdomNode    ).toVdomArray), "<div><h1>cool</h1><h1>cool</h1></div>")
+        "seqVdomNode"  - test(div(Seq     (vdomNode1         , vdomNode2         ).toVdomArray), "<div><h1>cool1</h1><h1>cool2</h1></div>")
+        "lstVdomTag"   - test(div(List    (vdomTag1          , vdomTag2          ).toVdomArray), "<div><span></span><span></span></div>")
+        "strVdomEl"    - test(div(Stream  (vdomElement1      , vdomElement2      ).toVdomArray), "<div><p></p><p></p></div>")
+     // "seqTagMod"    - test(div(Seq     (tagMod            , tagMod            ).toVdomArray), """<div class="ho ho"></div>""")
+        "seqTagHtml"   - test(div(Seq     (span(key := 1)    , span(key := 2)    ).toVdomArray), "<div><span></span><span></span></div>")
+        "seqCompScala" - test(div(Seq     (H1.withKey(1)("a"), CA.withKey(2)("b")).toVdomArray), """<div><h1>a</h1><div>b</div></div>""")
+        "seqCompJS"    - test(div(Seq     (jsComp1           , jsComp2           ).toVdomArray), "<div><div>Hello yo</div><div>Hello yo2</div></div>")
+        "vecCompMix"   - test(div(Vector  (jsComp1           , jsComp2           ).toVdomArray), "<div><div>Hello yo</div><div>Hello yo2</div></div>")
+        "arrayScala"   - test(div(Array   (vdomNode1         , vdomNode2         ).toVdomArray), "<div><h1>cool1</h1><h1>cool2</h1></div>")
+        "arrayJs"      - test(div(js.Array(vdomNode1         , vdomNode2         ).toVdomArray), "<div><h1>cool1</h1><h1>cool2</h1></div>")
       }
     }
 
@@ -230,15 +238,15 @@ object UnprefixedTest extends TestSuite {
         """<div style="background-color:red;margin-top:10px">!</div>""")
 
       "direct" - test(
-        div(style := js.Dictionary("color" -> "black", "margin-left" -> "1em"), "!"),
+        div(style := js.Dictionary("color" -> "black", "marginLeft" -> "1em"), "!"),
         """<div style="color:black;margin-left:1em">!</div>""")
 
       "namedAndDirect" - test(
-        div(backgroundColor := "red", style := js.Dictionary("color" -> "black", "margin-left" -> "1em"), "!"),
+        div(backgroundColor := "red", style := js.Dictionary("color" -> "black", "marginLeft" -> "1em"), "!"),
         """<div style="background-color:red;color:black;margin-left:1em">!</div>""")
 
       "directAndNamed" - test(
-        div(style := js.Dictionary("color" -> "black", "margin-left" -> "1em"), backgroundColor := "red", "!"),
+        div(style := js.Dictionary("color" -> "black", "marginLeft" -> "1em"), backgroundColor := "red", "!"),
         """<div style="color:black;margin-left:1em;background-color:red">!</div>""")
     }
 

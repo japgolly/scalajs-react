@@ -31,8 +31,8 @@ object DevOnlyTest extends TestSuite {
       "<div>123</div>")
 
   private def testStyle() =
-    test(div(VdomStyle.devOnly("devonly-test") := "!DEVONLY-TEST!", 123))(
-      """<div style="devonly-test:!DEVONLY-TEST!">123</div>""",
+    test(div(VdomStyle.devOnly("devonly") := "!DEVONLY-TEST!", 123))(
+      """<div style="devonly:!DEVONLY-TEST!">123</div>""",
       "<div>123</div>")
 
   val tests = Tests {

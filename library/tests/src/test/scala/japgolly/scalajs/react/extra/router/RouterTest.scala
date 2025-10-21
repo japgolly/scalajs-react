@@ -47,8 +47,17 @@ object RouterTest extends TestSuite {
       .build
 
     val QueryParamComponent = ScalaComponent.builder[Map[String, String]]("Component with QueryParams")
-      .render_P(p =>
-        <.div(<.h3("Component with some QueryParams"), p.map( tuple => <.div(<.span(tuple._1), <.span(tuple._2))).toVdomArray) )
+      .render_P { p =>
+        var i = 0
+        def nextKey() = {
+          i += 1
+          ^.key := i
+        }
+        <.div(
+          <.h3("Component with some QueryParams"),
+          p.map(tuple => <.div(nextKey(), <.span(tuple._1), <.span(tuple._2))).toVdomArray,
+        )
+      }
       .build
 
     val config = RouterConfigDsl[MyPage].buildConfig { dsl =>
