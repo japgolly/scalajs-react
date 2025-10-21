@@ -2,7 +2,6 @@ package japgolly.scalajs.react.core
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.TestUtil._
-import scala.annotation.nowarn
 import sourcecode.Line
 import utest._
 
@@ -10,6 +9,7 @@ import utest._
 // https://github.com/lampepfl/dotty-feature-requests/issues/161
 // https://github.com/lampepfl/dotty/pull/11686
 object ReusabilityTest2 extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
   sealed trait X
   object X {
@@ -57,7 +57,7 @@ object ReusabilityTest2 extends TestSuite {
         }
         "reuseMid" - {
           implicit val r: Reusability[X] = {
-            @nowarn("cat=unused") implicit val x3: Reusability[X3] = Reusability.always[X3]
+            implicit val x3: Reusability[X3] = Reusability.always[X3]
             Reusability.derive[X]
           }
           test[X](X1    , X1    , true)
@@ -88,7 +88,7 @@ object ReusabilityTest2 extends TestSuite {
         }
         "reuseMid" - {
           implicit val r: Reusability[Y] = {
-            @nowarn("cat=unused") implicit val y3: Reusability[Y3] = Reusability.always[Y3]
+            implicit val y3: Reusability[Y3] = Reusability.always[Y3]
             Reusability.derive[Y]
           }
           test[Y](Y1    , Y1    , true)

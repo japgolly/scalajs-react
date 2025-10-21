@@ -10,9 +10,11 @@ trait VdomNode extends TagMod {
   override def applyTo(b: VdomBuilder): Unit =
     b.appendChild(rawNode)
 
+  @deprecated("Use ReactDOMClient.createRoot and root.render instead", "3.0.0 / React v18")
   @inline final def renderIntoDOM(container: facade.ReactDOM.Container): facade.React.ComponentUntyped =
     facade.ReactDOM.render(rawNode, container)
 
+  @deprecated("Use ReactDOMClient.createRoot and root.render instead", "3.0.0 / React v18")
   @inline final def renderIntoDOM[G[_]](container: facade.ReactDOM.Container, callback: => G[Unit])(implicit G: Dispatch[G]): facade.React.ComponentUntyped =
     facade.ReactDOM.render(rawNode, container, G.dispatchFn(callback))
 }
@@ -34,7 +36,6 @@ object VdomNode {
 }
 
 trait VdomNodeScalaSpecificImplicits {
-  // I have no idea why I don't need to prevent Unit or Boolean here, but the tests say its fine /shrug
   @inline implicit def vdomNodeFromRawReactNode(v: facade.React.Node): VdomNode =
     VdomNode(v)
 }

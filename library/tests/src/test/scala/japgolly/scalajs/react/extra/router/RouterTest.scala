@@ -10,6 +10,7 @@ import sizzle.Sizzle
 import utest._
 
 object RouterTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
   sealed trait MyPage
   object MyPage {
@@ -46,8 +47,17 @@ object RouterTest extends TestSuite {
       .build
 
     val QueryParamComponent = ScalaComponent.builder[Map[String, String]]("Component with QueryParams")
-      .render_P(p =>
-        <.div(<.h3("Component with some QueryParams"), p.map( tuple => <.div(<.span(tuple._1), <.span(tuple._2))).toVdomArray) )
+      .render_P { p =>
+        var i = 0
+        def nextKey() = {
+          i += 1
+          ^.key := i
+        }
+        <.div(
+          <.h3("Component with some QueryParams"),
+          p.map(tuple => <.div(nextKey(), <.span(tuple._1), <.span(tuple._2))).toVdomArray,
+        )
+      }
       .build
 
     val config = RouterConfigDsl[MyPage].buildConfig { dsl =>
@@ -87,46 +97,43 @@ object RouterTest extends TestSuite {
 
   // -------------------------------------------------------------------------------------------------------------------
 
-  private def testSim() = {
+  private def testSim(): Unit = {
     import MyPage.{Root, Hello, Greet, QueryParamPage}
     val base = RouterTestHelp.localBaseUrl_/
     val router = Router(base, MyPage.config.logToConsole)
-    val c = ReactTestUtils.renderIntoDocument(router())
-    def node = c.getDOMNode.asMounted().asElement()
-    def html = node.outerHTML
+    ReactTestUtils.withElementSync { container =>
+      ReactTestUtils.actSync(ReactDOMClient.createRoot(container).render(router()))
+      def html = container.outerHTML
 
-    def testView(routeSuffix: String, p: MyPage): Unit = {
-      val h = html
-      assertEq(window.location.href, base.+(routeSuffix).value)
-      assertMaybeContains(h, "Router Demo",  p == Root)
-      assertMaybeContains(h, """>Back<""",   p != Root)
-      assertMaybeContains(h, "Hello there",  p == Hello)
-      assertMaybeContains(h, "your name is", p match {case Greet(_) => true; case _ => false})
-    }
-    def assertRoot()         = testView("",          Root)
-    def assertRouteHello()   = testView("/hello",    Hello)
-    def assertRouteNameBob() = testView("/name/bob", Greet("bob"))
+      def testView(routeSuffix: String, p: MyPage): Unit = {
+        val h = html
+        assertEq(window.location.href, base.+(routeSuffix).value)
+        assertMaybeContains(h, "Router Demo",  p == Root)
+        assertMaybeContains(h, """>Back<""",   p != Root)
+        assertMaybeContains(h, "Hello there",  p == Hello)
+        assertMaybeContains(h, "your name is", p match {case Greet(_) => true; case _ => false})
+      }
+      def assertRoot()         = testView("",          Root)
+      def assertRouteHello()   = testView("/hello",    Hello)
+      def assertRouteNameBob() = testView("/name/bob", Greet("bob"))
 
-    def assertRouteQueryParam() = testView("/queryParams?a=123&b=456&c=Hello+bob%21",
-      QueryParamPage(Map("a" -> "123", "b" -> "456", "c"-> "Hello bob!")))
+      def assertRouteQueryParam() = testView("/queryParams?a=123&b=456&c=Hello+bob%21",
+        QueryParamPage(Map("a" -> "123", "b" -> "456", "c"-> "Hello bob!")))
 
-    def click(css: String): Unit = {
-      Simulation.click run Sizzle(css, node).sole()
-    }
-    def clickBack()       = click("a.back")
-    def clickHello()      = click("a.hello")
-    def clickNameBob()    = click("a.n1")
-    def clickQueryParam() = click("a.queryParam")
+      def click(css: String): Unit = {
+        Simulation.click run Sizzle(css, container).sole()
+      }
+      def clickBack()       = click("a.back")
+      def clickHello()      = click("a.hello")
+      def clickNameBob()    = click("a.n1")
+      def clickQueryParam() = click("a.queryParam")
 
-    try {
       assertRoot()
       clickHello();      assertRouteHello()
       clickBack();       assertRoot()
       clickNameBob();    assertRouteNameBob()
       clickBack();       assertRoot()
       clickQueryParam(); assertRouteQueryParam()
-    } finally {
-      ReactDOM unmountComponentAtNode node
     }
   }
 

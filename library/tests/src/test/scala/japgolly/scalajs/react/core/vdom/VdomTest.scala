@@ -9,7 +9,7 @@ import org.scalajs.dom.html
 import scala.annotation.nowarn
 import utest._
 
-object VdomTest extends TestSuite {
+object VdomTest extends AsyncTestSuite {
 
   val C = ScalaComponent.static("")(<.br)
   val Span = ScalaComponent.builder[Unit]("").render_C(<.span(_)).build
@@ -69,12 +69,15 @@ object VdomTest extends TestSuite {
     }
 
     "portal" - {
-      ReactTestUtils.withNewBodyElement { portalTarget =>
+      ReactTestUtils.withElement.use { portalTarget =>
         val comp = ScalaComponent.static("tmp")(
-          <.div("Here we go...",
-            ReactPortal(<.div("NICE"), portalTarget)))
-        ReactTestUtils.withRenderedIntoBody(comp()) { m =>
-          val compHtml = m.outerHtmlScrubbed()
+            <.div(
+              "Here we go...",
+              ReactPortal(<.div("NICE"), portalTarget)
+            )
+          )
+        ReactTestUtils.withRendered_(comp()) { d =>
+          val compHtml = ReactTestUtils.removeReactInternals(d.asHtml().outerHTML)
           val portalHtml = ReactTestUtils.removeReactInternals(portalTarget.innerHTML)
           assertEq((compHtml, portalHtml), ("<div>Here we go...</div>", "<div>NICE</div>"))
         }
@@ -101,12 +104,15 @@ object VdomTest extends TestSuite {
               ^.value := s)
           }
           .build
-      ReactTestUtils.withRenderedIntoBody(c()) { m =>
-        def txt() = m.getDOMNode.asMounted().domCast[html.Input].value
-        SimEvent.Keyboard.Enter.simulateKeyDown(m)
-        assertEq(txt(), "enter!")
-        SimEvent.Keyboard.Space.simulateKeyDown(m)
-        assertEq(txt(), "SPACE!")
+
+      ReactTestUtils.withRendered_(c()) { d =>
+        def txt() = d.asInput().value
+        for {
+          _ <- d.act_(SimEvent.Keyboard.Enter.simulateKeyDown(d.asHtml()))
+          _ = assertEq(txt(), "enter!")
+          _ <- d.act_(SimEvent.Keyboard.Space.simulateKeyDown(d.asHtml()))
+          _ = assertEq(txt(), "SPACE!")
+        } yield ()
       }
     }
 
@@ -125,10 +131,9 @@ object VdomTest extends TestSuite {
             }
             .build
 
-        ReactTestUtils.withRenderedIntoBody(c()) { _ =>
+        ReactTestUtils.withRendered_(c()) { _ =>
           assert(value.isInstanceOf[html.Input])
-        }
-        assert(value eq null)
+        }.map(_ => assert(value eq null))
       }
 
       "ref" - {
@@ -145,11 +150,10 @@ object VdomTest extends TestSuite {
             }
             .build
 
-        ReactTestUtils.withRenderedIntoBody(c()) { _ =>
+        ReactTestUtils.withRendered_(c()) { _ =>
           val x = ref.get.runNow()
           assert(x.isDefined)
-        }
-        assert(ref.get.runNow().isEmpty)
+        }.map(_ => assert(ref.get.runNow().isEmpty))
       }
     }
 

@@ -153,8 +153,8 @@ object StateAccess {
       override type WithAsyncEffect[G[_]] = StateAccess[F, G, S]
       override type WithMappedState[T]    = StateAccess[F, A, T]
 
-      override protected implicit def F = FF
-      override protected implicit def A = AA
+      override protected implicit def F: UnsafeSync[F] = FF
+      override protected implicit def A: Async[A] = AA
 
       override def state = stateFn
 
@@ -197,8 +197,8 @@ object StateAccess {
       override type WithAsyncEffect[G[_]] = StateAccess[F, G, S]
       override type WithMappedState[T]    = StateAccess[F, A, T]
 
-      override protected implicit def F = FF
-      override protected implicit def A = AA
+      override protected implicit def F: UnsafeSync[F] = FF
+      override protected implicit def A: Async[A] = AA
 
       override def state = stateFn
 

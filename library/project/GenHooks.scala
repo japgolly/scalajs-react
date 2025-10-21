@@ -58,6 +58,13 @@ object GenHooks {
            |      z => ($as) => Z.dispatch(z($as)))(
            |      z => Reusable.byRef(z).withValue(($as) => Z.delay(z($as))))
            |""".stripMargin
+           
+      useCallbackArgs +=
+        s"""  implicit def ci$n[$As, Y, Z[_]](implicit Z: UnsafeSync[Z]): UseCallbackArg[($As) => Z[Y]] =
+           |    UseCallbackArg[($As) => Z[Y], js.Function$n[$As, Y]](
+           |      z => ($as) => Z.runSync(z($as)))(
+           |      z => Reusable.byRef(z).withValue(($as) => Z.delay(z($as))))
+           |""".stripMargin
 
       if (n <= 21) {
         hookCtxCtorsI += s"    def apply[I, $Hns](input: I, $hookParams): I$n[I, $Hns] =\n      new I$n(input, $hookArgs)"
@@ -116,7 +123,7 @@ object GenHooks {
              |    new Custom.SubsequentStep[I, HookCtx.I$s[I, $preHns], ${hookCtxFnI(s)}] {
              |      override type Next[H$n] = Custom.Subsequent.AtStep$s[I, $preHns]#Next[H$n]
              |      override def next[H$n] =
-             |        (buildPrev, initNextHook) => {
+             |        (buildPrev, initNextHook, displayName) => {
              |          val buildNext: Custom.BuildFn[I, HookCtx.I$n[I, $Hns]] =
              |            new Custom.BuildFn[I, HookCtx.I$n[I, $Hns]] {
              |              override def apply[O](f: HookCtx.I$n[I, $Hns] => O) = {
@@ -127,7 +134,7 @@ object GenHooks {
              |                }
              |              }
              |            }
-             |          new Custom.Subsequent[I, HookCtx.I$n[I, $Hns], ${hookCtxFnI(n)}](buildNext)
+             |          new Custom.Subsequent[I, HookCtx.I$n[I, $Hns], ${hookCtxFnI(n)}](displayName)(buildNext)
              |        }
              |      override def squash[A] = f => _.apply$s(f)
              |    }
@@ -145,14 +152,14 @@ object GenHooks {
              |    new ComponentP.SubsequentStep[P, HookCtx.P$s[P, $preHns], ${hookCtxFnP(s)}] {
              |      override type Next[H$n] = ComponentP.Subsequent.AtStep$s[P, $preHns]#Next[H$n]
              |      override def next[H$n] =
-             |        (renderPrev, initNextHook) => {
+             |        (renderPrev, initNextHook, displayName) => {
              |          val renderNext: ComponentP.RenderFn[P, HookCtx.P$n[P, $Hns]] =
              |            render => renderPrev { ctx$s =>
              |              val h$n = initNextHook(ctx$s)
              |              val ctx$n = HookCtx(ctx$s.props, $preCtxArgs, h$n)
              |              render(ctx$n)
              |            }
-             |          new ComponentP.Subsequent[P, HookCtx.P$n[P, $Hns], ${hookCtxFnP(n)}](renderNext)
+             |          new ComponentP.Subsequent[P, HookCtx.P$n[P, $Hns], ${hookCtxFnP(n)}](displayName)(renderNext)
              |        }
              |      override def squash[A] = f => _.apply$s(f)
              |    }
@@ -171,14 +178,14 @@ object GenHooks {
                |    new ComponentPC.SubsequentStep[P, HookCtx.PC$s[P, $preHns], ${hookCtxFnPC(s)}] {
                |      override type Next[H$n] = ComponentPC.Subsequent.AtStep$s[P, $preHns]#Next[H$n]
                |      override def next[H$n] =
-               |        (renderPrev, initNextHook) => {
+               |        (renderPrev, initNextHook, displayName) => {
                |          val renderNext: ComponentPC.RenderFn[P, HookCtx.PC$n[P, $Hns]] =
                |            render => renderPrev { ctx$s =>
                |              val h$n = initNextHook(ctx$s)
                |              val ctx$n = HookCtx.withChildren(ctx$s.props, ctx$s.propsChildren, $preCtxArgs, h$n)
                |              render(ctx$n)
                |            }
-               |          new ComponentPC.Subsequent[P, HookCtx.PC$n[P, $Hns], ${hookCtxFnPC(n)}](renderNext)
+               |          new ComponentPC.Subsequent[P, HookCtx.PC$n[P, $Hns], ${hookCtxFnPC(n)}](displayName)(renderNext)
                |        }
                |      override def squash[A] = f => _.apply$s(f)
                |    }

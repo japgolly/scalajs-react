@@ -20,6 +20,7 @@ def scalacCommonFlags: Seq[String] = Seq(
 )
 
 def scalac2Flags = Seq(
+  "-Wconf:cat=lint-infer-any&msg=kind-polymorphic:s", // https://github.com/scala/bug/issues/13128
   "-Wunused:explicits",                            // Warn if an explicit parameter is unused.
   "-Wunused:implicits",                            // Warn if an implicit parameter is unused.
   "-Wunused:imports",                              // Warn if an import selector is not referenced.
@@ -63,12 +64,19 @@ def commonSettings: Project => Project = _
                               case (2, _) => scalac2Flags
                               case (3, _) => scalac3Flags
                             }.value,
+    scalacOptions ++= // Required since sbt 1.6.0
+      sys.props.iterator
+        .filter(_._1.matches("(downstream_tests|japgolly).*"))
+        .map(x => s"-D${x._1}=${x._2}")
+        .toSeq,
     dependencyOverrides ++= globalDependencyOverrides.value,
   )
 
 lazy val cleanTestAll = taskKey[Unit]("cleanTestAll")
 
 val enableJSCE = System.getProperty("downstream_tests.enableJSCE") != null
+
+val utestCE = Def.setting("org.typelevel" %%% "cats-effect-testing-utest" % "1.6.0")
 
 lazy val root = Project("root", file("."))
   .configure(commonSettings)
@@ -77,7 +85,7 @@ lazy val root = Project("root", file("."))
     cleanTestAll := (
       if (enableJSCE) // How to do this in a better way?
         Def.sequential(
-          mima200       / clean,
+          // mima200       / clean,
           macros        / clean,
           jvm           / clean,
           js            / clean,
@@ -91,7 +99,7 @@ lazy val root = Project("root", file("."))
         ).value
       else
         Def.sequential(
-          mima200       / clean,
+          // mima200       / clean,
           macros        / clean,
           jvm           / clean,
           js            / clean,
@@ -131,20 +139,21 @@ lazy val jvm = project
     },
   )
 
-lazy val mima200 = project
-  .in(file("mima-2.0.0"))
-  .enablePlugins(ScalaJSPlugin)
-  .configure(commonSettings, utestSettings(Compile))
-  .settings(
-    libraryDependencies ++= Seq(
-      "com.github.japgolly.scalajs-react" %%% "core" % "2.0.0" % Provided,
-      "com.github.japgolly.scalajs-react" %%% "test" % "2.0.0" % Provided,
-    ),
-  )
+// lazy val mima200 = project
+//   .in(file("mima-2.0.0"))
+//   .enablePlugins(ScalaJSPlugin)
+//   .configure(commonSettings, utestSettings(Compile))
+//   .settings(
+//     libraryDependencies ++= Seq(
+//       "com.github.japgolly.scalajs-react" %%% "core" % "2.0.0" % Provided,
+//       "com.github.japgolly.scalajs-react" %%% "test" % "2.0.0" % Provided,
+//     ),
+//   )
 
 lazy val js = project
   .enablePlugins(ScalaJSPlugin)
-  .dependsOn(macros, mima200)
+  .dependsOn(macros)
+  // .dependsOn(mima200)
   .configure(commonSettings, utestSettings, addReactJsDependencies(Test))
   .settings(
     scalaJSStage := jsStage,
@@ -161,11 +170,14 @@ lazy val js = project
         Dep.scalaJsSecureRandom.value % Test,
       )
     },
+    jsDependencies ++= Seq(
+      (ProvidedJS / "polyfill.js") % Test
+    ),
     scalaJSLinkerConfig ~= { _
       .withSemantics(_
         .withRuntimeClassNameMapper(Semantics.RuntimeClassNameMapper.discardAll())
       )
-    },
+    }
   )
 
 lazy val jsCE = project
@@ -181,12 +193,16 @@ lazy val jsCE = project
         "com.github.japgolly.scalajs-react" %%% "core-bundle-cats_effect" % ver,
         "com.github.japgolly.scalajs-react" %%% "extra" % ver,
         "com.github.japgolly.scalajs-react" %%% "test" % ver % Test,
+        utestCE.value % Test,
         Dep.microlibsCompileTime.value % Test,
         Dep.microlibsTestUtil.value % Test,
         Dep.scalaJsJavaTime.value % Test,
         Dep.scalaJsSecureRandom.value % Test,
       )
     },
+    jsDependencies ++= Seq(
+      (ProvidedJS / "polyfill.js") % Test
+    ),
   )
 
 lazy val jsCBIO = project
@@ -202,12 +218,16 @@ lazy val jsCBIO = project
         "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io" % ver,
         "com.github.japgolly.scalajs-react" %%% "extra" % ver,
         "com.github.japgolly.scalajs-react" %%% "test" % ver % Test,
+        utestCE.value % Test,
         Dep.microlibsCompileTime.value % Test,
         Dep.microlibsTestUtil.value % Test,
         Dep.scalaJsJavaTime.value % Test,
         Dep.scalaJsSecureRandom.value % Test,
       )
     },
+    jsDependencies ++= Seq(
+      (ProvidedJS / "polyfill.js") % Test
+    ),
   )
 
 lazy val generic = project

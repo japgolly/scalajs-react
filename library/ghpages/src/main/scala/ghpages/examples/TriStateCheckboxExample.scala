@@ -95,7 +95,8 @@ object TriStateCheckboxExample {
 
   val App = ScalaComponent.builder[Props]
     .initialState[State](Set.empty)
-    .renderBackend[Backend]
+    .backend(new Backend(_))
+    .renderPS(_.backend.render(_, _))
     .getDerivedStateFromProps(removeOutOfScopeState _)
     .build
 

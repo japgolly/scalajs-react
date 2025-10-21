@@ -6,11 +6,9 @@ import cats.kernel.Eq
 import cats.{MonadThrow, Monoid}
 import japgolly.scalajs.react.internal.CoreGeneral.Key
 import japgolly.scalajs.react.util.Effect
-import scala.annotation.nowarn
 
 object ReactCats extends ReactCats
 
-@nowarn("cat=unused")
 trait ReactCats {
   import internal.{ReactCats => X}
 

@@ -102,7 +102,8 @@ object CallbackOptionExample {
 
   val Main = ScalaComponent.builder[Unit]
     .initialState(initState)
-    .renderBackend[Backend]
+    .backend(new Backend(_))
+    .renderS(_.backend.render(_))
     .componentDidMount(_.backend.init)
     .build
 

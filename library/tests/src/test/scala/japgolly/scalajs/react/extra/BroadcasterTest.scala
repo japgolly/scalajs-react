@@ -5,7 +5,7 @@ import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.vdom.html_<^._
 import utest._
 
-object BroadcasterTest extends TestSuite {
+object BroadcasterTest extends AsyncTestSuite {
 
   class B extends Broadcaster[Int] {
     override def broadcast(a: Int): Callback =
@@ -23,12 +23,15 @@ object BroadcasterTest extends TestSuite {
     val b = new B
 
     "component" - {
-      val c = ReactTestUtils.renderIntoDocument(C(b))
-      assert(c.state == Vector())
-      b.broadcast(2).runNow()
-      assert(c.state == Vector(2))
-      b.broadcast(7).runNow()
-      assert(c.state == Vector(2, 7))
+      ReactTestUtils.withRendered(C(b)){ d =>
+        d.innerHTML.assert("Got: {}")
+        for {
+          _ <- d.act_(b.broadcast(2).runNow())
+          _  = d.innerHTML.assert("Got: {2}")
+          _ <- d.act_(b.broadcast(7).runNow())
+          _  = d.innerHTML.assert("Got: {2,7}")
+        } yield ()
+      }
     }
 
     "unregister" - {

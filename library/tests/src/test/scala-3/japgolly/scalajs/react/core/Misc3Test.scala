@@ -6,6 +6,7 @@ import utest._
 import japgolly.scalajs.react.Reusability
 
 object Misc3Test extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
   override def tests = Tests {
 

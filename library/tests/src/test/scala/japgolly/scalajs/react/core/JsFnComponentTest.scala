@@ -9,6 +9,7 @@ import scala.scalajs.js.annotation._
 import utest._
 
 object JsFnComponentTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
   @JSGlobal("FnComp")
   @js.native
   object RawComp extends js.Object
@@ -37,16 +38,8 @@ object JsFnComponentTest extends TestSuite {
         assertEq(unmounted.propsChildren.count, 0)
         assertEq(unmounted.propsChildren.isEmpty, true)
         assertEq(unmounted.key, None)
-//        assertEq(unmounted.ref, None)
-        ReactTestUtils.withNewBodyElement { mountNode =>
-          unmounted.renderIntoDOM(mountNode)
-          val n = mountNode
-          assertOuterHTML(n, "<div><div>Hello Bob</div></div>")
-//          assertEq(mounted.isMounted, true)
-//          assertEq(mounted.props.name, "Bob")
-//          assertEq(mounted.propsChildren.count, 0)
-//          assertEq(mounted.propsChildren.isEmpty, true)
-//          assertEq(mounted.state, null)
+        ReactTestUtils.withRenderedSync(unmounted) { t =>
+          t.root.outerHTML.assert("<div><div>Hello Bob</div></div>")
         }
       }
 
@@ -56,16 +49,8 @@ object JsFnComponentTest extends TestSuite {
         assertEq(unmounted.propsChildren.count, 0)
         assertEq(unmounted.propsChildren.isEmpty, true)
         assertEq(unmounted.key, Some("hehe": Key))
-//        assertEq(unmounted.ref, None)
-        ReactTestUtils.withNewBodyElement { mountNode =>
-          unmounted.renderIntoDOM(mountNode)
-          val n = mountNode
-          assertOuterHTML(n, "<div><div>Hello Bob</div></div>")
-//          assertEq(mounted.isMounted, true)
-//          assertEq(mounted.props.name, "Bob")
-//          assertEq(mounted.propsChildren.count, 0)
-//          assertEq(mounted.propsChildren.isEmpty, true)
-//          assertEq(mounted.state, null)
+        ReactTestUtils.withRenderedSync(unmounted) { t =>
+          t.root.outerHTML.assert("<div><div>Hello Bob</div></div>")
         }
       }
 

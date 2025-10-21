@@ -76,7 +76,8 @@ object TimerExample {
 
   val Timer = ScalaComponent.builder[Unit]
     .initialState(State(0))
-    .renderBackend[Backend]
+    .backend(new Backend(_))
+    .renderS(_.backend.render(_))
     .componentDidMount(_.backend.start)
     .componentWillUnmount(_.backend.clear)
     .build

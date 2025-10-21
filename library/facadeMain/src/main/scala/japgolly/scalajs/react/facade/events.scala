@@ -1,7 +1,6 @@
 package japgolly.scalajs.react.facade
 
 import org.scalajs.dom
-import scala.annotation.nowarn
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSName
 
@@ -125,7 +124,6 @@ trait SyntheticFormEvent[+DOMEventTarget <: dom.Node] extends SyntheticUIEvent[D
 
 /** https://github.com/facebook/react/blob/master/packages/react-dom/src/events/SyntheticKeyboardEvent.js */
 @js.native
-@nowarn("cat=unused")
 trait SyntheticKeyboardEvent[+DOMEventTarget <: dom.Node] extends SyntheticUIEvent[DOMEventTarget] {
   override val nativeEvent: dom.KeyboardEvent = js.native
   val location : Double  = js.native
@@ -170,7 +168,6 @@ trait SyntheticKeyboardEvent[+DOMEventTarget <: dom.Node] extends SyntheticUIEve
 
 /** https://github.com/facebook/react/blob/master/packages/react-dom/src/events/SyntheticMouseEvent.js */
 @js.native
-@nowarn("cat=unused")
 trait SyntheticMouseEvent[+DOMEventTarget <: dom.Node] extends SyntheticUIEvent[DOMEventTarget] {
   override val nativeEvent: dom.MouseEvent = js.native
   val screenX: Double = js.native
@@ -232,7 +229,6 @@ trait SyntheticPointerEvent[+DOMEventTarget <: dom.Node] extends SyntheticMouseE
 
 /** https://github.com/facebook/react/blob/master/packages/react-dom/src/events/SyntheticTouchEvent.js */
 @js.native
-@nowarn("cat=unused")
 trait SyntheticTouchEvent[+DOMEventTarget <: dom.Node] extends SyntheticUIEvent[DOMEventTarget] {
   override val nativeEvent: dom.TouchEvent = js.native
   val altKey        : Boolean       = js.native

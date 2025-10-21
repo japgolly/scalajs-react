@@ -7,6 +7,7 @@ import scala.scalajs.js
 import utest._
 
 object JsLikeComponentTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
 
   def RawJs6a = JsComponentEs6PTest.RawComp // nullary ctor

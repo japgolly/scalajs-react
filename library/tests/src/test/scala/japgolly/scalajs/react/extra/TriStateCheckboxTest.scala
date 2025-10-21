@@ -9,6 +9,7 @@ import japgolly.scalajs.react.vdom.html_<^._
 import utest._
 
 object TriStateCheckboxTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
   private object OnKeyDown {
 
@@ -25,11 +26,15 @@ object TriStateCheckboxTest extends TestSuite {
 
     val Component = ScalaComponent.builder[Unit]
       .initialState(0)
-      .renderBackend[Backend]
+      .backend(new Backend(_))
+      .renderS(_.backend.render(_))
       .build
 
     def test() = {
-      withRenderedIntoBody(Component()).withParent { p =>
+      withElementSync { p =>
+        val r = newReactRoot(p)
+        r.renderSync(Component())
+
         assertEq(p.textContent, "s=0")
         val i = p.querySelector("input")
 

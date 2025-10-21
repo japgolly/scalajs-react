@@ -63,7 +63,8 @@ object ReuseExample {
 
   val topLevelComponent = ScalaComponent.builder[Unit]
     .initialState(State(Vector(30, 0, 2, 0, 10)))
-    .renderBackend[Backend]
+    .backend(new Backend(_))
+    .renderS(_.backend.render(_))
     .build
 
   case class State(inputs: Vector[Long]) {

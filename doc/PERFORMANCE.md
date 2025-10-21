@@ -179,7 +179,8 @@ If you used it to derive an instance for `case class Person(id: Int, name: Strin
 
 There exist two mixins, out-of-the-box, to help you monitor reusability. Use them instead of `shouldComponentUpdate`.
 
-1. `ReusabilityOverlay.install` - Adds an overlay beside each mounted instance of the component, showing how many updates were prevented and how many were rendered. You can hover over it for some detail, and click it to print more to the JS console. [Live demo](https://japgolly.github.io/scalajs-react/#examples/reusability).
+1. **[Deprecated in v3 with no replacement — use React's Profiler instead]**
+    ~~`ReusabilityOverlay.install` - Adds an overlay beside each mounted instance of the component, showing how many updates were prevented and how many were rendered. You can hover over it for some detail, and click it to print more to the JS console. [Live demo](https://japgolly.github.io/scalajs-react/#examples/reusability).~~
 2. `shouldComponentUpdateAndLog` - Logs each callback evaluation to the console.
 
 Usage:
@@ -187,6 +188,7 @@ Usage:
 // No monitoring
 .configure(Reusability.shouldComponentUpdate)
 
+// DEPRECATED IN V3 WITH NO REPLACEMENT
 // Display stats on screen, clickable for detail
 .configure(ReusabilityOverlay.install)
 
@@ -298,7 +300,8 @@ type PersonData = String
 
 val topComponent = ScalaComponent.builder[State]("Demo")
   .initialStateFromProps(identity)
-  .renderBackend[Backend]
+  .backend(new Backend(_))
+  .renderS(_.backend.render(_))
   .build
 
 class Backend(bs: BackendScope[_, State]) {
@@ -415,7 +418,8 @@ class Backend(bs: BackendScope[State, State]) {
 
 val topComponent = ScalaComponent.builder[State]("Demo")
   .initialState_P(identity)
-  .renderBackend[Backend]
+  .backend(new Backend(_))
+  .renderS(_.backend.render(_))
   .build
 
 lazy val stringEditor = ScalaComponent.builder[StateSnapshot[String]]("StringEditor")

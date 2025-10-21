@@ -5,4 +5,4 @@ libraryDependencies ++= Seq(
 addSbtPlugin("ch.epfl.scala"  % "sbt-scalafix"       % "0.12.1")
 addSbtPlugin("com.github.sbt" % "sbt-ci-release"     % "1.11.2")
 addSbtPlugin("org.scala-js"   % "sbt-jsdependencies" % "1.0.2")
-addSbtPlugin("org.scala-js"   % "sbt-scalajs"        % "1.16.0")
+addSbtPlugin("org.scala-js"   % "sbt-scalajs"        % "1.20.1")

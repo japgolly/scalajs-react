@@ -6,10 +6,12 @@ import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
 import scala.annotation.nowarn
 import scala.scalajs.js
+import sourcecode.Line
 import utest._
 
 @nowarn("msg=Stream.+is.deprecated")
 object PrefixedTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
   lazy val CA = ScalaComponent.builder[Unit]("CA").render_C(c => <.div(c)).build
   lazy val CB = ScalaComponent.builder[Unit]("CB").render_C(c => <.span(c)).build
   lazy val H1 = ScalaComponent.builder[String]("H").render_P(p => <.h1(p)).build
@@ -24,7 +26,7 @@ object PrefixedTest extends TestSuite {
 
   def checkbox(check: Boolean) = <.input.checkbox(^.checked := check, ^.readOnly := true)
 
-  def test(subj: VdomNode, exp: String): Unit = {
+  def test(subj: VdomNode, exp: String)(implicit l: Line): Unit = {
     val comp = ScalaComponent.static("tmp")(subj)
     assertRender(comp(), exp)
   }
@@ -33,6 +35,8 @@ object PrefixedTest extends TestSuite {
     "void" - test(<.br, """<br/>""")
 
     "inner" - {
+      "undefined" - test(<.div(js.undefined),        """<div></div>""")
+      // "jsDefined" - test(<.div(1: js.UndefOr[Int]),  """<div>1</div>""") // issue #1123
       "byte"      - test(<.div(50: Byte),            """<div>50</div>""")
       "short"     - test(<.div(45: Short),           """<div>45</div>""")
       "int"       - test(<.div(666),                 """<div>666</div>""")
@@ -49,7 +53,7 @@ object PrefixedTest extends TestSuite {
       "compJS"    - test(<.div(jsComp),              """<div><div>Hello yo</div></div>""")
     }
 
-    "checkboxT"  - test(checkbox(true),  """<input type="checkbox" checked="" readonly=""/>""")
+    "checkboxT"  - test(checkbox(true),  """<input type="checkbox" readonly="" checked=""/>""")
     "checkboxF"  - test(checkbox(false), """<input type="checkbox" readonly=""/>""")
 
      "attr" - {
@@ -79,19 +83,27 @@ object PrefixedTest extends TestSuite {
     }
 
     "VdomArray" - {
-      "ctorRN" - test(<.div(VdomArray(vdomNode, vdomNode)), "<div><h1>cool</h1><h1>cool</h1></div>")
-      "ctorMix" - test(<.div(VdomArray(vdomNode, <.br, vdomElement)), "<div><h1>cool</h1><br/><p></p></div>")
+      def jsComp1 = JsComponentEs6PTest.Component.withKey(1)(JsComponentEs6PTest.JsProps("yo"))
+      def jsComp2 = JsComponentEs6PTest.Component.withKey(2)(JsComponentEs6PTest.JsProps("yo2"))
+      def vdomNode1   : VdomNode    = H1.withKey("1")("cool1")
+      def vdomNode2   : VdomNode    = H1.withKey("2")("cool2")
+      def vdomTag1    : VdomTag     = <.span(^.key := 1)
+      def vdomTag2    : VdomTag     = <.span(^.key := 2)
+      def vdomElement1: VdomElement = <.p(^.key := 1)
+      def vdomElement2: VdomElement = <.p(^.key := 2)
+      "ctorRN" - test(<.div(VdomArray(vdomNode1, vdomNode2)), "<div><h1>cool1</h1><h1>cool2</h1></div>")
+      "ctorMix" - test(<.div(VdomArray(vdomNode1, <.br(^.key := 3), vdomElement2)), "<div><h1>cool1</h1><br/><p></p></div>")
       "toVdomArray" - {
-        "seqVdomNode"  - test(<.div(Seq     (vdomNode   , vdomNode    ).toVdomArray), "<div><h1>cool</h1><h1>cool</h1></div>")
-        "lstVdomTag"   - test(<.div(List    (vdomTag    , vdomTag     ).toVdomArray), "<div><span></span><span></span></div>")
-        "strVdomEl"    - test(<.div(Stream  (vdomElement, vdomElement ).toVdomArray), "<div><p></p><p></p></div>")
-     // "seqTagMod"    - test(<.div(Seq     (tagMod     , tagMod      ).toVdomArray), """<div class="ho ho"></div>""")
-        "seqTagHtml"   - test(<.div(Seq     (<.span     , <.span      ).toVdomArray), "<div><span></span><span></span></div>")
-        "seqCompScala" - test(<.div(Seq     (H1("a")    , CA("b")     ).toVdomArray), """<div><h1>a</h1><div>b</div></div>""")
-        "seqCompJS"    - test(<.div(Seq     (jsComp     , jsComp      ).toVdomArray), "<div><div>Hello yo</div><div>Hello yo</div></div>")
-        "vecCompMix"   - test(<.div(Vector  (jsComp     , jsComp      ).toVdomArray), "<div><div>Hello yo</div><div>Hello yo</div></div>")
-        "arrayScala"   - test(<.div(Array   (vdomNode   , vdomNode    ).toVdomArray), "<div><h1>cool</h1><h1>cool</h1></div>")
-        "arrayJs"      - test(<.div(js.Array(vdomNode   , vdomNode    ).toVdomArray), "<div><h1>cool</h1><h1>cool</h1></div>")
+        "seqVdomNode"  - test(<.div(Seq     (vdomNode1         , vdomNode2         ).toVdomArray), "<div><h1>cool1</h1><h1>cool2</h1></div>")
+        "lstVdomTag"   - test(<.div(List    (vdomTag1          , vdomTag2          ).toVdomArray), "<div><span></span><span></span></div>")
+        "strVdomEl"    - test(<.div(Stream  (vdomElement1      , vdomElement2      ).toVdomArray), "<div><p></p><p></p></div>")
+     // "seqTagMod"    - test(<.div(Seq     (tagMod            , tagMod            ).toVdomArray), """<div class="ho ho"></div>""")
+        "seqTagHtml"   - test(<.div(Seq     (<.span(^.key := 1), <.span(^.key := 2)).toVdomArray), "<div><span></span><span></span></div>")
+        "seqCompScala" - test(<.div(Seq     (H1.withKey(1)("a"), CA.withKey(2)("b")).toVdomArray), """<div><h1>a</h1><div>b</div></div>""")
+        "seqCompJS"    - test(<.div(Seq     (jsComp1           , jsComp2           ).toVdomArray), "<div><div>Hello yo</div><div>Hello yo2</div></div>")
+        "vecCompMix"   - test(<.div(Vector  (jsComp1           , jsComp2           ).toVdomArray), "<div><div>Hello yo</div><div>Hello yo2</div></div>")
+        "arrayScala"   - test(<.div(Array   (vdomNode1         , vdomNode2         ).toVdomArray), "<div><h1>cool1</h1><h1>cool2</h1></div>")
+        "arrayJs"      - test(<.div(js.Array(vdomNode1         , vdomNode2         ).toVdomArray), "<div><h1>cool1</h1><h1>cool2</h1></div>")
       }
     }
 
@@ -152,7 +164,7 @@ object PrefixedTest extends TestSuite {
     "optional" - {
       "option" - {
         def some[A](a: A): Option[A] = Some(a)
-        @nowarn("cat=unused") def none[A](a: A): Option[A] = None
+        def none[A](a: A): Option[A] = None
         "attr_some"    - test(<.div(^.cls   :=? some("hi")       ), """<div class="hi"></div>""")
         "attr_none"    - test(<.div(^.cls   :=? none("h1")       ), """<div></div>""")
         "style_some"   - test(<.div(^.color :=? some("red")      ), """<div style="color:red"></div>""")
@@ -228,15 +240,15 @@ object PrefixedTest extends TestSuite {
         """<div style="background-color:red;margin-top:10px">!</div>""")
 
       "direct" - test(
-        <.div(^.style := js.Dictionary("color" -> "black", "margin-left" -> "1em"), "!"),
+        <.div(^.style := js.Dictionary("color" -> "black", "marginLeft" -> "1em"), "!"),
         """<div style="color:black;margin-left:1em">!</div>""")
 
       "namedAndDirect" - test(
-        <.div(^.backgroundColor := "red", ^.style := js.Dictionary("color" -> "black", "margin-left" -> "1em"), "!"),
+        <.div(^.backgroundColor := "red", ^.style := js.Dictionary("color" -> "black", "marginLeft" -> "1em"), "!"),
         """<div style="background-color:red;color:black;margin-left:1em">!</div>""")
 
       "directAndNamed" - test(
-        <.div(^.style := js.Dictionary("color" -> "black", "margin-left" -> "1em"), ^.backgroundColor := "red", "!"),
+        <.div(^.style := js.Dictionary("color" -> "black", "marginLeft" -> "1em"), ^.backgroundColor := "red", "!"),
         """<div style="color:black;margin-left:1em;background-color:red">!</div>""")
     }
 

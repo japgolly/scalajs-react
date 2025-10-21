@@ -103,31 +103,31 @@ object RouterCtlF {
     reuse.asInstanceOf[Reusability[RouterCtlF[F, A]]]
 
   final case class Contramap[F[_], A, B](u: RouterCtlF[F, A], f: B => A)(implicit x: Sync[F]) extends RouterCtlF[F, B] {
-    override protected implicit def F      = x
-    override def baseUrl                   = u.baseUrl
-    override def byPath                    = u.byPath
-    override def refresh                   = u.refresh
-    override def pathFor(b: B)             = u pathFor f(b)
-    override def set(b: B, v: SetRouteVia) = u.set(f(b), v)
+    override protected implicit def F: Sync[F] = x
+    override def baseUrl                       = u.baseUrl
+    override def byPath                        = u.byPath
+    override def refresh                       = u.refresh
+    override def pathFor(b: B)                 = u pathFor f(b)
+    override def set(b: B, v: SetRouteVia)     = u.set(f(b), v)
   }
 
   final case class ModCB[F[_], A](u: RouterCtlF[F, A], f: (A, F[Unit]) => F[Unit])(implicit x: Sync[F]) extends RouterCtlF[F, A] {
-    override protected implicit def F      = x
-    override def baseUrl                   = u.baseUrl
-    override def byPath                    = u.byPath
-    override def refresh                   = u.refresh
-    override def pathFor(a: A)             = u pathFor a
-    override def set(a: A, v: SetRouteVia) = f(a, u.set(a, v))
+    override protected implicit def F: Sync[F] = x
+    override def baseUrl                       = u.baseUrl
+    override def byPath                        = u.byPath
+    override def refresh                       = u.refresh
+    override def pathFor(a: A)                 = u pathFor a
+    override def set(a: A, v: SetRouteVia)     = f(a, u.set(a, v))
   }
 
   final case class AltEffect[F[_], G[_], A](u: RouterCtlF[F, A])(implicit G: Sync[G]) extends RouterCtlF[G, A] {
     import u.{F => FF}
-    override protected implicit def F      = G
-    override def baseUrl                   = u.baseUrl
-    override def byPath                    = u.byPath.withEffect(G)
-    override def refresh                   = G.transSync(u.refresh)
-    override def pathFor(a: A)             = u pathFor a
-    override def set(a: A, v: SetRouteVia) = G.transSync(u.set(a, v))
+    override protected implicit def F: Sync[G] = G
+    override def baseUrl                       = u.baseUrl
+    override def byPath                        = u.byPath.withEffect(G)
+    override def refresh                       = G.transSync(u.refresh)
+    override def pathFor(a: A)                 = u pathFor a
+    override def set(a: A, v: SetRouteVia)     = G.transSync(u.set(a, v))
 
     override def withEffect[H[_]](implicit H: Sync[H]): RouterCtlF[H, A] =
       H.subst[G, ({type L[E[_]] = RouterCtlF[E, A]})#L](this)(

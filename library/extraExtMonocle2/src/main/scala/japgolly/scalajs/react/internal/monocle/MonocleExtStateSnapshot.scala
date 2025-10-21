@@ -2,9 +2,7 @@ package japgolly.scalajs.react.internal.monocle
 
 import japgolly.scalajs.react.extra.{StateSnapshot, StateSnapshotF}
 import japgolly.scalajs.react.util.NotAllowed
-import scala.annotation.nowarn
 
-@nowarn("cat=unused")
 trait MonocleExtStateSnapshot {
   import MonocleExtStateSnapshot._
 

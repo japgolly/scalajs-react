@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.extra.router
 
+import japgolly.scalajs.react.React.startTransition
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.util.DefaultEffects
@@ -50,7 +51,7 @@ object RouterWithProps {
       .render                 ($ => lgc.render($.state, $.props))
       .componentDidMount      ($ => cfg.postRenderFn(None, $.state.page, $.props))
       .componentDidUpdate     (i => cfg.postRenderFn(Some(i.prevState.page), i.currentState.page, i.currentProps))
-      .configure              (ListenableF.listenToUnit(_ => lgc, $ => F.flatMap(lgc.syncToWindowUrl)(s => F.transSync($.setState(s)))))
+      .configure              (ListenableF.listenToUnit(_ => lgc, $ => F.flatMap(lgc.syncToWindowUrl)(s => F.transSync(startTransition($.setState(s))))))
       .configure              (EL.install_("popstate", lgc.ctl.refresh, dom.window))
       .configureWhen(isIE11())(EL.install_("hashchange", lgc.ctl.refresh, dom.window))
   }
@@ -212,12 +213,12 @@ final class RouterLogicF[F[_], Page, Props](val baseUrl: BaseUrl, cfg: RouterWit
 
   val ctlByPath: RouterCtlF[F, Path] =
     new RouterCtlF[F, Path] {
-      override protected implicit def F         = cfg.effect
-      override def baseUrl                      = impbaseurl
-      override def byPath                       = this
-      override val refresh                      = interpret(BroadcastSync)
-      override def pathFor(path: Path)          = path
-      override def set(p: Path, v: SetRouteVia) = interpret(setPath(p, v))
+      override protected implicit def F: Sync[F] = cfg.effect
+      override def baseUrl                       = impbaseurl
+      override def byPath                        = this
+      override val refresh                       = interpret(BroadcastSync)
+      override def pathFor(path: Path)           = path
+      override def set(p: Path, v: SetRouteVia)  = interpret(setPath(p, v))
     }
 
   val ctl: RouterCtlF[F, Page] =

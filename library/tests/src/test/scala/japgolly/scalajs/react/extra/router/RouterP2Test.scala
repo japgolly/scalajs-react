@@ -151,6 +151,7 @@ object RouterP2TestRoutes {
 // ===================================================================================================================
 
 object RouterP2Test extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
   import RouterP2TestRoutes._
 
   implicit def str2path(s: String): Path = Path(s)
@@ -163,8 +164,13 @@ object RouterP2Test extends TestSuite {
     val ctx = new Ctx(42)
 
     val sim = SimHistory(base.abs)
-    val r = ReactTestUtils.renderIntoDocument(router(ctx))
-    def html = r.getDOMNode.asMounted().asElement().outerHTML
+    val container = ReactTestUtils.newElement()
+    val root = TestReactRoot(container)
+    root.renderSync(router(ctx))
+
+    def forceUpdate() = root.renderSync(router(ctx))
+    def html = container.outerHTML
+    def ctlSetSync(p: MyPage2): Unit = ReactTestUtils.actSync(ctl.set(p).runNow())
     def currentPage(): Option[MyPage2] = lgc.parseUrl(AbsUrl(dom.window.location.href)).flatMap(config.rules.parse(_).runNow().toOption)
     isUserLoggedIn = false
 
@@ -194,10 +200,10 @@ object RouterP2Test extends TestSuite {
 
     "lazyRender" - {
       isUserLoggedIn = true
-      ctl.set(PrivatePage2).runNow()
+      ctlSetSync(PrivatePage2)
       assertContains(html, secret)
       secret = "oranges"
-      r.forceUpdate
+      forceUpdate()
       assertContains(html, secret)
     }
 
@@ -257,7 +263,8 @@ object RouterP2Test extends TestSuite {
         assertEq(ctl.pathFor(NestedModule(ModuleRoot)).value, "module")
         assertEq(ctl.pathFor(NestedModule(Module1)).value, "module/one")
         assertEq(ctl.pathFor(NestedModule(Module2(666))).value, "module/two/666")
-        ctl.set(NestedModule(ModuleRoot)).runNow()
+
+        ctlSetSync(NestedModule(ModuleRoot))
         assertContains(html, "/module/one\"")
         assertContains(html, "/module/two/7\"")
       }
@@ -267,7 +274,7 @@ object RouterP2Test extends TestSuite {
       var i = 0
       val ctl2 = ctl.onSet(Callback(i += 1) >> _)
       isUserLoggedIn = true
-      ctl2.set(PrivatePage2).runNow()
+      ReactTestUtils.actSync(ctl2.set(PrivatePage2).runNow())
       assertEq(currentPage(), Some(PrivatePage2))
       assertContains(html, secret)
       assertEq(i, 1)
@@ -275,12 +282,12 @@ object RouterP2Test extends TestSuite {
 
     "setRespectRouteCondition" - {
       // Make sure we're not starting on PublicHome cos that's were we expect to be redirected
-      ctl.set(NestedModule(ModuleRoot)).runNow()
+      ctlSetSync(NestedModule(ModuleRoot))
       assertEq(currentPage(), Some(NestedModule(ModuleRoot)))
 
       // set without being logged in
       isUserLoggedIn = false
-      ctl.set(PrivatePage2).runNow()
+      ctlSetSync(PrivatePage2)
       assertEq(currentPage(), Some(PublicHome))
       assert(!html.contains(secret))
     }
@@ -322,43 +329,43 @@ object RouterP2Test extends TestSuite {
         assertNotContains(html, "Private page") // not logged in
 
         isUserLoggedIn = true
-        r.forceUpdate
+        forceUpdate()
         assertContains(html, ">Home (42)</span>") // not at link cos current page
         assertContains(html, "Private page") // logged in
 
-        ctl.set(PrivatePage1).runNow()
+        ctlSetSync(PrivatePage1)
         assertContains(html, ">Home (42)</a>") // link cos not on current page
 
         assertContains(html, "Private #1 (42)")
 
         isUserLoggedIn = false
-        ctl.refresh.runNow()
+        ReactTestUtils.actSync(ctl.refresh.runNow())
         assertContains(html, ">Home (42)</span>") // not at link cos current page
         assertNotContains(html, "Private page") // not logged in
       }
 
       "3" - {
         isUserLoggedIn = true
-        ctl.set(PrivatePage3).runNow()
+        ctlSetSync(PrivatePage3)
         assertContains(html, "Private #3 (42)")
 
         isUserLoggedIn = false
-        ctl.refresh.runNow()
+        ReactTestUtils.actSync(ctl.refresh.runNow())
         assertContains(html, "AccessDenied")
       }
 
       "4" - {
         isUserLoggedIn = true
-        ctl.set(PrivatePage4).runNow()
+        ctlSetSync(PrivatePage4)
         assertContains(html, "Private #4 (42)")
 
         isUserLoggedIn = false
-        ctl.refresh.runNow()
+        ReactTestUtils.actSync(ctl.refresh.runNow())
         assertContains(html, "AccessDenied")
       }
 
       "overloads" - {
-        @nowarn("cat=unused") def test(f: RoutingRule[Int, Unit] => Any): Unit = ()
+        def test(f: RoutingRule[Int, Unit] => Any): Unit = ()
 
         "c"  - test(_.addCondition(CallbackTo(true)))
         "ca" - test(_.addConditionWithFallback(CallbackTo(true), RedirectToPath[Int](null, null)))

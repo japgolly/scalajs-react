@@ -82,7 +82,8 @@ object RefsExample {
 
   val App = ScalaComponent.builder[Unit]
     .initialState("")
-    .renderBackend[Backend]
+    .backend(new Backend(_))
+    .renderS(_.backend.render(_))
     .build
 
   // EXAMPLE:END

@@ -35,6 +35,7 @@ object ScalaJsReact {
       ghpages,
       ghpagesMacros,
       scalafixRules,
+      testsDep,
       tests,
       testUtilMacros,
       testUtil,
@@ -214,10 +215,8 @@ object ScalaJsReact {
     .dependsOn(coreBundleCallback) // Low priority
     .configure(commonSettings, preventPublication, utestSettings, addReactJsDependencies(Test))
     .settings(
-      Test / scalacOptions --= Seq(
-        "-deprecation",
-        "-Xlint:adapted-args"
-      ),
+      Test / scalacOptions -= "-Xlint:adapted-args",
+      Test / scalacOptions += "-Wconf:cat=deprecation:e", // error on deprecation, that's what testsDep is for
       libraryDependencies ++= Seq(
         Dep.nyayaProp.value % Test,
         Dep.nyayaGen.value % Test,
@@ -227,10 +226,33 @@ object ScalaJsReact {
       ),
       jsDependencies ++= Seq(
         Dep.sizzleJs(Test).value,
+        (ProvidedJS / "polyfill.js") % Test,
         (ProvidedJS / "component-es6.js" dependsOn Dep.reactDom.dev) % Test,
         (ProvidedJS / "component-fn.js"  dependsOn Dep.reactDom.dev) % Test,
         (ProvidedJS / "forward-ref.js"   dependsOn Dep.reactDom.dev) % Test,
-        (ProvidedJS / "polyfill.js"      dependsOn Dep.reactDom.dev) % Test,
+      ),
+    )
+
+  lazy val testsDep = project
+    .in(file("tests-dep"))
+    .dependsOn(testUtil, coreExtCatsEffect)
+    .dependsOn(coreBundleCallback) // Low priority
+    .configure(commonSettings, preventPublication, utestSettings, addReactJsDependencies(Test))
+    .settings(
+      Test / scalacOptions --= Seq(
+        "-deprecation",
+        "-Xlint:adapted-args"
+      ),
+      libraryDependencies ++= Seq(
+        Dep.scalaJsJavaTime.value % Test,
+        Dep.scalaJsSecureRandom.value % Test,
+      ),
+      jsDependencies ++= Seq(
+        Dep.sizzleJs(Test).value,
+        (ProvidedJS / "polyfill.js") % Test,
+        (ProvidedJS / "component-es6.js" dependsOn Dep.reactDom.dev) % Test,
+        (ProvidedJS / "component-fn.js"  dependsOn Dep.reactDom.dev) % Test,
+        (ProvidedJS / "forward-ref.js"   dependsOn Dep.reactDom.dev) % Test,
       ),
     )
 
@@ -239,6 +261,7 @@ object ScalaJsReact {
     .configure(commonSettings, publicationSettings, hasNoTests, effectGenericModule)
     .settings(
       moduleName := "test",
+      libraryDependencies += Dep.microlibsTestUtil.value,
     )
 
   lazy val testUtilMacros = project
@@ -250,7 +273,7 @@ object ScalaJsReact {
 
   lazy val util = project
     .dependsOn(utilFallbacks % Provided)
-    .configure(commonSettings, publicationSettings, hasNoTests, disableScalaDoc3, prohibitDefaultEffects)
+    .configure(commonSettings, publicationSettings, utestSettings, disableScalaDoc3, prohibitDefaultEffects)
     .settings(
       libraryDependencies += Dep.scalaJsDom.value,
     )

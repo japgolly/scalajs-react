@@ -8,12 +8,11 @@ import japgolly.scalajs.react.util.JsUtil
 import japgolly.scalajs.react.vdom.html_<^._
 import java.time.Duration
 import monocle._
-import org.scalajs.dom.html
 import scala.scalajs.js
 import scala.util.Try
 import utest._
 
-object MiscTest extends TestSuite {
+object MiscTest extends AsyncTestSuite {
 
   lazy val CA = ScalaComponent.builder[Unit]("CA").render_C(c => <.div(c)).build
   lazy val CB = ScalaComponent.builder[Unit]("CB").render_C(c => <.span(c)).build
@@ -64,17 +63,17 @@ object MiscTest extends TestSuite {
 
     "selectWithMultipleValues" - {
       val s = ScalaComponent.builder[Unit]("s").renderStatic(
-          <.select(^.multiple := true, ^.value := js.Array("a", "c"))(
-            <.option(^.value := "a")("a"),
-            <.option(^.value := "b")("b"),
-            <.option(^.value := "c")("c"))
+          <.select(^.multiple := true, ^.value := js.Array("a", "c"), ^.onChange --> Callback.empty)(
+            <.option(^.value := "a", "a"),
+            <.option(^.value := "b", "b"),
+            <.option(^.value := "c", "c"))
         ).build
 
-      val c = ReactTestUtils.renderIntoDocument(s())
-      val sel = c.getDOMNode.asMounted().domCast[html.Select]
-      val options = sel.options.asInstanceOf[js.Array[html.Option]] // https://github.com/scala-js/scala-js-dom/pull/107
-      val selectedOptions = options filter (_.selected) map (_.value)
-      assert(selectedOptions.toSet == Set("a", "c"))
+      ReactTestUtils.withRendered_(s()) { d =>
+        val sel = d.asSelect()
+        val selectedOptions = sel.options.filter(_.selected).map(_.value)
+        assertSet(selectedOptions.toSet, Set("a", "c"))
+      }
     }
 
     "renderScopeZoomState" - {
@@ -93,13 +92,15 @@ object MiscTest extends TestSuite {
           .render { $ =>
             val add7 = $.modState(_ + 7)
             val add1 = $.modState(_ + 1)
-            <.button(^.onClick --> (add1 >> add7))
+            <.button(<.span($.state), ^.onClick --> (add1 >> add7))
           }
           .build
-        val c = ReactTestUtils.renderIntoDocument(C())
-        assertEq(c.state, 3)
-        Simulation.click run c
-        assertEq(c.state, 11)
+        ReactTestUtils.withRendered(C()) { d =>
+          d.select("span").innerHTML.assert("3")
+          d.actOnNode_(Simulate.click(_)).map(_ =>
+            d.select("span").innerHTML.assert("11")
+          )
+        }
       }
 
       "zoomState" - {
@@ -109,16 +110,19 @@ object MiscTest extends TestSuite {
             val $$ = $.mountedPure.zoomState(_.int)(b => _.copy(int = b))
             val add7 = $$.modState(_ + 7)
             val add1 = $$.modState(_ + 1)
-            <.button(^.onClick --> (add1 >> add7))
+            <.button($.state.toString, ^.onClick --> (add1 >> add7), ^.onDoubleClick --> $.setState(StrInt("oh", 100)))
           }
           .build
-        val c = ReactTestUtils.renderIntoDocument(C())
-        assertEq(c.state, StrInt("yay", 3))
-        Simulation.click run c
-        assertEq(c.state, StrInt("yay", 11))
-        c.setState(StrInt("oh", 100))
-        Simulation.click run c
-        assertEq(c.state, StrInt("oh", 108))
+        ReactTestUtils.withRendered(C()) { d =>
+          d.innerHTML.assert("StrInt(yay,3)")
+          for {
+            _ <- d.actOnNode_(Simulate.click(_))
+            _  = d.innerHTML.assert("StrInt(yay,11)")
+            _ <- d.actOnNode_(Simulate.doubleClick(_))
+            _ <- d.actOnNode_(Simulate.click(_))
+          } yield
+            d.innerHTML.assert("StrInt(oh,108)")
+        }
       }
 
       "zoomStateL" - {
@@ -128,16 +132,19 @@ object MiscTest extends TestSuite {
             val $$ = $.mountedPure zoomStateL StrInt.int
             val add7 = $$.modState(_ + 7)
             val add1 = $$.modState(_ + 1)
-            <.button(^.onClick --> (add1 >> add7))
+            <.button($.state.toString, ^.onClick --> (add1 >> add7), ^.onDoubleClick --> $.setState(StrInt("oh", 100)))
           }
           .build
-        val c = ReactTestUtils.renderIntoDocument(C())
-        assertEq(c.state, StrInt("yay", 3))
-        Simulation.click run c
-        assertEq(c.state, StrInt("yay", 11))
-        c.setState(StrInt("oh", 100))
-        Simulation.click run c
-        assertEq(c.state, StrInt("oh", 108))
+        ReactTestUtils.withRendered(C()) { d =>
+          d.innerHTML.assert("StrInt(yay,3)")
+          for {
+            _ <- d.actOnNode_(Simulate.click(_))
+            _  = d.innerHTML.assert("StrInt(yay,11)")
+            _ <- d.actOnNode_(Simulate.doubleClick(_))
+            _ <- d.actOnNode_(Simulate.click(_))
+          } yield
+            d.innerHTML.assert("StrInt(oh,108)")
+        }
       }
 
       "zoomStateL2" - {
@@ -147,16 +154,19 @@ object MiscTest extends TestSuite {
             val $$ = $.mountedPure zoomStateL StrIntWrap.strInt zoomStateL StrInt.int
             val add7 = $$.modState(_ + 7)
             val add1 = $$.modState(_ + 1)
-            <.button(^.onClick --> (add1 >> add7))
+            <.button($.state.toString, ^.onClick --> (add1 >> add7), ^.onDoubleClick --> $.setState(StrIntWrap(StrInt("oh", 100))))
           }
           .build
-        val c = ReactTestUtils.renderIntoDocument(C())
-        assertEq(c.state, StrIntWrap(StrInt("yay", 3)))
-        Simulation.click run c
-        assertEq(c.state, StrIntWrap(StrInt("yay", 11)))
-        c.setState(StrIntWrap(StrInt("oh", 100)))
-        Simulation.click run c
-        assertEq(c.state, StrIntWrap(StrInt("oh", 108)))
+        ReactTestUtils.withRendered(C()) { d =>
+          d.innerHTML.assert("StrIntWrap(StrInt(yay,3))")
+          for {
+            _ <- d.actOnNode_(Simulate.click(_))
+            _  = d.innerHTML.assert("StrIntWrap(StrInt(yay,11))")
+            _ <- d.actOnNode_(Simulate.doubleClick(_))
+            _ <- d.actOnNode_(Simulate.click(_))
+          } yield
+            d.innerHTML.assert("StrIntWrap(StrInt(oh,108))")
+        }
       }
     }
 
@@ -197,20 +207,16 @@ object MiscTest extends TestSuite {
             <.div("i = ", i)
           )
         ).build
-      React.Profiler.unstable_trace("poop") {
-        ReactTestUtils.withRenderedIntoDocument(comp(234)) { mounted =>
-          assertOuterHTML(mounted.getDOMNode.toHtml.get, "<div>i = 234</div>")
-        }
+      ReactTestUtils.withRendered_(comp(234))( d =>
+        d.outerHTML.assert("<div>i = 234</div>")
+      ).map{ _ =>
+        assertEq(results.length, 1)
+        val r = results.head
+        assertEq(r.id, "blah")
+        assertEq(r.phase, "mount")
+        assertEq(r.phaseIsMount, true)
+        assertEq(r.phaseIsUpdate, false)
       }
-      assertEq(results.length, 1)
-      val r = results.head
-      assertEq(r.id, "blah")
-      assertEq(r.phase, "mount")
-      assertEq(r.phaseIsMount, true)
-      assertEq(r.phaseIsUpdate, false)
-      assertEq(r.interactions.length, 1)
-      val i = r.interactions.head
-      assertEq(i.name, "poop")
     }
 
     "durationFromDOMHighResTimeStamp" - {

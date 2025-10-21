@@ -127,6 +127,7 @@ object LifecycleF {
 
     def props        : P                    = mountedImpure.props
     def propsChildren: PropsChildren        = mountedImpure.propsChildren
+    @deprecated("Add a ref directly to the element you want to reference.", "3.0.0")
     def getDOMNode   : ComponentDom.Mounted = mountedImpure.getDOMNode.asMounted()
   }
 
@@ -148,6 +149,7 @@ object LifecycleF {
 
     def props        : P                    = mountedImpure.props
     def propsChildren: PropsChildren        = mountedImpure.propsChildren
+    @deprecated("Add a ref directly to the element you want to reference.", "3.0.0")
     def getDOMNode   : ComponentDom.Mounted = mountedImpure.getDOMNode.asMounted()
   }
 
@@ -170,6 +172,7 @@ object LifecycleF {
     def propsChildren: PropsChildren        = mountedImpure.propsChildren
     def currentProps : P                    = mountedImpure.props
     def currentState : S                    = mountedImpure.state
+    @deprecated("Add a ref directly to the element you want to reference.", "3.0.0")
     def getDOMNode   : ComponentDom.Mounted = mountedImpure.getDOMNode.asMounted()
   }
 
@@ -194,9 +197,6 @@ object LifecycleF {
 
     @deprecated("forceUpdate prohibited within the componentWillMount callback.", "")
     def forceUpdate(no: NotAllowed) = no.result
-
-    // Nope
-    // def getDOMNode   : dom.Element   = raw.mounted.getDOMNode
   }
 
   // ===================================================================================================================
@@ -213,6 +213,7 @@ object LifecycleF {
     def props        : P                    = mountedImpure.props
     def propsChildren: PropsChildren        = mountedImpure.propsChildren
     def state        : S                    = mountedImpure.state
+    @deprecated("Add a ref directly to the element you want to reference.", "3.0.0")
     def getDOMNode   : ComponentDom.Mounted = mountedImpure.getDOMNode.asMounted()
 
     @deprecated("setState prohibited within the componentWillUnmount callback.", "")
@@ -243,6 +244,7 @@ object LifecycleF {
 
     def propsChildren: PropsChildren        = mountedImpure.propsChildren
     def currentProps : P                    = mountedImpure.props
+    @deprecated("Add a ref directly to the element you want to reference.", "3.0.0")
     def getDOMNode   : ComponentDom.Mounted = mountedImpure.getDOMNode.asMounted()
   }
 
@@ -260,6 +262,7 @@ object LifecycleF {
     def propsChildren: PropsChildren        = mountedImpure.propsChildren
     def currentProps : P                    = mountedImpure.props
     def currentState : S                    = mountedImpure.state
+    @deprecated("Add a ref directly to the element you want to reference.", "3.0.0")
     def getDOMNode   : ComponentDom.Mounted = mountedImpure.getDOMNode.asMounted()
 
     @deprecated("setState prohibited within the componentWillUpdate callback. Use componentWillReceiveProps instead.", "")
@@ -292,6 +295,7 @@ object LifecycleF {
     def propsChildren: PropsChildren        = mountedImpure.propsChildren
     def currentProps : P                    = mountedImpure.props
     def currentState : S                    = mountedImpure.state
+    @deprecated("Add a ref directly to the element you want to reference.", "3.0.0")
     def getDOMNode   : ComponentDom.Mounted = mountedImpure.getDOMNode.asMounted()
 
     def cmpProps(cmp: (P, P) => Boolean): Boolean = cmp(currentProps, prevProps)
@@ -321,6 +325,7 @@ object LifecycleF {
     def propsChildren: PropsChildren        = mountedImpure.propsChildren
     def currentProps : P                    = mountedImpure.props
     def currentState : S                    = mountedImpure.state
+    @deprecated("Add a ref directly to the element you want to reference.", "3.0.0")
     def getDOMNode   : ComponentDom.Mounted = mountedImpure.getDOMNode.asMounted()
 
     def cmpProps(cmp: (P, P) => Boolean): Boolean = cmp(currentProps, nextProps)
@@ -350,6 +355,7 @@ object LifecycleF {
 
     def props        : P                    = mountedImpure.props
     def propsChildren: PropsChildren        = mountedImpure.propsChildren
+    @deprecated("Add a ref directly to the element you want to reference.", "3.0.0")
     def getDOMNode   : ComponentDom.Mounted = mountedImpure.getDOMNode.asMounted()
   }
 

@@ -9,6 +9,7 @@ import scala.annotation.nowarn
 import utest._
 
 object MonocleTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
   import japgolly.scalajs.react.test.InferenceHelpers._
 
   implicit val mMonad: Monad[M] with (M ~> CallbackTo) =

@@ -12,6 +12,7 @@ import sourcecode.Line
 import utest._
 
 object ReusabilityTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
   object SampleComponent1 {
     case class Picture(id: Long, url: String, title: String)
@@ -21,12 +22,14 @@ object ReusabilityTest extends TestSuite {
     implicit val propsReuse: Reusability[Props]   = Reusability.derive[Props]
 
     var renderCount = 0
+    var nextState: Props = null
 
     val component = ScalaComponent.builder[Props]("Demo")
       .initialStateFromProps(identity)
-      .renderS { (_, *) =>
+      .renderS { ($, *) =>
         renderCount += 1
         <.div(
+          <.button("Update state", ^.onClick --> $.setState(nextState)),
           <.p("Name: ", *.name),
           <.p("Age: ", *.age.fold("Unknown")(_.toString)),
           <.img(^.src := *.pic.url, ^.title := *.pic.title))
@@ -39,10 +42,12 @@ object ReusabilityTest extends TestSuite {
     var outerRenderCount = 0
     var innerRenderCount = 0
     type M = Map[Int, String]
+    var nextState: M = null
 
     val outerComponent = ScalaComponent.builder[M]("Demo")
       .initialStateFromProps(identity)
-      .renderBackend[Backend]
+      .backend(new Backend(_))
+      .renderS(_.backend.render(_))
       .build
 
     class Backend($: BackendScope[M, M]) {
@@ -54,6 +59,7 @@ object ReusabilityTest extends TestSuite {
         // println(s"truth = ${$.props.runNow} | ${$.state.runNow}")
         outerRenderCount += 1
         <.div(
+          <.button("Update state", ^.onClick --> $.setState(nextState)),
           s.map { case (id, name) =>
             // println(s"- id: $id, name: $name")
             innerComponent.withKey(id)(InnerProps(name, updateUser(id)))
@@ -280,22 +286,22 @@ object ReusabilityTest extends TestSuite {
       val logSink = new LogSink
 
       "nonReusable" - {
-        Reusability.never.logNonReusable(log = logSink.log).test(0, 0)
+        Reusability.never[Int].logNonReusable(log = logSink.log).test(0, 0)
         assertEq(logSink.messages, List("Non-reusability:\n- 0\n- 0"))
       }
 
       "reusable" - {
-        Reusability.always.logNonReusable(log = logSink.log).test(0, 0)
+        Reusability.always[Int].logNonReusable(log = logSink.log).test(0, 0)
         assertEq(logSink.messages, List.empty)
       }
 
       "formatting" - {
-        Reusability.never.logNonReusable(log = logSink.log, fmt = (_, x, y) => s"$x, $y").test(0, 0)
+        Reusability.never[Int].logNonReusable(log = logSink.log, fmt = (_, x, y) => s"$x, $y").test(0, 0)
         assertEq(logSink.messages, List("0, 0"))
       }
 
       "title" - {
-        Reusability.never.logNonReusable(log = logSink.log, title = "Sidebar:").test(0, 0)
+        Reusability.never[Int].logNonReusable(log = logSink.log, title = "Sidebar:").test(0, 0)
         assertEq(logSink.messages, List("Sidebar:\n- 0\n- 0"))
       }
 
@@ -313,42 +319,47 @@ object ReusabilityTest extends TestSuite {
         val pic1b = Picture(1, "eqwrg", "seafr")
         val pic2  = Picture(2, "asdf", "qer")
 
-        val c = ReactTestUtils renderIntoDocument component(Props("n", None, pic1a))
-        def test(expectDelta: Int, s: Props): Unit = {
-          val a = renderCount
-          c.setState(s)
-          assertEq(renderCount, a + expectDelta)
-        }
-        val (update,ignore) = (1,0)
+        ReactTestUtils.withRenderedSync(component(Props("n", None, pic1a))) { t =>
+          def test(expectDelta: Int, s: Props): Unit = {
+            val a = renderCount
+            nextState = s
+            Simulate.click(t.querySelector("button"))
+            assertEq(renderCount, a + expectDelta)
+          }
 
-        test(ignore, Props("n", None, pic1a))
-        test(update, Props("!", None, pic1a))
-        test(ignore, Props("!", None, pic1a))
-        test(ignore, Props("!", None, pic1b))
-        test(update, Props("!", None, pic2))
-        test(ignore, Props("!", None, pic2))
-        test(update, Props("!", Some(3), pic2))
-        test(update, Props("!", Some(4), pic2))
-        test(ignore, Props("!", Some(4), pic2))
-        test(update, Props("!", Some(5), pic2))
+          val (update,ignore) = (1,0)
+
+          test(ignore, Props("n", None, pic1a))
+          test(update, Props("!", None, pic1a))
+          test(ignore, Props("!", None, pic1a))
+          test(ignore, Props("!", None, pic1b))
+          test(update, Props("!", None, pic2))
+          test(ignore, Props("!", None, pic2))
+          test(update, Props("!", Some(3), pic2))
+          test(update, Props("!", Some(4), pic2))
+          test(ignore, Props("!", Some(4), pic2))
+          test(update, Props("!", Some(5), pic2))
+        }
       }
 
       "reusableProps" - {
         import SampleComponent2._
         val data1: M = Map(1 -> "One", 2 -> "Two", 3 -> "Three")
         val data2: M = Map(1 -> "One", 2 -> "Two", 3 -> "33333")
-        val c = ReactTestUtils renderIntoDocument outerComponent(data1)
-        assertEq((outerRenderCount, innerRenderCount), (1, 3))
-        // println()
-        // println(">>> c.forceUpdate")
-        c.forceUpdate
-        assertEq((outerRenderCount, innerRenderCount), (2, 3))
-        // println()
-        // println("c.state = " + c.state)
-        // println(">>> c.setState")
-        c.setState(data2)
-        // println("c.state = " + c.state)
-        assertEq((outerRenderCount, innerRenderCount), (3, 4))
+        ReactTestUtils.withRenderedSync(outerComponent(data1)) { t =>
+          assertEq((outerRenderCount, innerRenderCount), (1, 3))
+          // println()
+          // println(">>> c.forceUpdate")
+          t.root.renderSync(outerComponent(data1))
+          assertEq((outerRenderCount, innerRenderCount), (2, 3))
+          // println()
+          // println("c.state = " + c.state)
+          // println(">>> c.setState")
+          nextState = data2
+          Simulate.click(t.querySelector("button"))
+          // println("c.state = " + c.state)
+          assertEq((outerRenderCount, innerRenderCount), (3, 4))
+        }
       }
     }
 

@@ -5,6 +5,7 @@ import scala.annotation.nowarn
 import utest._
 
 object PxTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
   case class TraceFn[A, B](rawFn: A => B) {
     var calls: Vector[(A, B)] = Vector.empty

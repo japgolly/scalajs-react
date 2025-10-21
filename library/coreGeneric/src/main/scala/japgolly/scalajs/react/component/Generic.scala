@@ -95,9 +95,11 @@ object Generic {
     final def mountRawOrNull(c: facade.React.ComponentUntyped | Null): M =
       if (c == null) null.asInstanceOf[M] else mountRaw(JsUtil.notNull(c))
 
+    @deprecated("Use ReactDOMClient.createRoot and root.render instead", "3.0.0 / React v18")
     def renderIntoDOM(container: facade.ReactDOM.Container): Mounted =
       mountRaw(facade.ReactDOM.render(raw, container))
 
+    @deprecated("Use ReactDOMClient.createRoot and root.render instead", "3.0.0 / React v18")
     def renderIntoDOM[G[_]](container: facade.ReactDOM.Container, callback: => G[Unit])(implicit G: Dispatch[G]): Mounted =
       mountRaw(facade.ReactDOM.render(raw, container, G.dispatchFn(callback)))
   }
@@ -133,7 +135,9 @@ object Generic {
              type WithMappedProps[P2]    <: MountedSimple[F, A, P2, S]
     def mapProps[P2](f: P => P2): WithMappedProps[P2]
 
+    @deprecated("Add a ref directly to the element you want to reference.", "3.0.0")
     def getDOMNode: F[ComponentDom]
+
     def props: F[Props]
     def propsChildren: F[PropsChildren]
 

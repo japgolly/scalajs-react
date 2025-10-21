@@ -129,7 +129,8 @@ object React extends React {
 
   @js.native
   trait ErrorInfo extends js.Object {
-    val componentStack: String = js.native
+    val componentStack: js.UndefOr[String] = js.native
+    val digest        : js.UndefOr[String] = js.native
   }
 
   type Key = String | JsNumber
@@ -145,7 +146,7 @@ object React extends React {
     var current: A
   }
 
-  type StatelessFunctionalComponent[Props <: js.Object] = js.Function1[Props, Node]
+  type StatelessFunctionalComponent[Props <: js.Object] = js.Function1[Props, Node] with HasMutableDisplayName
 
   trait ValueProps[A] extends js.Object {
     val value: A
@@ -180,8 +181,7 @@ object React extends React {
 }
 
 @js.native
-@nowarn("cat=unused")
-trait React extends Hooks {
+trait React extends Hooks with Testing {
   import React._
 
   final def createContext[A](defaultValue: A): React.Context[A] = js.native
@@ -219,6 +219,8 @@ trait React extends Hooks {
 
   /** @since 16.6.0 */
   final def memo[P <: js.Object, A](f: js.Function1[P, A], areEqual: js.Function2[P, P, Boolean] = js.native): js.Object = js.native
+
+  final def startTransition(callback: js.Function0[Unit]): Unit = js.native
 
   final val version: String = js.native
 

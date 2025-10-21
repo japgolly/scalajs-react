@@ -13,7 +13,7 @@ jobs:
         include:
           - java: 14
             scala: 2
-          - java: 8
+          - java: 11
             scala: 3
     name: Scala v${{ matrix.scala }} / Java v${{ matrix.java }}
     steps:

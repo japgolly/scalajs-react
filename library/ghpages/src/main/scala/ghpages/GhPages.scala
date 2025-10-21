@@ -29,7 +29,7 @@ object GhPages {
     )
       .notFound(redirectToPage(Home)(SetRouteVia.HistoryReplace))
       .renderWith(layout)
-      .verify(Home, Eg(ExamplesJs.Hello), Eg(ExamplesScala.EventListen), Doco)
+      .verify(Home, Eg(ExamplesJs.Hello), Eg(ExamplesScala.Ajax1), Doco)
   }
 
   def layout(c: RouterCtl[Page], r: Resolution[Page]) =
@@ -66,8 +66,9 @@ object GhPages {
 
   def main(args: Array[String]): Unit = {
     val container = dom.document.getElementById("root")
+    val root = ReactDOMClient.createRoot(container)
     dom.console.info("Router logging is enabled. Enjoy!")
     val router = Router(baseUrl, routerConfig.logToConsole)
-    router() renderIntoDOM container
+    root.render(router())
   }
 }

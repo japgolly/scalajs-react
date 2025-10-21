@@ -1,6 +1,5 @@
 package japgolly.scalajs.react.facade
 
-import scala.annotation.nowarn
 import scala.scalajs.js
 import scala.scalajs.js.|
 
@@ -9,13 +8,14 @@ import scala.scalajs.js.|
   * @since React 16.8.0 / scalajs-react 2.0.0
   */
 @js.native
-@nowarn("cat=unused")
 trait Hooks extends js.Object {
 
   final type HookDeps = js.UndefOr[js.Array[_]] | Null
 
   final type UseStateSetter[S] = js.Function1[S | js.Function1[S, S], Unit]
   final type UseState[S] = js.Tuple2[S, UseStateSetter[S]]
+
+  final type UseTransition = js.Tuple2[Boolean, js.Function1[js.Function0[Unit], Unit]]
 
   final def useState[S](initial: S | js.Function0[S]): UseState[S] = js.native
 
@@ -25,6 +25,9 @@ trait Hooks extends js.Object {
 
   final def useLayoutEffect(effect: js.Function0[js.UndefOr[js.Function0[Any]]],
                             deps  : js.UndefOr[HookDeps] = js.native): Unit = js.native
+
+  final def useInsertionEffect(effect: js.Function0[js.UndefOr[js.Function0[Any]]],
+                               deps  : js.UndefOr[HookDeps] = js.native): Unit = js.native
 
   final def useContext[A](ctx: React.Context[A]): A = js.native
 
@@ -46,4 +49,19 @@ trait Hooks extends js.Object {
 
   final def useDebugValue(desc: Any): Unit = js.native
   final def useDebugValue[A](value: A, desc: A => Any): Unit = js.native
+
+  final def useId(): String = js.native
+
+  final def useTransition(): UseTransition = js.native
+
+  final type UseSyncExternalStoreSubscribeArg = js.Function1[js.Function0[Unit], js.Function0[Unit]]
+  final def useSyncExternalStore[A](
+    subscribe: UseSyncExternalStoreSubscribeArg,
+    getSnapshot: js.Function0[A],
+    getServerSnapshot: js.UndefOr[js.Function0[A]] = js.undefined
+  ): A = js.native
+
+  // initialValue was added in React 19 - Replace when we upgrade to React 19
+  // final def useDeferredValue[A](value: A, initialValue: js.UndefOr[A] = js.undefined): A = js.native
+  final def useDeferredValue[A](value: A): A = js.native
 }
