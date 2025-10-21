@@ -216,7 +216,6 @@ object ScalaJsReact {
     .configure(commonSettings, preventPublication, utestSettings, addReactJsDependencies(Test))
     .settings(
       Test / scalacOptions --= Seq(
-        "-deprecation",
         "-Xlint:adapted-args"
       ),
       libraryDependencies ++= Seq(
