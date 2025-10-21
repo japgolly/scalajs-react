@@ -151,6 +151,7 @@ object RouterP2TestRoutes {
 // ===================================================================================================================
 
 object RouterP2Test extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
   import RouterP2TestRoutes._
 
   implicit def str2path(s: String): Path = Path(s)

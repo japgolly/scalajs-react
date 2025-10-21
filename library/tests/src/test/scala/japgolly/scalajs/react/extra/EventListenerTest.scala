@@ -7,6 +7,7 @@ import org.scalajs.dom._
 import utest._
 
 object EventListenerTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
   private class Backend() extends OnUnmount {
     val ref = Ref.toVdom[html.Div]

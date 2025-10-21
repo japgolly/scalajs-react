@@ -11,6 +11,7 @@ import utest._
 
 @nowarn("msg=Stream.+is.deprecated")
 object UnprefixedTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
   lazy val CA = ScalaComponent.builder[Unit]("CA").render_C(c => div(c)).build
   lazy val CB = ScalaComponent.builder[Unit]("CB").render_C(c => span(c)).build
   lazy val H1 = ScalaComponent.builder[String]("H").render_P(p => h1(p)).build

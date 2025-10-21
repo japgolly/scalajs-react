@@ -53,6 +53,7 @@ object ReactAttrTestSep {
 import utest._
 
 object ReactAttrTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
   import ReactAttrTestSep._
 
   override def tests = Tests {

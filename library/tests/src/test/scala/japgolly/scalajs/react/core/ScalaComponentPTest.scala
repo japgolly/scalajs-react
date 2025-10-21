@@ -7,6 +7,7 @@ import japgolly.scalajs.react.vdom.ImplicitsFromRaw._
 import utest._
 
 object ScalaComponentPTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
   private case class BasicProps(name: String)
 

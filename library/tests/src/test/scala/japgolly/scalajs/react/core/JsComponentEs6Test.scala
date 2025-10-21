@@ -8,6 +8,7 @@ import scala.scalajs.js
 import utest._
 
 abstract class JsComponentTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
   final val H1: facade.React.Element =
     facade.React.createElement("h1", null, "Huge")
 }

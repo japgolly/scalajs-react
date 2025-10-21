@@ -5,6 +5,7 @@ import japgolly.microlibs.testutil.TestUtil._
 import utest._
 
 object ResourceTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
   override def tests = Tests {
 

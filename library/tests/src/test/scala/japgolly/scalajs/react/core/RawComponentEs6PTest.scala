@@ -10,6 +10,7 @@ import scala.scalajs.js
 import utest._
 
 object RawComponentEs6PTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
   case class BasicProps(name: String)
 

@@ -8,6 +8,7 @@ import utest._
 
 // Also checked with bin/test-elision via Travis CI
 object DevOnlyTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
   private def test(t: VdomTag)(dev: => String, prod: => String): Unit = {
     val exp = if (developmentMode) dev else prod

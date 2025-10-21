@@ -10,6 +10,7 @@ import scala.scalajs.js.|
 import utest._
 
 object RawComponentEs6STest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
   case class State1(num1: Int, s2: State2)
   case class State2(num2: Int, num3: Int)

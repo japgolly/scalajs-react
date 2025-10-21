@@ -5,6 +5,7 @@ import japgolly.scalajs.react._
 import utest.{test => _, _}
 
 object StateAccessorTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
   import test.InferenceHelpers._
 
   type J = JS

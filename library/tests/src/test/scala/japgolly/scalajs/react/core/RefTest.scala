@@ -11,6 +11,7 @@ import scala.scalajs.js.annotation._
 import utest._
 
 object RefTest extends TestSuite {
+  japgolly.scalajs.react.test.InitTestEnv()
 
   val attr = "data-ah"
   val V = "!"
