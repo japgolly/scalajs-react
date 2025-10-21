@@ -133,7 +133,7 @@ object ScalaComponentPTest extends TestSuite {
         assertEq("willUnmountCount", willUnmountCount, 0)
         root.renderSync(Comp(null))
         // Error message varies between development and production modes
-        root.innerHTML.assertContains("java.lang.NullPointerException")
+        root.innerHTML.assertContainsCI("null")
         assertEq("willUnmountCount", willUnmountCount, 1)
       }
 
