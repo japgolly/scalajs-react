@@ -45,6 +45,8 @@ jobs:
 
       - name: Setup Scala
         uses: japgolly/setup-everything-scala@v3.1
+        with:
+          java-version: adoptium@1.11.0.15
 
       - name: Release
         run: cd library && sbt -v -J-Xmx6g ci-release
