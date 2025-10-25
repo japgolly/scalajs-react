@@ -11,6 +11,8 @@ object ReactDOMClient extends ReactDOMClient
 
 @js.native
 trait ReactDOMClient extends js.Object {
+  val version: String = js.native
+
   final type HydrationContainer = dom.Element | dom.Document
   final type RootContainer      = dom.Element | dom.DocumentFragment
 
