@@ -1,0 +1,15 @@
+{
+  "scripts": {
+    "build": "vite build"
+  },
+  "dependencies": {
+    "fast-text-encoding": "^1.0.6",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-replace": "^6.0.2",
+    "@vitejs/plugin-react": "^5.1.0",
+    "vite": "^7.1.12"
+  }
+}
