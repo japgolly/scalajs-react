@@ -3,25 +3,41 @@ package japgolly.scalajs.react.test
 import japgolly.scalajs.react.React
 import japgolly.scalajs.react.test.facade
 import scala.scalajs.js
+import scala.util.{Failure, Success, Try}
 
 /** https://reactjs.org/docs/test-utils.html#simulate */
 object Simulate {
   import ReactEventType._
 
-  val raw = facade.ReactTestUtils.Simulate
+  val raw: facade.Simulate = {
+    Try(facade.TestingLibraryDom) match {
+      case Success(t) =>
+        // println("[Simulate] Using @testing-library/dom:fireEvent")
+        t.fireEvent
+      case Failure(_) =>
+        println("[Simulate] Using ReactTestUtils.Simulate which is deprecated and removed in React 19")
+        facade.ReactTestUtils.Simulate
+    }
+  }
 
-  private def mod(e: js.Object, eventType: ReactEventType): js.Object =
-    js.Object.assign(
+  private def mod(e: js.Object, eventType: ReactEventType): js.Object = {
+    val obj = js.Object.assign(
       js.Object(),
       eventType.defaultEventData,
       e)
+    // println(js.JSON.stringify(obj))
+    obj
+  }
 
-  private def mod(e: js.Object, eventType: ReactEventType, detail: Int): js.Object =
-    js.Object.assign(
+  private def mod(e: js.Object, eventType: ReactEventType, detail: Int): js.Object = {
+    val obj = js.Object.assign(
       js.Object(),
       eventType.defaultEventData,
       js.Dynamic.literal(detail = detail),
       e)
+    // println(js.JSON.stringify(obj))
+    obj
+  }
 
   private def wrap(f: => Unit): Unit =
     if (React.majorVersion >= 18 && ReactTestUtils.IsReactActEnvironment())

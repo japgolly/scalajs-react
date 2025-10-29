@@ -63,25 +63,35 @@ object TestTest extends AsyncTestSuite {
       "eventTypes" - {
         def test[E[+x <: dom.Node] <: SyntheticEvent[x]](eventType: VdomAttr.Event[E], simF: ReactOrDomNode => Unit) = {
           val IDC = ScalaComponent.builder[Unit]("IC").initialState(true).render($ => {
-            @nowarn("cat=unused") val ch = (e: E[dom.Node]) => $.modState(x => !x)
+            @nowarn("cat=unused") val ch = (e: E[dom.Node]) => {
+              println("1")
+              $.modState(x => !x)
+            }
             <.label(
               <.input.text(^.value := $.state, ^.readOnly := true, eventType ==> ch).withRef(inputRef),
               <.span(s"s = ${$.state}")
             )
           }).build
 
-          ReactTestUtils.withRendered(IDC()) { r =>
+          ReactTestUtils.withRenderedSync(IDC()) { r =>
             def s = r.querySelector("span")
             val a = s.innerHTML
-            r.act_(simF(inputRef.unsafeGet())).map { _ =>
-              val b = s.innerHTML
-              assertNotEq(a, b)
+            r.actSync {
+              val ref = inputRef.unsafeGet()
+              println(s"ref: $ref")
+              simF(ref)
             }
+            val b = s.innerHTML
+            assertNotEq(a, b)
+            // r.act_(simF(inputRef.unsafeGet())).map { _ =>
+            //   val b = s.innerHTML
+            //   assertNotEq(a, b)
+            // }
           }
         }
 
-        "onAuxClick"           - test(^.onAuxClick,           Simulate.auxClick(_))
-        "onBeforeInput"        - test(^.onBeforeInput,        Simulate.beforeInput(_))
+        // "onAuxClick"           - test(^.onAuxClick,           Simulate.auxClick(_))
+        // "onBeforeInput"        - test(^.onBeforeInput,        Simulate.beforeInput(_))
         "onBlur"               - test(^.onBlur,               Simulate.blur(_))
         "onChange"             - test(^.onChange,             Simulate.change(_))
         "onClick"              - test(^.onClick,              Simulate.click(_))

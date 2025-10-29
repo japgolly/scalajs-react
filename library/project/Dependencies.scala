@@ -32,6 +32,7 @@ object Dependencies {
     val scalaJsSecureRandom   = "1.0.0"
     val scalaTest             = "3.2.19"
     val sizzleJs              = "2.3.0"
+    val testingLibraryDomJs   = "10.4.1"
     val univEq                = "2.0.0"
     val utest                 = "0.8.5"
   }
@@ -64,6 +65,9 @@ object Dependencies {
     val univEqCats           = Def.setting("com.github.japgolly.univeq"    %%% "univeq-cats"                             % Ver.univEq)
     val utest                = Def.setting("com.lihaoyi"                   %%% "utest"                                   % Ver.utest)
 
+    val testingLibraryDomJs = Def.setting("org.webjars.npm" % "testing-library__dom" % Ver.testingLibraryDomJs /
+      "dom.umd.js" commonJSName "TestingLibraryDom")
+
     // Compiler plugins
     val betterMonadicFor = compilerPlugin("com.olegpy"     %% "better-monadic-for" % Ver.betterMonadicFor)
     val kindProjector    = compilerPlugin("org.typelevel"  %% "kind-projector"     % Ver.kindProjector cross CrossVersion.full)
@@ -77,7 +81,7 @@ object Dependencies {
     val reactDoutestUtils = ReactArtifact("react-dom-test-utils")
   }
 
-  def fastTextEncodingJs = "text.min.js" // 1.0.6 webjar only contains minified version
+  def fastTextEncodingJs = s"${Ver.fastTextEncoding}/text.min.js" // 1.0.6 webjar only contains minified version
 
   def globalDependencyOverrides = Def.setting(Seq(
     Dep.scalaJsDom.value,

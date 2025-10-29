@@ -231,6 +231,7 @@ object ScalaJsReact {
         (ProvidedJS / "component-fn.js"  dependsOn Dep.reactDom.dev) % Test,
         (ProvidedJS / "forward-ref.js"   dependsOn Dep.reactDom.dev) % Test,
       ),
+      jsDependencies += Dep.testingLibraryDomJs.value % Test,
     )
 
   lazy val testsDep = project
