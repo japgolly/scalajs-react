@@ -1,6 +1,8 @@
 {
   "scripts": {
-    "build": "vite build"
+    "build:dev": "vite build --mode development",
+    "build:prod": "vite build --mode production",
+    "build": "rm -rf dist && npm run build:dev && npm run build:prod"
   },
   "dependencies": {
     "fast-text-encoding": "^1.0.6",
