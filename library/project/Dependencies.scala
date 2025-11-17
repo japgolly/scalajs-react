@@ -18,6 +18,7 @@ object Dependencies {
     val scala3                = "3.3.0"
     val scalaJsDom            = "2.8.1"
     val sourcecode            = "0.4.4"
+    val testingLibraryDomJs   = "10.4.1"
 
     // Internal
     val betterMonadicFor      = "0.3.1"
@@ -75,9 +76,12 @@ object Dependencies {
     val reactDom          = ReactArtifact("react-dom")
     val reactDomServer    = ReactArtifact("react-dom-server.browser")
     val reactDoutestUtils = ReactArtifact("react-dom-test-utils")
+
+    val testingLibraryDomJs = Def.setting("org.webjars.npm" % "testing-library__dom" % Ver.testingLibraryDomJs /
+      "dom.umd.js" commonJSName "TestingLibraryDom")
   }
 
-  def fastTextEncodingJs = "text.min.js" // 1.0.6 webjar only contains minified version
+  def fastTextEncodingJs = s"${Ver.fastTextEncoding}/text.min.js" // 1.0.6 webjar only contains minified version
 
   def globalDependencyOverrides = Def.setting(Seq(
     Dep.scalaJsDom.value,

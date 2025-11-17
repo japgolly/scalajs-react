@@ -35,6 +35,7 @@ object ScalaJsReact {
       ghpages,
       ghpagesMacros,
       scalafixRules,
+      testingLibraryDom,
       testsDep,
       tests,
       testUtilMacros,
@@ -209,6 +210,13 @@ object ScalaJsReact {
       disable := scalaVersion.value.startsWith("3"),
     )
     .configure(conditionallyDisable) // keep this last
+
+  lazy val testingLibraryDom = project
+    .dependsOn(testUtil)
+    .configure(commonSettings, publicationSettings, hasNoTests)
+    .settings(
+      libraryDependencies += Dep.scalaJsDom.value,
+    )
 
   lazy val tests = project
     .dependsOn(testUtil, coreExtCatsEffect, extraExtMonocle3)
