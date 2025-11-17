@@ -28,7 +28,7 @@ trait ReactTestUtils extends js.Object {
     *
     * This helps make your tests run closer to what real users would experience when using your application.
     */
-  @deprecated("Use React.act", "3.0.0")
+  @deprecated("Use React.act", "3.0.0 / React v18")
   final def act(body: js.Function0[Any]): js.Thenable[Unit] = js.native
 
   /** When writing UI tests, tasks like rendering, user events, or data fetching can be considered as "units" of
@@ -45,10 +45,11 @@ trait ReactTestUtils extends js.Object {
     * This helps make your tests run closer to what real users would experience when using your application.
     */
   @JSName("act")
-  @deprecated("Use React.actAsync", "3.0.0")
+  @deprecated("Use React.actAsync", "3.0.0 / React v18")
   final def actAsync(body: js.Function0[js.Thenable[Any]]): js.Thenable[Unit] = js.native
 
   /** Render a component into a detached DOM node in the document. This function requires a DOM. */
+  @deprecated("Deprecated in favour of https://testing-library.com/react", "3.0.0 / React v18")
   final def renderIntoDocument(element: React.Element): React.ComponentUntyped | Null = js.native
 
   /**
@@ -56,58 +57,71 @@ trait ReactTestUtils extends js.Object {
    * React component. Instead of rendering as usual, the component will become a simple &lt;div&gt; (or other tag if
    * mockTagName is provided) containing any provided children.
    */
+  @deprecated("Deprecated in favour of https://testing-library.com/react", "3.0.0 / React v18")
   final def mockComponent[P <: js.Object, S <: js.Object](c: React.ComponentClass[P, S], mockTagName: String = js.native): React.ComponentClass[P, S] = js.native
 
+  @deprecated("Deprecated in favour of https://testing-library.com/react", "3.0.0 / React v18")
   final type Mounted = React.ComponentUntyped
 
   /** Returns true if instance is an instance of a React componentClass. */
+  @deprecated("Deprecated in favour of https://testing-library.com/react", "3.0.0 / React v18")
   final def isComponentOfType(instance: React.Element, c: React.ComponentClassUntyped): Boolean = js.native
 
   /** Returns true if instance is a DOM component (such as a &lt;div&gt; or &lt;span&gt;). */
+  @deprecated("Deprecated in favour of https://testing-library.com/react", "3.0.0 / React v18")
   final def isDOMComponent(instance: React.Element): Boolean = js.native
 
   /** Returns true if instance is a composite component (created with React.createClass()) */
+  @deprecated("Deprecated in favour of https://testing-library.com/react", "3.0.0 / React v18")
   final def isCompositeComponent(instance: React.Element): Boolean = js.native
 
   /** The combination of [[isComponentOfType()]] and [[isCompositeComponent()]]. */
+  @deprecated("Deprecated in favour of https://testing-library.com/react", "3.0.0 / React v18")
   final def isCompositeComponentWithType(instance: React.Element, c: React.ComponentClassUntyped): Boolean = js.native
 
   /**
    * Traverse all components in tree and accumulate all components where test(component) is true.
    * This is not that useful on its own, but it's used as a primitive for other test utils.
    */
+  @deprecated("Deprecated in favour of https://testing-library.com/react", "3.0.0 / React v18")
   final def findAllInRenderedTree(tree: Mounted, test: js.Function1[Mounted, Boolean]): js.Array[Mounted] = js.native
 
   /**
    * Finds all instance of components in the rendered tree that are DOM components with the class name
    * matching className.
    */
+  @deprecated("Deprecated in favour of https://testing-library.com/react", "3.0.0 / React v18")
   final def scryRenderedDOMComponentsWithClass(tree: Mounted, className: String): js.Array[Mounted] = js.native
 
   /**
    * Like [[scryRenderedDOMComponentsWithClass()]] but expects there to be one result, and returns that one result, or
    * throws exception if there is any other number of matches besides one.
    */
+  @deprecated("Deprecated in favour of https://testing-library.com/react", "3.0.0 / React v18")
   final def findRenderedDOMComponentWithClass(tree: Mounted, className: String): Mounted = js.native
 
   /**
    * Finds all instance of components in the rendered tree that are DOM components with the tag name
    * matching tagName.
    */
+  @deprecated("Deprecated in favour of https://testing-library.com/react", "3.0.0 / React v18")
   final def scryRenderedDOMComponentsWithTag(tree: Mounted, tagName: String): js.Array[Mounted] = js.native
 
   /**
    * Like [[scryRenderedDOMComponentsWithTag()]] but expects there to be one result, and returns that one result, or
    * throws exception if there is any other number of matches besides one.
    */
+  @deprecated("Deprecated in favour of https://testing-library.com/react", "3.0.0 / React v18")
   final def findRenderedDOMComponentWithTag(tree: Mounted, tagName: String): Mounted = js.native
 
   /** Finds all instances of components with type equal to componentClass. */
+  @deprecated("Deprecated in favour of https://testing-library.com/react", "3.0.0 / React v18")
   final def scryRenderedComponentsWithType(tree: Mounted, c: React.ComponentClassUntyped): js.Array[Mounted] = js.native
 
   /**
    * Same as [[scryRenderedComponentsWithType()]] but expects there to be one result and returns that one result, or throws
    * exception if there is any other number of matches besides one.
    */
+  @deprecated("Deprecated in favour of https://testing-library.com/react", "3.0.0 / React v18")
   final def findRenderedComponentWithType(tree: Mounted, c: React.ComponentClassUntyped): Mounted = js.native
 }
