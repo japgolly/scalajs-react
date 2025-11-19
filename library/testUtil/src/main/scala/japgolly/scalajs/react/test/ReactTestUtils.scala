@@ -34,7 +34,6 @@ trait ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtilE
   private val reactRaw = japgolly.scalajs.react.facade.React
 
   type Unmounted = GenericComponent.Unmounted[_, Unit]
-
   type CompType = GenericComponent.ComponentRaw {type Raw <: japgolly.scalajs.react.facade.React.ComponentClassUntyped }
 
   // ===================================================================================================================

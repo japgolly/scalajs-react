@@ -9,6 +9,8 @@ import monocle._
 import utest._
 
 object StateSnapshotZoomTest extends TestSuite {
+  import japgolly.scalajs.react.testing_library.dom._
+
   japgolly.scalajs.react.test.InitTestEnv()
 
   private def testReZoomWithReuse(): Unit = {

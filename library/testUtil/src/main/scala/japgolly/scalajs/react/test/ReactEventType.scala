@@ -28,8 +28,8 @@ object ReactEventType {
       // val target          : DOMEventTarget = js.native
       // val `type`          : String         = js.native
       js.Dynamic.literal(
-        bubbles          = false,
-        cancelable       = false,
+        bubbles          = true,
+        cancelable       = true,
         defaultPrevented = false,
         isTrusted        = false,
         timeStamp        = System.currentTimeMillis().toDouble,
