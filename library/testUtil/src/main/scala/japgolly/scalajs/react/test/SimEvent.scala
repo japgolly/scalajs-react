@@ -7,6 +7,7 @@ import scala.scalajs.js.Dynamic
 // NOTE: Do not use UndefOr for arguments below; undefined causes Phantom-bloody-JS to crash.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+@deprecated("See the 3.0.0 changelog for migration details", "3.0.0 / React v18")
 object SimEvent {
 
   case class Change(value           : String              = "",

@@ -49,7 +49,8 @@ Read through the following for how to test with `ReactTestUtils`.
 
 ```scala
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.test._
+import japgolly.scalajs.react.test.ReactTestUtils
+import japgolly.scalajs.react.testing_library.dom._
 import japgolly.scalajs.react.vdom.html_<^._
 import utest._
 

@@ -5,6 +5,7 @@ import japgolly.scalajs.react.test.facade
 import scala.scalajs.js
 
 /** https://reactjs.org/docs/test-utils.html#simulate */
+@deprecated("See the 3.0.0 changelog for migration details", "3.0.0 / React v18")
 object Simulate {
   import ReactEventType._
 

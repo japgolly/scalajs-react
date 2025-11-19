@@ -5,6 +5,7 @@ import scala.scalajs.js
 /**
  * Allows composition and abstraction of `LegacyReactTestUtils.Simulate` procedures.
  */
+@deprecated("See the 3.0.0 changelog for migration details", "3.0.0 / React v18")
 class Simulation(_run: (() => ReactOrDomNode) => Unit) {
 
   def run(n: => ReactOrDomNode): Unit =
@@ -20,6 +21,7 @@ class Simulation(_run: (() => ReactOrDomNode) => Unit) {
     cs foreach (run(_))
 }
 
+@deprecated("See the 3.0.0 changelog for migration details", "3.0.0 / React v18")
 object Simulation {
 
   def apply(run: (=> ReactOrDomNode) => Unit): Simulation =

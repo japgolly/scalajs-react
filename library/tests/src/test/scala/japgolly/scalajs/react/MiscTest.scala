@@ -13,6 +13,7 @@ import scala.util.Try
 import utest._
 
 object MiscTest extends AsyncTestSuite {
+  import japgolly.scalajs.react.testing_library.dom._
 
   lazy val CA = ScalaComponent.builder[Unit]("CA").render_C(c => <.div(c)).build
   lazy val CB = ScalaComponent.builder[Unit]("CB").render_C(c => <.span(c)).build
