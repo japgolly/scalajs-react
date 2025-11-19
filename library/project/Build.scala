@@ -215,6 +215,7 @@ object ScalaJsReact {
     .dependsOn(testUtil)
     .configure(commonSettings, publicationSettings, hasNoTests)
     .settings(
+      moduleName := "testing_library-dom",
       libraryDependencies += Dep.scalaJsDom.value,
     )
 
