@@ -10,6 +10,7 @@ import scala.annotation.nowarn
 import utest._
 
 object VdomTest extends AsyncTestSuite {
+  import japgolly.scalajs.react.testing_library.dom._
 
   val C = ScalaComponent.static("")(<.br)
   val Span = ScalaComponent.builder[Unit]("").render_C(<.span(_)).build

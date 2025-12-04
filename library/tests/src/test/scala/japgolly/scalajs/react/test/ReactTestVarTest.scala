@@ -6,6 +6,7 @@ import japgolly.scalajs.react.vdom.html_<^._
 import utest._
 
 object ReactTestVarTest extends AsyncTestSuite {
+  import japgolly.scalajs.react.testing_library.dom._
 
   override def tests = Tests {
 

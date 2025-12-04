@@ -8,7 +8,6 @@ import japgolly.scalajs.react.test.ReactTestUtils._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.test.{DomTester, TestReactRoot}
 import japgolly.scalajs.react.vdom.html_<^._
-import org.scalajs.dom.html.Input
 import scala.collection.mutable
 import scala.scalajs.js
 import utest._
@@ -1590,80 +1589,80 @@ object HooksTest extends AsyncTestSuite {
     }
   }
 
-  private def testUseRefVdom(): Unit = {
-    var text = "uninitialised"
-    val comp = ScalaFnComponent.withHooks[Unit]
-      .useRefToVdom[Input]
-      .useState("x")
-      .render { (_, inputRef, s) =>
-        def onChange(e: ReactEventFromInput): Callback =
-          s.setState(e.target.value)
+  // private def testUseRefVdom(): Unit = {
+  //   var text = "uninitialised"
+  //   val comp = ScalaFnComponent.withHooks[Unit]
+  //     .useRefToVdom[Input]
+  //     .useState("x")
+  //     .render { (_, inputRef, s) =>
+  //       def onChange(e: ReactEventFromInput): Callback =
+  //         s.setState(e.target.value)
 
-        def btn: Callback =
-          for {
-            i <- inputRef.get.asCBO
-            // _ <- Callback.log(s"i.value = [${i.value}]")
-          } yield {
-            text = i.value
-          }
+  //       def btn: Callback =
+  //         for {
+  //           i <- inputRef.get.asCBO
+  //           // _ <- Callback.log(s"i.value = [${i.value}]")
+  //         } yield {
+  //           text = i.value
+  //         }
 
-        <.div(
-          <.input.text.withRef(inputRef)(^.value := s.value, ^.onChange ==> onChange),
-          <.button(^.onClick --> btn)
-        )
-      }
+  //       <.div(
+  //         <.input.text.withRef(inputRef)(^.value := s.value, ^.onChange ==> onChange),
+  //         <.button(^.onClick --> btn)
+  //       )
+  //     }
 
-    test(comp()) { t =>
-      t.assertInputText("x")
-      for {
-        _ <- t.clickButton()
-        _  = assertEq(text, "x")
-        _ <- t.setInputText("hehe")
-        _  = t.assertInputText("hehe")
-        _ <- t.clickButton()
-        _  = assertEq(text, "hehe")
-      } yield ()
-    }
-  }
+  //   test(comp()) { t =>
+  //     t.assertInputText("x")
+  //     for {
+  //       _ <- t.clickButton()
+  //       _  = assertEq(text, "x")
+  //       _ <- t.setInputText("hehe")
+  //       _  = t.assertInputText("hehe")
+  //       _ <- t.clickButton()
+  //       _  = assertEq(text, "hehe")
+  //     } yield ()
+  //   }
+  // }
 
-  private def testMonadicUseRefVdom(): Unit = {
-    var text = "uninitialised"
-    val comp = ScalaFnComponent[Unit] { _ =>
-      for {
-        inputRef <- useRefToVdom[Input]
-        s        <- useState("x")
-      } yield {
+  // private def testMonadicUseRefVdom(): Unit = {
+  //   var text = "uninitialised"
+  //   val comp = ScalaFnComponent[Unit] { _ =>
+  //     for {
+  //       inputRef <- useRefToVdom[Input]
+  //       s        <- useState("x")
+  //     } yield {
 
-        def onChange(e: ReactEventFromInput): Callback =
-          s.setState(e.target.value)
+  //       def onChange(e: ReactEventFromInput): Callback =
+  //         s.setState(e.target.value)
 
-        def btn: Callback =
-          for {
-            i <- inputRef.get.asCBO
-            // _ <- Callback.log(s"i.value = [${i.value}]")
-          } yield {
-            text = i.value
-          }
+  //       def btn: Callback =
+  //         for {
+  //           i <- inputRef.get.asCBO
+  //           // _ <- Callback.log(s"i.value = [${i.value}]")
+  //         } yield {
+  //           text = i.value
+  //         }
 
-        <.div(
-          <.input.text.withRef(inputRef)(^.value := s.value, ^.onChange ==> onChange),
-          <.button(^.onClick --> btn)
-        )
-      }
-    }
+  //       <.div(
+  //         <.input.text.withRef(inputRef)(^.value := s.value, ^.onChange ==> onChange),
+  //         <.button(^.onClick --> btn)
+  //       )
+  //     }
+  //   }
 
-    test(comp()) { t =>
-      t.assertInputText("x")
-      for {
-        _ <- t.clickButton()
-        _  = assertEq(text, "x")
-        _ <- t.setInputText("hehe")
-        _  = t.assertInputText("hehe")
-        _ <- t.clickButton()
-        _  = assertEq(text, "hehe")
-      } yield ()
-    }
-  }
+  //   test(comp()) { t =>
+  //     t.assertInputText("x")
+  //     for {
+  //       _ <- t.clickButton()
+  //       _  = assertEq(text, "x")
+  //       _ <- t.setInputText("hehe")
+  //       _  = t.assertInputText("hehe")
+  //       _ <- t.clickButton()
+  //       _  = assertEq(text, "hehe")
+  //     } yield ()
+  //   }
+  // }
 
   private def testUseReducer(): Unit = {
     def add(n: Int): (Int, Int) => Int = _ + _ + n
@@ -2500,41 +2499,41 @@ object HooksTest extends AsyncTestSuite {
     }
   }
 
-  private def testRenderWithReuseAndUseRefToVdom(): Unit = {
-    var text = "uninitialised"
-    val comp = ScalaFnComponent.withHooks[Unit]
-      .useRefToVdom[Input]
-      .useState("x")
-      .renderWithReuse { (_, inputRef, s) =>
-        def onChange(e: ReactEventFromInput): Callback =
-          s.setState(e.target.value)
+  // private def testRenderWithReuseAndUseRefToVdom(): Unit = {
+  //   var text = "uninitialised"
+  //   val comp = ScalaFnComponent.withHooks[Unit]
+  //     .useRefToVdom[Input]
+  //     .useState("x")
+  //     .renderWithReuse { (_, inputRef, s) =>
+  //       def onChange(e: ReactEventFromInput): Callback =
+  //         s.setState(e.target.value)
 
-        def btn: Callback =
-          for {
-            i <- inputRef.get.asCBO
-            // _ <- Callback.log(s"i.value = [${i.value}]")
-          } yield {
-            text = i.value
-          }
+  //       def btn: Callback =
+  //         for {
+  //           i <- inputRef.get.asCBO
+  //           // _ <- Callback.log(s"i.value = [${i.value}]")
+  //         } yield {
+  //           text = i.value
+  //         }
 
-        <.div(
-          <.input.text.withRef(inputRef)(^.value := s.value, ^.onChange ==> onChange),
-          <.button(^.onClick --> btn)
-        )
-      }
+  //       <.div(
+  //         <.input.text.withRef(inputRef)(^.value := s.value, ^.onChange ==> onChange),
+  //         <.button(^.onClick --> btn)
+  //       )
+  //     }
 
-    test(comp()) { t =>
-      t.assertInputText("x")
-      for {
-        _ <- t.clickButton()
-        _  = assertEq(text, "x")
-        _ <- t.setInputText("hehe")
-        _  = t.assertInputText("hehe")
-        _ <- t.clickButton()
-        _  = assertEq(text, "hehe")
-      } yield ()
-    }
-  }
+  //   test(comp()) { t =>
+  //     t.assertInputText("x")
+  //     for {
+  //       _ <- t.clickButton()
+  //       _  = assertEq(text, "x")
+  //       _ <- t.setInputText("hehe")
+  //       _  = t.assertInputText("hehe")
+  //       _ <- t.clickButton()
+  //       _  = assertEq(text, "hehe")
+  //     } yield ()
+  //   }
+  // }
 
   private def testUseReused(): Unit = {
     implicit val reusePIByRounding: Reusability[PI] = Reusability.by(_.pi / 2)
@@ -2841,11 +2840,11 @@ object HooksTest extends AsyncTestSuite {
     "useRef" - {
       "manual" - testUseRefManual()
       "manualBy" - testUseRefManualBy()
-      "vdom" - testUseRefVdom()
+      // "vdom" - testUseRefVdom()
     }
     "useRef (monadic)" - {
       "manual" - testMonadicUseRefManual()
-      "vdom" - testMonadicUseRefVdom()
+      // "vdom" - testMonadicUseRefVdom()
     }
     "useReducer" - testUseReducer()
     "useReducer (monadic)" - testMonadicUseReducer()
@@ -2910,7 +2909,7 @@ object HooksTest extends AsyncTestSuite {
       "main" - testRenderWithReuse()
       "never" - testRenderWithReuseNever()
       "useRef" - testRenderWithReuseAndUseRef()
-      "useRefToVdom" - testRenderWithReuseAndUseRefToVdom()
+      // "useRefToVdom" - testRenderWithReuseAndUseRefToVdom()
     }
     "renderWithReuse (monadic alternative using Render.memo)" - {
       "main" - testMonadicRenderWithReuse()

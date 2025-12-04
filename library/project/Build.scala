@@ -36,6 +36,7 @@ object ScalaJsReact {
       ghpages,
       ghpagesMacros,
       scalafixRules,
+      testingLibraryDom,
       testsDep,
       tests,
       testUtilMacros,
@@ -211,10 +212,19 @@ object ScalaJsReact {
     )
     .configure(conditionallyDisable) // keep this last
 
+  lazy val testingLibraryDom = project
+    .dependsOn(testUtil)
+    .configure(commonSettings, publicationSettings, hasNoTests)
+    .settings(
+      moduleName := "testing_library-dom",
+      libraryDependencies += Dep.scalaJsDom.value,
+    )
+
   lazy val tests = project
     .enablePlugins(JSDependenciesPlugin)
     .dependsOn(testUtil, coreExtCatsEffect, extraExtMonocle3)
     .dependsOn(coreBundleCallback) // Low priority
+    .dependsOn(testingLibraryDom % Test)
     .configure(commonSettings, preventPublication, utestSettings)
     .settings(
       Test / scalacOptions -= "-Xlint:adapted-args",
@@ -233,6 +243,7 @@ object ScalaJsReact {
         (ProvidedJS / "component-es6.js" dependsOn "react.umd.js") % Test,
         (ProvidedJS / "component-fn.js"  dependsOn "react.umd.js") % Test,
         (ProvidedJS / "forward-ref.js"   dependsOn "react.umd.js") % Test,
+        Dep.testingLibraryDomJs.value % Test,
       ),
     )
 

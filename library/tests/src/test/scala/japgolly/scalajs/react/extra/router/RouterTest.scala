@@ -10,6 +10,8 @@ import sizzle.Sizzle
 import utest._
 
 object RouterTest extends TestSuite {
+  import japgolly.scalajs.react.testing_library.dom._
+
   japgolly.scalajs.react.test.InitTestEnv()
 
   sealed trait MyPage

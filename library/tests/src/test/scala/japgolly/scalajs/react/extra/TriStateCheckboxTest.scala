@@ -2,13 +2,14 @@ package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.components.TriStateCheckbox
+import japgolly.scalajs.react.testing_library.dom._
 import japgolly.scalajs.react.test.ReactTestUtils._
 import japgolly.scalajs.react.test.TestUtil._
-import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.vdom.html_<^._
 import utest._
 
 object TriStateCheckboxTest extends TestSuite {
+
   japgolly.scalajs.react.test.InitTestEnv()
 
   private object OnKeyDown {

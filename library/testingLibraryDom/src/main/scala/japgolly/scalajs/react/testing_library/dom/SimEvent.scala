@@ -1,54 +1,10 @@
-package japgolly.scalajs.react.test
+package japgolly.scalajs.react.testing_library.dom
 
+import org.scalajs.dom.Node
 import scala.scalajs.js
 import scala.scalajs.js.Dynamic
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// NOTE: Do not use UndefOr for arguments below; undefined causes Phantom-bloody-JS to crash.
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-@deprecated("See the 3.0.0 changelog for migration details", "3.0.0 / React v18")
 object SimEvent {
-
-  case class Change(value           : String              = "",
-                    checked         : js.UndefOr[Boolean] = js.undefined,
-                    defaultPrevented: Boolean             = false) {
-
-    def assign(tgt: Dynamic, readOnlyProperties: Boolean = false): tgt.type = {
-      val innerTgt: Dynamic = {
-        (tgt.target: Any) match {
-          case null | () =>
-            tgt.target = Dynamic.literal()
-            tgt.target
-          case other =>
-            other.asInstanceOf[Dynamic]
-        }
-      }
-      assignTarget(innerTgt)
-      if (readOnlyProperties) {
-        tgt.defaultPrevented = defaultPrevented
-      }
-      tgt
-    }
-
-    def assignTarget(tgt: Dynamic): tgt.type = {
-      tgt.value   = value
-      tgt.checked = checked.asInstanceOf[js.Any]
-      tgt
-    }
-
-    def toJs: js.Object =
-      assign(Dynamic.literal(), readOnlyProperties = true)
-
-    def simulate(t: ReactOrDomNode) = Simulate.change(t, this)
-    def simulation = Simulation.change(this)
-  }
-
-  object Change {
-    implicit def autoToJsObject(d: Change): js.Object = d.toJs
-  }
-
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   case class Keyboard(key             : String  = "",
                       location        : Double  = 0,
@@ -101,17 +57,17 @@ object SimEvent {
     def toJs: js.Object =
       assign(Dynamic.literal(), readOnlyProperties = true)
 
-    def simulateKeyDown       (t: ReactOrDomNode): Unit = Simulate.keyDown (t, this)
-    def simulateKeyPress      (t: ReactOrDomNode): Unit = Simulate.keyPress(t, this)
-    def simulateKeyUp         (t: ReactOrDomNode): Unit = Simulate.keyUp   (t, this)
-    def simulateKeyDownUp     (t: ReactOrDomNode): Unit = {simulateKeyDown(t); simulateKeyUp(t)}
-    def simulateKeyDownPressUp(t: ReactOrDomNode): Unit = {simulateKeyDown(t); simulateKeyPress(t); simulateKeyUp(t)}
+    def simulateKeyDown       (t: Node): Unit = Simulate.keyDown (t, this)
+  //def simulateKeyPress      (t: Node): Unit = Simulate.keyPress(t, this)
+    def simulateKeyUp         (t: Node): Unit = Simulate.keyUp   (t, this)
+    def simulateKeyDownUp     (t: Node): Unit = {simulateKeyDown(t); simulateKeyUp(t)}
+  //def simulateKeyDownPressUp(t: Node): Unit = {simulateKeyDown(t); simulateKeyPress(t); simulateKeyUp(t)}
 
     def simulationKeyDown        = Simulation.keyDown(this)
-    def simulationKeyPress       = Simulation.keyPress(this)
+  //def simulationKeyPress       = Simulation.keyPress(this)
     def simulationKeyUp          = Simulation.keyUp(this)
     def simulationKeyDownUp      = simulationKeyDown >> simulationKeyUp
-    def simulationKeyDownPressUp = simulationKeyDown >> simulationKeyPress >> simulationKeyUp
+  //def simulationKeyDownPressUp = simulationKeyDown >> simulationKeyPress >> simulationKeyUp
   }
 
   object Keyboard {
@@ -350,28 +306,28 @@ object SimEvent {
       tgt
     }
 
-    def simulateAuxClick   (t: ReactOrDomNode) = Simulate.auxClick   (t, toJs)
-    def simulateClick      (t: ReactOrDomNode) = Simulate.click      (t, toJs)
-    def simulateContextMenu(t: ReactOrDomNode) = Simulate.contextMenu(t, toJs)
-    def simulateDoubleClick(t: ReactOrDomNode) = Simulate.doubleClick(t, toJs)
-    def simulateDrag       (t: ReactOrDomNode) = Simulate.drag       (t, toJs)
-    def simulateDragEnd    (t: ReactOrDomNode) = Simulate.dragEnd    (t, toJs)
-    def simulateDragEnter  (t: ReactOrDomNode) = Simulate.dragEnter  (t, toJs)
-    def simulateDragExit   (t: ReactOrDomNode) = Simulate.dragExit   (t, toJs)
-    def simulateDragLeave  (t: ReactOrDomNode) = Simulate.dragLeave  (t, toJs)
-    def simulateDragOver   (t: ReactOrDomNode) = Simulate.dragOver   (t, toJs)
-    def simulateDragStart  (t: ReactOrDomNode) = Simulate.dragStart  (t, toJs)
-    def simulateDrop       (t: ReactOrDomNode) = Simulate.drop       (t, toJs)
-    def simulateMouseDown  (t: ReactOrDomNode) = Simulate.mouseDown  (t, toJs)
-    def simulateMouseEnter (t: ReactOrDomNode) = Simulate.mouseEnter (t, toJs)
-    def simulateMouseLeave (t: ReactOrDomNode) = Simulate.mouseLeave (t, toJs)
-    def simulateMouseMove  (t: ReactOrDomNode) = Simulate.mouseMove  (t, toJs)
-    def simulateMouseOut   (t: ReactOrDomNode) = Simulate.mouseOut   (t, toJs)
-    def simulateMouseOver  (t: ReactOrDomNode) = Simulate.mouseOver  (t, toJs)
-    def simulateMouseUp    (t: ReactOrDomNode) = Simulate.mouseUp    (t, toJs)
-    def simulateWheel      (t: ReactOrDomNode) = Simulate.wheel      (t, toJs)
+  //def simulateAuxClick   (t: Node) = Simulate.auxClick   (t, toJs)
+    def simulateClick      (t: Node) = Simulate.click      (t, toJs)
+    def simulateContextMenu(t: Node) = Simulate.contextMenu(t, toJs)
+    def simulateDoubleClick(t: Node) = Simulate.doubleClick(t, toJs)
+    def simulateDrag       (t: Node) = Simulate.drag       (t, toJs)
+    def simulateDragEnd    (t: Node) = Simulate.dragEnd    (t, toJs)
+    def simulateDragEnter  (t: Node) = Simulate.dragEnter  (t, toJs)
+    def simulateDragExit   (t: Node) = Simulate.dragExit   (t, toJs)
+    def simulateDragLeave  (t: Node) = Simulate.dragLeave  (t, toJs)
+    def simulateDragOver   (t: Node) = Simulate.dragOver   (t, toJs)
+    def simulateDragStart  (t: Node) = Simulate.dragStart  (t, toJs)
+    def simulateDrop       (t: Node) = Simulate.drop       (t, toJs)
+    def simulateMouseDown  (t: Node) = Simulate.mouseDown  (t, toJs)
+  //def simulateMouseEnter (t: Node) = Simulate.mouseEnter (t, toJs)
+  //def simulateMouseLeave (t: Node) = Simulate.mouseLeave (t, toJs)
+    def simulateMouseMove  (t: Node) = Simulate.mouseMove  (t, toJs)
+    def simulateMouseOut   (t: Node) = Simulate.mouseOut   (t, toJs)
+    def simulateMouseOver  (t: Node) = Simulate.mouseOver  (t, toJs)
+    def simulateMouseUp    (t: Node) = Simulate.mouseUp    (t, toJs)
+    def simulateWheel      (t: Node) = Simulate.wheel      (t, toJs)
 
-    def simulationAuxClick    = Simulation.auxClick   (toJs)
+  //def simulationAuxClick    = Simulation.auxClick   (toJs)
     def simulationClick       = Simulation.click      (toJs)
     def simulationContextMenu = Simulation.contextMenu(toJs)
     def simulationDoubleClick = Simulation.doubleClick(toJs)
@@ -384,8 +340,8 @@ object SimEvent {
     def simulationDragStart   = Simulation.dragStart  (toJs)
     def simulationDrop        = Simulation.drop       (toJs)
     def simulationMouseDown   = Simulation.mouseDown  (toJs)
-    def simulationMouseEnter  = Simulation.mouseEnter (toJs)
-    def simulationMouseLeave  = Simulation.mouseLeave (toJs)
+  //def simulationMouseEnter  = Simulation.mouseEnter (toJs)
+  //def simulationMouseLeave  = Simulation.mouseLeave (toJs)
     def simulationMouseMove   = Simulation.mouseMove  (toJs)
     def simulationMouseOut    = Simulation.mouseOut   (toJs)
     def simulationMouseOver   = Simulation.mouseOver  (toJs)
@@ -466,23 +422,23 @@ object SimEvent {
         buttons          = buttons,
         defaultPrevented = defaultPrevented)
 
-    def simulateGotPointerCapture (t: ReactOrDomNode) = Simulate.gotPointerCapture (t, toJs)
-    def simulateLostPointerCapture(t: ReactOrDomNode) = Simulate.lostPointerCapture(t, toJs)
-    def simulatePointerCancel     (t: ReactOrDomNode) = Simulate.pointerCancel     (t, toJs)
-    def simulatePointerDown       (t: ReactOrDomNode) = Simulate.pointerDown       (t, toJs)
-    def simulatePointerEnter      (t: ReactOrDomNode) = Simulate.pointerEnter      (t, toJs)
-    def simulatePointerLeave      (t: ReactOrDomNode) = Simulate.pointerLeave      (t, toJs)
-    def simulatePointerMove       (t: ReactOrDomNode) = Simulate.pointerMove       (t, toJs)
-    def simulatePointerOut        (t: ReactOrDomNode) = Simulate.pointerOut        (t, toJs)
-    def simulatePointerOver       (t: ReactOrDomNode) = Simulate.pointerOver       (t, toJs)
-    def simulatePointerUp         (t: ReactOrDomNode) = Simulate.pointerUp         (t, toJs)
+    def simulateGotPointerCapture (t: Node) = Simulate.gotPointerCapture (t, toJs)
+    def simulateLostPointerCapture(t: Node) = Simulate.lostPointerCapture(t, toJs)
+    def simulatePointerCancel     (t: Node) = Simulate.pointerCancel     (t, toJs)
+    def simulatePointerDown       (t: Node) = Simulate.pointerDown       (t, toJs)
+  //def simulatePointerEnter      (t: Node) = Simulate.pointerEnter      (t, toJs)
+  //def simulatePointerLeave      (t: Node) = Simulate.pointerLeave      (t, toJs)
+    def simulatePointerMove       (t: Node) = Simulate.pointerMove       (t, toJs)
+    def simulatePointerOut        (t: Node) = Simulate.pointerOut        (t, toJs)
+    def simulatePointerOver       (t: Node) = Simulate.pointerOver       (t, toJs)
+    def simulatePointerUp         (t: Node) = Simulate.pointerUp         (t, toJs)
 
     def simulationGotPointerCapture  = Simulation.gotPointerCapture (toJs)
     def simulationLostPointerCapture = Simulation.lostPointerCapture(toJs)
     def simulationPointerCancel      = Simulation.pointerCancel     (toJs)
     def simulationPointerDown        = Simulation.pointerDown       (toJs)
-    def simulationPointerEnter       = Simulation.pointerEnter      (toJs)
-    def simulationPointerLeave       = Simulation.pointerLeave      (toJs)
+  //def simulationPointerEnter       = Simulation.pointerEnter      (toJs)
+  //def simulationPointerLeave       = Simulation.pointerLeave      (toJs)
     def simulationPointerMove        = Simulation.pointerMove       (toJs)
     def simulationPointerOut         = Simulation.pointerOut        (toJs)
     def simulationPointerOver        = Simulation.pointerOver       (toJs)

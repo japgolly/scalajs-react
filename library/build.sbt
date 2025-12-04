@@ -22,6 +22,7 @@ val ghpages               = ScalaJsReact.ghpages
 val ghpagesMacros         = ScalaJsReact.ghpagesMacros
 val root                  = ScalaJsReact.root
 val scalafixRules         = ScalaJsReact.scalafixRules
+val testingLibraryDom     = ScalaJsReact.testingLibraryDom
 val tests                 = ScalaJsReact.tests
 val testsDep              = ScalaJsReact.testsDep
 val testUtilMacros        = ScalaJsReact.testUtilMacros

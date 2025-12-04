@@ -12,6 +12,8 @@ import sourcecode.Line
 import utest._
 
 object ReusabilityTest extends TestSuite {
+  import japgolly.scalajs.react.testing_library.dom._
+
   japgolly.scalajs.react.test.InitTestEnv()
 
   object SampleComponent1 {
