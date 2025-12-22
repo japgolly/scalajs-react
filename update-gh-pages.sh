@@ -1,17 +1,17 @@
 #!/bin/bash
 
 set -euo pipefail
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/library"
 
+io=../index.html
 ii=ghpages/html/prod.html
-io=index.html
 js=ghpages/res/ghpages.js
 files="$io $js $js.map"
 
 rm -f $files
 
 perl -pe '
-    s!"res/!"ghpages/res/!g;
+    s!"res/!"library/ghpages/res/!g;
     s!"target/.+?\.js"!"'"$js"'"!g;
   ' > $io < $ii
 
@@ -22,5 +22,5 @@ perl -pi -e 's|\Qfile://'"$(pwd)"'/\E|'"$url"'|g' $js.map
 
 git add $files
 git st
-echo "git commit -m 'Refresh ghpages' -- $files"
+echo "cd library && git commit -m 'Refresh ghpages' -- $files"
 echo
