@@ -32,15 +32,16 @@ abstract class ExampleCollection {
 
 
 object ExamplesJs extends ExampleCollection {
-  case object Hello        extends Example("Hello World",     "hello",         HelloMessageExample.content)
-  case object Timer        extends Example("Timer",           "timer",         TimerExample       .content)
-  case object Todo         extends Example(TodoExample.title, "todo",          TodoExample        .content)
-  case object Hooks        extends Example("Hooks",           "hooks",         HooksExample       .content)
-  case object Refs         extends Example("Refs",            "refs",          RefsExample        .content)
-  case object ProductTable extends Example("Product Table",   "product-table", ProductTableExample.content)
+  case object Hello        extends Example("Hello World",       "hello",         HelloMessageExample.content)
+  case object Timer        extends Example("Timer",             "timer",         TimerExample       .content)
+  case object Todo         extends Example(TodoExample.title,   "todo",          TodoExample        .content)
+  case object HooksB       extends Example("Hooks (builder)",   "hooks-builder", HooksExample1      .content)
+  case object HooksF       extends Example("Hooks (for-yield)", "hooks-for",     HooksExample2      .content)
+  case object Refs         extends Example("Refs",              "refs",          RefsExample        .content)
+  case object ProductTable extends Example("Product Table",     "product-table", ProductTableExample.content)
 
   override val values = Vector[Example](
-    Hello, Timer, Todo, Hooks, Refs, ProductTable
+    Hello, Timer, Todo, HooksB, HooksF, Refs, ProductTable
   )
 }
 
