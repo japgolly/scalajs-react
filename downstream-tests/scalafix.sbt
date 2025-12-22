@@ -10,9 +10,7 @@ ThisBuild / scalacOptions ++= {
 
 ThisBuild / semanticdbEnabled := true
 
-ThisBuild / semanticdbVersion := "4.4.23"
-
-ThisBuild / scalafixScalaBinaryVersion := "2.13"
+ThisBuild / semanticdbVersion := "4.13.10"
 
 ThisBuild / scalafixDependencies += {
   val ver = version.value.stripSuffix("-SNAPSHOT") + "-SNAPSHOT"

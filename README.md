@@ -1,7 +1,7 @@
 scalajs-react
 =============
 
-[![Build Status](https://travis-ci.org/japgolly/scalajs-react.svg?branch=master)](https://travis-ci.org/japgolly/scalajs-react)
+[![Build Status](https://github.com/japgolly/scalajs-react/actions/workflows/ci.yml/badge.svg)](https://github.com/japgolly/scalajs-react/actions/workflows/ci.yml)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/japgolly/scalajs-react?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Lifts Facebook's [React](https://facebook.github.io/react/) library into [Scala.js](http://www.scala-js.org/) and endeavours to make it as type-safe and Scala-friendly as possible.
@@ -20,6 +20,7 @@ Includes a router, testing utils, performance utils, more.
   - [Modules](doc/MODULES.md)
   - [VDOM](doc/VDOM.md)
   - [Hooks](doc/HOOKS.md)
+  - [Hooks via builder](doc/HOOKS_BUILDER.md)
   - [Refs](doc/REFS.md)
   - [IDE support](doc/IDE.md)
   - [The `Callback` class](doc/CALLBACK.md)
@@ -29,6 +30,7 @@ Includes a router, testing utils, performance utils, more.
   - [Types](doc/TYPES.md)
   - [Interoperability](doc/INTEROP.md)
   - [Creating an Effect-Agnostic Library](doc/FX_AGNOSTICISM.md)
+  - [React SSR (Server-Side Rendering) on the JVM](https://blog.shipreq.com/post/scala_react_and_ssr_part_1)
   - [Functional programming](doc/FP.md)
 - Scala-only Utilities
   - [Router](doc/ROUTER.md)
@@ -36,7 +38,7 @@ Includes a router, testing utils, performance utils, more.
   - [Other](doc/EXTRA.md)
 - [Testing](doc/TESTING.md)
 - [Live Examples & Demos](https://japgolly.github.io/scalajs-react/)
-- [Changelogs](doc/changelog) — [**v2.0.1** (Latest)](doc/changelog/2.0.1.md)
+- [Changelogs](doc/changelog) — [**v2.1.3** (Latest)](doc/changelog/2.1.3.md)
 
 
 ##### External Resources
@@ -70,9 +72,9 @@ Includes a router, testing utils, performance utils, more.
   * [scastie](https://github.com/scalacenter/scastie) - An interactive playground for Scala [https://scastie.scala-lang.org](https://scastie.scala-lang.org)
 
 ##### Requirements:
-* React ≥ 17
+* React ≥ 18
 * Scala ≥ 2.13
-* Scala.JS ≥ 1.7
+* Scala.JS ≥ 1.10
 
 ##### Support:
 If you like what I do

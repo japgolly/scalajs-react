@@ -1,1 +1,1 @@
-../../project/InBrowserTesting.scala
+../../library/project/InBrowserTesting.scala

@@ -36,7 +36,8 @@ object $NAME$ {
   }
 
   val Component = ScalaComponent.builder[Props]("$NAME$")
-    .renderBackend[Backend]
+    .backend(new Backend(_))
+    .renderP(_.backend.render(_))
     //.configure(Reusability.shouldComponentUpdate)
     .build
 }
@@ -84,7 +85,8 @@ object $NAME$ {
   }
 
   val Component = ScalaComponent.builder[Props]("$NAME$")
-    .renderBackend[Backend]
+    .backend(new Backend(_))
+    .renderP(_.backend.render(_))
     //.configure(Reusability.shouldComponentUpdate)
     .build
 }

@@ -4,22 +4,19 @@ import cats.effect.IO
 import japgolly.microlibs.compiletime.CompileTimeInfo
 import japgolly.microlibs.testutil.TestUtil._
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.html_<^._
-import japgolly.scalajs.react.test.ReactTestUtils._
+import japgolly.scalajs.react.test.ReactTestUtils
 import japgolly.scalajs.react.util.JsUtil
-import org.scalajs.dom.console
 import scala.scalajs.js
 import scala.scalajs.LinkingInfo.developmentMode
 import scala.util.Try
 import utest._
-import japgolly.scalajs.react.test.ReactTestUtils
+import japgolly.scalajs.react.AsyncTestSuite
 
-object RuntimeTests extends TestSuite {
+object RuntimeTests extends AsyncTestSuite {
 
-  val compNameAuto      = CompileTimeInfo.sysProp("japgolly.scalajs.react.component.names.implicit")
-  val compNameAll       = CompileTimeInfo.sysProp("japgolly.scalajs.react.component.names.all")
-  val configClass       = CompileTimeInfo.sysProp("japgolly.scalajs.react.config.class")
-  val testWarningsReact = CompileTimeInfo.sysProp("japgolly.scalajs.react.test.warnings.react")
+  val compNameAuto = CompileTimeInfo.sysProp("japgolly.scalajs.react.component.names.implicit")
+  val compNameAll  = CompileTimeInfo.sysProp("japgolly.scalajs.react.component.names.all")
+  val configClass  = CompileTimeInfo.sysProp("japgolly.scalajs.react.config.class")
 
   val dsCfg1 = configClass.contains("downstream.DownstreamConfig1")
   val dsCfg2 = configClass.contains("downstream.DownstreamConfig2")
@@ -65,46 +62,31 @@ object RuntimeTests extends TestSuite {
       val (promise, completePromise) = JsUtil.newPromise[Unit]()
       val io = IO(completePromise(Try(()))())
 
-      withRenderedIntoDocument(Carrot.Props("1", io).render) { m =>
-        replaceProps(Carrot.Component, m)(Carrot.Props("1"))
-        replaceProps(Carrot.Component, m)(Carrot.Props("2"))
-      }
-      withRenderedIntoDocument(Pumpkin.Component("1")) { m =>
-        replaceProps(Pumpkin.Component, m)("1")
-        replaceProps(Pumpkin.Component, m)("2")
-      }
-
-      assertEq(Globals.carrotMountsA, 1)
-      assertEq(Globals.carrotMountsB, 1)
-      assertEq(Globals.carrotRenders, expectedCarrots)
-      assertEq(Globals.pumpkinRenders, expectedPumpkins)
-
-      AsyncCallback
-        .fromJsPromise(promise)
-        .map(_ => s"carrots: ${Globals.carrotRenders}/3, pumpkins: ${Globals.pumpkinRenders}/3, reusabilityLog: ${Globals.reusabilityLog.length}")
-        .timeoutMs(3000)
-        .map(_.get)
-        .unsafeToFuture()
+      for {
+        _ <- ReactTestUtils.withRendered(Carrot.Props("1", io).render) { m =>
+          for {
+            _ <- m.root.render(Carrot.Props("1").render)
+            _ <- m.root.render(Carrot.Props("2").render)
+          } yield ()
+        }
+        _ <- ReactTestUtils.withRendered(Pumpkin.Component("1")) { m =>
+          for {
+            _ <- m.root.render(Pumpkin.Component("1"))
+            _ <- m.root.render(Pumpkin.Component("2"))
+          } yield ()
+        }
+        _ = assertEq(Globals.carrotMountsA, 1)
+        _ = assertEq(Globals.carrotMountsB, 1)
+        _ = assertEq(Globals.carrotRenders, expectedCarrots)
+        _ = assertEq(Globals.pumpkinRenders, expectedPumpkins)
+        _ <-
+          AsyncCallback
+            .fromJsPromise(promise)
+            .map(_ => s"carrots: ${Globals.carrotRenders}/3, pumpkins: ${Globals.pumpkinRenders}/3, reusabilityLog: ${Globals.reusabilityLog.length}")
+            .timeoutMs(3000)
+            .map(_.get)
+      } yield ()
     }
 
-    "testWarnings" - {
-
-      "react" - {
-        val c = ScalaFnComponent[Int](i => <.p(<.td(s"i = $i")))
-        val t = Try(ReactTestUtils.withRenderedIntoBody(c(123))(_ => ()))
-        assertEq(t.isFailure, testWarningsReact.contains("react"))
-      }
-
-      "unlreated" - {
-        val c = ScalaFnComponent[Int](i => <.p(s"i = $i"))
-        val t = Try(ReactTestUtils.withRenderedIntoBody(c(123)) { _ =>
-          console.info(".")
-          console.log(".")
-          console.warn(".")
-          console.error(".")
-        })
-        assertEq(t.isFailure, false)
-      }
-    }
   }
 }

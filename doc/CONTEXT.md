@@ -72,7 +72,8 @@ object Content {
   private val component = ScalaComponent
     .builder[Unit]("content")
     .initialState(State())
-    .renderBackend[Backend]
+    .backend(new Backend(_))
+    .renderS(_.backend.render(_))
     .componentDidMount($ ⇒ $.backend.refresh($.state))
     .build
 
@@ -89,7 +90,7 @@ some point calls a page, which wants to display the username. A few things to no
 ```scala
 object AboutPage  {
   case class State()
-  class Backend($ : BackendScope[_, State]) {
+  class Backend($ : BackendScope[Unit, State]) {
     def render(S: State): VdomElement =
       MyGlobalState.ctx.consume { myGlobalState =>
         <.div(s"Hi there${myGlobalState.user.fold("!")(u => s" ${u.username}!")}")
@@ -98,7 +99,8 @@ object AboutPage  {
   private val component = ScalaComponent
     .builder[Unit]("AboutPage")
     .initialState(State())
-    .renderBackend[Backend]
+    .backend(new Backend(_))
+    .renderS(_.backend.render(_))
     .build
 
   def apply(): Unmounted[Unit, State, Backend] = component()
@@ -106,5 +108,5 @@ object AboutPage  {
 ```
 
 One additional note: Other parts of the documentation suggest that your router should always be your top level component. While in general that is true,
-I though that moving the provider to a higher level component delineated the responsibilities better, you are welcome to collapse them into a single 
-component. 
+I though that moving the provider to a higher level component delineated the responsibilities better, you are welcome to collapse them into a single
+component.

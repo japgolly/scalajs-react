@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/../library"
 
 if [ $# -gt 1 ]; then
   echo "Usage: $0 [<scala ver>]"
@@ -20,7 +20,7 @@ case "${1:-}" in
     exit 0
     ;;
   2|3)
-    SCALA_VER="$(bin/get_scala_version $1)"
+    SCALA_VER="$(../bin/get_scala_version $1)"
     echo "Scala version: $SCALA_VER"
     ;;
   *)
@@ -33,8 +33,25 @@ dryrun=
 # dryrun=-n
 
 # See how much memory is available
-free -h
+if [ "$(uname)" == "Darwin" ]; then # https://apple.stackexchange.com/a/94258
+  vm_stat | perl -ne '/page size of (\d+)/ and $size=$1; /Pages\s+([^:]+)[^\d]+(\d+)/ and printf("%-16s % 16.2f Mi\n", "$1:", $2 * $size / 1048576);'
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+  free -h
+fi
 echo
+
+# Show versions
+java -version
+echo
+echo "Node $(node --version)"
+echo
+
+# Configure jsdom
+cmd=(npm install)
+echo "> $(printf "%s\n    " "${cmd[@]}")"
+[[ $dryrun == "-n" ]] || "${cmd[@]}"
+npm -g list
+npm list
 
 # Test upstream
 rm -rf */target/scala-*/{,test-}classes
@@ -55,4 +72,4 @@ echo "> $(printf "%s\n    " "${cmd[@]}")"
 
 # Test downstream
 SCALA_MAJOR_VER="${SCALA_VER:0:1}"
-downstream-tests/run -$SCALA_MAJOR_VER $dryrun
+../downstream-tests/run -$SCALA_MAJOR_VER $dryrun
