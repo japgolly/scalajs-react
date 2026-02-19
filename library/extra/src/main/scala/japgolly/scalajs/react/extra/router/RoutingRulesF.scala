@@ -35,8 +35,8 @@ final case class RoutingRulesF[F[_], Page, Props](
       case None    => whenNotFound(path)
     }
 
-  def action(path: Path, page: Page): F[ActionF[F, Page, Props]] =
-    F.map(selectAction(path, page, actionMulti))(_.getOrElse(fallbackAction(path, page)))
+  def action(props: Props, path: Path, page: Page): F[ActionF[F, Page, Props]] =
+    F.map(selectAction(props, path, page, actionMulti))(_.getOrElse(fallbackAction(path, page)))
 }
 
 // =====================================================================================================================
@@ -55,11 +55,12 @@ object RoutingRulesF {
         as => s"Multiple (${as.size}) (unconditional) routes specified for path ${path.value}",
         as => s"Multiple (${as.size}) conditional routes active for path ${path.value}")
 
-    def selectAction[F[_], Page, Props](path  : Path,
+    def selectAction[F[_], Page, Props](props : Props,
+                                        path  : Path,
                                         page  : Page,
-                                        action: (Path, Page) => List[StaticOrDynamic[Option[ActionF[F, Page, Props]]]],
+                                        action: (Props, Path, Page) => List[StaticOrDynamic[Option[ActionF[F, Page, Props]]]],
                                        )(implicit F: Sync[F]): F[Option[ActionF[F, Page, Props]]] =
-      unambiguousRule(action(path, page))(
+      unambiguousRule(action(props, path, page))(
         as => s"Multiple (${as.size}) (unconditional) actions specified for $page at path ${path.value}",
         as => s"Multiple (${as.size}) conditional actions active for $page at path ${path.value}")
 
@@ -116,6 +117,10 @@ object RoutingRulesF {
         case r: RoutingRule.ConditionalP[Page, Props] =>
           // Page condition is checked in prepareActionFn
           prepareParseFn(r.underlying)
+
+        case r: RoutingRule.ConditionalPP[Page, Props] =>
+          // Page condition is checked in prepareActionFn
+          prepareParseFn(r.underlying)
       }
 
     def preparePathFn(rule: RoutingRule[Page, Props]): Page => Option[Path] =
@@ -127,26 +132,26 @@ object RoutingRulesF {
         case r: RoutingRule.Or          [Page, Props] => preparePathFn(r.lhs) || preparePathFn(r.rhs)
       }
 
-    def prepareActionFn(rule: RoutingRule[Page, Props]): (Path, Page) => List[StaticOrDynamic[Option[ActionF[F, Page, Props]]]] =
+    def prepareActionFn(rule: RoutingRule[Page, Props]): (Props, Path, Page) => List[StaticOrDynamic[Option[ActionF[F, Page, Props]]]] =
       rule match {
         case r: RoutingRule.Atom[Page, Props] =>
-          (path, page) =>
-            val action = optionTransAction(r.action(path, page))
+          (props, path, page) =>
+            val action = optionTransAction(r.action(props, ath, page))
             static(action) :: Nil
 
         case r: RoutingRule.Or[Page, Props] =>
           val x = prepareActionFn(r.lhs)
           val y = prepareActionFn(r.rhs)
-          (path, page) => y(path, page).reverse_:::(x(path, page))
+          (props, path, page) => y(props, path, page).reverse_:::(x(props, path, page))
 
         case r: RoutingRule.AutoCorrect[Page, Props] =>
           val path = preparePathFn(r.underlying)
           val action = prepareActionFn(r.underlying)
-          (actualPath, page) =>
+          (props, actualPath, page) =>
             path(page) match {
               case Some(expectedPath) =>
                 if (expectedPath == actualPath)
-                  action(actualPath, page)
+                  action(props, actualPath, page)
                 else
                   static[Option[ActionF[F, Page, Props]]](Some(RedirectToPath(expectedPath, r.redirectVia))) :: Nil
               case None =>
@@ -158,9 +163,9 @@ object RoutingRulesF {
 
         case r: RoutingRule.ConditionalP[Page, Props] =>
           val underlying = prepareActionFn(r.underlying)
-          (path, page) =>
+          (props, path, page) =>
             dynamic[F, Option[ActionF[F, Page, Props]]] {
-              val step1 = SharedLogic.selectAction[F, Page, Props](path, page, underlying)
+              val step1 = SharedLogic.selectAction[F, Page, Props](props, path, page, underlying)
               F.flatMap(step1) {
                 case ok@Some(_) =>
                   F.map(F.fromJsFn0(r.condition(page))) {

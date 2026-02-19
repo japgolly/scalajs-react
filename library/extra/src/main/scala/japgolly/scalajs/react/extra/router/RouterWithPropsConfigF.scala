@@ -202,7 +202,7 @@ case class RouterWithPropsConfigF[F[_], Page, Props](
           }
 
           // page -> action
-          Try(F.runSync(rules.action(path, page))) match {
+          Try(F.runSync(rules.action(props, path, page))) match {
             case Success(_) => ()
 
             case Failure(f: RoutingRules.Exception) =>

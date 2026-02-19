@@ -143,8 +143,8 @@ final class RouterLogicF[F[_], Page, Props](val baseUrl: BaseUrl, cfg: RouterWit
       )
     }
 
-  def resolveActionForPage(path: Path, page: Page): F[RouteCmd[Resolution]] =
-    F.flatMap(cfg.rules.action(path, page))(action =>
+  def resolveActionForPage(props: Props, path: Path, page: Page): F[RouteCmd[Resolution]] =
+    F.flatMap(cfg.rules.action(props, path, page))(action =>
     F.map    (resolveAction(page, action) )(cmd =>
       log(s"Action for page $page at $path is $action.") >> cmd
     ))

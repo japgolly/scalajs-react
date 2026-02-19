@@ -251,6 +251,28 @@ object RoutingRule {
 
   // ===================================================================================================================
 
+  final case class ConditionalPP[Page, Props](condition : (Props, Page) => js.Function0[Boolean],
+                                              underlying: RoutingRule[Page, Props],
+                                              otherwise : Page => Option[Action[Page, Props]]) extends RoutingRule[Page, Props] {
+
+    override def xmap[A](f: Page => A)(g: A => Page): RoutingRule[A, Props] =
+      ConditionalPP[A, Props](
+        (props, page) => condition(props, g(page)),
+        underlying.xmap(f)(g),
+        a => otherwise(g(a)).map(_.map(f)))
+
+    override def pmapF[W](f: Page => W)(g: W => Option[Page]): RoutingRule[W, Props] =
+      ConditionalPP[W, Props](
+        (props, page) => g(page).fold[js.Function0[Boolean]](() => false)(condition(props, _)),
+        underlying.pmapF(f)(g),
+        g(_).flatMap(otherwise(_).map(_.map(f))))
+
+    override def modPath(onCreate: Path => Path, onParse: Path => Option[Path]): RoutingRule[Page, Props] =
+      copy(underlying = underlying.modPath(onCreate, onParse))
+  }
+
+  // ===================================================================================================================
+
   final case class Or[Page, Props](lhs: RoutingRule[Page, Props], rhs: RoutingRule[Page, Props]) extends RoutingRule[Page, Props] {
     private def mod[A](f: RoutingRule[Page, Props] => RoutingRule[A, Props]): RoutingRule[A, Props] =
       Or(f(lhs), f(rhs))
