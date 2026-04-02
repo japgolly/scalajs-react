@@ -26,7 +26,7 @@ object CallbackOptionExample {
         Main()))
 
   // EXAMPLE:START
-  import org.scalajs.dom.ext.KeyCode
+  import org.scalajs.dom.KeyCode
 
   val OuterX    = 600
   val OuterY    = 240

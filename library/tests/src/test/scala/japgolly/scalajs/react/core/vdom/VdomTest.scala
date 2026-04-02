@@ -4,7 +4,7 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.vdom.html_<^._
-import org.scalajs.dom.ext.KeyCode
+import org.scalajs.dom.KeyCode
 import org.scalajs.dom.html
 import scala.annotation.nowarn
 import utest._
