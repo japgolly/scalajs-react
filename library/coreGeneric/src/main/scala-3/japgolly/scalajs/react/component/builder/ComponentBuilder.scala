@@ -14,8 +14,8 @@ import scala.language.`3.0`
 
 object ComponentBuilder {
 
-  // These are defined in ComponentBuilderMacros to avoid a circular dependency
-  export ComponentBuilderMacros.{RenderFn, NewBackendFn}
+  type NewBackendFn[P, S, B] = BackendScope[P, S] => B
+  type RenderFn    [P, S, B] = RenderScope[P, S, B] => VdomNode
 
   type Config[P, C <: Children, S, B, US <: UpdateSnapshot, US2 <: UpdateSnapshot] =
     LastStep[P, C, S, B, US] => LastStep[P, C, S, B, US2]
