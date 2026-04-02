@@ -9,7 +9,7 @@
   - [x] Delete code deprecated in 1.x
   - [x] Delete code deprecated in 2.x
   - [x] Delete code deprecated in 3.x
-  - [ ] Review code deprecated in ""
+  - [x] Review code deprecated in ""
 - [x] Delete facadeTest
 
 - [x] tests-dep: Either
