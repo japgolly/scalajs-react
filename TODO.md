@@ -1,7 +1,7 @@
 # React 19 TODO
 
 - [x] Create UMD build of R19
-- [ ] Upgrade UMD build of R19
+- [x] Upgrade UMD build to 19.2.4
 
 - [x] Make library tests use R19: tests
 

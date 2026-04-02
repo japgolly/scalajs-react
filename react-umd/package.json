@@ -4,8 +4,8 @@
   },
   "dependencies": {
     "fast-text-encoding": "^1.0.6",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
   },
   "devDependencies": {
     "@rollup/plugin-replace": "^6.0.2",
