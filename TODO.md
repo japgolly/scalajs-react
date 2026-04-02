@@ -20,6 +20,6 @@
 - [x] Make downstream tests use R19: jsCE
 - [x] Make downstream tests use R19: jsCBIO
 
-- [ ] Make gh-pages use R19
+- [x] Make gh-pages use R19
 
 - [ ] Support new R19 changes and features

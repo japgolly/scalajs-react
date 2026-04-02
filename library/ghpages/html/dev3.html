@@ -3,8 +3,12 @@
 <head lang="en">
     <meta charset="UTF-8">
     <title></title>
-    <script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+    <script type="module">
+        import React from 'https://esm.sh/react@19.2.4';
+        import ReactDOM from 'https://esm.sh/react-dom@19.2.4/client';
+        window.React = React;
+        window.ReactDOM = ReactDOM;
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/scala.min.js"></script>
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/monokai-sublime.min.css">
@@ -14,7 +18,7 @@
 <body>
 
 <div id="root"></div>
-<script src="target/scala-3.0.0/ghpages-fastopt.js"></script>
+<script src="target/scala-3.3.7/ghpages-fastopt.js" defer></script>
 
 </body>
 </html>
