@@ -18,26 +18,6 @@ import scala.scalajs.js.|
 object LegacyReactTestUtils extends LegacyReactTestUtils {
   @inline def raw = japgolly.scalajs.react.test.facade.ReactTestUtils
 
-  @deprecated("Use .withNewDocumentElementAsync", "2.0.0")
-  def withNewDocumentElementAsyncCallback[F[_], A](use: Element => F[A])(implicit F: Async[F]): F[A] =
-    withNewDocumentElementAsync(use)
-
-  @deprecated("Use .withRenderedIntoDocumentAsync", "2.0.0")
-  def withRenderedIntoDocumentAsyncCallback[M](u: Unmounted[M]): WithRenderedDslF[DA, M, Element] =
-    withRenderedIntoDocumentAsync(u)
-
-  @deprecated("Use .withNewBodyElementAsync", "2.0.0")
-  def withNewBodyElementAsyncCallback[F[_], A](use: Element => F[A])(implicit F: Async[F]): F[A] =
-    withNewBodyElementAsync(use)
-
-  @deprecated("Use .withRenderedIntoBodyAsync", "2.0.0")
-  def withRenderedIntoBodyAsyncCallback[M](u: Unmounted[M]): WithRenderedDslF[DA, M, Element] =
-    withRenderedIntoBodyAsync(u)
-
-  @deprecated("Use .withRenderedAsync", "2.0.0")
-  def withRenderedAsyncCallback[M](u: Unmounted[M], intoBody: Boolean): WithRenderedDslF[DA, M, Element] =
-    withRenderedAsync(u, intoBody)
-
   trait WithRenderedDsl[M, R] {
     def apply     [A](f: (M, R) => A): A
     def apply     [A](f: M      => A): A = apply((m, _) => f(m))

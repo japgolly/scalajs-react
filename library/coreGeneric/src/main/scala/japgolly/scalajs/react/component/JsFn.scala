@@ -50,11 +50,6 @@ object JsFn extends JsBaseComponentTemplate[facade.React.StatelessFunctionalComp
               (implicit s: CtorType.Summoner[UnusedObject, Children.None]): Component[UnusedObject, s.CT] =
       generic[UnusedObject, Children.None](_ => render)(s)
 
-    @deprecated("Use .delay", "2.0.0")
-    def byName(render: => VdomElement)
-              (implicit s: CtorType.Summoner[UnusedObject, Children.None]): Component[UnusedObject, s.CT] =
-      delay(render)(s)
-
     def apply[P <: js.Object](render: P => VdomElement)
                              (implicit s: CtorType.Summoner[P, Children.None]): Component[P, s.CT] =
       generic[P, Children.None](render)(s)

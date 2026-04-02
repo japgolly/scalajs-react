@@ -7,7 +7,7 @@
 
 - [ ] Delete deprecated code
   - [x] Delete code deprecated in 1.x
-  - [ ] Delete code deprecated in 2.x
+  - [x] Delete code deprecated in 2.x
   - [ ] Delete code deprecated in 3.x
 
 - [ ] tests-dep: Either

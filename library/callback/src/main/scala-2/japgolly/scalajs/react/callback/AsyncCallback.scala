@@ -123,14 +123,6 @@ object AsyncCallback {
   def suspend[A](f: => AsyncCallback[A]): AsyncCallback[A] =
     delay(f).flatten
 
-  /** Callback that is recreated each time it is used.
-    *
-    * https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_name
-    */
-  @deprecated("Use AsyncCallback.suspend", "2.0.0")
-  def byName[A](f: => AsyncCallback[A]): AsyncCallback[A] =
-    suspend(f)
-
   @deprecated("Use c.asAsyncCallback", "")
   def fromCallback[A](c: CallbackTo[A]): AsyncCallback[A] =
     c.asAsyncCallback
