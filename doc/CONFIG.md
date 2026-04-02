@@ -9,7 +9,6 @@
 * Runtime Settings *(development-mode only)*
   * [Usage](#runtime-settings-usage)
   * [`Reusability.disableGloballyInDev()`](#reusabilitydisablegloballyindev)
-  * ~~[`ReusabilityOverlay.overrideGloballyInDev()`](#reusabilityoverlayoverridegloballyindev)~~
   * [Custom `ReusabilityOverride`](#custom-reusabilityoverride)
 
 
@@ -207,17 +206,6 @@ object Main {
 *Note: Runtime settings only affect development-mode (`fastOptJS`) and must be applied before any components are created.*
 
 This globally disables `Reusability.shouldComponentUpdate` so that it doesn't nothing.
-
-
-# `ReusabilityOverlay.overrideGloballyInDev()`
-
-**[ReusabilityOverlay has been deprecated in v3 with no replacement — use React's Profiler instead]**
-
-*Note: Runtime settings only affect development-mode (`fastOptJS`) and must be applied before any components are created.*
-
-This makes calls to `Reusability.shouldComponentUpdate` also display a little UI overlay for you to inspect/debug
-component updates. You can see a [live example of this in use here](https://japgolly.github.io/scalajs-react/#examples/reusability).
-
 
 # Custom `ReusabilityOverride`
 
