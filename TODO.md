@@ -10,9 +10,9 @@
   - [x] Delete code deprecated in 2.x
   - [ ] Delete code deprecated in 3.x
 
-- [ ] tests-dep: Either
+- [x] tests-dep: Either
   - [x] use R19, or
-  - [ ] delete (and delete deprecated main code too)
+  - [x] delete (and delete deprecated main code too)
 
 - [ ] Make downstream tests use R19: js
 - [ ] Make downstream tests use R19: jsCE

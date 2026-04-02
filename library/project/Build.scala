@@ -37,7 +37,6 @@ object ScalaJsReact {
       ghpagesMacros,
       scalafixRules,
       testingLibraryDom,
-      testsDep,
       tests,
       testUtilMacros,
       testUtil,
@@ -244,31 +243,6 @@ object ScalaJsReact {
         (ProvidedJS / "component-fn.js"  dependsOn "react.umd.js") % Test,
         (ProvidedJS / "forward-ref.js"   dependsOn "react.umd.js") % Test,
         Dep.testingLibraryDomJs.value % Test,
-      ),
-    )
-
-  lazy val testsDep = project
-    .in(file("tests-dep"))
-    .enablePlugins(JSDependenciesPlugin)
-    .dependsOn(testUtil, coreExtCatsEffect)
-    .dependsOn(coreBundleCallback) // Low priority
-    .configure(commonSettings, preventPublication, utestSettings)
-    .settings(
-      Test / scalacOptions --= Seq(
-        "-deprecation",
-        "-Xlint:adapted-args"
-      ),
-      libraryDependencies ++= Seq(
-        Dep.scalaJsJavaTime.value % Test,
-        Dep.scalaJsSecureRandom.value % Test,
-      ),
-      jsDependencies ++= Seq(
-        Dep.sizzleJs(Test).value,
-        (ProvidedJS / "polyfill.js") % Test,
-        (ProvidedJS / "react.umd.js" dependsOn "polyfill.js") % Test,
-        (ProvidedJS / "component-es6.js" dependsOn "react.umd.js") % Test,
-        (ProvidedJS / "component-fn.js"  dependsOn "react.umd.js") % Test,
-        (ProvidedJS / "forward-ref.js"   dependsOn "react.umd.js") % Test,
       ),
     )
 

@@ -1,1 +1,0 @@
-../../../../tests/src/test/resources/react.umd.js
