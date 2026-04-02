@@ -19,7 +19,6 @@ class DownstreamMacros(val c: Context) extends MacroUtils {
     var stmts = List.empty[Tree]
     reusabilityDev match {
       case Some("disable") => stmts ::= q"japgolly.scalajs.react.Reusability.disableGloballyInDev()"
-      case Some("overlay") => stmts ::= q"japgolly.scalajs.react.extra.ReusabilityOverlay.overrideGloballyInDev()"
       case _               => ()
     }
     q"..$stmts; ()"

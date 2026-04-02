@@ -10,12 +10,11 @@ all_tests_values=(
   "-Djapgolly.scalajs.react.config.class=downstream.DownstreamConfig1 -Ddownstream_tests.reusability.dev=disable $skip2"
   "-Djapgolly.scalajs.react.component.names.implicit=blank -Djapgolly.scalajs.react.component.names.all=allow"
   "-Djapgolly.scalajs.react.component.names.implicit=short -Ddownstream_tests.reusability.dev=disable"
-  "-Djapgolly.scalajs.react.component.names.implicit=full -Ddownstream_tests.reusability.dev=overlay"
+  "-Djapgolly.scalajs.react.component.names.implicit=full"
   "-Djapgolly.scalajs.react.component.names.all=blank"
   "-Djapgolly.scalajs.react.config.class=downstream.DownstreamConfig2 -Ddownstream_tests.reusability.dev=disable $skip2"
   "-Djapgolly.scalajs.react.config.class=downstream.DownstreamConfig3 $skip2"
   "-Ddownstream_tests.fullOptJS -Ddownstream_tests.reusability.dev=disable"
-  "-Ddownstream_tests.fullOptJS -Ddownstream_tests.reusability.dev=overlay"
 )
 all_tests_keys=()
 declare -a all_tests
