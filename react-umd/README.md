@@ -9,5 +9,5 @@ so in order to be able to run unit tests we have to generate our own build of Re
 
 1. Input libraries are specified in `package.json`
 2. Our bundle definition is specified in `vite.config.js` and `src/main.js`
-3. Run `npm run build` to generate `dist/react.umd.js`
+3. Run `npm run build` to generate `dist/react.umd.js` and `dist/react.umd.min.js`
 4. Unit tests in Scala.js are configured to load `dist/react.umd.js`
