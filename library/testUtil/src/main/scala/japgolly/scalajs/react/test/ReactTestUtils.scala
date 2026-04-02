@@ -120,17 +120,11 @@ trait ReactTestUtils {
 
   val withReactRootSync: WithDsl[TestReactRoot, ImplicitUnit] =
     withElementSync
-      .mapResource(e => {
-        val stop = ReactTestUtilsConfig.aroundReact.start()
-        (e, stop)
-      })(_._2())
-      .mapResource(x => TestReactRoot(x._1))(_.unmountSync())
+      .mapResource(e => TestReactRoot(e))(_.unmountSync())
 
   def withReactRoot[F[_]](implicit F: Async[F]): Resource[F, TestReactRoot] =
     withElement[F].flatMap { e =>
-      Resource.make_[F, () => Unit](ReactTestUtilsConfig.aroundReact.start(), stop => F.delay(stop())).flatMap { _ =>
-        Resource.make_[F, TestReactRoot](TestReactRoot(e), _.unmount[F]())
-      }
+      Resource.make_[F, TestReactRoot](TestReactRoot(e), _.unmount[F]())
     }
 
   def withRenderedSync[A](unmounted: A): WithDsl[TestDomWithRoot, Renderable[A]] =

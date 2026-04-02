@@ -23,7 +23,6 @@ val root                  = ScalaJsReact.root
 val scalafixRules         = ScalaJsReact.scalafixRules
 val testingLibraryDom     = ScalaJsReact.testingLibraryDom
 val tests                 = ScalaJsReact.tests
-val testUtilMacros        = ScalaJsReact.testUtilMacros
 val testUtil              = ScalaJsReact.testUtil
 val util                  = ScalaJsReact.util
 val utilCatsEffect        = ScalaJsReact.utilCatsEffect
