@@ -1,0 +1,1 @@
+../../../../../react-umd/dist/react.umd.js

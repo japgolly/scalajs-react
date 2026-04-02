@@ -17,7 +17,8 @@ object Catnip {
   }
 
   val Component = ScalaComponent.builder[String]
-    .renderBackend[Backend]
+    .backend(new Backend(_))
+    .renderP(_.backend.render(_))
     .componentDidMount(_.backend.onMount)
     .build
 }

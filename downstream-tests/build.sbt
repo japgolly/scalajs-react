@@ -152,9 +152,10 @@ lazy val jvm = project
 
 lazy val js = project
   .enablePlugins(ScalaJSPlugin)
+  .enablePlugins(JSDependenciesPlugin)
   .dependsOn(macros)
   // .dependsOn(mima200)
-  .configure(commonSettings, utestSettings, addReactJsDependencies(Test))
+  .configure(commonSettings, utestSettings)
   .settings(
     scalaJSStage := jsStage,
     libraryDependencies ++= {
@@ -171,7 +172,8 @@ lazy val js = project
       )
     },
     jsDependencies ++= Seq(
-      (ProvidedJS / "polyfill.js") % Test
+      (ProvidedJS / "polyfill.js") % Test,
+      (ProvidedJS / "react.umd.js" dependsOn "polyfill.js") % Test,
     ),
     scalaJSLinkerConfig ~= { _
       .withSemantics(_
@@ -183,8 +185,9 @@ lazy val js = project
 lazy val jsCE = project
   .in(file("js-ce"))
   .enablePlugins(ScalaJSPlugin)
+  .enablePlugins(JSDependenciesPlugin)
   .dependsOn(macros)
-  .configure(commonSettings, utestSettings, addReactJsDependencies(Test))
+  .configure(commonSettings, utestSettings)
   .settings(
     scalaJSStage := jsStage,
     libraryDependencies ++= {
@@ -201,15 +204,17 @@ lazy val jsCE = project
       )
     },
     jsDependencies ++= Seq(
-      (ProvidedJS / "polyfill.js") % Test
+      (ProvidedJS / "polyfill.js") % Test,
+      (ProvidedJS / "react.umd.js" dependsOn "polyfill.js") % Test,
     ),
   )
 
 lazy val jsCBIO = project
   .in(file("js-cbio"))
   .enablePlugins(ScalaJSPlugin)
+  .enablePlugins(JSDependenciesPlugin)
   .dependsOn(macros)
-  .configure(commonSettings, utestSettings, addReactJsDependencies(Test))
+  .configure(commonSettings, utestSettings)
   .settings(
     scalaJSStage := jsStage,
     libraryDependencies ++= {
@@ -226,7 +231,8 @@ lazy val jsCBIO = project
       )
     },
     jsDependencies ++= Seq(
-      (ProvidedJS / "polyfill.js") % Test
+      (ProvidedJS / "polyfill.js") % Test,
+      (ProvidedJS / "react.umd.js" dependsOn "polyfill.js") % Test,
     ),
   )
 
