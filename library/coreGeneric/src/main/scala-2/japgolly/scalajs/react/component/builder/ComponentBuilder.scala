@@ -260,34 +260,6 @@ object ComponentBuilder {
       setLC[UpdateSnapshot.Some[SnapshotValue]](lcAppendDispatch(LifecycleF.componentDidUpdate)(f).lifecycle)
 
     /**
-     * Invoked once, both on the client and server, immediately before the initial rendering occurs.
-     * If you call `setState` within this method, `render()` will see the updated state and will be executed only once
-     * despite the state change.
-     */
-    @deprecated(
-      "Use either .initialState* on the component builder, or .componentDidMount. See https://reactjs.org/docs/react-component.html#unsafe_componentwillmount / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
-      "scalajs-react 1.7.0 / React 16.9.0")
-    def componentWillMount[G[_]](f: ComponentWillMount[P, S, B] => G[Unit])(implicit G: Dispatch[G]): This =
-      lcAppendDispatch(LifecycleF.componentWillMount)(f)
-
-    /**
-     * Invoked when a component is receiving new props. This method is not called for the initial render.
-     *
-     * Use this as an opportunity to react to a prop transition before `render()` is called by updating the state using
-     * `this.setState()`. The old props can be accessed via `this.props`. Calling `this.setState()` within this function
-     * will not trigger an additional render.
-     *
-     * Note: There is no analogous method `componentWillReceiveState`. An incoming prop transition may cause a state
-     * change, but the opposite is not true. If you need to perform operations in response to a state change, use
-     * `componentWillUpdate`.
-     */
-    @deprecated(
-      "See https://reactjs.org/docs/react-component.html#unsafe_componentwillreceiveprops / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
-      "scalajs-react 1.7.0 / React 16.9.0")
-    def componentWillReceiveProps[G[_]](f: ComponentWillReceiveProps[P, S, B] => G[Unit])(implicit G: Dispatch[G]): This =
-      lcAppendDispatch(LifecycleF.componentWillReceiveProps)(f)
-
-    /**
      * Invoked immediately before a component is unmounted from the DOM.
      *
      * Perform any necessary cleanup in this method, such as invalidating timers or cleaning up any DOM elements that were
@@ -295,21 +267,6 @@ object ComponentBuilder {
      */
     def componentWillUnmount[G[_]](f: ComponentWillUnmount[P, S, B] => G[Unit])(implicit G: Dispatch[G]): This =
       lcAppendDispatch(LifecycleF.componentWillUnmount)(f)
-
-    /**
-     * Invoked immediately before rendering when new props or state are being received. This method is not called for the
-     * initial render.
-     *
-     * Use this as an opportunity to perform preparation before an update occurs.
-     *
-     * Note: You *cannot* use `this.setState()` in this method. If you need to update state in response to a prop change,
-     * use `componentWillReceiveProps` instead.
-     */
-    @deprecated(
-      "Use .componentDidUpdate or .getSnapshotBeforeUpdate. See https://reactjs.org/docs/react-component.html#unsafe_componentwillupdate / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
-      "scalajs-react 1.7.0 / React 16.9.0")
-    def componentWillUpdate[G[_]](f: ComponentWillUpdate[P, S, B] => G[Unit])(implicit G: Dispatch[G]): This =
-      lcAppendDispatch(LifecycleF.componentWillUpdate)(f)
 
     /** getDerivedStateFromProps is invoked right before calling the render method, both on the initial mount and on
       * subsequent updates.
@@ -492,21 +449,6 @@ object ComponentBuilder {
     def componentWillUnmountConst [G[_]](f: G[Unit]   )(implicit G: Dispatch[G]): This = {val x = DS.transDispatch(f); componentWillUnmount (_ => x)}
     def shouldComponentUpdateConst[G[_]](f: G[Boolean])(implicit G: Sync    [G]): This = {val x = DS.transSync    (f); shouldComponentUpdate(_ => x)}
     def shouldComponentUpdateConst      (b : Boolean  )                         : This = shouldComponentUpdateConst(DS.pure(b))
-
-    @deprecated(
-      "Use either .initialState* on the component builder, or .componentDidMount. See https://reactjs.org/docs/react-component.html#unsafe_componentwillmount / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
-      "scalajs-react 1.7.0 / React 16.9.0")
-    def componentWillMountConst[G[_]](cb: G[Unit])(implicit G: Dispatch[G]): This = componentWillMount(_ => cb)
-
-    @deprecated(
-      "See https://reactjs.org/docs/react-component.html#unsafe_componentwillreceiveprops / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
-      "scalajs-react 1.7.0 / React 16.9.0")
-    def componentWillReceivePropsConst[G[_]](cb: G[Unit])(implicit G: Dispatch[G]): This = componentWillReceiveProps(_ => cb)
-
-    @deprecated(
-      "Use .componentDidUpdate or .getSnapshotBeforeUpdate. See https://reactjs.org/docs/react-component.html#unsafe_componentwillupdate / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
-      "scalajs-react 1.7.0 / React 16.9.0")
-    def componentWillUpdateConst[G[_]](cb: G[Unit])(implicit G: Dispatch[G]): This = componentWillUpdate(_ => cb)
 
     /** This is the end of the road for this component builder.
       *
