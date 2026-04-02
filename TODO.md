@@ -8,7 +8,9 @@
 - [ ] Delete deprecated code
   - [x] Delete code deprecated in 1.x
   - [x] Delete code deprecated in 2.x
-  - [ ] Delete code deprecated in 3.x
+  - [x] Delete code deprecated in 3.x
+  - [ ] Review code deprecated in ""
+- [x] Delete facadeTest
 
 - [x] tests-dep: Either
   - [x] use R19, or

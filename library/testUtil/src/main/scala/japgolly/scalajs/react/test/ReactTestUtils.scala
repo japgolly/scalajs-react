@@ -28,7 +28,7 @@ object ReactTestUtils extends ReactTestUtils {
   } // Internals
 }
 
-trait ReactTestUtils extends japgolly.scalajs.react.test.internal.ReactTestUtilExtensions {
+trait ReactTestUtils {
   import ReactTestUtils.Internals._
 
   private val reactRaw = japgolly.scalajs.react.facade.React

@@ -17,7 +17,6 @@ val extra                 = ScalaJsReact.extra
 val extraExtMonocle2      = ScalaJsReact.extraExtMonocle2
 val extraExtMonocle3      = ScalaJsReact.extraExtMonocle3
 val facadeMain            = ScalaJsReact.facadeMain
-val facadeTest            = ScalaJsReact.facadeTest
 val ghpages               = ScalaJsReact.ghpages
 val ghpagesMacros         = ScalaJsReact.ghpagesMacros
 val root                  = ScalaJsReact.root

@@ -32,7 +32,6 @@ object ScalaJsReact {
       extraExtMonocle2,
       extraExtMonocle3,
       facadeMain,
-      facadeTest,
       ghpages,
       ghpagesMacros,
       scalafixRules,
@@ -175,13 +174,6 @@ object ScalaJsReact {
       libraryDependencies += Dep.scalaJsDom.value,
     )
 
-  lazy val facadeTest = project
-    .configure(commonSettings, publicationSettings, hasNoTests, disableScalaDoc3)
-    .dependsOn(facadeMain)
-    .settings(
-      moduleName := "facade-test",
-    )
-
   lazy val ghpages = project
     .dependsOn(coreExtCatsEffect) // must come before bundle
     .dependsOn(coreBundleCallback, extra, extraExtMonocle3, ghpagesMacros)
@@ -247,7 +239,7 @@ object ScalaJsReact {
     )
 
   lazy val testUtil = project
-    .dependsOn(facadeTest, testUtilMacros, extra)
+    .dependsOn(testUtilMacros, extra)
     .configure(commonSettings, publicationSettings, hasNoTests, effectGenericModule)
     .settings(
       moduleName := "test",

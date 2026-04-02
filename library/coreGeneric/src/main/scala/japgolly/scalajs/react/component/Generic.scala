@@ -5,7 +5,7 @@ import japgolly.scalajs.react.internal.Profunctor
 import japgolly.scalajs.react.util.DefaultEffects.{Async => DefaultA, Sync => DefaultS}
 import japgolly.scalajs.react.util.Effect.{Dispatch, Id}
 import japgolly.scalajs.react.util.JsUtil
-import japgolly.scalajs.react.{ComponentDom, CtorType, PropsChildren, StateAccess, facade, vdom}
+import japgolly.scalajs.react.{CtorType, PropsChildren, StateAccess, facade, vdom}
 import scala.scalajs.js
 import scala.scalajs.js.|
 
@@ -94,14 +94,6 @@ object Generic {
 
     final def mountRawOrNull(c: facade.React.ComponentUntyped | Null): M =
       if (c == null) null.asInstanceOf[M] else mountRaw(JsUtil.notNull(c))
-
-    @deprecated("Use ReactDOMClient.createRoot and root.render instead", "3.0.0 / React v18")
-    def renderIntoDOM(container: facade.ReactDOM.Container): Mounted =
-      mountRaw(facade.ReactDOM.render(raw, container))
-
-    @deprecated("Use ReactDOMClient.createRoot and root.render instead", "3.0.0 / React v18")
-    def renderIntoDOM[G[_]](container: facade.ReactDOM.Container, callback: => G[Unit])(implicit G: Dispatch[G]): Mounted =
-      mountRaw(facade.ReactDOM.render(raw, container, G.dispatchFn(callback)))
   }
 
   trait UnmountedWithRoot[P1, M1, P0, M0] extends UnmountedSimple[P1, M1] {
@@ -134,9 +126,6 @@ object Generic {
     override type WithMappedState[S2]    <: MountedSimple[F, A, P, S2]
              type WithMappedProps[P2]    <: MountedSimple[F, A, P2, S]
     def mapProps[P2](f: P => P2): WithMappedProps[P2]
-
-    @deprecated("Add a ref directly to the element you want to reference.", "3.0.0")
-    def getDOMNode: F[ComponentDom]
 
     def props: F[Props]
     def propsChildren: F[PropsChildren]

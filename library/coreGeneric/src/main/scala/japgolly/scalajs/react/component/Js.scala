@@ -5,7 +5,7 @@ import japgolly.scalajs.react.util.DefaultEffects.{Async => DefaultA}
 import japgolly.scalajs.react.util.Effect._
 import japgolly.scalajs.react.util.JsUtil.jsNullToOption
 import japgolly.scalajs.react.util.Util.identityFn
-import japgolly.scalajs.react.{Children, ComponentDom, CtorType, PropsChildren, facade}
+import japgolly.scalajs.react.{Children, CtorType, PropsChildren, facade}
 import scala.scalajs.js
 import scala.scalajs.js.|
 
@@ -139,9 +139,6 @@ object Js extends JsBaseComponentTemplate[facade.React.ComponentClassP] {
       override def props                            = raw.props
       override def propsChildren                    = PropsChildren.fromRawProps(raw.props)
       override def state                            = raw.state
-
-      @deprecated("Add a ref directly to the element you want to reference.", "3.0.0")
-      override def getDOMNode                       = ComponentDom.findDOMNode(raw)
 
       override def setState[G[_]](state: S, callback: => G[Unit])(implicit G: Dispatch[G]): Unit =
         raw.setState(state, G.dispatchFn(callback))

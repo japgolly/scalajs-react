@@ -101,28 +101,6 @@ object ComponentBuilder {
 
     def noBackend: Step3[P, S, Unit] =
       backend(_ => ())
-
-    /** Shortcut for:
-      *
-      * {{{
-      *   .backend[B](new B(_))
-      *   .renderBackend
-      * }}}
-      */
-    @deprecated("Call .backend(new B(_)) and then .render or one of its variants", "3.0.0")
-    def renderBackend[B]: LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
-      macro ComponentBuilderMacros.backendAndRender[P, S, B]
-
-    /** Shortcut for:
-      *
-      * {{{
-      *   .backend[B](new B(_))
-      *   .renderBackendWithChildren
-      * }}}
-      */
-    @deprecated("Call .backend(new B(_)) and then .render or one of its variants", "3.0.0")
-    def renderBackendWithChildren[B]: LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
-      macro ComponentBuilderMacros.backendAndRenderWithChildren[P, S, B]
   }
 
   // ===================================================================================================================
@@ -206,22 +184,6 @@ object ComponentBuilder {
 
     def render_C(r: PropsChildren => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
       renderWith($ => r($.propsChildren))
-
-    /**
-     * Use a method named `render` in the backend, automatically populating its arguments with props and state
-     * where needed.
-     */
-    @deprecated("Call .render or one of its variants", "3.0.0")
-    def renderBackend: LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
-      macro ComponentBuilderMacros.renderBackend[P, S, B]
-
-    /**
-     * Use a method named `render` in the backend, automatically populating its arguments with props, state, and
-     * propsChildren where needed.
-     */
-    @deprecated("Call .render or one of its variants", "3.0.0")
-    def renderBackendWithChildren: LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
-      macro ComponentBuilderMacros.renderBackendWithChildren[P, S, B]
   }
 
   // ===================================================================================================================

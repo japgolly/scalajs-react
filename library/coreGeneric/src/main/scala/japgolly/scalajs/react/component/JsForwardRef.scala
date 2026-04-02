@@ -2,11 +2,9 @@ package japgolly.scalajs.react.component
 
 import japgolly.scalajs.react.internal.Profunctor
 import japgolly.scalajs.react.internal.Profunctor.Ops._
-import japgolly.scalajs.react.util.Effect.Dispatch
 import japgolly.scalajs.react.util.JsUtil.jsNullToOption
 import japgolly.scalajs.react.util.Util.identityFn
 import japgolly.scalajs.react.{Children, CtorType, PropsChildren, Ref, facade}
-import scala.scalajs.LinkingInfo.developmentMode
 import scala.scalajs.js
 import scala.scalajs.js.|
 
@@ -139,21 +137,6 @@ object JsForwardRef {
 
     override def mapUnmountedProps[P2](f: P => P2): UnmountedSimple[P2, R, M]
     override def mapMounted[M2](f: M => M2): UnmountedSimple[P, R, M2]
-
-    @deprecated("Use ReactDOMClient.createRoot and root.render instead", "3.0.0 / React v18")
-    override final def renderIntoDOM(container: facade.ReactDOM.Container): this.Mounted =
-      postRender(facade.ReactDOM.render(raw, container))
-
-    @deprecated("Use ReactDOMClient.createRoot and root.render instead", "3.0.0 / React v18")
-    override final def renderIntoDOM[G[_]](container: facade.ReactDOM.Container, callback: => G[Unit])(implicit G: Dispatch[G]): this.Mounted =
-      postRender(facade.ReactDOM.render(raw, container, G.dispatchFn(callback)))
-
-    private def postRender(result: facade.React.ComponentUntyped): this.Mounted = {
-      // Protect against future React change.
-      if (developmentMode)
-        assert(result eq null, s"Expected rendered $displayName to return null; not $result")
-      mountRaw(result)
-    }
   }
 
   sealed trait UnmountedWithRoot[P1, R, M1, P0 <: js.Object]

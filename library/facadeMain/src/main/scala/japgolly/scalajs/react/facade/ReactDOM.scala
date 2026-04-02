@@ -16,34 +16,11 @@ trait ReactDOM extends js.Object {
 
   val version: String = js.native
 
-  @deprecated("Use createRoot and root.render instead", "3.0.0 / React v18")
-  final def render(element: React.Node, container: Container): React.ComponentUntyped = js.native
-
-  @deprecated("Use createRoot and root.render instead", "3.0.0 / React v18")
-  final def render(element  : React.Node,
-                   container: Container,
-                   callback : js.Function0[Any]): React.ComponentUntyped = js.native
-
-  @deprecated("Use hydrateRoot instead", "3.0.0 / React v18")
-  final def hydrate(element: React.Node, container: Container): React.ComponentUntyped = js.native
-
-  @deprecated("Use hydrateRoot instead", "3.0.0 / React v18")
-  final def hydrate(element  : React.Node,
-                    container: Container,
-                    callback : js.Function0[Any]): React.ComponentUntyped = js.native
-
-  @deprecated("Use root.unmount() instead", "3.0.0 / React v18")
-  final def unmountComponentAtNode(container: dom.Node): Boolean = js.native
-
   // ==========================================================================
   // NOTE: Ensure that ComponentDom is kept up-to-date with this type
   //
   final type DomNode = dom.Node
   // ==========================================================================
-
-  @deprecated("findDOMNode is deprecated and will be removed in the next major release. Instead, add a ref directly to the element you want to reference.", "3.0.0 / React v18")
-  @throws[js.JavaScriptException]("if arg isn't a React component or its unmounted")
-  final def findDOMNode(componentOrElement: dom.Element | React.ComponentUntyped): DomNode | Null = js.native
 
   final def createPortal(child: React.Node, container: Container): React.Node = js.native
 
