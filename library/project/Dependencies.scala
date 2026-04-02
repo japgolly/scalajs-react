@@ -14,7 +14,7 @@ object Dependencies {
     val microlibs             = "4.2.1"
     val monocle2              = "2.1.0"
     val monocle3              = "3.3.0"
-    val scala2                = "2.13.17"
+    val scala2                = "2.13.18"
     val scala3                = "3.3.7"
     val scalaJsDom            = "2.8.1"
     val sourcecode            = "0.4.4"
