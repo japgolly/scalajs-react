@@ -29,3 +29,5 @@ val util                  = ScalaJsReact.util
 val utilCatsEffect        = ScalaJsReact.utilCatsEffect
 val utilDummyDefaults     = ScalaJsReact.utilDummyDefaults
 val utilFallbacks         = ScalaJsReact.utilFallbacks
+
+Global / concurrentRestrictions += Tags.limit(Tags.Test, 2)
