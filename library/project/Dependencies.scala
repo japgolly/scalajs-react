@@ -28,7 +28,6 @@ object Dependencies {
     val kindProjector         = "0.13.4"
     val macrotaskExecutor     = "1.1.1"
     val nyaya                 = "1.1.0"
-    val reactJs               = "18.3.1"
     val scalaJsJavaTime       = "1.0.0"
     val scalaJsSecureRandom   = "1.0.0"
     val scalaTest             = "3.2.19"
@@ -72,62 +71,13 @@ object Dependencies {
     def sizzleJs(scope: Configuration) =
       Def.setting("org.webjars.bower" % "sizzle" % Ver.sizzleJs % scope / "sizzle.min.js" commonJSName "Sizzle")
 
-    val react             = ReactArtifact("react")
-    val reactDom          = ReactArtifact("react-dom")
-    val reactDomServer    = ReactArtifact("react-dom-server.browser")
-    val reactDoutestUtils = ReactArtifact("react-dom-test-utils")
-
     val testingLibraryDomJs = Def.setting("org.webjars.npm" % "testing-library__dom" % Ver.testingLibraryDomJs /
       "dom.umd.js" commonJSName "TestingLibraryDom")
   }
-
-  def fastTextEncodingJs = s"${Ver.fastTextEncoding}/text.min.js" // 1.0.6 webjar only contains minified version
 
   def globalDependencyOverrides = Def.setting(Seq(
     Dep.scalaJsDom.value,
     Dep.univEq.value,
     Dep.univEqCats.value,
-    "org.webjars.npm" % "scheduler" % "0.22.0", // Required for React 18.3.1
   ))
-
-  final case class ReactArtifact(filename: String) {
-    val dev = s"umd/$filename.development.js"
-    val prod = s"umd/$filename.production.min.js"
-  }
-
-  def addReactJsDependencies(scope: Configuration): Project => Project =
-    _.enablePlugins(JSDependenciesPlugin)
-      .settings(
-        jsDependencies ++= Seq(
-
-          /** For testing React 18 */
-          "org.webjars.npm" % "fast-text-encoding" % Ver.fastTextEncoding % scope
-          / fastTextEncodingJs
-          minified "text.min.js",
-
-          "org.webjars.npm" % "react" % Ver.reactJs % scope
-            /         "umd/react.development.js"
-            minified  "umd/react.production.min.js"
-            dependsOn fastTextEncodingJs
-            commonJSName "React",
-
-          "org.webjars.npm" % "react-dom" % Ver.reactJs % scope
-            /         "umd/react-dom.development.js"
-            minified  "umd/react-dom.production.min.js"
-            dependsOn "umd/react.development.js"
-            commonJSName "ReactDOM",
-
-          "org.webjars.npm" % "react-dom" % Ver.reactJs % scope
-            /         "umd/react-dom-test-utils.development.js"
-            minified  "umd/react-dom-test-utils.production.min.js"
-            dependsOn "umd/react-dom.development.js"
-            commonJSName "ReactTestUtils",
-
-          "org.webjars.npm" % "react-dom" % Ver.reactJs % scope
-            /         "umd/react-dom-server-legacy.browser.development.js"
-            minified  "umd/react-dom-server-legacy.browser.production.min.js"
-            dependsOn "umd/react-dom.development.js"
-            commonJSName "ReactDOMServer"),
-
-        packageJSDependencies / skip := false)
 }

@@ -48,6 +48,7 @@ final class ConsoleHijack(val config: ConsoleHijack.Config) {
 
 object ConsoleHijack {
 
+  @deprecated("This no longer works. There is no replacement.", "4.0.0")
   lazy val fatalReactWarnings: ConsoleHijack = {
     val handler: Handler = i =>
       if (i.msg.startsWith("Warning: "))

@@ -51,12 +51,12 @@ object UnprefixedTest extends TestSuite {
       "compJS"    - test(div(jsComp),          """<div><div>Hello yo</div></div>""")
     }
 
-    "checkboxT"  - test(checkbox(true),  """<input type="checkbox" readonly="" checked=""/>""")
-    "checkboxF"  - test(checkbox(false), """<input type="checkbox" readonly=""/>""")
+    "checkboxT"  - test(checkbox(true),  """<input type="checkbox" readOnly="" checked=""/>""")
+    "checkboxF"  - test(checkbox(false), """<input type="checkbox" readOnly=""/>""")
 
      "attr" - {
       "aria"       - test(div(aria.label := "ow", "a"),            """<div aria-label="ow">a</div>""")
-      "attrs"      - test(div(rowSpan := 1, colSpan := 3),         """<div rowspan="1" colSpan="3"></div>""")
+      "attrs"      - test(div(rowSpan := 1, colSpan := 3),         """<div rowSpan="1" colSpan="3"></div>""")
       "styleObj"   - test(div(style := jsObject),                  """<div style="a:b"></div>""")
       "styleDict"  - test(div(style := js.Dictionary("x" -> "y")), """<div style="x:y"></div>""")
       "styleAttrs" - test(div(color := "red", cursor.auto),        """<div style="color:red;cursor:auto"></div>""")

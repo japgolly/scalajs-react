@@ -32,6 +32,7 @@ object ReactTestUtilsConfigTypes {
       override def apply[F[_]: Effect, A](body: F[A]): F[A] = body
     }
 
+    @deprecated("This no longer works. There is no replacement.", "4.0.0")
     object fatalReactWarnings extends AroundReact {
       override def toString = "AroundReact.fatalReactWarnings"
       val consoleHijack = ConsoleHijack.fatalReactWarnings
