@@ -264,10 +264,6 @@ object Js extends JsBaseComponentTemplate[facade.React.ComponentClassP] {
         )
       )(self.ctorPF)
 
-    @deprecated("Use .withOptionalRef", "1.7.0")
-    def withRef(r: Option[Ref.Handle[R]]): ComponentMapped[F, A, P1, S1, CT1, R, P0, S0, CT0] =
-      withOptionalRef(r)
-
     def withOptionalRef(optionalRef: Option[Ref.Handle[R]]): ComponentMapped[F, A, P1, S1, CT1, R, P0, S0, CT0] =
       optionalRef match {
         case None    => self

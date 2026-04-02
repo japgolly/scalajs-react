@@ -82,10 +82,6 @@ object AsyncCallback {
   def never[A]: AsyncCallback[A] =
     apply(_ => Callback.empty)
 
-  @deprecated("Use AsyncCallback.delay", "1.7.0")
-  def point[A](a: => A): AsyncCallback[A] =
-    delay(a)
-
   def delay[A](a: => A): AsyncCallback[A] =
     AsyncCallback(f => CallbackTo(catchAll(a)).flatMap(f))
 
@@ -343,10 +339,6 @@ object AsyncCallback {
 
     def isComplete: CallbackTo[Boolean] =
       CallbackTo(_complete)
-
-    @deprecated("Use .await", "1.7.7")
-    inline def waitForCompletion: AsyncCallback[Unit] =
-      await
   }
 
   /** A synchronisation aid that allows you to wait for another async process to complete. */

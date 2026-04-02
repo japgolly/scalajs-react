@@ -5,6 +5,11 @@
 
 - [x] Make library tests use R19: tests
 
+- [ ] Delete deprecated code
+  - [x] Delete code deprecated in 1.x
+  - [ ] Delete code deprecated in 2.x
+  - [ ] Delete code deprecated in 3.x
+
 - [ ] tests-dep: Either
   - [x] use R19, or
   - [ ] delete (and delete deprecated main code too)

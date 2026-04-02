@@ -41,32 +41,6 @@ object ComponentBuilder {
     */
   final class Step1[P](private val name: String) extends AnyVal {
 
-    /** getDerivedStateFromProps is invoked right before calling the render method, both on the initial mount and on
-      * subsequent updates.
-      *
-      * This method exists for rare use cases where the state depends on changes in props over time.
-      * For example, it might be handy for implementing a Transition component that compares its previous and next
-      * children to decide which of them to animate in and out.
-      *
-      * Deriving state leads to verbose code and makes your components difficult to think about.
-      * Make sure you're familiar with simpler alternatives:
-      *
-      *   - If you need to perform a side effect (for example, data fetching or an animation) in response to a change in
-      *     props, use componentDidUpdate lifecycle instead.
-      *
-      *   - If you want to re-compute some data only when a prop changes, use a memoization helper instead.
-      *
-      *   - If you want to "reset" some state when a prop changes, consider either making a component fully controlled
-      *     or fully uncontrolled with a key instead.
-      *
-      * Note that this method is fired on every render, regardless of the cause.
-      * This is in contrast to componentWillReceiveProps, which only fires when the parent causes a re-render and
-      * not as a result of a local setState.
-      */
-    @deprecated("Use getDerivedStateFromPropsAndState instead. This doesn't just get called when props change, it gets called when state changes too; meaning it gets reset every time you call setState (!)", "1.7.1")
-    def getDerivedStateFromProps[S](f: P => S): Step2[P, S] =
-      new Step2(name, InitState.DerivedFromProps(f))
-
     /** This is called twice when a component is first rendered. Once with state set to `None` and then again by React
       * with state set to `Some`.
       *

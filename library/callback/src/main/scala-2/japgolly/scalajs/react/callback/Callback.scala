@@ -43,10 +43,6 @@ object Callback {
   val empty: Callback =
     new CallbackTo(Trampoline.unit)
 
-  @deprecated("use throwException", "1.6.1")
-  @inline def error(t: Throwable): Callback =
-    CallbackTo.throwException(t)
-
   @inline def throwException(t: Throwable): Callback =
     CallbackTo.throwException(t)
 

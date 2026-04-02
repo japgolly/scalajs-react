@@ -1,7 +1,7 @@
 package japgolly.scalajs.react.extra
 
 import japgolly.scalajs.react.util.Effect._
-import japgolly.scalajs.react.util.{DefaultEffects, NotAllowed}
+import japgolly.scalajs.react.util.DefaultEffects
 import japgolly.scalajs.react.{Reusability, Reusable, StateAccess}
 import scala.reflect.ClassTag
 
@@ -119,15 +119,6 @@ object StateSnapshotF {
 
     def withValue(s: S)(implicit r: Reusability[S]): StateSnapshotF[F, A, S] =
       new StateSnapshotF(s, self.underlyingSetFn, r)(self.F, self.A)
-
-    @deprecated("This ability doesn't work. See https://github.com/japgolly/scalajs-react/issues/721 for an explanation, and https://japgolly.github.io/scalajs-react/#examples/state-snapshot-2 for the alternative.", "1.7.1")
-    def xmapState(no: NotAllowed) = no.result
-
-    @deprecated("This ability doesn't work. See https://github.com/japgolly/scalajs-react/issues/721 for an explanation, and https://japgolly.github.io/scalajs-react/#examples/state-snapshot-2 for the alternative.", "1.7.1")
-    def zoomState(no: NotAllowed) = no.result
-
-    @deprecated("This ability doesn't work. See https://github.com/japgolly/scalajs-react/issues/721 for an explanation, and https://japgolly.github.io/scalajs-react/#examples/state-snapshot-2 for the alternative.", "1.7.1")
-    def zoomStateOption(no: NotAllowed) = no.result
   }
 
 }
