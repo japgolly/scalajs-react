@@ -69,7 +69,7 @@ object Lib {
   def commonSettingsWithoutPlugins: PE = _
     .configure(sourceMapsToGithub(ghProject))
     .settings(
-      scalaVersion                  := Ver.scala2,
+      scalaVersion                  := Ver.scala3,
       crossScalaVersions            := Seq(Ver.scala2, Ver.scala3),
       scalacOptions                ++= scalacCommonFlags,
       scalacOptions                ++= byScalaVersion {
