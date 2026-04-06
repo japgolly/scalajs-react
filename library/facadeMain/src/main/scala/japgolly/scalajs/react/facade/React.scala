@@ -131,6 +131,7 @@ object React extends React {
   trait ErrorInfo extends js.Object {
     val componentStack: js.UndefOr[String] = js.native
     val digest        : js.UndefOr[String] = js.native
+    val errorBoundary : js.UndefOr[React.Component[_ <: js.Object, _ <: js.Object]] = js.native
   }
 
   type Key = String | JsNumber
