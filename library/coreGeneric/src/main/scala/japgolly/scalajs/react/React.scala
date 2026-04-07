@@ -69,6 +69,15 @@ object React {
   def startTransition[F[_]](callback: => F[Unit])(implicit F: Sync[F]) =
     F.delay(facade.React.startTransition(F.toJsFn(callback)))
 
+  /** @since 4.0.0 / React 19 */
+  def use[A](resource: Context[A]): A =
+    facade.React.use[A](resource.raw)
+
+  // I doubt this would ever be used from idiomatic scalajs-react code.
+  /** @since 4.0.0 / React 19 */
+  def use[F[_], A](async: F[A])(implicit F: Async[F]): A =
+    facade.React.use[A](F.toJsPromise(async)())
+
   val Profiler = feature.Profiler
 
   /** StrictMode is a tool for highlighting potential problems in an application.

@@ -35,7 +35,7 @@
     - [ ] new `requestFormReset` React DOM API
     - [ ] React DOM: New hook: `useFormStatus`
     - [ ] New hook: `useOptimistic`
-    - [ ] New API: `use`
+    - [x] New API: `use`
     - [ ] You can render <Context> as a provider instead of <Context.Provider>`
     - [ ] Cleanup functions for refs
     - [ ] `useDeferredValue` initial value

@@ -179,6 +179,15 @@ object React extends React {
   }
 
   type LazyResultValue[P <: js.Object] = ComponentType[P]
+
+  // TypeScript (basically) defines this for use in Usable but I think it works with any Thenable
+  // @js.native
+  // trait ReactPromise[+A] extends js.Thenable[A] {
+  //   val status: js.UndefOr[String] = js.native
+  //   val value: js.UndefOr[A] = js.native
+  // }
+
+  type Usable[T] = js.Thenable[T] | Context[T]
 }
 
 @js.native
@@ -222,6 +231,9 @@ trait React extends Hooks with Testing {
   final def memo[P <: js.Object, A](f: js.Function1[P, A], areEqual: js.Function2[P, P, Boolean] = js.native): js.Object = js.native
 
   final def startTransition(callback: js.Function0[Unit]): Unit = js.native
+
+  /** @since 4.0.0 / React 19 */
+  final def use[A](resource: Usable[A]): A = js.native
 
   final val version: String = js.native
 
