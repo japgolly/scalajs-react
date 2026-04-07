@@ -642,15 +642,16 @@ object Api {
       // customBy(ctx => UseDeferredValue(value(ctx), js.undefined))
       customBy(ctx => UseDeferredValue(value(ctx)))
 
-    // initialValue was added in React 19 - Uncomment when we upgrade to React 19
-    // /**
-    //   * Lets you defer updating a part of the UI.
-    //   *
-    //   * @see
-    //   *   {@link https://react.dev/reference/react/useDeferredValue}
-    //   */
-    // final def useDeferredValue[A](value: Ctx => A, initialValue: Ctx => A)(implicit step: Step): step.Next[A] =
-    //   customBy(ctx => UseDeferredValue(value(ctx), initialValue(ctx)))
+    /**
+      * Lets you defer updating a part of the UI.
+      *
+      * @see
+      *   {@link https://react.dev/reference/react/useDeferredValue}
+      *
+      * @since 4.0.0 / React 19
+      */
+    final def useDeferredValue[A](value: Ctx => A, initialValue: Ctx => A)(implicit step: Step): step.Next[A] =
+      customBy(ctx => UseDeferredValue(value(ctx), initialValue(ctx)))
   }
 
   // ===================================================================================================================
@@ -926,16 +927,17 @@ object Api {
     @inline final def useDeferredValue[A](value: CtxFn[A])(implicit step: Step): step.Next[A] =
       useDeferredValue(ctx => step.squash(value)(ctx))
 
-    // initialValue was added in React 19 - Uncomment when we upgrade to React 19
-    // /**
-    //   * Lets you defer updating a part of the UI.
-    //   *
-    //   * @see
-    //   *   {@link https://react.dev/reference/react/useDeferredValue}
-    //   */
-    // final def useDeferredValue[A](value: CtxFn[A], initialValue: CtxFn[A])(implicit step: Step): step.Next[A] =
-    //   // useDeferredValue(ctx => step.squash(value)(ctx), initialValue.map(f => ctx => step.squash(f)(ctx)))
-    //   useDeferredValue(ctx => step.squash(value)(ctx), ctx => step.squash(initialValue)(ctx))
+    /**
+      * Lets you defer updating a part of the UI.
+      *
+      * @see
+      *   {@link https://react.dev/reference/react/useDeferredValue}
+      *
+      * @since 4.0.0 / React 19
+      */
+    final def useDeferredValue[A](value: CtxFn[A], initialValue: CtxFn[A])(implicit step: Step): step.Next[A] =
+      // useDeferredValue(ctx => step.squash(value)(ctx), initialValue.map(f => ctx => step.squash(f)(ctx)))
+      useDeferredValue(ctx => step.squash(value)(ctx), ctx => step.squash(initialValue)(ctx))
   }
 
   // ===================================================================================================================

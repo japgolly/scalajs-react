@@ -38,7 +38,7 @@
     - [x] New API: `use`
     - [ ] You can render <Context> as a provider instead of <Context.Provider>`
     - [ ] Cleanup functions for refs
-    - [ ] `useDeferredValue` initial value
+    - [x] `useDeferredValue` initial value
     - [ ] Auto-hoists metadata tags like `<title>`, `<link>`, and `<meta>`
     - [ ] `precedence` attr to `link`s
     - [ ] `import { prefetchDNS, preconnect, preload, preinit } from 'react-dom'`

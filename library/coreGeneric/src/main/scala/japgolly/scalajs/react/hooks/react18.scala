@@ -105,8 +105,4 @@ trait react18 {
     */
   @inline final def useDeferredValue[A](value: A): HookResult[A] =
     UseDeferredValue(value).toHookResult
-
-  // initialValue was added in React 19 - Replace when we upgrade to React 19
-  // @inline final def useDeferredValue[A](value: A, initialValue: js.UndefOr[A] = js.undefined): HookResult[A] =
-  //   UseDeferredValue(value, initialValue).toHookResult
 }

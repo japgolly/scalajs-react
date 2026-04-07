@@ -2715,28 +2715,28 @@ object HooksTest extends AsyncTestSuite {
       )
     }
 
-    // initialValue was added in React 19 - Uncomment when we upgrade to React 19
-    // def testConstWithInitial() = {
-    //   var renders: List[(Int, Int, Boolean)] = Nil
+    def testConstWithInitial() = {
+      var renders: List[(Int, Int, Boolean)] = Nil
 
-    //   val comp = ScalaFnComponent
-    //     .withHooks[Unit]
-    //     .useState(0)
-    //     .useDeferredValue((_, state) => state.value, (_, _) => 100)
-    //     .render { (_, state, deferredValue) =>
-    //       val isStale: Boolean = state.value != deferredValue
-    //       renders = renders :+ (state.value, deferredValue, isStale)
-    //       <.div(
-    //         deferredValue,
-    //         <.button(^.onClick --> state.modState(_ + 1))
-    //       )
-    //     }
+      val comp = ScalaFnComponent
+        .withHooks[Unit]
+        .useState(0)
+        .useDeferredValue((_, state) => state.value, (_, _) => 100)
+        .render { (_, state, deferredValue) =>
+          val isStale: Boolean = state.value != deferredValue
+          renders = renders :+ (state.value, deferredValue, isStale)
+          <.div(
+            deferredValue,
+            <.button(^.onClick --> state.modState(_ + 1))
+          )
+        }
 
-    //   test(comp()) { t =>
-    //     t.clickButton()
-    //   }
-    //   assertEq(renders, List((0, 100, true), (0, 0, false), (1, 0, true), (1, 1, false)))
-    // }
+      test(comp()) { t =>
+        t.clickButton()
+      }.map(_ =>
+        assertEq(renders, List((0, 100, true), (0, 0, false), (1, 0, true), (1, 1, false)))
+      )
+    }
 
     def testMonadicConst() = {
       var renders: List[(Int, Int, Boolean)] = Nil
@@ -2756,6 +2756,30 @@ object HooksTest extends AsyncTestSuite {
         t.clickButton()
       }.map(_ =>
         assertEq(renders, List((0, 0, false), (1, 0, true), (1, 1, false)))
+      )
+    }
+
+    def testMonadicConstWithInitial() = {
+      var renders: List[(Int, Int, Boolean)] = Nil
+
+      val comp = ScalaFnComponent[Unit] { _ =>
+        for {
+          state         <- useState(0)
+          deferredValue <- useDeferredValue(state.value, 100)
+        } yield {
+          val isStale: Boolean = state.value != deferredValue
+          renders = renders :+ (state.value, deferredValue, isStale)
+          <.div(
+            deferredValue,
+            <.button(^.onClick --> state.modState(_ + 1))
+          )
+        }
+      }
+
+      test(comp()) { t =>
+        t.clickButton()
+      }.map(_ =>
+        assertEq(renders, List((0, 100, true), (0, 0, false), (1, 0, true), (1, 1, false)))
       )
     }
   }
@@ -2921,12 +2945,11 @@ object HooksTest extends AsyncTestSuite {
 
     "useDeferred" - {
       "const" - UseDeferred.testConst()
-      // initialValue was added in React 19 - Uncomment when we upgrade to React 19
-      // "constWithInitial" - UseDeferred.testConstWithInitial()
+      "constWithInitial" - UseDeferred.testConstWithInitial()
     }
     "useDeferred (monadic)" - {
       "const" - UseDeferred.testMonadicConst()
-      // "constWithInitial" - UseDeferred.testMonadicConstWithInitial()
+      "constWithInitial" - UseDeferred.testMonadicConstWithInitial()
     }
 
     "renderWithReuse" - {
