@@ -25,7 +25,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Scala
-        uses: japgolly/setup-everything-scala@v3.1
+        uses: japgolly/setup-everything-scala@v4.1
         with:
           java-version: adoptium@1.${{ matrix.java }}
           jsdom-version: 26.1.0
@@ -44,7 +44,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Scala
-        uses: japgolly/setup-everything-scala@v3.1
+        uses: japgolly/setup-everything-scala@v4.1
         with:
           java-version: adoptium@1.11.0.15
 
