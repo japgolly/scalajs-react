@@ -4,6 +4,7 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.core.JsComponentEs6PTest
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
+import org.scalajs.dom.FormData
 import scala.annotation.nowarn
 import scala.scalajs.js
 import sourcecode.Line
@@ -320,6 +321,17 @@ object PrefixedTest extends TestSuite {
 
     "anchorToNewWindow" - {
       test(<.a.toNewWindow("/ok")("OK!"), """<a target="_blank" href="/ok" rel="noopener">OK!</a>""")
+    }
+
+    "action" - {
+      // Successful compilation is all we test for
+      @nowarn("cat=unused") def t(m: TagMod) = ()
+      "string" - t(^.action := "/ok")
+      "sync0" - t(^.action --> Callback.empty)
+      "sync1" - t(^.action ==> ((_: FormData) => Callback.empty))
+      "async0" - t(^.action --> AsyncCallback.unit)
+      "async1" - t(^.action ==> ((_: FormData) => AsyncCallback.unit))
+      "boolean" - compileError(" ^.action := false ")
     }
   }
 }

@@ -23,7 +23,7 @@ trait HtmlAttrs {
     * This value can be overridden by a formaction attribute on a button or
     * input element.
     */
-  final def action = VdomAttr("action")
+  final def action = VdomAttr.Action("action")
 
   final def allowFullScreen = VdomAttr[Boolean]("allowFullScreen")
 
@@ -722,7 +722,7 @@ trait HtmlAttrs {
   /** Allows association of an input to a non-ancestoral form. */
   final def formId = VdomAttr("form")
 
-  final def formAction = VdomAttr("formAction")
+  final def formAction = VdomAttr.Action("formAction")
 
   final def formEncType = VdomAttr("formEncType")
 

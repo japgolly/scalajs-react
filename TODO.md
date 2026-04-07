@@ -31,7 +31,7 @@
     - [x] Add `onCaughtError` and `onUncaughtError` options to `{create,hydrate}Root`
     - [ ] `useTransition.startTransition` now accepts async
     - [ ] New hook: useActionState
-    - [ ] `action` and `formAction` props of `<form>`, `<input>`, and `<button>` elements
+    - [x] `action` and `formAction` props of `<form>`, `<input>`, and `<button>` elements
     - [ ] new `requestFormReset` React DOM API
     - [ ] React DOM: New hook: `useFormStatus`
     - [ ] New hook: `useOptimistic`

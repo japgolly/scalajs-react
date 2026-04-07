@@ -4,8 +4,7 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.test._
 import japgolly.scalajs.react.vdom.html_<^._
-import org.scalajs.dom.KeyCode
-import org.scalajs.dom.html
+import org.scalajs.dom.{FormData, KeyCode, html}
 import scala.annotation.nowarn
 import utest._
 
@@ -163,6 +162,32 @@ object VdomTest extends AsyncTestSuite {
       "fn" - {
         def keys(e: ReactKeyboardEventFromHtml): CallbackOption[Unit] = ???
         assertCompiles(^.onKeyDown ==> keys)
+      }
+    }
+
+    "action" - {
+      "async" - {
+        var query = ""
+
+        val comp = ScalaFnComponent[Unit] { _ =>
+          val onSubmit: FormData => AsyncCallback[Unit] =
+            fd => AsyncCallback.delay {
+              query = fd.get("query").asInstanceOf[String]
+            }.delayMs(1)
+          <.form(^.action ==> onSubmit)(
+            <.input(^.name := "query"),
+            <.button(^.`type` := "submit", "Search")
+          )
+        }
+
+        ReactTestUtils.withRendered_(comp()) { t =>
+          val form = t.asHtml()
+          form.querySelector("input").asInstanceOf[html.Input].value = "scalajs-react"
+          val button = form.querySelector("button").asInstanceOf[html.Button]
+          Simulate.click(button)
+        }.delayMs(10).map { _ =>
+          assertEq(query, "scalajs-react")
+        }
       }
     }
 
