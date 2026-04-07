@@ -79,8 +79,6 @@ libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "3.0.0"
    ),
    ```
 
-[See here](IDE.md) for tips on configuring your IDE.
-
 # Creating Virtual-DOM
 
 See [VDOM.md](VDOM.md).

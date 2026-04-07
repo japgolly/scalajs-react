@@ -22,7 +22,6 @@ Includes a router, testing utils, performance utils, more.
   - [Hooks](doc/HOOKS.md)
   - [Hooks via builder](doc/HOOKS_BUILDER.md)
   - [Refs](doc/REFS.md)
-  - [IDE support](doc/IDE.md)
   - [The `Callback` class](doc/CALLBACK.md)
   - [React Context](doc/CONTEXT.md)
 - Delving deeper
