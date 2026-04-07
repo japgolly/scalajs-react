@@ -6,23 +6,9 @@ import org.scalajs.dom.{Event, EventTarget}
 import scala.scalajs.js
 
 class EventListenerF[F[_]] {
-  import EventListenerF.{defaultTarget, OfEventType}
+  import EventListenerF.OfEventType
 
   def apply[E <: Event] = new OfEventType[F, E](true)
-
-  /** See [[OfEventType.install()]]. */
-  @deprecated("Switch to install2", "3.0.0 / React v18")
-  def install[G[_], P, C <: Children, S, B <: OnUnmountF[F], U <: UpdateSnapshot]
-      (eventType : String,
-       listener  : ScalaComponent.MountedPure[P, S, B] => G[Unit],
-       target    : ScalaComponent.MountedImpure[P, S, B] => EventTarget = defaultTarget[P, S, B],
-       useCapture: Boolean = false)
-      (implicit F: Dispatch[F], G: Dispatch[G]): ScalaComponent.Config[P, C, S, B, U, U] =
-    apply[Event].install[G, P, C, S, B, U](
-      eventType,
-      $ => { val cb = listener($); _ => cb },
-      target,
-      useCapture)
 
   /** See [[OfEventType.install()]]. */
   def install2[G[_], P, C <: Children, S, B <: OnUnmountF[F], U <: UpdateSnapshot]
@@ -54,34 +40,9 @@ class EventListenerF[F[_]] {
 
 object EventListenerF {
 
-  @deprecated("This relies on getDOMNode which will be removed in the next major release.", "3.0.0 / React v18")
-  def defaultTarget[P, S, B]: ScalaComponent.MountedImpure[P, S, B] => EventTarget =
-    _.getDOMNode.asMounted().node
-
   def apply[F[_]] = new EventListenerF[F]
 
   final class OfEventType[F[_], E <: Event](private val _unused: Boolean) extends AnyVal {
-
-    /**
-     * Install an event listener when a component is mounted.
-     * Automatically uninstalls the event listener when the component is unmounted.
-     *
-     * @param eventType A string representing the
-     *                  <a href="https://developer.mozilla.org/en-US/docs/DOM/event.type">event type</a> to listen for.
-     * @param useCapture If true, useCapture indicates that the user wishes to initiate capture.
-     *                   After initiating capture, all events of the specified type will be dispatched to the registered
-     *                   listener before being dispatched to any EventTarget beneath it in the DOM tree.
-     *                   Events which are bubbling upward through the tree will not trigger a listener designated to use
-     *                   capture.
-     */
-    @deprecated("Switch to install2", "3.0.0 / React v18")
-    def install[G[_], P, C <: Children, S, B <: OnUnmountF[F], U <: UpdateSnapshot]
-        (eventType : String,
-         listener  : ScalaComponent.MountedPure[P, S, B] => E => G[Unit],
-         target    : ScalaComponent.MountedImpure[P, S, B] => EventTarget = defaultTarget[P, S, B],
-         useCapture: Boolean = false)
-        (implicit F: Dispatch[F], G: Dispatch[G]): ScalaComponent.Config[P, C, S, B, U, U] =
-      install2(eventType, listener, target, useCapture)
 
     /**
      * Install an event listener when a component is mounted.

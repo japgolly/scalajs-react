@@ -9,13 +9,6 @@ sealed trait Compilation3Test {
   import CompilationTest._
   import Compilation3Test._
 
-  sealed trait TestComponentBuilder {
-    val step1 = ScalaComponent.builder[Int]("")
-
-    step1.renderBackend[B3b]
-    step1.backend[B3b](new B3b(_)).renderBackend
-  }
-
   // Ensure that the ScalaJsReactConfig.Defaults trait contains a default value for every config method
   class ScalaJsReactConfigDefaults extends ScalaJsReactConfig.Defaults
 

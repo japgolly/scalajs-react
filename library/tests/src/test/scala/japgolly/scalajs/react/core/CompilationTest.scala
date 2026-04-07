@@ -4,7 +4,6 @@ import japgolly.scalajs.react._
 import scala.annotation.nowarn
 
 sealed trait CompilationTest {
-  import CompilationTest._
 
   def bool: Boolean
 
@@ -30,21 +29,6 @@ sealed trait CompilationTest {
     CallbackTo(false) && CallbackTo(true)
     !CallbackTo(false)
     i.to[CallbackTo]
-  }
-
-  // ===================================================================================================================
-  sealed trait TestComponentBuilder {
-    val step1 = ScalaComponent.builder[Int]("")
-
-    step1.renderBackend[B1p]
-    step1.renderBackendWithChildren[B1pc]
-    step1.renderBackend[B2]
-    step1.renderBackend[B3a]
-
-    step1.backend[B1p](_ => new B1p).renderBackend
-    step1.backend[B1pc](_ => new B1pc).renderBackendWithChildren
-    step1.backend[B2](new B2(_)).renderBackend
-    step1.backend[B3a](new B3a(_)).renderBackend
   }
 
   // ===================================================================================================================

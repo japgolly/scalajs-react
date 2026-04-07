@@ -22,9 +22,9 @@ object HooksExample2 {
 
         // Similar to componentDidMount and componentDidUpdate:
         _ <- useEffect(Callback {
-               // Update the document title using the browser API
-               document.title = s"You clicked ${count.value} times"
-             })
+          // Update the document title using the browser API
+          document.title = s"You clicked ${count.value} times"
+        })
 
       } yield
         <.div(

@@ -1,1 +1,0 @@
-../../../../tests/src/test/resources/forward-ref.js

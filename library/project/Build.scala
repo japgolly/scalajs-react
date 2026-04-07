@@ -1,5 +1,6 @@
 import sbt._
 import sbt.Keys._
+import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin
 import org.scalajs.jsdependencies.sbtplugin.JSDependenciesPlugin.autoImport._
 import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
@@ -31,14 +32,11 @@ object ScalaJsReact {
       extraExtMonocle2,
       extraExtMonocle3,
       facadeMain,
-      facadeTest,
       ghpages,
       ghpagesMacros,
       scalafixRules,
       testingLibraryDom,
-      testsDep,
       tests,
-      testUtilMacros,
       testUtil,
       util,
       utilCatsEffect,
@@ -175,17 +173,10 @@ object ScalaJsReact {
       libraryDependencies += Dep.scalaJsDom.value,
     )
 
-  lazy val facadeTest = project
-    .configure(commonSettings, publicationSettings, hasNoTests, disableScalaDoc3)
-    .dependsOn(facadeMain)
-    .settings(
-      moduleName := "facade-test",
-    )
-
   lazy val ghpages = project
     .dependsOn(coreExtCatsEffect) // must come before bundle
     .dependsOn(coreBundleCallback, extra, extraExtMonocle3, ghpagesMacros)
-    .configure(commonSettings, addReactJsDependencies(Compile), preventPublication, hasNoTests)
+    .configure(commonSettings, preventPublication, hasNoTests)
     .settings(
       libraryDependencies += Dep.macrotaskExecutor.value,
       scalaJSUseMainModuleInitializer := true,
@@ -220,10 +211,11 @@ object ScalaJsReact {
     )
 
   lazy val tests = project
+    .enablePlugins(JSDependenciesPlugin)
     .dependsOn(testUtil, coreExtCatsEffect, extraExtMonocle3)
     .dependsOn(coreBundleCallback) // Low priority
     .dependsOn(testingLibraryDom % Test)
-    .configure(commonSettings, preventPublication, utestSettings, addReactJsDependencies(Test))
+    .configure(commonSettings, preventPublication, utestSettings)
     .settings(
       Test / scalacOptions -= "-Xlint:adapted-args",
       Test / scalacOptions += "-Wconf:cat=deprecation:e", // error on deprecation, that's what testsDep is for
@@ -237,49 +229,20 @@ object ScalaJsReact {
       jsDependencies ++= Seq(
         Dep.sizzleJs(Test).value,
         (ProvidedJS / "polyfill.js") % Test,
-        (ProvidedJS / "component-es6.js" dependsOn Dep.reactDom.dev) % Test,
-        (ProvidedJS / "component-fn.js"  dependsOn Dep.reactDom.dev) % Test,
-        (ProvidedJS / "forward-ref.js"   dependsOn Dep.reactDom.dev) % Test,
+        (ProvidedJS / "react.umd.js" dependsOn "polyfill.js") % Test,
+        (ProvidedJS / "component-es6.js" dependsOn "react.umd.js") % Test,
+        (ProvidedJS / "component-fn.js"  dependsOn "react.umd.js") % Test,
+        (ProvidedJS / "forward-ref.js"   dependsOn "react.umd.js") % Test,
         Dep.testingLibraryDomJs.value % Test,
       ),
     )
 
-  lazy val testsDep = project
-    .in(file("tests-dep"))
-    .dependsOn(testUtil, coreExtCatsEffect)
-    .dependsOn(coreBundleCallback) // Low priority
-    .configure(commonSettings, preventPublication, utestSettings, addReactJsDependencies(Test))
-    .settings(
-      Test / scalacOptions --= Seq(
-        "-deprecation",
-        "-Xlint:adapted-args"
-      ),
-      libraryDependencies ++= Seq(
-        Dep.scalaJsJavaTime.value % Test,
-        Dep.scalaJsSecureRandom.value % Test,
-      ),
-      jsDependencies ++= Seq(
-        Dep.sizzleJs(Test).value,
-        (ProvidedJS / "polyfill.js") % Test,
-        (ProvidedJS / "component-es6.js" dependsOn Dep.reactDom.dev) % Test,
-        (ProvidedJS / "component-fn.js"  dependsOn Dep.reactDom.dev) % Test,
-        (ProvidedJS / "forward-ref.js"   dependsOn Dep.reactDom.dev) % Test,
-      ),
-    )
-
   lazy val testUtil = project
-    .dependsOn(facadeTest, testUtilMacros, extra)
+    .dependsOn(extra)
     .configure(commonSettings, publicationSettings, hasNoTests, effectGenericModule)
     .settings(
       moduleName := "test",
       libraryDependencies += Dep.microlibsTestUtil.value,
-    )
-
-  lazy val testUtilMacros = project
-    .dependsOn(coreGeneric)
-    .configure(commonSettings, publicationSettings, definesMacros, hasNoTests, effectGenericModule)
-    .settings(
-      moduleName := "test-macros",
     )
 
   lazy val util = project

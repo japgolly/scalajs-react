@@ -48,14 +48,6 @@ object ComponentDom {
       case null | ()      => Unmounted
     }
 
-  @deprecated("findDOMNode is deprecated and will be removed in the next major release. Instead, add a ref directly to the element you want to reference.", "3.0.0 / React v18")
-  def findDOMNode(a: dom.Element | facade.React.ComponentUntyped): ComponentDom = {
-    val b: facade.ReactDOM.DomNode | Null =
-      try facade.ReactDOM.findDOMNode(a)
-      catch {case _: Throwable => null}
-    apply(b)
-  }
-
   case object Unmounted extends ComponentDom {
     override def mounted = None
   }
@@ -87,29 +79,15 @@ object ComponentDom {
         case t: dom.Text => t
         case n           => throw new RuntimeException(s"Expected a dom.Text; got $n")
       }
-
-    @deprecated("Call .node and pattern match as needed", "3.0.0")
-    def fold[A](text: dom.Text => A, element: dom.Element => A): A
   }
 
   final case class Element(element: dom.Element) extends Mounted {
     override def toElement = Some(element)
     override def node = element
     override def raw = element
-    @deprecated("Call .node and pattern match as needed", "3.0.0")
-    override def fold[A](text: dom.Text => A, f: dom.Element => A) = f(element)
   }
 
   final case class Node(node: dom.Node) extends Mounted {
     override def raw = node
-    @deprecated("Call .node and pattern match as needed", "3.0.0")
-    override def fold[A](text: dom.Text => A, element: dom.Element => A) =
-      node match {
-        case t: dom.Text => text(t)
-        case _           => throw new RuntimeException(s"The .fold method is now deprecated and doesn't support non-Text, non-Element nodes")
-      }
   }
-
-  @deprecated("Use Node instead", "3.0.0") type Text = Node
-  @deprecated("Use Node instead", "3.0.0") val  Text = Node
 }

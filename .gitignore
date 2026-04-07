@@ -18,3 +18,4 @@ metals.sbt
 node_modules/
 target
 .direnv/
+.DS_Store

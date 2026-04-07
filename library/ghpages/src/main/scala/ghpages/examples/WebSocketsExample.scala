@@ -19,7 +19,7 @@ object WebSocketsExample {
   // EXAMPLE:START
 
   import org.scalajs.dom.{WebSocket, MessageEvent, Event, CloseEvent}
-  import org.scalajs.dom.ext.KeyCode
+  import org.scalajs.dom.KeyCode
   import scala.scalajs.js
 
   val url = "wss://echo.websocket.org"

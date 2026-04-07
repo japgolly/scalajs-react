@@ -13,19 +13,12 @@ object Main {
   @JSExport
   def init() = {
     disableReusability()
-    enableReusabilityOverlay()
     Exports.components
   }
 
   private inline def disableReusability(): Unit =
     inline reusabilityDev match {
       case Some("disable") => Reusability.disableGloballyInDev()
-      case _               => ()
-    }
-
-  private inline def enableReusabilityOverlay(): Unit =
-    inline reusabilityDev match {
-      case Some("overlay") => ReusabilityOverlay.overrideGloballyInDev()
       case _               => ()
     }
 }

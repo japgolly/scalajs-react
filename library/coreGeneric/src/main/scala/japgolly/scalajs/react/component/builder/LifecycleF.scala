@@ -7,7 +7,7 @@ import japgolly.scalajs.react.facade.React
 import japgolly.scalajs.react.internal.Lens
 import japgolly.scalajs.react.util.Effect._
 import japgolly.scalajs.react.util._
-import japgolly.scalajs.react.{ComponentDom, PropsChildren, ReactCaughtError, StateAccess}
+import japgolly.scalajs.react.{PropsChildren, ReactCaughtError, StateAccess}
 import scala.scalajs.LinkingInfo.developmentMode
 import scala.scalajs.js
 
@@ -125,10 +125,8 @@ object LifecycleF {
 
     val error = ReactCaughtError(rawError, rawInfo)
 
-    def props        : P                    = mountedImpure.props
-    def propsChildren: PropsChildren        = mountedImpure.propsChildren
-    @deprecated("Add a ref directly to the element you want to reference.", "3.0.0")
-    def getDOMNode   : ComponentDom.Mounted = mountedImpure.getDOMNode.asMounted()
+    def props        : P             = mountedImpure.props
+    def propsChildren: PropsChildren = mountedImpure.propsChildren
   }
 
   // ===================================================================================================================
@@ -147,10 +145,8 @@ object LifecycleF {
 
     override def toString = wrapTostring(s"ComponentDidMount(props: $props, state: $state)")
 
-    def props        : P                    = mountedImpure.props
-    def propsChildren: PropsChildren        = mountedImpure.propsChildren
-    @deprecated("Add a ref directly to the element you want to reference.", "3.0.0")
-    def getDOMNode   : ComponentDom.Mounted = mountedImpure.getDOMNode.asMounted()
+    def props        : P             = mountedImpure.props
+    def propsChildren: PropsChildren = mountedImpure.propsChildren
   }
 
   // ===================================================================================================================
@@ -169,11 +165,9 @@ object LifecycleF {
 
     override def toString = wrapTostring(s"ComponentDidUpdate(props: $prevProps → $currentProps, state: $prevState → $currentState)")
 
-    def propsChildren: PropsChildren        = mountedImpure.propsChildren
-    def currentProps : P                    = mountedImpure.props
-    def currentState : S                    = mountedImpure.state
-    @deprecated("Add a ref directly to the element you want to reference.", "3.0.0")
-    def getDOMNode   : ComponentDom.Mounted = mountedImpure.getDOMNode.asMounted()
+    def propsChildren: PropsChildren = mountedImpure.propsChildren
+    def currentProps : P             = mountedImpure.props
+    def currentState : S             = mountedImpure.state
   }
 
   // ===================================================================================================================
@@ -210,11 +204,9 @@ object LifecycleF {
 
     override def toString = wrapTostring(s"ComponentWillUnmount(props: $props, state: $state)")
 
-    def props        : P                    = mountedImpure.props
-    def propsChildren: PropsChildren        = mountedImpure.propsChildren
-    def state        : S                    = mountedImpure.state
-    @deprecated("Add a ref directly to the element you want to reference.", "3.0.0")
-    def getDOMNode   : ComponentDom.Mounted = mountedImpure.getDOMNode.asMounted()
+    def props        : P             = mountedImpure.props
+    def propsChildren: PropsChildren = mountedImpure.propsChildren
+    def state        : S             = mountedImpure.state
 
     @deprecated("setState prohibited within the componentWillUnmount callback.", "")
     def setState(no: NotAllowed, cb: Any = null) = no.result
@@ -242,10 +234,8 @@ object LifecycleF {
 
     override def toString = wrapTostring(s"ComponentWillReceiveProps(props: $currentProps → $nextProps, state: $state)")
 
-    def propsChildren: PropsChildren        = mountedImpure.propsChildren
-    def currentProps : P                    = mountedImpure.props
-    @deprecated("Add a ref directly to the element you want to reference.", "3.0.0")
-    def getDOMNode   : ComponentDom.Mounted = mountedImpure.getDOMNode.asMounted()
+    def propsChildren: PropsChildren = mountedImpure.propsChildren
+    def currentProps : P             = mountedImpure.props
   }
 
   // ===================================================================================================================
@@ -259,11 +249,9 @@ object LifecycleF {
 
     override def toString = wrapTostring(s"ComponentWillUpdate(props: $currentProps → $nextProps, state: $currentState → $nextState)")
 
-    def propsChildren: PropsChildren        = mountedImpure.propsChildren
-    def currentProps : P                    = mountedImpure.props
-    def currentState : S                    = mountedImpure.state
-    @deprecated("Add a ref directly to the element you want to reference.", "3.0.0")
-    def getDOMNode   : ComponentDom.Mounted = mountedImpure.getDOMNode.asMounted()
+    def propsChildren: PropsChildren = mountedImpure.propsChildren
+    def currentProps : P             = mountedImpure.props
+    def currentState : S             = mountedImpure.state
 
     @deprecated("setState prohibited within the componentWillUpdate callback. Use componentWillReceiveProps instead.", "")
     def setState(no: NotAllowed, cb: Any = null) = no.result
@@ -292,11 +280,9 @@ object LifecycleF {
 
     override def toString = wrapTostring(s"GetSnapshotBeforeUpdate(props: $prevProps → $currentProps, state: $prevState → $currentState)")
 
-    def propsChildren: PropsChildren        = mountedImpure.propsChildren
-    def currentProps : P                    = mountedImpure.props
-    def currentState : S                    = mountedImpure.state
-    @deprecated("Add a ref directly to the element you want to reference.", "3.0.0")
-    def getDOMNode   : ComponentDom.Mounted = mountedImpure.getDOMNode.asMounted()
+    def propsChildren: PropsChildren = mountedImpure.propsChildren
+    def currentProps : P             = mountedImpure.props
+    def currentState : S             = mountedImpure.state
 
     def cmpProps(cmp: (P, P) => Boolean): Boolean = cmp(currentProps, prevProps)
     def cmpState(cmp: (S, S) => Boolean): Boolean = cmp(currentState, prevState)
@@ -322,11 +308,9 @@ object LifecycleF {
 
     override def toString = wrapTostring(s"ShouldComponentUpdate(props: $currentProps → $nextProps, state: $currentState → $nextState)")
 
-    def propsChildren: PropsChildren        = mountedImpure.propsChildren
-    def currentProps : P                    = mountedImpure.props
-    def currentState : S                    = mountedImpure.state
-    @deprecated("Add a ref directly to the element you want to reference.", "3.0.0")
-    def getDOMNode   : ComponentDom.Mounted = mountedImpure.getDOMNode.asMounted()
+    def propsChildren: PropsChildren = mountedImpure.propsChildren
+    def currentProps : P             = mountedImpure.props
+    def currentState : S             = mountedImpure.state
 
     def cmpProps(cmp: (P, P) => Boolean): Boolean = cmp(currentProps, nextProps)
     def cmpState(cmp: (S, S) => Boolean): Boolean = cmp(currentState, nextState)
@@ -353,10 +337,8 @@ object LifecycleF {
 
     override def toString = wrapTostring(s"Render(props: $props, state: $state)")
 
-    def props        : P                    = mountedImpure.props
-    def propsChildren: PropsChildren        = mountedImpure.propsChildren
-    @deprecated("Add a ref directly to the element you want to reference.", "3.0.0")
-    def getDOMNode   : ComponentDom.Mounted = mountedImpure.getDOMNode.asMounted()
+    def props        : P             = mountedImpure.props
+    def propsChildren: PropsChildren = mountedImpure.propsChildren
   }
 
 }

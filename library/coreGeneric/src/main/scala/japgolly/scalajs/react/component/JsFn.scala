@@ -1,12 +1,10 @@
 package japgolly.scalajs.react.component
 
 import japgolly.scalajs.react.internal.{Box, Singleton}
-import japgolly.scalajs.react.util.Effect.Dispatch
 import japgolly.scalajs.react.util.JsUtil.jsNullToOption
 import japgolly.scalajs.react.util.Util.identityFn
 import japgolly.scalajs.react.{Children, CtorType, PropsChildren, facade, vdom}
 import scala.annotation.implicitNotFound
-import scala.scalajs.LinkingInfo.developmentMode
 import scala.scalajs.js
 
 object JsFn extends JsBaseComponentTemplate[facade.React.StatelessFunctionalComponent] {
@@ -49,11 +47,6 @@ object JsFn extends JsBaseComponentTemplate[facade.React.StatelessFunctionalComp
     def delay(render: => VdomElement)
               (implicit s: CtorType.Summoner[UnusedObject, Children.None]): Component[UnusedObject, s.CT] =
       generic[UnusedObject, Children.None](_ => render)(s)
-
-    @deprecated("Use .delay", "2.0.0")
-    def byName(render: => VdomElement)
-              (implicit s: CtorType.Summoner[UnusedObject, Children.None]): Component[UnusedObject, s.CT] =
-      delay(render)(s)
 
     def apply[P <: js.Object](render: P => VdomElement)
                              (implicit s: CtorType.Summoner[P, Children.None]): Component[P, s.CT] =
@@ -118,21 +111,6 @@ object JsFn extends JsBaseComponentTemplate[facade.React.StatelessFunctionalComp
 
     override def mapUnmountedProps[P2](f: P => P2): UnmountedSimple[P2, M]
     override def mapMounted[M2](f: M => M2): UnmountedSimple[P, M2]
-
-    @deprecated("Use ReactDOMClient.createRoot and root.render instead", "3.0.0 / React v18")
-    override final def renderIntoDOM(container: facade.ReactDOM.Container): this.Mounted =
-      postRender(facade.ReactDOM.render(raw, container))
-
-    @deprecated("Use ReactDOMClient.createRoot and root.render instead", "3.0.0 / React v18")
-    override final def renderIntoDOM[G[_]](container: facade.ReactDOM.Container, callback: => G[Unit])(implicit G: Dispatch[G]): this.Mounted =
-      postRender(facade.ReactDOM.render(raw, container, G.dispatchFn(callback)))
-
-    private def postRender(result: facade.React.ComponentUntyped): this.Mounted = {
-      // Protect against future React change.
-      if (developmentMode)
-        assert(result eq null, "Expected rendered functional component to return null; not " + result)
-      mountRaw(result)
-    }
   }
 
   sealed trait UnmountedWithRoot[P1, M1, P0 <: js.Object]

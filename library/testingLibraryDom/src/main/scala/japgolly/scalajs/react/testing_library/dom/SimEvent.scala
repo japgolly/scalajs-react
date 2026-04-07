@@ -280,10 +280,6 @@ object SimEvent {
 
     def toJs: js.Object
 
-    @deprecated("Use assign", "1.7.6")
-    def setMouseAttributes(obj: js.Object): Unit =
-      assign(obj.asInstanceOf[Dynamic], readOnlyProperties = true)
-
     def assign(tgt: Dynamic, readOnlyProperties: Boolean = false): tgt.type = {
       tgt.screenX          = screenX
       tgt.screenY          = screenY
