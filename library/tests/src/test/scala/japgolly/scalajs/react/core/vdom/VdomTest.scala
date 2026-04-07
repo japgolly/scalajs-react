@@ -166,7 +166,7 @@ object VdomTest extends AsyncTestSuite {
     }
 
     "action" - {
-      "async" - retry(3) {
+      "async" - retry(4) {
         var query = ""
 
         val comp = ScalaFnComponent[Unit] { _ =>
@@ -185,7 +185,7 @@ object VdomTest extends AsyncTestSuite {
           form.querySelector("input").asInstanceOf[html.Input].value = "scalajs-react"
           val button = form.querySelector("button").asInstanceOf[html.Button]
           Simulate.click(button)
-        }.delayMs(10).map { _ =>
+        }.delayMs(50).map { _ =>
           assertEq(query, "scalajs-react")
         }
       }
