@@ -95,14 +95,4 @@ trait react18 {
     implicit isEffectArg: UseEffectArg[A]
   ): HookResult[Unit] =
     ReusableEffect.useInsertionEffect(deps)(effect).toHookResult
-
-  /** Lets you defer updating a part of the UI.
-    *
-    * @see
-    *   {@link https://react.dev/reference/react/useDeferredValue}
-    *
-    * @since 3.0.0 / React 18.0.0
-    */
-  @inline final def useDeferredValue[A](value: A): HookResult[A] =
-    UseDeferredValue(value).toHookResult
 }

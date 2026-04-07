@@ -1,12 +1,20 @@
 package japgolly.scalajs.react.hooks
 
-import japgolly.scalajs.react.Reusability
 import japgolly.scalajs.react.hooks.HookResult
 import japgolly.scalajs.react.hooks.Hooks._
-import japgolly.scalajs.react.util.Effect.Sync
-import scala.scalajs.js
 
 trait react19 {
+
+  // Had to move this here due to a Scala 2 overloading bug
+  /** Lets you defer updating a part of the UI.
+    *
+    * @see
+    *   {@link https://react.dev/reference/react/useDeferredValue}
+    *
+    * @since 3.0.0 / React 18.0.0
+    */
+  @inline final def useDeferredValue[A](value: A): HookResult[A] =
+    UseDeferredValue(value).toHookResult
 
   /** Lets you defer updating a part of the UI.
     *
