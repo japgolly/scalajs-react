@@ -325,7 +325,7 @@ object PrefixedTest extends TestSuite {
 
     "action" - {
       // Successful compilation is all we test for
-      @nowarn("cat=unused") def t(m: TagMod) = ()
+      def t(m: TagMod) = ()
       "string" - t(^.action := "/ok")
       "sync0" - t(^.action --> Callback.empty)
       "sync1" - t(^.action ==> ((_: FormData) => Callback.empty))
