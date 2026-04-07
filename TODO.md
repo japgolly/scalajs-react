@@ -22,7 +22,7 @@
 
 - [x] Make gh-pages use R19
 
-- [ ] Update documentation for R19
+- [x] Update documentation for R19
 
 # React 19 TODO (2/2)
 
