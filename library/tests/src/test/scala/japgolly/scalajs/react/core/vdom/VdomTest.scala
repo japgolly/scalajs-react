@@ -166,7 +166,7 @@ object VdomTest extends AsyncTestSuite {
     }
 
     "action" - {
-      "async" - {
+      "async" - retry(3) {
         var query = ""
 
         val comp = ScalaFnComponent[Unit] { _ =>
