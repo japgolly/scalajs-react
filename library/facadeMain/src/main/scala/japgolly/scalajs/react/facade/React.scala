@@ -230,7 +230,7 @@ trait React extends Hooks with Testing {
   /** @since 16.6.0 */
   final def memo[P <: js.Object, A](f: js.Function1[P, A], areEqual: js.Function2[P, P, Boolean] = js.native): js.Object = js.native
 
-  final def startTransition(callback: js.Function0[Unit]): Unit = js.native
+  final def startTransition(callback: js.Function0[Unit | js.Thenable[Any]]): Unit = js.native
 
   /** @since 4.0.0 / React 19 */
   final def use[A](resource: Usable[A]): A = js.native

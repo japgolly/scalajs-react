@@ -29,7 +29,7 @@
 - [ ] Support new R19 changes and features
   - [ ] React 19.0
     - [x] Add `onCaughtError` and `onUncaughtError` options to `{create,hydrate}Root`
-    - [ ] `useTransition.startTransition` now accepts async
+    - [x] `useTransition.startTransition` now accepts async
     - [ ] New hook: useActionState
     - [x] `action` and `formAction` props of `<form>`, `<input>`, and `<button>` elements
     - [ ] new `requestFormReset` React DOM API

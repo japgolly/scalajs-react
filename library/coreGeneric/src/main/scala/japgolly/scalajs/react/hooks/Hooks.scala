@@ -484,6 +484,12 @@ object Hooks {
       */
     def startTransition(cb: => F[Unit]): F[Unit] =
       F.delay(raw._2(F.toJsFn(cb)))
+
+    /** A function that takes an asynchronous callback. We can use it to tell React which state we want to defer.
+      * @since 4.0.0 / React 19
+      */
+    def startTransition[G[_]](cb: => G[Unit])(implicit G: Async[G]): F[Unit] =
+      F.delay(raw._2(() => G.toJsPromise(cb)()))
   }
 
   object UseTransitionF {

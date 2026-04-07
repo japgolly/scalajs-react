@@ -15,7 +15,7 @@ trait Hooks extends js.Object {
   final type UseStateSetter[S] = js.Function1[S | js.Function1[S, S], Unit]
   final type UseState[S] = js.Tuple2[S, UseStateSetter[S]]
 
-  final type UseTransition = js.Tuple2[Boolean, js.Function1[js.Function0[Unit], Unit]]
+  final type UseTransition = js.Tuple2[Boolean, js.Function1[js.Function0[Unit | js.Thenable[Any]], Unit]]
 
   final def useState[S](initial: S | js.Function0[S]): UseState[S] = js.native
 

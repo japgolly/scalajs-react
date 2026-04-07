@@ -1483,6 +1483,29 @@ object HooksTest extends AsyncTestSuite {
     }
   }
 
+  private def testUseTransitionAsync(): Unit = {
+    val comp = ScalaFnComponent.withHooks[Unit]
+      .useTransition
+      .useState(0)
+      .render { (_, transition, state) =>
+        <.div(
+          <.div(s"pending:${transition.isPending},"),
+          <.div(s"state:${state.value}"),
+          <.button(^.onClick --> transition.startTransition(state.modState(_ + 1).asAsyncCallback.delayMs(10)))
+        )
+      }
+
+    test(comp()) { t =>
+      t.assertText("pending:false,state:0")
+      for {
+        _ <- t.clickButton()
+        _  = t.assertText("pending:true,state:0")
+        _ <- AsyncCallback.unit.delayMs(100)
+        _  = t.assertText("pending:false,state:1")
+      } yield ()
+    }
+  }
+
   private def testMonadicUseTransition(): Unit = {
    val comp = ScalaFnComponent[Unit]{ _ =>
       for {
@@ -2886,6 +2909,7 @@ object HooksTest extends AsyncTestSuite {
 
     "useTransition" - testUseTransition()
     "useTransition (monadic)" - testMonadicUseTransition()
+    "useTransitionAsync" - testUseTransitionAsync()
 
     "useSyncExternalStore" - {
       "const" - UseSyncExternalStore.testConst()
