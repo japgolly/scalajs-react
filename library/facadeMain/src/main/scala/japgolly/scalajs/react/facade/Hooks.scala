@@ -62,4 +62,14 @@ trait Hooks extends js.Object {
   ): A = js.native
 
   final def useDeferredValue[A](value: A, initialValue: js.UndefOr[A] = js.undefined): A = js.native
+
+  /** @since 4.0.0 / React 19 */
+  final type UseActionState[S, P] = js.Tuple3[S, js.Function1[P, Unit], Boolean]
+
+  /** @since 4.0.0 / React 19 */
+  final def useActionState[S, P](
+    action: js.Function2[S, P, S | js.Thenable[S]],
+    initialState: S,
+    permalink: js.UndefOr[String] = js.undefined
+  ): UseActionState[S, P] = js.native
 }

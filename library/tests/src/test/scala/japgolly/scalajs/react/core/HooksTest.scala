@@ -2784,6 +2784,106 @@ object HooksTest extends AsyncTestSuite {
     }
   }
 
+  object UseActionState {
+    def testSync() = {
+      val comp = ScalaFnComponent.withHooks[Unit]
+        .useActionState[Int, Int]((s, p) => s + p, 100)
+        .render { (_, hook) =>
+          <.div(
+            <.div(s"state:${hook.state}"),
+            <.div(s"pending:${hook.isPending}"),
+            <.button(^.onClick --> hook.dispatch(1))
+          )
+        }
+
+      test(comp()) { t =>
+        t.assertText("state:100pending:false")
+        t.clickButton().map(_ =>
+          t.assertText("state:101pending:false")
+        )
+      }
+    }
+
+    def testAsync() = {
+      val comp = ScalaFnComponent.withHooks[Unit]
+        .useActionStateAsync[AsyncCallback, Int, Int]((s, p) => AsyncCallback.pure(s + p).delayMs(20), 100)
+        .render { (_, hook) =>
+          <.div(
+            <.div(s"state:${hook.state}"),
+            <.div(s"pending:${hook.isPending}"),
+            // <.button(^.onClick --> hook.dispatch(1))
+            <.button(^.onClick --> Callback(japgolly.scalajs.react.facade.React.startTransition(() => hook.dispatch(1).runNow())))
+          )
+        }
+
+      test(comp()) { t =>
+        t.assertText("state:100pending:false")
+        for {
+          _ <- t.clickButton()
+          _  = t.assertText("state:100pending:true")
+          _ <- AsyncCallback.unit.delayMs(100)
+          _  = t.assertText("state:101pending:false")
+        } yield ()
+      }
+    }
+
+    def testNoPayload() = {
+      val comp = ScalaFnComponent.withHooks[Unit]
+        .useActionState[Int](s => s + 1, 100)
+        .render { (_, hook) =>
+          <.div(
+            <.div(s"state:${hook.state}"),
+            <.button(^.onClick --> hook.dispatch(()))
+          )
+        }
+
+      test(comp()) { t =>
+        t.assertText("state:100")
+        t.clickButton().map(_ =>
+          t.assertText("state:101")
+        )
+      }
+    }
+
+    def testBy() = {
+      val comp = ScalaFnComponent.withHooks[Int]
+        .useActionStateBy(p => (s: Int, _: Unit) => s + p, p => p * 10)
+        .render { (_, hook) =>
+          <.div(
+            <.div(s"state:${hook.state}"),
+            <.button(^.onClick --> hook.dispatch(()))
+          )
+        }
+
+      test(comp(5)) { t =>
+        t.assertText("state:50")
+        t.clickButton().map(_ =>
+          t.assertText("state:55")
+        )
+      }
+    }
+
+    def testSyncMonadic() = {
+      val comp = ScalaFnComponent[Unit] { _ =>
+        for {
+          hook <- useActionState[Int, Int]((s, p) => s + p, 100)
+        } yield
+          <.div(
+            <.div(s"state:${hook.state}"),
+            <.div(s"pending:${hook.isPending}"),
+            <.button(^.onClick --> hook.dispatch(1))
+          )
+        }
+
+      test(comp()) { t =>
+        t.assertText("state:100pending:false")
+        t.clickButton().map(_ =>
+          t.assertText("state:101pending:false")
+        )
+      }
+    }
+  }
+
   private def testOnMountWithPropsChildren(): Unit = {
     var text = "uninitialised"
     val comp = ScalaFnComponent.withHooks[Unit]
@@ -2950,6 +3050,14 @@ object HooksTest extends AsyncTestSuite {
     "useDeferred (monadic)" - {
       "const" - UseDeferred.testMonadicConst()
       "constWithInitial" - UseDeferred.testMonadicConstWithInitial()
+    }
+
+    "useActionState" - {
+      "sync" - UseActionState.testSync()
+      "sync (monadic)" - UseActionState.testSyncMonadic()
+      "async" - UseActionState.testAsync()
+      "noPayload" - UseActionState.testNoPayload()
+      "by" - UseActionState.testBy()
     }
 
     "renderWithReuse" - {

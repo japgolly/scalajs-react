@@ -501,6 +501,57 @@ object Hooks {
       }
   }
 
+  // ===================================================================================================================
+
+  type UseActionState[S, P] = UseActionStateF[D.Sync, S, P]
+
+  trait UseActionStateF[F[_], S, P] {
+    protected[hooks] implicit def F: Sync[F]
+    val raw: facade.React.UseActionState[S, P]
+
+    /** The current state of the action.
+      */
+    def state: S = raw._1
+
+    /** A function that you can call to trigger the action.
+      */
+    def dispatch(p: P): F[Unit] = F.delay(raw._2(p))
+
+    /** Whether there is a pending transition.
+      */
+    def isPending: Boolean = raw._3
+  }
+
+  object UseActionStateF {
+    def apply[F[_], S, P](r: facade.React.UseActionState[S, P])(implicit FF: Sync[F]): UseActionStateF[F, S, P] =
+      new UseActionStateF[F, S, P] {
+        override protected[hooks] implicit def F: Sync[F] = FF
+        override val raw = r
+      }
+  }
+
+  object UseActionState {
+    def apply[S, P](action: (S, P) => S, initialState: S, permalink: js.UndefOr[String] = js.undefined): CustomHook[Unit, UseActionState[S, P]] =
+      CustomHook.delay(UseActionStateF(facade.React.useActionState[S, P]((s, p) => action(s, p), initialState, permalink))(D.Sync))
+
+    def apply[S](action: S => S, initialState: S): CustomHook[Unit, UseActionState[S, Unit]] =
+      apply[S, Unit]((s, _) => action(s), initialState, js.undefined)
+
+    def apply[S](action: S => S, initialState: S, permalink: String): CustomHook[Unit, UseActionState[S, Unit]] =
+      apply[S, Unit]((s, _) => action(s), initialState, permalink)
+
+    def async[G[_], S, P](action: (S, P) => G[S], initialState: S, permalink: js.UndefOr[String] = js.undefined)(implicit G: Async[G]): CustomHook[Unit, UseActionState[S, P]] =
+      CustomHook.delay(UseActionStateF(facade.React.useActionState[S, P]((s, p) => G.toJsPromise(action(s, p))(), initialState, permalink))(D.Sync))
+
+    def async[G[_], S](action: S => G[S], initialState: S)(implicit G: Async[G]): CustomHook[Unit, UseActionState[S, Unit]] =
+      async[G, S, Unit]((s, _) => action(s), initialState, js.undefined)
+
+    def async[G[_], S](action: S => G[S], initialState: S, permalink: String)(implicit G: Async[G]): CustomHook[Unit, UseActionState[S, Unit]] =
+      async[G, S, Unit]((s, _) => action(s), initialState, permalink)
+  }
+
+  // ===================================================================================================================
+
   object UseSyncExternalStore {
     def apply[F[_], A](subscribe: F[Unit] => F[F[Unit]], getSnapshot: F[A], getServerSnapshot: js.UndefOr[F[A]] = js.undefined)(implicit F: Sync[F]): CustomHook[Unit, A] = {
       val subscribeJs:  facade.React.UseSyncExternalStoreSubscribeArg  = (update: js.Function0[Unit]) => F.runSync(F.map(subscribe(F.fromJsFn0(update)))(F.toJsFn(_)))
