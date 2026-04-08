@@ -654,6 +654,10 @@ object Api {
     final def useActionStateAsyncBy[G[_], S, P](action: Ctx => (S, P) => G[S], initialState: Ctx => S, permalink: Ctx => String)(implicit G: Async[G], step: Step, d: DummyImplicit): step.Next[UseActionState[S, P]] =
       customBy(ctx => UseActionState.async(action(ctx), initialState(ctx), permalink(ctx))(G))
 
+    /** @since 4.0.0 / React 19 */
+    final def useFormStatus(implicit step: Step): step.Next[FormStatus] =
+      customBy(_ => UseFormStatus())
+
     /** Lets you subscribe to an external store.
       *
       * @see

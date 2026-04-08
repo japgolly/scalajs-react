@@ -2884,6 +2884,29 @@ object HooksTest extends AsyncTestSuite {
     }
   }
 
+  object UseFormStatus {
+    def test() = {
+      val statusDisplay = ScalaFnComponent.withHooks[Unit]
+        .useFormStatus
+        .render { (_, status) =>
+          <.div(
+            <.div(s"pending:${status.pending},"),
+            <.div(s"method:${status.method.getOrElse("null")}"),
+          )
+        }
+
+      val comp = ScalaFnComponent[Unit] { _ =>
+        <.form(^.action := "/fake", ^.method := "post",
+          statusDisplay()
+        )
+      }
+
+      test_(comp()) { t =>
+        t.assertText("pending:false,method:null")
+      }
+    }
+  }
+
   private def testOnMountWithPropsChildren(): Unit = {
     var text = "uninitialised"
     val comp = ScalaFnComponent.withHooks[Unit]
@@ -3051,6 +3074,8 @@ object HooksTest extends AsyncTestSuite {
       "const" - UseDeferred.testMonadicConst()
       "constWithInitial" - UseDeferred.testMonadicConstWithInitial()
     }
+
+    "useFormStatus" - UseFormStatus.test()
 
     "useActionState" - {
       "sync" - UseActionState.testSync()

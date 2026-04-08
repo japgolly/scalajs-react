@@ -6,9 +6,11 @@ import japgolly.scalajs.react.feature.Context
 import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.util.Effect._
 import japgolly.scalajs.react.util.Util.identityFn
+import japgolly.scalajs.react.util.JsUtil
 import japgolly.scalajs.react.util.{DefaultEffects => D, NotAllowed, OptionLike}
 import japgolly.scalajs.react.vdom.TopNode
 import japgolly.scalajs.react.{CtorType, NonEmptyRef, Ref, Reusability, Reusable, facade}
+import org.scalajs.dom
 import scala.annotation.implicitNotFound
 import scala.reflect.ClassTag
 import scala.scalajs.js
@@ -567,5 +569,75 @@ object Hooks {
 
     def apply[A](value: A, initialValue: A): CustomHook[Unit, A] =
       CustomHook.delay(facade.React.useDeferredValue(value, initialValue))
+  }
+
+  // ===================================================================================================================
+
+  trait FormStatus {
+    val raw: facade.ReactDOM.FormStatus
+
+    /** Whether the form is currently pending a submission.
+      */
+    @inline final def pending: Boolean = raw.pending
+
+    /** The data that the form is submitting.
+      */
+    @inline final def data: Option[dom.FormData] =
+      JsUtil.jsNullToOption(raw.data)
+
+    /** The HTTP method used for submission.
+      */
+    @inline final def method: Option[String] =
+      JsUtil.jsNullToOption(raw.method)
+
+    /** The action associated with the form.
+      */
+    @inline final def action: Option[String | js.Function1[dom.FormData, Unit | js.Thenable[Any]]] =
+      JsUtil.jsNullToOption(raw.action)
+  }
+
+/*
+  sealed trait FormStatus {
+    val raw: facade.ReactDOM.FormStatus
+
+    /** Whether the form is currently pending a submission. */
+    @inline final def pending: Boolean = raw.pending
+  }
+  */
+
+  object FormStatus {
+/*
+    final case class NotPending(raw: facade.ReactDOM.FormStatus) extends FormStatus
+    final case class Pending(raw: facade.ReactDOM.FormStatus) extends FormStatus {
+
+      /** The data that the form is submitting. */
+      def data: dom.FormData =
+        JsUtil.notNull(raw.data)
+
+      /** The HTTP method used for submission. */
+      def method: String =
+        JsUtil.notNull(raw.method)
+
+      // /** The action associated with the form. */
+      def action: String | js.Function1[dom.FormData, Unit | js.Thenable[Any]] =
+        JsUtil.notNull(raw.action)
+    }
+
+    def apply(r: facade.ReactDOM.FormStatus): FormStatus =
+      if (r.pending)
+        Pending(r)
+      else
+        NotPending(r)
+*/
+
+    def apply(r: facade.ReactDOM.FormStatus): FormStatus =
+      new FormStatus {
+        override val raw = r
+      }
+  }
+
+  object UseFormStatus {
+    @inline def apply(): CustomHook[Unit, FormStatus] =
+      CustomHook.delay(FormStatus(facade.ReactDOM.useFormStatus()))
   }
 }

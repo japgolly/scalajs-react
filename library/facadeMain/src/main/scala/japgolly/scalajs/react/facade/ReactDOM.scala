@@ -26,4 +26,14 @@ trait ReactDOM extends js.Object {
 
   final def flushSync[R](f: js.Function0[R]): R = js.native
   final def flushSync[A, R](f: js.Function1[A, R], a: A): R = js.native
+
+  @js.native
+  trait FormStatus extends js.Object {
+    val pending: Boolean                                                             = js.native
+    val data   : dom.FormData | Null                                                 = js.native
+    val method : String | Null                                                       = js.native
+    val action : String | js.Function1[dom.FormData, Unit | js.Thenable[Any]] | Null = js.native
+  }
+
+  final def useFormStatus(): FormStatus = js.native
 }

@@ -33,7 +33,7 @@
     - [x] New hook: useActionState
     - [x] `action` and `formAction` props of `<form>`, `<input>`, and `<button>` elements
     - [ ] new `requestFormReset` React DOM API
-    - [ ] React DOM: New hook: `useFormStatus`
+    - [x] React DOM: New hook: `useFormStatus`
     - [ ] New hook: `useOptimistic`
     - [x] New API: `use`
     - [ ] You can render <Context> as a provider instead of <Context.Provider>`

@@ -62,4 +62,8 @@ trait react19 {
   /** @since 4.0.0 / React 19 */
   @inline final def useActionStateAsync[G[_], S, P](action: (S, P) => G[S], initialState: S, permalink: String)(implicit G: Async[G]): HookResult[UseActionState[S, P]] =
     UseActionState.async(action, initialState, permalink)(G).toHookResult
+
+  /** @since 4.0.0 / React 19 */
+  @inline final def useFormStatus: HookResult[FormStatus] =
+    UseFormStatus().toHookResult
 }
