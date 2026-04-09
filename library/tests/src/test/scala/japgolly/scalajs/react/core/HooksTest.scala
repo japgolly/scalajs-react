@@ -2821,7 +2821,7 @@ object HooksTest extends AsyncTestSuite {
         for {
           _ <- t.clickButton()
           _  = t.assertText("state:100pending:true")
-          _ <- AsyncCallback.unit.delayMs(100)
+          _ <- act(AsyncCallback.unit.delayMs(100))
           _  = t.assertText("state:101pending:false")
         } yield ()
       }

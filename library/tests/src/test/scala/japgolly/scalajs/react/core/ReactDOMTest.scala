@@ -32,8 +32,8 @@ object ReactDOMTest extends TestSuite {
 
     "prefetchDNS" - ReactDOM.prefetchDNS("https://example.com")
     "preconnect"  - ReactDOM.preconnect("https://example.com", crossOrigin = "anonymous")
-    "preload"     - ReactDOM.preload("https://example.com", "script", crossOrigin = "anonymous")
-    "preinit"     - ReactDOM.preinit("https://example.com", "script", crossOrigin = "anonymous")
+    "preload"     - ReactDOM.preload("data:text/javascript,console.log('hi')", "script", crossOrigin = "anonymous")
+    "preinit"     - ReactDOM.preinit("data:text/css,.foo{color:red}", "style", crossOrigin = "anonymous", precedence = "med")
 
   }
 }
