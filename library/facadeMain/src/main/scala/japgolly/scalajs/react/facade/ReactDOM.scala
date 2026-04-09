@@ -36,4 +36,6 @@ trait ReactDOM extends js.Object {
   }
 
   final def useFormStatus(): FormStatus = js.native
+
+  final def requestFormReset(form: dom.HTMLFormElement): Unit = js.native
 }

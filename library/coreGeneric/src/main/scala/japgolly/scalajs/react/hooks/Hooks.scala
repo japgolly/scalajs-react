@@ -6,8 +6,7 @@ import japgolly.scalajs.react.feature.Context
 import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.util.Effect._
 import japgolly.scalajs.react.util.Util.identityFn
-import japgolly.scalajs.react.util.JsUtil
-import japgolly.scalajs.react.util.{DefaultEffects => D, NotAllowed, OptionLike}
+import japgolly.scalajs.react.util.{DefaultEffects => D, JsUtil, NotAllowed, OptionLike}
 import japgolly.scalajs.react.vdom.TopNode
 import japgolly.scalajs.react.{CtorType, NonEmptyRef, Ref, Reusability, Reusable, facade}
 import org.scalajs.dom

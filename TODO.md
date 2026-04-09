@@ -32,7 +32,7 @@
     - [x] `useTransition.startTransition` now accepts async
     - [x] New hook: useActionState
     - [x] `action` and `formAction` props of `<form>`, `<input>`, and `<button>` elements
-    - [ ] new `requestFormReset` React DOM API
+    - [x] new `requestFormReset` React DOM API
     - [x] React DOM: New hook: `useFormStatus`
     - [ ] New hook: `useOptimistic`
     - [x] New API: `use`
