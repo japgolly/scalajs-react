@@ -41,7 +41,7 @@
     - [x] `useDeferredValue` initial value
     - [ ] Auto-hoists metadata tags like `<title>`, `<link>`, and `<meta>`
     - [x] `precedence` attr to `link`s
-    - [ ] `import { prefetchDNS, preconnect, preload, preinit } from 'react-dom'`
+    - [x] `import { prefetchDNS, preconnect, preload, preinit } from 'react-dom'`
   - [x] React 19.1
   - [ ] React 19.2
     - [ ] `<Activity>`
