@@ -217,7 +217,12 @@ object Attr {
       t(attrName, a)
 
     def apply(f: (TopNode | Null) => Unit): TagMod = {
-      val jsFn: facade.React.RefFn[TopNode] = f
+      val jsFn: facade.React.RefFn[TopNode] = n => f(n)
+      :=(jsFn)(ValueType.direct)
+    }
+
+    def withCleanup(f: (TopNode | Null) => (() => Unit)): TagMod = {
+      val jsFn: facade.React.RefFn[TopNode] = n => (f(n): js.Function0[Unit])
       :=(jsFn)(ValueType.direct)
     }
   }

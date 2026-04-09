@@ -155,6 +155,34 @@ object VdomTest extends AsyncTestSuite {
           assert(x.isDefined)
         }.map(_ => assert(ref.get.runNow().isEmpty))
       }
+
+      "withCleanup" - {
+        var value: AnyRef = null
+        var cleanedUp = false
+        val c =
+          ScalaComponent.builder[Unit]
+            .initialState("init")
+            .noBackend
+            .render_S { s =>
+              <.input(
+                ^.untypedRef.withCleanup { n =>
+                  value = n
+                  () => {
+                    cleanedUp = true
+                  }
+                },
+                ^.readOnly := true,
+                ^.value := s)
+            }
+            .build
+
+        ReactTestUtils.withRendered_(c()) { _ =>
+          assert(value.isInstanceOf[html.Input])
+          assert(!cleanedUp)
+        }.map { _ =>
+          assert(cleanedUp)
+        }
+      }
     }
 
     "callbackOption" - {

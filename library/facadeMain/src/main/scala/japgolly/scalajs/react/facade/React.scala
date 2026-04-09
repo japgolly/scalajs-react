@@ -140,7 +140,7 @@ object React extends React {
 
   type Ref = RefFn[ElementRef] | RefHandle[Any]
 
-  type RefFn[A] = js.Function1[A | Null, Unit]
+  type RefFn[A] = js.Function1[A | Null, Unit | js.Function0[Unit]]
 
   @js.native
   trait RefHandle[A] extends js.Object {

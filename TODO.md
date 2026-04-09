@@ -37,7 +37,7 @@
     - [ ] New hook: `useOptimistic`
     - [x] New API: `use`
     - [ ] You can render <Context> as a provider instead of <Context.Provider>`
-    - [ ] Cleanup functions for refs
+    - [x] Cleanup functions for refs
     - [x] `useDeferredValue` initial value
     - [ ] Auto-hoists metadata tags like `<title>`, `<link>`, and `<meta>`
     - [ ] `precedence` attr to `link`s

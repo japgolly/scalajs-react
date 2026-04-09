@@ -84,6 +84,20 @@ def render =
   <.input(^.untypedRef(refOrNull = _))
 ```
 
+Or you can pass in a `Dom => (() => Unit)` which returns a cleanup function.
+
+```scala
+var refOrNull: html.Input = null
+
+def render =
+  <.input(^.untypedRef.withCleanup { n =>
+    refOrNull = n
+    () => {
+      println("Reference is being cleaned up...")
+    }
+  })
+```
+
 The second is to create a `Ref` object and wire it up like a normal vdom attribute:
 
 ```scala
