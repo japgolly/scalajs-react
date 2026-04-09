@@ -36,7 +36,7 @@
     - [x] React DOM: New hook: `useFormStatus`
     - [ ] New hook: `useOptimistic`
     - [x] New API: `use`
-    - [ ] You can render <Context> as a provider instead of <Context.Provider>`
+    - [x] You can render <Context> as a provider instead of <Context.Provider>`
     - [x] Cleanup functions for refs
     - [x] `useDeferredValue` initial value
     - [ ] Auto-hoists metadata tags like `<title>`, `<link>`, and `<meta>`

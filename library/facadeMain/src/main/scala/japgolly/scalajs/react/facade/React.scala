@@ -95,7 +95,8 @@ object React extends React {
   type ComponentType[Props <: js.Object] =
     (js.Function1[Props, React.Component[Props, _ <: js.Object]] with HasDisplayName) | // TODO: ComponentClass[Props, _ <: js.Object] |
     ForwardRefComponent[Props, _] |
-    StatelessFunctionalComponent[Props]
+    StatelessFunctionalComponent[Props] |
+    Context[_]
 
   type Constructor[P <: js.Object] = js.Function1[P, js.Any] with HasDisplayName
 
@@ -125,7 +126,8 @@ object React extends React {
     String |
     (js.Function1[_ <: js.Object, React.Component[_ <: js.Object, _ <: js.Object]] with HasDisplayName) |
     ForwardRefComponent[_ <: js.Object, _] |
-    StatelessFunctionalComponent[_ <: js.Object]
+    StatelessFunctionalComponent[_ <: js.Object] |
+    Context[_]
 
   @js.native
   trait ErrorInfo extends js.Object {
