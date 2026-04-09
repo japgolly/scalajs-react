@@ -1413,6 +1413,8 @@ trait HtmlAttrs {
 
   final def poster = VdomAttr("poster")
 
+  final def precedence = VdomAttr[String]("precedence")
+
   final def preload = VdomAttr("preload")
 
   final def profile = VdomAttr("profile")
