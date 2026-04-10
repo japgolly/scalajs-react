@@ -2964,9 +2964,12 @@ object HooksTest extends AsyncTestSuite {
     }
 
     def testWithAction() = {
+      // Workaround Scala 2 bug
+      type Ctx = japgolly.scalajs.react.hooks.HookCtx.P1[Unit, japgolly.scalajs.react.hooks.Hooks.UseState[Int]]
+
       val comp = ScalaFnComponent.withHooks[Unit]
         .useState(100)
-        .useOptimisticBy[Int, Int]($ => $.hook1.value, _ => (s, a) => s + a)
+        .useOptimisticBy[Int, Int](($: Ctx) => $.hook1.value, (_: Ctx) => (s: Int, a: Int) => s + a)
         .useTransition
         .render { (_, state, optimistic, transition) =>
           <.div(
