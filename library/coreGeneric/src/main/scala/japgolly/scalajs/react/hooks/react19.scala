@@ -66,4 +66,12 @@ trait react19 {
   /** @since 4.0.0 / React 19 */
   @inline final def useFormStatus: HookResult[FormStatus] =
     UseFormStatus().toHookResult
+
+  /** @since 4.0.0 / React 19 */
+  @inline final def useOptimistic[S](value: S): HookResult[UseOptimistic[S]] =
+    UseOptimistic(value).toHookResult
+
+  /** @since 4.0.0 / React 19 */
+  @inline final def useOptimistic[S, A](value: S, reducer: (S, A) => S): HookResult[UseOptimisticWithAction[S, A]] =
+    UseOptimisticWithAction(value, reducer).toHookResult
 }

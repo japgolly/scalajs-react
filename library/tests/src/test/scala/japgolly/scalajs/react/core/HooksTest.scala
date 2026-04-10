@@ -2907,6 +2907,118 @@ object HooksTest extends AsyncTestSuite {
     }
   }
 
+  object UseOptimistic {
+    def testStateOnly() = {
+      val comp = ScalaFnComponent.withHooks[Unit]
+        .useState("initial")
+        .useOptimisticBy($ => $.hook1.value)
+        .useTransition
+        .render { (_, state, optimistic, transition) =>
+          <.div(
+            <.div(s"state:${state.value}"),
+            <.div(s"optimistic:${optimistic.value}"),
+            <.button(^.onClick --> transition.startTransition {
+              optimistic.setState("optimistic").asAsyncCallback >>
+              state.setState("final").asAsyncCallback.delayMs(100)
+            })
+          )
+        }
+
+      test(comp()) { t =>
+        t.assertText("state:initialoptimistic:initial")
+        for {
+          _ <- t.clickButton()
+          _  = t.assertText("state:initialoptimistic:optimistic")
+          _ <- act(AsyncCallback.unit.delayMs(200))
+          _  = t.assertText("state:finaloptimistic:final")
+        } yield ()
+      }
+    }
+
+    def testStateOnlyMonadic() = {
+      val comp = ScalaFnComponent[Unit] { _ =>
+        for {
+          state      <- useState("initial")
+          optimistic <- useOptimistic(state.value)
+          transition <- useTransition
+        } yield
+          <.div(
+            <.div(s"state:${state.value}"),
+            <.div(s"optimistic:${optimistic.value}"),
+            <.button(^.onClick --> transition.startTransition {
+              optimistic.setState("optimistic").asAsyncCallback >>
+              state.setState("final").asAsyncCallback.delayMs(100)
+            })
+          )
+      }
+
+      test(comp()) { t =>
+        t.assertText("state:initialoptimistic:initial")
+        for {
+          _ <- t.clickButton()
+          _  = t.assertText("state:initialoptimistic:optimistic")
+          _ <- act(AsyncCallback.unit.delayMs(200))
+          _  = t.assertText("state:finaloptimistic:final")
+        } yield ()
+      }
+    }
+
+    def testWithAction() = {
+      val comp = ScalaFnComponent.withHooks[Unit]
+        .useState(100)
+        .useOptimisticBy[Int, Int]($ => $.hook1.value, _ => (s, a) => s + a)
+        .useTransition
+        .render { (_, state, optimistic, transition) =>
+          <.div(
+            <.div(s"state:${state.value}"),
+            <.div(s"optimistic:${optimistic.value}"),
+            <.button(^.onClick --> transition.startTransition {
+              optimistic.set(50).asAsyncCallback >>
+              state.setState(120).asAsyncCallback.delayMs(100)
+            })
+          )
+        }
+
+      test(comp()) { t =>
+        t.assertText("state:100optimistic:100")
+        for {
+          _ <- t.clickButton()
+          _  = t.assertText("state:100optimistic:150")
+          _ <- act(AsyncCallback.unit.delayMs(200))
+          _  = t.assertText("state:120optimistic:120")
+        } yield ()
+      }
+    }
+
+    def testWithActionMonadic() = {
+      val comp = ScalaFnComponent[Unit] { _ =>
+        for {
+          state      <- useState(100)
+          optimistic <- useOptimistic(state.value, (s: Int, a: Int) => s + a)
+          transition <- useTransition
+        } yield
+          <.div(
+            <.div(s"state:${state.value}"),
+            <.div(s"optimistic:${optimistic.value}"),
+            <.button(^.onClick --> transition.startTransition {
+              optimistic.set(50).asAsyncCallback >>
+              state.setState(120).asAsyncCallback.delayMs(100)
+            })
+          )
+      }
+
+      test(comp()) { t =>
+        t.assertText("state:100optimistic:100")
+        for {
+          _ <- t.clickButton()
+          _  = t.assertText("state:100optimistic:150")
+          _ <- act(AsyncCallback.unit.delayMs(200))
+          _  = t.assertText("state:120optimistic:120")
+        } yield ()
+      }
+    }
+  }
+
   private def testOnMountWithPropsChildren(): Unit = {
     var text = "uninitialised"
     val comp = ScalaFnComponent.withHooks[Unit]
@@ -3083,6 +3195,13 @@ object HooksTest extends AsyncTestSuite {
       "async" - UseActionState.testAsync()
       "noPayload" - UseActionState.testNoPayload()
       "by" - UseActionState.testBy()
+    }
+
+    "useOptimistic" - {
+      "sync" - UseOptimistic.testStateOnly()
+      "sync (monadic)" - UseOptimistic.testStateOnlyMonadic()
+      "withAction" - UseOptimistic.testWithAction()
+      "withAction (monadic)" - UseOptimistic.testWithActionMonadic()
     }
 
     "renderWithReuse" - {

@@ -456,7 +456,6 @@ object Hooks {
       F.delay { value = f(value) }
   }
 
-
   // ===================================================================================================================
 
   object UseId {
@@ -562,6 +561,8 @@ object Hooks {
     }
   }
 
+  // ===================================================================================================================
+
   object UseDeferredValue {
     def apply[A](value: A): CustomHook[Unit, A] =
       CustomHook.delay(facade.React.useDeferredValue(value))
@@ -639,4 +640,74 @@ object Hooks {
     @inline def apply(): CustomHook[Unit, FormStatus] =
       CustomHook.delay(FormStatus(facade.ReactDOM.useFormStatus()))
   }
+
+  // ===================================================================================================================
+
+  trait UseOptimisticF[F[_], S] {
+    protected[hooks] implicit def F: Sync[F]
+    val raw: facade.React.UseOptimistic[S]
+
+    final def withEffect[G[_]](implicit G: Sync[G]): UseOptimisticF[G, S] =
+      G.subst[F, ({type L[E[_]] = UseOptimisticF[E, S]})#L](this)(
+        UseOptimisticF(raw)
+      )
+
+    @inline def value: S =
+      raw._1
+
+    def setState(next: S): F[Unit] =
+      F.delay(raw._2(next))
+
+    def modState(f: S => S): F[Unit] =
+      F.delay(raw._2(f))
+  }
+
+  object UseOptimisticF {
+    def apply[F[_], S](r: facade.React.UseOptimistic[S])(implicit FF: Sync[F]): UseOptimisticF[F, S] =
+      new UseOptimisticF[F, S] {
+        override protected[hooks] implicit def F: Sync[F] = FF
+        override val raw = r
+      }
+  }
+
+  type UseOptimistic[S] = UseOptimisticF[D.Sync, S]
+
+  object UseOptimistic {
+    def apply[S](value: S): CustomHook[Unit, UseOptimistic[S]] =
+      CustomHook.delay(UseOptimisticF(facade.React.useOptimistic(value))(D.Sync))
+  }
+
+  // -------------------------------------------------------------------------------------------------------------------
+
+  trait UseOptimisticWithActionF[F[_], S, A] {
+    protected[hooks] implicit def F: Sync[F]
+    val raw: facade.React.UseOptimisticWithAction[S, A]
+
+    final def withEffect[G[_]](implicit G: Sync[G]): UseOptimisticWithActionF[G, S, A] =
+      G.subst[F, ({type L[E[_]] = UseOptimisticWithActionF[E, S, A]})#L](this)(
+        UseOptimisticWithActionF(raw)
+      )
+
+    @inline def value: S =
+      raw._1
+
+    def set(action: A): F[Unit] =
+      F.delay(raw._2(action))
+  }
+
+  object UseOptimisticWithActionF {
+    def apply[F[_], S, A](r: facade.React.UseOptimisticWithAction[S, A])(implicit FF: Sync[F]): UseOptimisticWithActionF[F, S, A] =
+      new UseOptimisticWithActionF[F, S, A] {
+        override protected[hooks] implicit def F: Sync[F] = FF
+        override val raw = r
+      }
+  }
+
+  type UseOptimisticWithAction[S, A] = UseOptimisticWithActionF[D.Sync, S, A]
+
+  object UseOptimisticWithAction {
+    def apply[S, A](value: S, reducer: (S, A) => S): CustomHook[Unit, UseOptimisticWithAction[S, A]] =
+      CustomHook.delay(UseOptimisticWithActionF(facade.React.useOptimistic(value, reducer))(D.Sync))
+  }
+
 }

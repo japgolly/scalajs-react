@@ -72,4 +72,19 @@ trait Hooks extends js.Object {
     initialState: S,
     permalink: js.UndefOr[String] = js.undefined
   ): UseActionState[S, P] = js.native
+
+  /** @since 4.0.0 / React 19 */
+  final def useOptimistic[S](
+    passthrough: S,
+  ): UseOptimistic[S] = js.native
+
+  /** @since 4.0.0 / React 19 */
+  final def useOptimistic[S, A](
+    passthrough: S,
+    reducer: js.Function2[S, A, S],
+  ): UseOptimisticWithAction[S, A] = js.native
+
+  final type UseOptimistic          [S]    = js.Tuple2[S, js.Function1[S | js.Function1[S, S], Unit]]
+  final type UseOptimisticWithAction[S, A] = js.Tuple2[S, js.Function1[A                     , Unit]]
+
 }

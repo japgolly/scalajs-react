@@ -658,6 +658,22 @@ object Api {
     final def useFormStatus(implicit step: Step): step.Next[FormStatus] =
       customBy(_ => UseFormStatus())
 
+    /** @since 4.0.0 / React 19 */
+    final def useOptimistic[S](value: S)(implicit step: Step): step.Next[UseOptimistic[S]] =
+      customBy(_ => UseOptimistic(value))
+
+    /** @since 4.0.0 / React 19 */
+    final def useOptimistic[S, A](value: S, reducer: (S, A) => S)(implicit step: Step): step.Next[UseOptimisticWithAction[S, A]] =
+      customBy(_ => UseOptimisticWithAction(value, reducer))
+
+    /** @since 4.0.0 / React 19 */
+    final def useOptimisticBy[S](value: Ctx => S)(implicit step: Step): step.Next[UseOptimistic[S]] =
+      customBy(ctx => UseOptimistic(value(ctx)))
+
+    /** @since 4.0.0 / React 19 */
+    final def useOptimisticBy[S, A](value: Ctx => S, reducer: Ctx => (S, A) => S)(implicit step: Step): step.Next[UseOptimisticWithAction[S, A]] =
+      customBy(ctx => UseOptimisticWithAction(value(ctx), reducer(ctx)))
+
     /** Lets you subscribe to an external store.
       *
       * @see
@@ -1038,6 +1054,14 @@ object Api {
     /** @since 4.0.0 / React 19 */
     final def useActionStateAsyncBy[G[_], S, P](action: CtxFn[(S, P) => G[S]], initialState: CtxFn[S], permalink: CtxFn[String])(implicit G: Async[G], step: Step, d: DummyImplicit): step.Next[UseActionState[S, P]] =
       customBy((ctx: Ctx) => UseActionState.async(step.squash(action)(ctx), step.squash(initialState)(ctx), step.squash(permalink)(ctx))(G))
+
+    /** @since 4.0.0 / React 19 */
+    final def useOptimisticBy[S](value: CtxFn[S])(implicit step: Step): step.Next[UseOptimistic[S]] =
+      useOptimisticBy(step.squash(value)(_))
+
+    /** @since 4.0.0 / React 19 */
+    final def useOptimisticBy[S, A](value: CtxFn[S], reducer: CtxFn[(S, A) => S])(implicit step: Step): step.Next[UseOptimisticWithAction[S, A]] =
+      useOptimisticBy(step.squash(value)(_), step.squash(reducer)(_))
   }
 
   // ===================================================================================================================
