@@ -658,8 +658,10 @@ object Hooks {
     def setState(next: S): F[Unit] =
       F.delay(raw._2(next))
 
-    def modState(f: S => S): F[Unit] =
-      F.delay(raw._2(f))
+    def modState(f: S => S): F[Unit] = {
+      val g: js.Function1[S,S] = f
+      F.delay(raw._2(g))
+    }
   }
 
   object UseOptimisticF {
