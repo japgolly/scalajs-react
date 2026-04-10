@@ -39,7 +39,6 @@
     - [x] You can render <Context> as a provider instead of <Context.Provider>`
     - [x] Cleanup functions for refs
     - [x] `useDeferredValue` initial value
-    - [ ] Auto-hoists metadata tags like `<title>`, `<link>`, and `<meta>`
     - [x] `precedence` attr to `link`s
     - [x] `import { prefetchDNS, preconnect, preload, preinit } from 'react-dom'`
   - [x] React 19.1
