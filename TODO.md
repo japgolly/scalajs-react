@@ -27,7 +27,7 @@
 # React 19 TODO (2/2)
 
 - [ ] Support new R19 changes and features
-  - [ ] React 19.0
+  - [x] React 19.0
     - [x] Add `onCaughtError` and `onUncaughtError` options to `{create,hydrate}Root`
     - [x] `useTransition.startTransition` now accepts async
     - [x] New hook: useActionState
