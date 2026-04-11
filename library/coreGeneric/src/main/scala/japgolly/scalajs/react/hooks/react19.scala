@@ -1,6 +1,5 @@
 package japgolly.scalajs.react.hooks
 
-import japgolly.scalajs.react.Reusable
 import japgolly.scalajs.react.hooks.HookResult
 import japgolly.scalajs.react.hooks.Hooks._
 import japgolly.scalajs.react.util.Effect.Async
