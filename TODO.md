@@ -43,5 +43,5 @@
     - [x] `import { prefetchDNS, preconnect, preload, preinit } from 'react-dom'`
   - [x] React 19.1
   - [ ] React 19.2
-    - [ ] `<Activity>`
+    - [x] `<Activity>`
     - [ ] `useEffectEvent`

@@ -239,6 +239,9 @@ trait React extends Hooks with Testing {
 
   final val version: String = js.native
 
+  /** @since 4.0.0 / React 19 */
+  final val Activity: js.Symbol = js.native
+
   /** React.Children provides utilities for dealing with the this.props.children opaque data structure. */
   final val Children: React.Children = js.native
 

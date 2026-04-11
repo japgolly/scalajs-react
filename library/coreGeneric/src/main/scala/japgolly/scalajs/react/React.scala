@@ -33,6 +33,9 @@ object React {
   def createContext[A](displayName: String, defaultValue: A): Context[A] =
     Context(displayName, defaultValue)
 
+  /** @since 4.0.0 / React 19 */
+  val Activity = feature.Activity
+
   type Context[A] = feature.Context[A]
   val  Context    = feature.Context
 
