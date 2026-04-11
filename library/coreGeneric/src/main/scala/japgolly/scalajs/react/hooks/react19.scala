@@ -81,6 +81,6 @@ trait react19 {
     * @see https://react.dev/reference/react/useEffectEvent
     * @since 4.0.0 / React 19.2
     */
-  @inline final def useEffectEvent[A](callback: => A)(implicit a: UseCallbackArg[A]): HookResult[Reusable[A]] =
+  @inline final def useEffectEvent[A](callback: => A)(implicit a: UseCallbackArg[A]): HookResult[A] =
     UseEffectEvent(callback).toHookResult
 }

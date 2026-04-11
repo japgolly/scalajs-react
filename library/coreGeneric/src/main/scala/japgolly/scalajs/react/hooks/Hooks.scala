@@ -715,7 +715,7 @@ object Hooks {
   // ===================================================================================================================
 
   object UseEffectEvent {
-    def apply[A](callback: => A)(implicit a: UseCallbackArg[A]): CustomHook[Unit, Reusable[A]] =
+    def apply[A](callback: => A)(implicit a: UseCallbackArg[A]): CustomHook[Unit, A] =
       CustomHook.delay(a.fromJs(facade.React.useEffectEvent(a.toJs(callback))))
   }
 }

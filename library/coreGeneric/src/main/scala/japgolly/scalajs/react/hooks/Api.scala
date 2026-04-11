@@ -146,7 +146,7 @@ object Api {
       * @see https://react.dev/reference/react/useEffectEvent
       * @since 4.0.0 / React 19.2
       */
-    final def useEffectEvent[A](callback: A)(implicit a: UseCallbackArg[A], step: Step): step.Next[Reusable[A]] =
+    final def useEffectEvent[A](callback: A)(implicit a: UseCallbackArg[A], step: Step): step.Next[A] =
       useEffectEventBy(_ => callback)
 
     /** Extracts non-reactive logic from an Effect.
@@ -154,7 +154,7 @@ object Api {
       * @see https://react.dev/reference/react/useEffectEvent
       * @since 4.0.0 / React 19.2
       */
-    final def useEffectEventBy[A](callback: Ctx => A)(implicit a: UseCallbackArg[A], step: Step): step.Next[Reusable[A]] =
+    final def useEffectEventBy[A](callback: Ctx => A)(implicit a: UseCallbackArg[A], step: Step): step.Next[A] =
       customBy(ctx => UseEffectEvent(callback(ctx)))
 
     /** Accepts a context object and returns the current context value for that context. The current context value is
@@ -804,7 +804,7 @@ object Api {
       * @see https://react.dev/reference/react/useEffectEvent
       * @since 4.0.0 / React 19.2
       */
-    final def useEffectEventBy[A](callback: CtxFn[A])(implicit a: UseCallbackArg[A], step: Step): step.Next[Reusable[A]] =
+    final def useEffectEventBy[A](callback: CtxFn[A])(implicit a: UseCallbackArg[A], step: Step): step.Next[A] =
       useEffectEventBy(step.squash(callback)(_))
 
     /** Accepts a context object and returns the current context value for that context. The current context value is
