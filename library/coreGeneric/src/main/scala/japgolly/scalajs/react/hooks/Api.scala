@@ -141,6 +141,22 @@ object Api {
     final def useCallbackWithDepsBy[D, A](deps: Ctx => D)(callback: Ctx => D => A)(implicit a: UseCallbackArg[A], r: Reusability[D], step: Step): step.Next[Reusable[A]] =
       customBy(ctx => UseCallback.withDeps(deps(ctx))(callback(ctx)))
 
+    /** Extracts non-reactive logic from an Effect.
+      *
+      * @see https://react.dev/reference/react/useEffectEvent
+      * @since 4.0.0 / React 19.2
+      */
+    final def useEffectEvent[A](callback: A)(implicit a: UseCallbackArg[A], step: Step): step.Next[Reusable[A]] =
+      useEffectEventBy(_ => callback)
+
+    /** Extracts non-reactive logic from an Effect.
+      *
+      * @see https://react.dev/reference/react/useEffectEvent
+      * @since 4.0.0 / React 19.2
+      */
+    final def useEffectEventBy[A](callback: Ctx => A)(implicit a: UseCallbackArg[A], step: Step): step.Next[Reusable[A]] =
+      customBy(ctx => UseEffectEvent(callback(ctx)))
+
     /** Accepts a context object and returns the current context value for that context. The current context value is
       * determined by the value prop of the nearest `<MyContext.Provider>` above the calling component in the tree.
       *
@@ -782,6 +798,14 @@ object Api {
       */
     final def useCallbackWithDepsBy[D, A](deps: CtxFn[D])(callback: CtxFn[D => A])(implicit a: UseCallbackArg[A], r: Reusability[D], step: Step): step.Next[Reusable[A]] =
       useCallbackWithDepsBy(step.squash(deps)(_))(step.squash(callback)(_))
+
+    /** Extracts non-reactive logic from an Effect.
+      *
+      * @see https://react.dev/reference/react/useEffectEvent
+      * @since 4.0.0 / React 19.2
+      */
+    final def useEffectEventBy[A](callback: CtxFn[A])(implicit a: UseCallbackArg[A], step: Step): step.Next[Reusable[A]] =
+      useEffectEventBy(step.squash(callback)(_))
 
     /** Accepts a context object and returns the current context value for that context. The current context value is
       * determined by the value prop of the nearest `<MyContext.Provider>` above the calling component in the tree.

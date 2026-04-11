@@ -26,7 +26,7 @@
 
 # React 19 TODO (2/2)
 
-- [ ] Support new R19 changes and features
+- [x] Support new R19 changes and features
   - [x] React 19.0
     - [x] Add `onCaughtError` and `onUncaughtError` options to `{create,hydrate}Root`
     - [x] `useTransition.startTransition` now accepts async
@@ -42,6 +42,6 @@
     - [x] `precedence` attr to `link`s
     - [x] `import { prefetchDNS, preconnect, preload, preinit } from 'react-dom'`
   - [x] React 19.1
-  - [ ] React 19.2
+  - [x] React 19.2
     - [x] `<Activity>`
-    - [ ] `useEffectEvent`
+    - [x] `useEffectEvent`

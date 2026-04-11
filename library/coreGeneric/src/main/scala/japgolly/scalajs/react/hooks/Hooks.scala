@@ -712,4 +712,10 @@ object Hooks {
       CustomHook.delay(UseOptimisticWithActionF(facade.React.useOptimistic(value, reducer))(D.Sync))
   }
 
+  // ===================================================================================================================
+
+  object UseEffectEvent {
+    def apply[A](callback: => A)(implicit a: UseCallbackArg[A]): CustomHook[Unit, Reusable[A]] =
+      CustomHook.delay(a.fromJs(facade.React.useEffectEvent(a.toJs(callback))))
+  }
 }

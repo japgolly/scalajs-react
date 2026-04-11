@@ -63,6 +63,9 @@ trait Hooks extends js.Object {
 
   final def useDeferredValue[A](value: A, initialValue: js.UndefOr[A] = js.undefined): A = js.native
 
+  /** @since 4.0.0 / React 19.2 */
+  final def useEffectEvent[F <: js.Function](callback: F): F = js.native
+
   /** @since 4.0.0 / React 19 */
   final type UseActionState[S, P] = js.Tuple3[S, js.Function1[P, Unit], Boolean]
 

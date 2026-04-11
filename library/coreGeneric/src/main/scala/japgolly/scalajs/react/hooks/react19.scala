@@ -1,5 +1,6 @@
 package japgolly.scalajs.react.hooks
 
+import japgolly.scalajs.react.Reusable
 import japgolly.scalajs.react.hooks.HookResult
 import japgolly.scalajs.react.hooks.Hooks._
 import japgolly.scalajs.react.util.Effect.Async
@@ -74,4 +75,12 @@ trait react19 {
   /** @since 4.0.0 / React 19 */
   @inline final def useOptimistic[S, A](value: S, reducer: (S, A) => S): HookResult[UseOptimisticWithAction[S, A]] =
     UseOptimisticWithAction(value, reducer).toHookResult
+
+  /** Extracts non-reactive logic from an Effect.
+    *
+    * @see https://react.dev/reference/react/useEffectEvent
+    * @since 4.0.0 / React 19.2
+    */
+  @inline final def useEffectEvent[A](callback: => A)(implicit a: UseCallbackArg[A]): HookResult[Reusable[A]] =
+    UseEffectEvent(callback).toHookResult
 }
