@@ -6,9 +6,10 @@ import japgolly.scalajs.react.feature.Context
 import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.util.Effect._
 import japgolly.scalajs.react.util.Util.identityFn
-import japgolly.scalajs.react.util.{DefaultEffects => D, NotAllowed, OptionLike}
+import japgolly.scalajs.react.util.{DefaultEffects => D, JsUtil, NotAllowed, OptionLike}
 import japgolly.scalajs.react.vdom.TopNode
 import japgolly.scalajs.react.{CtorType, NonEmptyRef, Ref, Reusability, Reusable, facade}
+import org.scalajs.dom
 import scala.annotation.implicitNotFound
 import scala.reflect.ClassTag
 import scala.scalajs.js
@@ -455,7 +456,6 @@ object Hooks {
       F.delay { value = f(value) }
   }
 
-
   // ===================================================================================================================
 
   object UseId {
@@ -484,6 +484,12 @@ object Hooks {
       */
     def startTransition(cb: => F[Unit]): F[Unit] =
       F.delay(raw._2(F.toJsFn(cb)))
+
+    /** A function that takes an asynchronous callback. We can use it to tell React which state we want to defer.
+      * @since 4.0.0 / React 19
+      */
+    def startTransition[G[_]](cb: => G[Unit])(implicit G: Async[G]): F[Unit] =
+      F.delay(raw._2(() => G.toJsPromise(cb)()))
   }
 
   object UseTransitionF {
@@ -495,6 +501,57 @@ object Hooks {
       }
   }
 
+  // ===================================================================================================================
+
+  type UseActionState[S, P] = UseActionStateF[D.Sync, S, P]
+
+  trait UseActionStateF[F[_], S, P] {
+    protected[hooks] implicit def F: Sync[F]
+    val raw: facade.React.UseActionState[S, P]
+
+    /** The current state of the action.
+      */
+    def state: S = raw._1
+
+    /** A function that you can call to trigger the action.
+      */
+    def dispatch(p: P): F[Unit] = F.delay(raw._2(p))
+
+    /** Whether there is a pending transition.
+      */
+    def isPending: Boolean = raw._3
+  }
+
+  object UseActionStateF {
+    def apply[F[_], S, P](r: facade.React.UseActionState[S, P])(implicit FF: Sync[F]): UseActionStateF[F, S, P] =
+      new UseActionStateF[F, S, P] {
+        override protected[hooks] implicit def F: Sync[F] = FF
+        override val raw = r
+      }
+  }
+
+  object UseActionState {
+    def apply[S, P](action: (S, P) => S, initialState: S, permalink: js.UndefOr[String] = js.undefined): CustomHook[Unit, UseActionState[S, P]] =
+      CustomHook.delay(UseActionStateF(facade.React.useActionState[S, P]((s, p) => action(s, p), initialState, permalink))(D.Sync))
+
+    def apply[S](action: S => S, initialState: S): CustomHook[Unit, UseActionState[S, Unit]] =
+      apply[S, Unit]((s, _) => action(s), initialState, js.undefined)
+
+    def apply[S](action: S => S, initialState: S, permalink: String): CustomHook[Unit, UseActionState[S, Unit]] =
+      apply[S, Unit]((s, _) => action(s), initialState, permalink)
+
+    def async[G[_], S, P](action: (S, P) => G[S], initialState: S, permalink: js.UndefOr[String] = js.undefined)(implicit G: Async[G]): CustomHook[Unit, UseActionState[S, P]] =
+      CustomHook.delay(UseActionStateF(facade.React.useActionState[S, P]((s, p) => G.toJsPromise(action(s, p))(), initialState, permalink))(D.Sync))
+
+    def async[G[_], S](action: S => G[S], initialState: S)(implicit G: Async[G]): CustomHook[Unit, UseActionState[S, Unit]] =
+      async[G, S, Unit]((s, _) => action(s), initialState, js.undefined)
+
+    def async[G[_], S](action: S => G[S], initialState: S, permalink: String)(implicit G: Async[G]): CustomHook[Unit, UseActionState[S, Unit]] =
+      async[G, S, Unit]((s, _) => action(s), initialState, permalink)
+  }
+
+  // ===================================================================================================================
+
   object UseSyncExternalStore {
     def apply[F[_], A](subscribe: F[Unit] => F[F[Unit]], getSnapshot: F[A], getServerSnapshot: js.UndefOr[F[A]] = js.undefined)(implicit F: Sync[F]): CustomHook[Unit, A] = {
       val subscribeJs:  facade.React.UseSyncExternalStoreSubscribeArg  = (update: js.Function0[Unit]) => F.runSync(F.map(subscribe(F.fromJsFn0(update)))(F.toJsFn(_)))
@@ -504,12 +561,161 @@ object Hooks {
     }
   }
 
-  object UseDeferredValue {
-  // initialValue was added in React 19 - Replace when we upgrade to React 19
-    // def apply[A](value: A, initialValue: js.UndefOr[A] = js.undefined): CustomHook[Unit, A] =
-    //   CustomHook.delay(facade.React.useDeferredValue(value, initialValue))
+  // ===================================================================================================================
 
+  object UseDeferredValue {
     def apply[A](value: A): CustomHook[Unit, A] =
       CustomHook.delay(facade.React.useDeferredValue(value))
+
+    def apply[A](value: A, initialValue: A): CustomHook[Unit, A] =
+      CustomHook.delay(facade.React.useDeferredValue(value, initialValue))
+  }
+
+  // ===================================================================================================================
+
+  trait FormStatus {
+    val raw: facade.ReactDOM.FormStatus
+
+    /** Whether the form is currently pending a submission.
+      */
+    @inline final def pending: Boolean = raw.pending
+
+    /** The data that the form is submitting.
+      */
+    @inline final def data: Option[dom.FormData] =
+      JsUtil.jsNullToOption(raw.data)
+
+    /** The HTTP method used for submission.
+      */
+    @inline final def method: Option[String] =
+      JsUtil.jsNullToOption(raw.method)
+
+    /** The action associated with the form.
+      */
+    @inline final def action: Option[String | js.Function1[dom.FormData, Unit | js.Thenable[Any]]] =
+      JsUtil.jsNullToOption(raw.action)
+  }
+
+/*
+  sealed trait FormStatus {
+    val raw: facade.ReactDOM.FormStatus
+
+    /** Whether the form is currently pending a submission. */
+    @inline final def pending: Boolean = raw.pending
+  }
+  */
+
+  object FormStatus {
+/*
+    final case class NotPending(raw: facade.ReactDOM.FormStatus) extends FormStatus
+    final case class Pending(raw: facade.ReactDOM.FormStatus) extends FormStatus {
+
+      /** The data that the form is submitting. */
+      def data: dom.FormData =
+        JsUtil.notNull(raw.data)
+
+      /** The HTTP method used for submission. */
+      def method: String =
+        JsUtil.notNull(raw.method)
+
+      // /** The action associated with the form. */
+      def action: String | js.Function1[dom.FormData, Unit | js.Thenable[Any]] =
+        JsUtil.notNull(raw.action)
+    }
+
+    def apply(r: facade.ReactDOM.FormStatus): FormStatus =
+      if (r.pending)
+        Pending(r)
+      else
+        NotPending(r)
+*/
+
+    def apply(r: facade.ReactDOM.FormStatus): FormStatus =
+      new FormStatus {
+        override val raw = r
+      }
+  }
+
+  object UseFormStatus {
+    @inline def apply(): CustomHook[Unit, FormStatus] =
+      CustomHook.delay(FormStatus(facade.ReactDOM.useFormStatus()))
+  }
+
+  // ===================================================================================================================
+
+  trait UseOptimisticF[F[_], S] {
+    protected[hooks] implicit def F: Sync[F]
+    val raw: facade.React.UseOptimistic[S]
+
+    final def withEffect[G[_]](implicit G: Sync[G]): UseOptimisticF[G, S] =
+      G.subst[F, ({type L[E[_]] = UseOptimisticF[E, S]})#L](this)(
+        UseOptimisticF(raw)
+      )
+
+    @inline def value: S =
+      raw._1
+
+    def setState(next: S): F[Unit] =
+      F.delay(raw._2(next))
+
+    def modState(f: S => S): F[Unit] = {
+      val g: js.Function1[S,S] = f
+      F.delay(raw._2(g))
+    }
+  }
+
+  object UseOptimisticF {
+    def apply[F[_], S](r: facade.React.UseOptimistic[S])(implicit FF: Sync[F]): UseOptimisticF[F, S] =
+      new UseOptimisticF[F, S] {
+        override protected[hooks] implicit def F: Sync[F] = FF
+        override val raw = r
+      }
+  }
+
+  type UseOptimistic[S] = UseOptimisticF[D.Sync, S]
+
+  object UseOptimistic {
+    def apply[S](value: S): CustomHook[Unit, UseOptimistic[S]] =
+      CustomHook.delay(UseOptimisticF(facade.React.useOptimistic(value))(D.Sync))
+  }
+
+  // -------------------------------------------------------------------------------------------------------------------
+
+  trait UseOptimisticWithActionF[F[_], S, A] {
+    protected[hooks] implicit def F: Sync[F]
+    val raw: facade.React.UseOptimisticWithAction[S, A]
+
+    final def withEffect[G[_]](implicit G: Sync[G]): UseOptimisticWithActionF[G, S, A] =
+      G.subst[F, ({type L[E[_]] = UseOptimisticWithActionF[E, S, A]})#L](this)(
+        UseOptimisticWithActionF(raw)
+      )
+
+    @inline def value: S =
+      raw._1
+
+    def set(action: A): F[Unit] =
+      F.delay(raw._2(action))
+  }
+
+  object UseOptimisticWithActionF {
+    def apply[F[_], S, A](r: facade.React.UseOptimisticWithAction[S, A])(implicit FF: Sync[F]): UseOptimisticWithActionF[F, S, A] =
+      new UseOptimisticWithActionF[F, S, A] {
+        override protected[hooks] implicit def F: Sync[F] = FF
+        override val raw = r
+      }
+  }
+
+  type UseOptimisticWithAction[S, A] = UseOptimisticWithActionF[D.Sync, S, A]
+
+  object UseOptimisticWithAction {
+    def apply[S, A](value: S, reducer: (S, A) => S): CustomHook[Unit, UseOptimisticWithAction[S, A]] =
+      CustomHook.delay(UseOptimisticWithActionF(facade.React.useOptimistic(value, reducer))(D.Sync))
+  }
+
+  // ===================================================================================================================
+
+  object UseEffectEvent {
+    def apply[A](callback: => A)(implicit a: UseCallbackArg[A]): CustomHook[Unit, A] =
+      CustomHook.delay(a.fromJs(facade.React.useEffectEvent(a.toJs(callback))))
   }
 }

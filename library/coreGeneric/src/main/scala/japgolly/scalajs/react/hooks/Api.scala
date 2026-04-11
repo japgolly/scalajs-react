@@ -6,7 +6,7 @@ import japgolly.scalajs.react.feature.Context
 import japgolly.scalajs.react.hooks.Hooks._
 import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.util.DefaultEffects
-import japgolly.scalajs.react.util.Effect.Sync
+import japgolly.scalajs.react.util.Effect.{Async, Sync}
 import japgolly.scalajs.react.util.Util.identityFn
 import japgolly.scalajs.react.vdom.{TopNode, VdomNode}
 import japgolly.scalajs.react.{Children, CtorType, Ref, Reusability, Reusable}
@@ -140,6 +140,22 @@ object Api {
       */
     final def useCallbackWithDepsBy[D, A](deps: Ctx => D)(callback: Ctx => D => A)(implicit a: UseCallbackArg[A], r: Reusability[D], step: Step): step.Next[Reusable[A]] =
       customBy(ctx => UseCallback.withDeps(deps(ctx))(callback(ctx)))
+
+    /** Extracts non-reactive logic from an Effect.
+      *
+      * @see https://react.dev/reference/react/useEffectEvent
+      * @since 4.0.0 / React 19.2
+      */
+    final def useEffectEvent[A](callback: A)(implicit a: UseCallbackArg[A], step: Step): step.Next[A] =
+      useEffectEventBy(_ => callback)
+
+    /** Extracts non-reactive logic from an Effect.
+      *
+      * @see https://react.dev/reference/react/useEffectEvent
+      * @since 4.0.0 / React 19.2
+      */
+    final def useEffectEventBy[A](callback: Ctx => A)(implicit a: UseCallbackArg[A], step: Step): step.Next[A] =
+      customBy(ctx => UseEffectEvent(callback(ctx)))
 
     /** Accepts a context object and returns the current context value for that context. The current context value is
       * determined by the value prop of the nearest `<MyContext.Provider>` above the calling component in the tree.
@@ -590,6 +606,90 @@ object Api {
     final def useTransition(implicit step: Step): step.Next[UseTransition] =
       customBy(_ => UseTransition())
 
+    /** @since 4.0.0 / React 19 */
+    final def useActionState[S](action: S => S, initialState: S)(implicit step: Step): step.Next[UseActionState[S, Unit]] =
+      customBy(_ => UseActionState(action, initialState))
+
+    /** @since 4.0.0 / React 19 */
+    final def useActionState[S, P](action: (S, P) => S, initialState: S)(implicit step: Step): step.Next[UseActionState[S, P]] =
+      customBy(_ => UseActionState(action, initialState))
+
+    /** @since 4.0.0 / React 19 */
+    final def useActionStateAsync[G[_], S](action: S => G[S], initialState: S)(implicit G: Async[G], step: Step): step.Next[UseActionState[S, Unit]] =
+      customBy(_ => UseActionState.async(action, initialState)(G))
+
+    /** @since 4.0.0 / React 19 */
+    final def useActionStateAsync[G[_], S, P](action: (S, P) => G[S], initialState: S)(implicit G: Async[G], step: Step): step.Next[UseActionState[S, P]] =
+      customBy(_ => UseActionState.async(action, initialState)(G))
+
+    /** @since 4.0.0 / React 19 */
+    final def useActionState[S](action: S => S, initialState: S, permalink: String)(implicit step: Step): step.Next[UseActionState[S, Unit]] =
+      customBy(_ => UseActionState(action, initialState, permalink))
+
+    /** @since 4.0.0 / React 19 */
+    final def useActionState[S, P](action: (S, P) => S, initialState: S, permalink: String)(implicit step: Step): step.Next[UseActionState[S, P]] =
+      customBy(_ => UseActionState(action, initialState, permalink))
+
+    /** @since 4.0.0 / React 19 */
+    final def useActionStateAsync[G[_], S](action: S => G[S], initialState: S, permalink: String)(implicit G: Async[G], step: Step): step.Next[UseActionState[S, Unit]] =
+      customBy(_ => UseActionState.async(action, initialState, permalink)(G))
+
+    /** @since 4.0.0 / React 19 */
+    final def useActionStateAsync[G[_], S, P](action: (S, P) => G[S], initialState: S, permalink: String)(implicit G: Async[G], step: Step): step.Next[UseActionState[S, P]] =
+      customBy(_ => UseActionState.async(action, initialState, permalink)(G))
+
+    /** @since 4.0.0 / React 19 */
+    final def useActionStateBy[S](action: Ctx => S => S, initialState: Ctx => S)(implicit step: Step): step.Next[UseActionState[S, Unit]] =
+      customBy(ctx => UseActionState(action(ctx), initialState(ctx)))
+
+    /** @since 4.0.0 / React 19 */
+    final def useActionStateBy[S, P](action: Ctx => (S, P) => S, initialState: Ctx => S)(implicit step: Step, d: DummyImplicit): step.Next[UseActionState[S, P]] =
+      customBy(ctx => UseActionState(action(ctx), initialState(ctx)))
+
+    /** @since 4.0.0 / React 19 */
+    final def useActionStateAsyncBy[G[_], S](action: Ctx => S => G[S], initialState: Ctx => S)(implicit G: Async[G], step: Step): step.Next[UseActionState[S, Unit]] =
+      customBy(ctx => UseActionState.async(action(ctx), initialState(ctx))(G))
+
+    /** @since 4.0.0 / React 19 */
+    final def useActionStateAsyncBy[G[_], S, P](action: Ctx => (S, P) => G[S], initialState: Ctx => S)(implicit G: Async[G], step: Step, d: DummyImplicit): step.Next[UseActionState[S, P]] =
+      customBy(ctx => UseActionState.async(action(ctx), initialState(ctx))(G))
+
+    /** @since 4.0.0 / React 19 */
+    final def useActionStateBy[S](action: Ctx => S => S, initialState: Ctx => S, permalink: Ctx => String)(implicit step: Step): step.Next[UseActionState[S, Unit]] =
+      customBy(ctx => UseActionState(action(ctx), initialState(ctx), permalink(ctx)))
+
+    /** @since 4.0.0 / React 19 */
+    final def useActionStateBy[S, P](action: Ctx => (S, P) => S, initialState: Ctx => S, permalink: Ctx => String)(implicit step: Step, d: DummyImplicit): step.Next[UseActionState[S, P]] =
+      customBy(ctx => UseActionState(action(ctx), initialState(ctx), permalink(ctx)))
+
+    /** @since 4.0.0 / React 19 */
+    final def useActionStateAsyncBy[G[_], S](action: Ctx => S => G[S], initialState: Ctx => S, permalink: Ctx => String)(implicit G: Async[G], step: Step): step.Next[UseActionState[S, Unit]] =
+      customBy(ctx => UseActionState.async(action(ctx), initialState(ctx), permalink(ctx))(G))
+
+    /** @since 4.0.0 / React 19 */
+    final def useActionStateAsyncBy[G[_], S, P](action: Ctx => (S, P) => G[S], initialState: Ctx => S, permalink: Ctx => String)(implicit G: Async[G], step: Step, d: DummyImplicit): step.Next[UseActionState[S, P]] =
+      customBy(ctx => UseActionState.async(action(ctx), initialState(ctx), permalink(ctx))(G))
+
+    /** @since 4.0.0 / React 19 */
+    final def useFormStatus(implicit step: Step): step.Next[FormStatus] =
+      customBy(_ => UseFormStatus())
+
+    /** @since 4.0.0 / React 19 */
+    final def useOptimistic[S](value: S)(implicit step: Step): step.Next[UseOptimistic[S]] =
+      customBy(_ => UseOptimistic(value))
+
+    /** @since 4.0.0 / React 19 */
+    final def useOptimistic[S, A](value: S, reducer: (S, A) => S)(implicit step: Step): step.Next[UseOptimisticWithAction[S, A]] =
+      customBy(_ => UseOptimisticWithAction(value, reducer))
+
+    /** @since 4.0.0 / React 19 */
+    final def useOptimisticBy[S](value: Ctx => S)(implicit step: Step): step.Next[UseOptimistic[S]] =
+      customBy(ctx => UseOptimistic(value(ctx)))
+
+    /** @since 4.0.0 / React 19 */
+    final def useOptimisticBy[S, A](value: Ctx => S, reducer: Ctx => (S, A) => S)(implicit step: Step): step.Next[UseOptimisticWithAction[S, A]] =
+      customBy(ctx => UseOptimisticWithAction(value(ctx), reducer(ctx)))
+
     /** Lets you subscribe to an external store.
       *
       * @see
@@ -642,15 +742,16 @@ object Api {
       // customBy(ctx => UseDeferredValue(value(ctx), js.undefined))
       customBy(ctx => UseDeferredValue(value(ctx)))
 
-    // initialValue was added in React 19 - Uncomment when we upgrade to React 19
-    // /**
-    //   * Lets you defer updating a part of the UI.
-    //   *
-    //   * @see
-    //   *   {@link https://react.dev/reference/react/useDeferredValue}
-    //   */
-    // final def useDeferredValue[A](value: Ctx => A, initialValue: Ctx => A)(implicit step: Step): step.Next[A] =
-    //   customBy(ctx => UseDeferredValue(value(ctx), initialValue(ctx)))
+    /**
+      * Lets you defer updating a part of the UI.
+      *
+      * @see
+      *   {@link https://react.dev/reference/react/useDeferredValue}
+      *
+      * @since 4.0.0 / React 19
+      */
+    final def useDeferredValue[A](value: Ctx => A, initialValue: Ctx => A)(implicit step: Step): step.Next[A] =
+      customBy(ctx => UseDeferredValue(value(ctx), initialValue(ctx)))
   }
 
   // ===================================================================================================================
@@ -697,6 +798,14 @@ object Api {
       */
     final def useCallbackWithDepsBy[D, A](deps: CtxFn[D])(callback: CtxFn[D => A])(implicit a: UseCallbackArg[A], r: Reusability[D], step: Step): step.Next[Reusable[A]] =
       useCallbackWithDepsBy(step.squash(deps)(_))(step.squash(callback)(_))
+
+    /** Extracts non-reactive logic from an Effect.
+      *
+      * @see https://react.dev/reference/react/useEffectEvent
+      * @since 4.0.0 / React 19.2
+      */
+    final def useEffectEventBy[A](callback: CtxFn[A])(implicit a: UseCallbackArg[A], step: Step): step.Next[A] =
+      useEffectEventBy(step.squash(callback)(_))
 
     /** Accepts a context object and returns the current context value for that context. The current context value is
       * determined by the value prop of the nearest `<MyContext.Provider>` above the calling component in the tree.
@@ -926,16 +1035,57 @@ object Api {
     @inline final def useDeferredValue[A](value: CtxFn[A])(implicit step: Step): step.Next[A] =
       useDeferredValue(ctx => step.squash(value)(ctx))
 
-    // initialValue was added in React 19 - Uncomment when we upgrade to React 19
-    // /**
-    //   * Lets you defer updating a part of the UI.
-    //   *
-    //   * @see
-    //   *   {@link https://react.dev/reference/react/useDeferredValue}
-    //   */
-    // final def useDeferredValue[A](value: CtxFn[A], initialValue: CtxFn[A])(implicit step: Step): step.Next[A] =
-    //   // useDeferredValue(ctx => step.squash(value)(ctx), initialValue.map(f => ctx => step.squash(f)(ctx)))
-    //   useDeferredValue(ctx => step.squash(value)(ctx), ctx => step.squash(initialValue)(ctx))
+    /**
+      * Lets you defer updating a part of the UI.
+      *
+      * @see
+      *   {@link https://react.dev/reference/react/useDeferredValue}
+      *
+      * @since 4.0.0 / React 19
+      */
+    final def useDeferredValue[A](value: CtxFn[A], initialValue: CtxFn[A])(implicit step: Step): step.Next[A] =
+      // useDeferredValue(ctx => step.squash(value)(ctx), initialValue.map(f => ctx => step.squash(f)(ctx)))
+      useDeferredValue(ctx => step.squash(value)(ctx), ctx => step.squash(initialValue)(ctx))
+
+    /** @since 4.0.0 / React 19 */
+    final def useActionStateBy[S](action: CtxFn[S => S], initialState: CtxFn[S])(implicit step: Step): step.Next[UseActionState[S, Unit]] =
+      customBy((ctx: Ctx) => UseActionState(step.squash(action)(ctx), step.squash(initialState)(ctx)))
+
+    /** @since 4.0.0 / React 19 */
+    final def useActionStateBy[S, P](action: CtxFn[(S, P) => S], initialState: CtxFn[S])(implicit step: Step, d: DummyImplicit): step.Next[UseActionState[S, P]] =
+      customBy((ctx: Ctx) => UseActionState(step.squash(action)(ctx), step.squash(initialState)(ctx)))
+
+    /** @since 4.0.0 / React 19 */
+    final def useActionStateAsyncBy[G[_], S](action: CtxFn[S => G[S]], initialState: CtxFn[S])(implicit G: Async[G], step: Step): step.Next[UseActionState[S, Unit]] =
+      customBy((ctx: Ctx) => UseActionState.async(step.squash(action)(ctx), step.squash(initialState)(ctx))(G))
+
+    /** @since 4.0.0 / React 19 */
+    final def useActionStateAsyncBy[G[_], S, P](action: CtxFn[(S, P) => G[S]], initialState: CtxFn[S])(implicit G: Async[G], step: Step, d: DummyImplicit): step.Next[UseActionState[S, P]] =
+      customBy((ctx: Ctx) => UseActionState.async(step.squash(action)(ctx), step.squash(initialState)(ctx))(G))
+
+    /** @since 4.0.0 / React 19 */
+    final def useActionStateBy[S](action: CtxFn[S => S], initialState: CtxFn[S], permalink: CtxFn[String])(implicit step: Step): step.Next[UseActionState[S, Unit]] =
+      customBy((ctx: Ctx) => UseActionState(step.squash(action)(ctx), step.squash(initialState)(ctx), step.squash(permalink)(ctx)))
+
+    /** @since 4.0.0 / React 19 */
+    final def useActionStateBy[S, P](action: CtxFn[(S, P) => S], initialState: CtxFn[S], permalink: CtxFn[String])(implicit step: Step, d: DummyImplicit): step.Next[UseActionState[S, P]] =
+      customBy((ctx: Ctx) => UseActionState(step.squash(action)(ctx), step.squash(initialState)(ctx), step.squash(permalink)(ctx)))
+
+    /** @since 4.0.0 / React 19 */
+    final def useActionStateAsyncBy[G[_], S](action: CtxFn[S => G[S]], initialState: CtxFn[S], permalink: CtxFn[String])(implicit G: Async[G], step: Step): step.Next[UseActionState[S, Unit]] =
+      customBy((ctx: Ctx) => UseActionState.async(step.squash(action)(ctx), step.squash(initialState)(ctx), step.squash(permalink)(ctx))(G))
+
+    /** @since 4.0.0 / React 19 */
+    final def useActionStateAsyncBy[G[_], S, P](action: CtxFn[(S, P) => G[S]], initialState: CtxFn[S], permalink: CtxFn[String])(implicit G: Async[G], step: Step, d: DummyImplicit): step.Next[UseActionState[S, P]] =
+      customBy((ctx: Ctx) => UseActionState.async(step.squash(action)(ctx), step.squash(initialState)(ctx), step.squash(permalink)(ctx))(G))
+
+    /** @since 4.0.0 / React 19 */
+    final def useOptimisticBy[S](value: CtxFn[S])(implicit step: Step): step.Next[UseOptimistic[S]] =
+      useOptimisticBy(step.squash(value)(_))
+
+    /** @since 4.0.0 / React 19 */
+    final def useOptimisticBy[S, A](value: CtxFn[S], reducer: CtxFn[(S, A) => S])(implicit step: Step): step.Next[UseOptimisticWithAction[S, A]] =
+      useOptimisticBy(step.squash(value)(_), step.squash(reducer)(_))
   }
 
   // ===================================================================================================================

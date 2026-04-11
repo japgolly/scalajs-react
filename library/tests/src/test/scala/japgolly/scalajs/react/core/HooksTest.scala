@@ -1483,6 +1483,29 @@ object HooksTest extends AsyncTestSuite {
     }
   }
 
+  private def testUseTransitionAsync(): Unit = {
+    val comp = ScalaFnComponent.withHooks[Unit]
+      .useTransition
+      .useState(0)
+      .render { (_, transition, state) =>
+        <.div(
+          <.div(s"pending:${transition.isPending},"),
+          <.div(s"state:${state.value}"),
+          <.button(^.onClick --> transition.startTransition(state.modState(_ + 1).asAsyncCallback.delayMs(10)))
+        )
+      }
+
+    test(comp()) { t =>
+      t.assertText("pending:false,state:0")
+      for {
+        _ <- t.clickButton()
+        _  = t.assertText("pending:true,state:0")
+        _ <- AsyncCallback.unit.delayMs(100)
+        _  = t.assertText("pending:false,state:1")
+      } yield ()
+    }
+  }
+
   private def testMonadicUseTransition(): Unit = {
    val comp = ScalaFnComponent[Unit]{ _ =>
       for {
@@ -2692,28 +2715,28 @@ object HooksTest extends AsyncTestSuite {
       )
     }
 
-    // initialValue was added in React 19 - Uncomment when we upgrade to React 19
-    // def testConstWithInitial() = {
-    //   var renders: List[(Int, Int, Boolean)] = Nil
+    def testConstWithInitial() = {
+      var renders: List[(Int, Int, Boolean)] = Nil
 
-    //   val comp = ScalaFnComponent
-    //     .withHooks[Unit]
-    //     .useState(0)
-    //     .useDeferredValue((_, state) => state.value, (_, _) => 100)
-    //     .render { (_, state, deferredValue) =>
-    //       val isStale: Boolean = state.value != deferredValue
-    //       renders = renders :+ (state.value, deferredValue, isStale)
-    //       <.div(
-    //         deferredValue,
-    //         <.button(^.onClick --> state.modState(_ + 1))
-    //       )
-    //     }
+      val comp = ScalaFnComponent
+        .withHooks[Unit]
+        .useState(0)
+        .useDeferredValue((_, state) => state.value, (_, _) => 100)
+        .render { (_, state, deferredValue) =>
+          val isStale: Boolean = state.value != deferredValue
+          renders = renders :+ (state.value, deferredValue, isStale)
+          <.div(
+            deferredValue,
+            <.button(^.onClick --> state.modState(_ + 1))
+          )
+        }
 
-    //   test(comp()) { t =>
-    //     t.clickButton()
-    //   }
-    //   assertEq(renders, List((0, 100, true), (0, 0, false), (1, 0, true), (1, 1, false)))
-    // }
+      test(comp()) { t =>
+        t.clickButton()
+      }.map(_ =>
+        assertEq(renders, List((0, 100, true), (0, 0, false), (1, 0, true), (1, 1, false)))
+      )
+    }
 
     def testMonadicConst() = {
       var renders: List[(Int, Int, Boolean)] = Nil
@@ -2735,6 +2758,268 @@ object HooksTest extends AsyncTestSuite {
         assertEq(renders, List((0, 0, false), (1, 0, true), (1, 1, false)))
       )
     }
+
+    def testMonadicConstWithInitial() = {
+      var renders: List[(Int, Int, Boolean)] = Nil
+
+      val comp = ScalaFnComponent[Unit] { _ =>
+        for {
+          state         <- useState(0)
+          deferredValue <- useDeferredValue(state.value, 100)
+        } yield {
+          val isStale: Boolean = state.value != deferredValue
+          renders = renders :+ (state.value, deferredValue, isStale)
+          <.div(
+            deferredValue,
+            <.button(^.onClick --> state.modState(_ + 1))
+          )
+        }
+      }
+
+      test(comp()) { t =>
+        t.clickButton()
+      }.map(_ =>
+        assertEq(renders, List((0, 100, true), (0, 0, false), (1, 0, true), (1, 1, false)))
+      )
+    }
+  }
+
+  object UseActionState {
+    def testSync() = {
+      val comp = ScalaFnComponent.withHooks[Unit]
+        .useActionState[Int, Int]((s, p) => s + p, 100)
+        .render { (_, hook) =>
+          <.div(
+            <.div(s"state:${hook.state}"),
+            <.div(s"pending:${hook.isPending}"),
+            <.button(^.onClick --> hook.dispatch(1))
+          )
+        }
+
+      test(comp()) { t =>
+        t.assertText("state:100pending:false")
+        t.clickButton().map(_ =>
+          t.assertText("state:101pending:false")
+        )
+      }
+    }
+
+    def testAsync() = {
+      val comp = ScalaFnComponent.withHooks[Unit]
+        .useActionStateAsync[AsyncCallback, Int, Int]((s, p) => AsyncCallback.pure(s + p).delayMs(20), 100)
+        .render { (_, hook) =>
+          <.div(
+            <.div(s"state:${hook.state}"),
+            <.div(s"pending:${hook.isPending}"),
+            // <.button(^.onClick --> hook.dispatch(1))
+            <.button(^.onClick --> Callback(japgolly.scalajs.react.facade.React.startTransition(() => hook.dispatch(1).runNow())))
+          )
+        }
+
+      test(comp()) { t =>
+        t.assertText("state:100pending:false")
+        for {
+          _ <- t.clickButton()
+          _  = t.assertText("state:100pending:true")
+          _ <- act(AsyncCallback.unit.delayMs(100))
+          _  = t.assertText("state:101pending:false")
+        } yield ()
+      }
+    }
+
+    def testNoPayload() = {
+      val comp = ScalaFnComponent.withHooks[Unit]
+        .useActionState[Int](s => s + 1, 100)
+        .render { (_, hook) =>
+          <.div(
+            <.div(s"state:${hook.state}"),
+            <.button(^.onClick --> hook.dispatch(()))
+          )
+        }
+
+      test(comp()) { t =>
+        t.assertText("state:100")
+        t.clickButton().map(_ =>
+          t.assertText("state:101")
+        )
+      }
+    }
+
+    def testBy() = {
+      val comp = ScalaFnComponent.withHooks[Int]
+        .useActionStateBy(p => (s: Int, _: Unit) => s + p, p => p * 10)
+        .render { (_, hook) =>
+          <.div(
+            <.div(s"state:${hook.state}"),
+            <.button(^.onClick --> hook.dispatch(()))
+          )
+        }
+
+      test(comp(5)) { t =>
+        t.assertText("state:50")
+        t.clickButton().map(_ =>
+          t.assertText("state:55")
+        )
+      }
+    }
+
+    def testSyncMonadic() = {
+      val comp = ScalaFnComponent[Unit] { _ =>
+        for {
+          hook <- useActionState[Int, Int]((s, p) => s + p, 100)
+        } yield
+          <.div(
+            <.div(s"state:${hook.state}"),
+            <.div(s"pending:${hook.isPending}"),
+            <.button(^.onClick --> hook.dispatch(1))
+          )
+        }
+
+      test(comp()) { t =>
+        t.assertText("state:100pending:false")
+        t.clickButton().map(_ =>
+          t.assertText("state:101pending:false")
+        )
+      }
+    }
+  }
+
+  object UseFormStatus {
+    def test() = {
+      val statusDisplay = ScalaFnComponent.withHooks[Unit]
+        .useFormStatus
+        .render { (_, status) =>
+          <.div(
+            <.div(s"pending:${status.pending},"),
+            <.div(s"method:${status.method.getOrElse("null")}"),
+          )
+        }
+
+      val comp = ScalaFnComponent[Unit] { _ =>
+        <.form(^.action := "/fake", ^.method := "post",
+          statusDisplay()
+        )
+      }
+
+      test_(comp()) { t =>
+        t.assertText("pending:false,method:null")
+      }
+    }
+  }
+
+  object UseOptimistic {
+    def testStateOnly() = {
+      val comp = ScalaFnComponent.withHooks[Unit]
+        .useState("initial")
+        .useOptimisticBy($ => $.hook1.value)
+        .useTransition
+        .render { (_, state, optimistic, transition) =>
+          <.div(
+            <.div(s"state:${state.value}"),
+            <.div(s"optimistic:${optimistic.value}"),
+            <.button(^.onClick --> transition.startTransition {
+              optimistic.setState("optimistic").asAsyncCallback >>
+              state.setState("final").asAsyncCallback.delayMs(100)
+            })
+          )
+        }
+
+      test(comp()) { t =>
+        t.assertText("state:initialoptimistic:initial")
+        for {
+          _ <- t.clickButton()
+          _  = t.assertText("state:initialoptimistic:optimistic")
+          _ <- act(AsyncCallback.unit.delayMs(200))
+          _  = t.assertText("state:finaloptimistic:final")
+        } yield ()
+      }
+    }
+
+    def testStateOnlyMonadic() = {
+      val comp = ScalaFnComponent[Unit] { _ =>
+        for {
+          state      <- useState("initial")
+          optimistic <- useOptimistic(state.value)
+          transition <- useTransition
+        } yield
+          <.div(
+            <.div(s"state:${state.value}"),
+            <.div(s"optimistic:${optimistic.value}"),
+            <.button(^.onClick --> transition.startTransition {
+              optimistic.setState("optimistic").asAsyncCallback >>
+              state.setState("final").asAsyncCallback.delayMs(100)
+            })
+          )
+      }
+
+      test(comp()) { t =>
+        t.assertText("state:initialoptimistic:initial")
+        for {
+          _ <- t.clickButton()
+          _  = t.assertText("state:initialoptimistic:optimistic")
+          _ <- act(AsyncCallback.unit.delayMs(200))
+          _  = t.assertText("state:finaloptimistic:final")
+        } yield ()
+      }
+    }
+
+    def testWithAction() = {
+      // Workaround Scala 2 bug
+      type Ctx = japgolly.scalajs.react.hooks.HookCtx.P1[Unit, japgolly.scalajs.react.hooks.Hooks.UseState[Int]]
+
+      val comp = ScalaFnComponent.withHooks[Unit]
+        .useState(100)
+        .useOptimisticBy[Int, Int](($: Ctx) => $.hook1.value, (_: Ctx) => (s: Int, a: Int) => s + a)
+        .useTransition
+        .render { (_, state, optimistic, transition) =>
+          <.div(
+            <.div(s"state:${state.value}"),
+            <.div(s"optimistic:${optimistic.value}"),
+            <.button(^.onClick --> transition.startTransition {
+              optimistic.set(50).asAsyncCallback >>
+              state.setState(120).asAsyncCallback.delayMs(100)
+            })
+          )
+        }
+
+      test(comp()) { t =>
+        t.assertText("state:100optimistic:100")
+        for {
+          _ <- t.clickButton()
+          _  = t.assertText("state:100optimistic:150")
+          _ <- act(AsyncCallback.unit.delayMs(200))
+          _  = t.assertText("state:120optimistic:120")
+        } yield ()
+      }
+    }
+
+    def testWithActionMonadic() = {
+      val comp = ScalaFnComponent[Unit] { _ =>
+        for {
+          state      <- useState(100)
+          optimistic <- useOptimistic(state.value, (s: Int, a: Int) => s + a)
+          transition <- useTransition
+        } yield
+          <.div(
+            <.div(s"state:${state.value}"),
+            <.div(s"optimistic:${optimistic.value}"),
+            <.button(^.onClick --> transition.startTransition {
+              optimistic.set(50).asAsyncCallback >>
+              state.setState(120).asAsyncCallback.delayMs(100)
+            })
+          )
+      }
+
+      test(comp()) { t =>
+        t.assertText("state:100optimistic:100")
+        for {
+          _ <- t.clickButton()
+          _  = t.assertText("state:100optimistic:150")
+          _ <- act(AsyncCallback.unit.delayMs(200))
+          _  = t.assertText("state:120optimistic:120")
+        } yield ()
+      }
+    }
   }
 
   private def testOnMountWithPropsChildren(): Unit = {
@@ -2747,6 +3032,82 @@ object HooksTest extends AsyncTestSuite {
     test_(comp(123)) { t =>
       assertEq(text, "ok")
       t.assertText("123")
+    }
+  }
+
+  private def testUseEffectEvent(): Unit = {
+    val log = mutable.ListBuffer.empty[String]
+
+    val Component = ScalaFnComponent.withHooks[Unit]
+      .useState(0) // hook1: trigger
+      .useState(0) // hook2: non-reactive
+      .useEffectEventBy(ctx => CallbackTo(ctx.hook2.value)) // hook3: effect event
+      .useEffectWithDepsBy(_.hook1.value)($ => trigger =>
+         Callback(log += s"trigger=$trigger, event=${$.hook3.runNow()}")
+      )
+      .render($ => <.div(
+        <.button(^.onClick --> $.hook2.modState(_ + 1)), // inc
+        <.button(^.onClick --> $.hook1.modState(_ + 1))  // trigger
+      ))
+
+    rendered(Component()).map(d => new DomTester(d.asHtml())).use { t =>
+      assertEq(log.toList, List("trigger=0, event=0"))
+      log.clear()
+
+      for {
+        _ <- t.clickButton(1) // inc
+        _ =  assertEq(log.toList, Nil)
+
+        _ <- t.clickButton(2) // trigger
+        _ =  assertEq(log.toList, List("trigger=1, event=1"))
+        _ =  log.clear()
+
+        _ <- t.clickButton(1)
+        _ <- t.clickButton(1)
+        _ =  assertEq(log.toList, Nil)
+
+        _ <- t.clickButton(2)
+        _ =  assertEq(log.toList, List("trigger=2, event=3"))
+      } yield ()
+    }
+  }
+
+  private def testUseEffectEventMonadic(): Unit = {
+    val log = mutable.ListBuffer.empty[String]
+
+    val Component = ScalaFnComponent[Unit] { _ =>
+      for {
+        hook1 <- useState(0) // hook1: trigger
+        hook2 <- useState(0) // hook2: non-reactive
+        hook3 <- useEffectEvent(CallbackTo(hook2.value)) // hook3: effect event
+        _ <- useEffectWithDeps(hook1.value)(trigger =>
+           Callback(log += s"trigger=$trigger, event=${hook3.runNow()}")
+        )
+      } yield <.div(
+        <.button(^.onClick --> hook2.modState(_ + 1)), // inc
+        <.button(^.onClick --> hook1.modState(_ + 1))  // trigger
+      )
+    }
+
+    rendered(Component()).map(d => new DomTester(d.asHtml())).use { t =>
+      assertEq(log.toList, List("trigger=0, event=0"))
+      log.clear()
+
+      for {
+        _ <- t.clickButton(1) // inc
+        _ =  assertEq(log.toList, Nil)
+
+        _ <- t.clickButton(2) // trigger
+        _ =  assertEq(log.toList, List("trigger=1, event=1"))
+        _ =  log.clear()
+
+        _ <- t.clickButton(1)
+        _ <- t.clickButton(1)
+        _ =  assertEq(log.toList, Nil)
+
+        _ <- t.clickButton(2)
+        _ =  assertEq(log.toList, List("trigger=2, event=3"))
+      } yield ()
     }
   }
 
@@ -2886,6 +3247,7 @@ object HooksTest extends AsyncTestSuite {
 
     "useTransition" - testUseTransition()
     "useTransition (monadic)" - testMonadicUseTransition()
+    "useTransitionAsync" - testUseTransitionAsync()
 
     "useSyncExternalStore" - {
       "const" - UseSyncExternalStore.testConst()
@@ -2897,12 +3259,28 @@ object HooksTest extends AsyncTestSuite {
 
     "useDeferred" - {
       "const" - UseDeferred.testConst()
-      // initialValue was added in React 19 - Uncomment when we upgrade to React 19
-      // "constWithInitial" - UseDeferred.testConstWithInitial()
+      "constWithInitial" - UseDeferred.testConstWithInitial()
     }
     "useDeferred (monadic)" - {
       "const" - UseDeferred.testMonadicConst()
-      // "constWithInitial" - UseDeferred.testMonadicConstWithInitial()
+      "constWithInitial" - UseDeferred.testMonadicConstWithInitial()
+    }
+
+    "useFormStatus" - UseFormStatus.test()
+
+    "useActionState" - {
+      "sync" - UseActionState.testSync()
+      "sync (monadic)" - UseActionState.testSyncMonadic()
+      "async" - UseActionState.testAsync()
+      "noPayload" - UseActionState.testNoPayload()
+      "by" - UseActionState.testBy()
+    }
+
+    "useOptimistic" - {
+      "sync" - UseOptimistic.testStateOnly()
+      "sync (monadic)" - UseOptimistic.testStateOnlyMonadic()
+      "withAction" - UseOptimistic.testWithAction()
+      "withAction (monadic)" - UseOptimistic.testWithActionMonadic()
     }
 
     "renderWithReuse" - {
@@ -2916,5 +3294,7 @@ object HooksTest extends AsyncTestSuite {
     }
     "useReused" - testUseReused()
     "fromFunction" - testFromFunction()
+    "useEffectEvent" - testUseEffectEvent()
+    "useEffectEvent (monadic)" - testUseEffectEventMonadic()
   }
 }
