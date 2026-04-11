@@ -30,6 +30,8 @@ trait VdomNodeScalaSpecificImplicits {
   inline implicit def vdomNodeFromRawReactNode(v: facade.React.Node)(using
       inline evU: NotGiven[v.type <:< Unit],
       inline evB: NotGiven[v.type <:< Boolean],
+      inline evO: NotGiven[v.type <:< scala.scalajs.js.UndefOr[Any]],
+      inline evP: NotGiven[v.type <:< Option[Any]],
     ): VdomNode =
     VdomNode(v)
 }
