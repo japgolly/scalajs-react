@@ -16,11 +16,7 @@ trait ReactDOM extends js.Object {
 
   val version: String = js.native
 
-  // ==========================================================================
-  // NOTE: Ensure that ComponentDom is kept up-to-date with this type
-  //
   final type DomNode = dom.Node
-  // ==========================================================================
 
   final def createPortal(child: React.Node, container: Container): React.Node = js.native
 
