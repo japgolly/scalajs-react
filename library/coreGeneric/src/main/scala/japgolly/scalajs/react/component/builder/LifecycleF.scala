@@ -19,6 +19,7 @@ final case class LifecycleF[F[_], A[_], P, S, B, SS](
       componentWillReceiveProps: Option[ComponentWillReceivePropsFn[F, A, P, S, B]],
       componentWillUnmount     : Option[ComponentWillUnmountFn     [F, A, P, S, B]],
       componentWillUpdate      : Option[ComponentWillUpdateFn      [F, A, P, S, B]],
+      getDerivedStateFromError : Option[GetDerivedStateFromErrorFn [      S]],
       getDerivedStateFromProps : Option[GetDerivedStateFromPropsFn [   P, S]],
       getSnapshotBeforeUpdate  : Option[GetSnapshotBeforeUpdateFn  [F, A, P, S, B, SS]],
       shouldComponentUpdate    : Option[ShouldComponentUpdateFn    [F, A, P, S, B]]) {
@@ -38,6 +39,7 @@ final case class LifecycleF[F[_], A[_], P, S, B, SS](
       componentWillReceiveProps = componentWillReceiveProps,
       componentWillUnmount      = componentWillUnmount     ,
       componentWillUpdate       = componentWillUpdate      ,
+      getDerivedStateFromError  = getDerivedStateFromError ,
       getDerivedStateFromProps  = getDerivedStateFromProps ,
       getSnapshotBeforeUpdate   = getSnapshotBeforeUpdate  ,
       shouldComponentUpdate     = shouldComponentUpdate    )
@@ -47,7 +49,7 @@ object LifecycleF {
   type NoSnapshot = Unit
 
   def empty[F[_], A[_], P, S, B]: LifecycleF[F, A, P, S, B, NoSnapshot] =
-    new LifecycleF(None, None, None, None, None, None, None, None, None, None)
+    new LifecycleF(None, None, None, None, None, None, None, None, None, None, None)
 
   sealed abstract class Base[F[_], A[_], P, S, B](final val raw: RawMounted[P, S, B])(implicit f: UnsafeSync[F], a: Async[A]) {
     protected final implicit def F: UnsafeSync[F] = f
@@ -262,6 +264,12 @@ object LifecycleF {
     @deprecated("forceUpdate prohibited within the componentWillUpdate callback. Use componentWillReceiveProps instead.", "")
     def forceUpdate(no: NotAllowed) = no.result
   }
+
+  // ===================================================================================================================
+
+  def getDerivedStateFromError[F[_], A[_], P, S, B, SS] = Lens((_: LifecycleF[F, A, P, S, B, SS]).getDerivedStateFromError)(n => _.copy(getDerivedStateFromError = n))
+
+  type GetDerivedStateFromErrorFn[S] = js.Any => Option[S]
 
   // ===================================================================================================================
 
