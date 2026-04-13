@@ -11,6 +11,7 @@ import japgolly.scalajs.react.vdom.VdomNode
 import japgolly.scalajs.react.{Children, CtorType, PropsChildren, UpdateSnapshot, facade}
 import scala.annotation.nowarn
 import scala.language.`3.0`
+import scala.scalajs.js
 
 object ComponentBuilder {
 
@@ -267,6 +268,34 @@ object ComponentBuilder {
      */
     def componentWillUnmount[G[_]](f: ComponentWillUnmount[P, S, B] => G[Unit])(implicit G: Dispatch[G]): This =
       lcAppendDispatch(LifecycleF.componentWillUnmount)(f)
+
+    /** getDerivedStateFromError is invoked after an error has been thrown by a descendant component.
+      * It receives the error that was thrown as a parameter and should return a value to update state.
+      *
+      * Note: getDerivedStateFromError is called during the “render” phase, so side-effects are not permitted.
+      * For those use cases, use componentDidCatch instead.
+      */
+    def getDerivedStateFromError(f: js.Any => S): This =
+      getDerivedStateFromErrorOption(e => Some(f(e)))
+
+    /** getDerivedStateFromError is invoked after an error has been thrown by a descendant component.
+      * It receives the error that was thrown as a parameter and should return a value to update state,
+      * or None to update nothing.
+      *
+      * Note: getDerivedStateFromError is called during the “render” phase, so side-effects are not permitted.
+      * For those use cases, use componentDidCatch instead.
+      */
+    def getDerivedStateFromErrorOption(f: js.Any => Option[S]): This = {
+      val update: Lifecycle_ => Lifecycle_ =
+        LifecycleF.getDerivedStateFromError.mod {
+          case None => Some(f)
+          case Some(prev) =>
+            Some { e =>
+              f(e).orElse(prev(e))
+            }
+        }
+      copy(lifecycle = update(lifecycle))
+    }
 
     /** getDerivedStateFromProps is invoked right before calling the render method, both on the initial mount and on
       * subsequent updates.
