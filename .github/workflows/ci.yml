@@ -6,6 +6,7 @@ on:
     branches:
       - '**'
     paths:
+      - '.github/workflows/ci.yml'
       - 'bin/**'
       - 'downstream-tests/**'
       - 'library/**'
