@@ -67,7 +67,10 @@ object ReactTestUtils extends ReactTestUtils {
       }
 
     def mountedElement(c: RawReact.ComponentUntyped | Null) =
-      if (c == null) null else ReactDOM.findDOMNode(c).get.asElement()
+      if (c == null) null else ReactDOM.findDOMNode(c) match {
+        case Some(dom) => dom.asElement()
+        case None      => null
+      }
 
     def parentNode(c: RawReact.ComponentUntyped | Null) = {
       val m = mountedElement(c)
