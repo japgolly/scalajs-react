@@ -22,7 +22,6 @@ Includes a router, testing utils, performance utils, more.
   - [Hooks](doc/HOOKS.md)
   - [Hooks via builder](doc/HOOKS_BUILDER.md)
   - [Refs](doc/REFS.md)
-  - [IDE support](doc/IDE.md)
   - [The `Callback` class](doc/CALLBACK.md)
   - [React Context](doc/CONTEXT.md)
 - Delving deeper
@@ -38,7 +37,7 @@ Includes a router, testing utils, performance utils, more.
   - [Other](doc/EXTRA.md)
 - [Testing](doc/TESTING.md)
 - [Live Examples & Demos](https://japgolly.github.io/scalajs-react/)
-- [Changelogs](doc/changelog) — [**v2.1.3** (Latest)](doc/changelog/2.1.3.md)
+- [Changelogs](doc/changelog) — [**v3.0.0** (Latest)](doc/changelog/3.0.0.md)
 
 
 ##### External Resources
@@ -72,9 +71,9 @@ Includes a router, testing utils, performance utils, more.
   * [scastie](https://github.com/scalacenter/scastie) - An interactive playground for Scala [https://scastie.scala-lang.org](https://scastie.scala-lang.org)
 
 ##### Requirements:
-* React ≥ 18
+* React ≥ 19
 * Scala ≥ 2.13
-* Scala.JS ≥ 1.10
+* Scala.JS ≥ 1.20
 
 ##### Support:
 If you like what I do

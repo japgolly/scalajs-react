@@ -1,1 +1,0 @@
-../../../../tests/src/test/resources/component-es6.js

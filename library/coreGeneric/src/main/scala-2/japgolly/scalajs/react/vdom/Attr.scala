@@ -58,6 +58,65 @@ object Attr {
 
   // ===================================================================================================================
 
+  type ActionHandler = String | js.Function1[dom.FormData, Unit | js.Thenable[Any]]
+
+  def Action(name: String): Action =
+    new Action(name)
+
+  final class Action(name: String) extends Attr[ActionHandler](name) {
+    override def :=[A](a: A)(implicit t: ValueType[A, ActionHandler]): TagMod =
+      t(attrName, a)
+
+    def -->[A](callback: => A)(implicit F: ActionCallback[A]): TagMod = {
+      val f: js.Function1[dom.FormData, Unit | js.Thenable[Any]] = _ => F.prepare(callback)()
+      :=(f)(ValueType.direct)
+    }
+
+    def ==>[A](actionHandler: dom.FormData => A)(implicit F: ActionCallback[A]): TagMod = {
+      val f: js.Function1[dom.FormData, Unit | js.Thenable[Any]] = fd => F.prepare(actionHandler(fd))()
+      :=(f)(ValueType.direct)
+    }
+
+    def -->?[O[_], A](callback: => O[A])(implicit F: ActionCallback[A], O: OptionLike[O]): TagMod =
+      this --> DefaultEffects.Sync.delay(F.runOption(callback))
+
+    def ==>?[O[_], A](actionHandler: dom.FormData => O[A])(implicit F: ActionCallback[A], O: OptionLike[O]): TagMod =
+      ==>(fd => DefaultEffects.Sync.delay(F.runOption(actionHandler(fd))))
+  }
+
+  final case class ActionCallback[A](prepare: (=> A) => js.Function0[Unit | js.Thenable[Any]]) extends AnyVal {
+    def runOption[O[_]](callback: O[A])(implicit O: OptionLike[O]): Unit =
+      O.foreach(callback)(prepare(_)())
+  }
+
+  trait ActionCallback1 {
+    implicit def reusableAsyncDispatch[F[_]](implicit F: Async[F]): ActionCallback[Reusable[F[Unit]]] =
+      new ActionCallback(fa => (() => F.toJsPromise(fa.value)()))
+
+    implicit def asyncDispatch[F[_]](implicit F: Async[F]): ActionCallback[F[Unit]] =
+      new ActionCallback(fa => (() => F.toJsPromise(fa)()))
+  }
+
+  trait ActionCallback2 extends ActionCallback1 {
+    implicit def reusableSyncDispatch[F[_]](implicit F: Sync[F]): ActionCallback[Reusable[F[Unit]]] =
+      new ActionCallback(fa => (() => F.runSync(fa.value)))
+
+    implicit def syncDispatch[F[_]](implicit F: Sync[F]): ActionCallback[F[Unit]] =
+      new ActionCallback(fa => (() => F.runSync(fa)))
+  }
+
+  trait ActionCallback3 extends ActionCallback2 {
+    implicit lazy val reusableDefaultSync: ActionCallback[Reusable[DefaultEffects.Sync[Unit]]] =
+      reusableSyncDispatch(DefaultEffects.Sync)
+  }
+
+  object ActionCallback extends ActionCallback3 {
+    implicit val defaultSync: ActionCallback[DefaultEffects.Sync[Unit]] =
+      syncDispatch(DefaultEffects.Sync)
+  }
+
+  // ===================================================================================================================
+
   final case class EventCallback[A](prepare: (=> A) => js.Function0[Unit]) extends AnyVal {
     def runOption[O[_]](callback: O[A])(implicit O: OptionLike[O]): Unit =
       O.foreach(callback)(prepare(_)())
@@ -158,7 +217,12 @@ object Attr {
       t(attrName, a)
 
     def apply(f: (TopNode | Null) => Unit): TagMod = {
-      val jsFn: facade.React.RefFn[TopNode] = f
+      val jsFn: facade.React.RefFn[TopNode] = n => f(n)
+      :=(jsFn)(ValueType.direct)
+    }
+
+    def withCleanup(f: (TopNode | Null) => (() => Unit)): TagMod = {
+      val jsFn: facade.React.RefFn[TopNode] = n => (f(n): js.Function0[Unit])
       :=(jsFn)(ValueType.direct)
     }
   }

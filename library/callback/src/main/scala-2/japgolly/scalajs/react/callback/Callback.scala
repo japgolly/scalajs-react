@@ -43,10 +43,6 @@ object Callback {
   val empty: Callback =
     new CallbackTo(Trampoline.unit)
 
-  @deprecated("use throwException", "1.6.1")
-  @inline def error(t: Throwable): Callback =
-    CallbackTo.throwException(t)
-
   @inline def throwException(t: Throwable): Callback =
     CallbackTo.throwException(t)
 
@@ -62,14 +58,6 @@ object Callback {
   /** Callback that is recreated each time it is used. */
   @inline def suspend(f: => Callback): Callback =
     CallbackTo.suspend(f)
-
-  /** Callback that is recreated each time it is used.
-    *
-    * https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_name
-    */
-  @deprecated("Use Callback.suspend", "2.0.0")
-  @inline def byName(f: => Callback): Callback =
-    suspend(f)
 
   /**
    * Wraps a [[Future]] so that it is repeatable, and so that its inner callback is run when the future completes.

@@ -42,7 +42,7 @@ friends directly, but if you want your library to be effect-agnostic then follow
 
     1. Create `scalafix.sbt` with:
         ```scala
-        ThisBuild / scalafixDependencies       += "com.github.japgolly.scalajs-react" %% "scalafix" % "2.1.3"
+        ThisBuild / scalafixDependencies       += "com.github.japgolly.scalajs-react" %% "scalafix" % "3.0.0"
         ThisBuild / scalafixScalaBinaryVersion := "2.13"
         ThisBuild / semanticdbEnabled          := true
         ThisBuild / semanticdbVersion          := "4.4.23"

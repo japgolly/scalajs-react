@@ -33,10 +33,6 @@ object ReactExtensions {
         )
       )(self.ctorPF)
 
-    @deprecated("Use .withOptionalRef", "1.7.0")
-    def withRef(r: Option[Ref.Handle[ScalaComponent.RawMounted[P, S, B]]]): ScalaComponent.Component[P, S, B, CT] =
-      withOptionalRef(r)
-
     def withOptionalRef(optionalRef: Option[Ref.Handle[ScalaComponent.RawMounted[P, S, B]]]): ScalaComponent.Component[P, S, B, CT] =
       optionalRef match {
         case None    => self

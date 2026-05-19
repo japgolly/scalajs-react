@@ -11,39 +11,44 @@ for how to write tests for real-world scalajs-react applications.
 #### Contents
 
 - [Setup](#setup)
-- [`ReactTestUtils`](#reacttestutils-since-300)
-- [`LegacyReactTestUtils [DEPRECATED IN 3.0.0]`](#legacyreacttestutils-deprecated-in-300)
-- [`Simulate` and `Simulation`](#simulate-and-simulation)
+- [`ReactTestUtils`](#reacttestutils)
 - [`Testing props changes`](#testing-props-changes)
 - [`ReactTestVar`](#reacttestvar)
 - [`Test Scripts`](#test-scripts)
-- [Fatal React warnings](#fatal-react-warnings)
 
 # Setup
 
-1. Install PhantomJS.
+Firstly add this to your `project/plugins.sbt`:
 
-2. Add the following to SBT:
+```scala
+addSbtPlugin("org.scala-js" % "sbt-jsdependencies" % "1.0.2")
+```
 
-   ```scala
-   // scalajs-react test module
-   libraryDependencies += "com.github.japgolly.scalajs-react" %%% "test" % "2.1.3" % Test
+Then get a copy of React v19 in UMD form.
+You can download a copy from this repo in `/react-umd/dist`.
+Save it as `src/test/resources/react.umd.js`.
 
-   // React JS itself.
-   // NOTE: Requires react-with-addons.js instead of just react.js
-   jsDependencies +=
+You'll likely need a polyfill too.
+You can download a copy from this repo in `/library/tests/src/test/resources/polyfill.js`.
+Save it as `src/test/resources/polyfill.js`.
 
-     "org.webjars.npm" % "react-dom" % "18.3.1" % Test
-       /         "umd/react-dom-test-utils.development.js"
-       minified  "umd/react-dom-test-utils.production.min.js"
-       dependsOn "umd/react-dom.development.js"
-       commonJSName "ReactTestUtils"
-   ```
+Now add the following to your sbt settings:
 
-# `ReactTestUtils [SINCE 3.0.0]`
+```scala
+enablePlugins(JSDependenciesPlugin)
 
-`ReactTestUtils` has been rewritten for scalajs-react v3 and React v18.
-What used to be `ReactTestUtils` prior to scalajs-react v3 has been renamed to `LegacyReactTestUtils`.
+libraryDependencies ++= Seq(
+  "com.github.japgolly.scalajs-react" %%% "test" % "3.0.0" % Test,
+  "com.github.japgolly.scalajs-react" %%% "testing_library-dom" % "3.0.0" % Test,
+)
+
+jsDependencies ++= Seq(
+  (ProvidedJS / "polyfill.js") % Test,
+  (ProvidedJS / "react.umd.js" dependsOn "polyfill.js") % Test,
+)
+```
+
+# `ReactTestUtils`
 
 Read through the following for how to test with `ReactTestUtils`.
 
@@ -85,89 +90,13 @@ object TestUtilsDemo extends TestSuite {
       t.root.renderSync(Component("Bob"))
       t.innerHTML.assertContains("Hi Bob. You clicked 1 times")
     }
-
   }
 }
 ```
 
-# `LegacyReactTestUtils [DEPRECATED IN 3.0.0]`
-
-This used to be called `ReactTestUtils` prior to scalajs-react v3 and React v18.
-
-The main bucket of testing utilities lies in `japgolly.scalajs.react.test.LegacyReactTestUtils`.
-
-Half of the methods delegate to React.JS's [React.addons.TestUtils](https://facebook.github.io/react/docs/test-utils.html)
-(for which there is a raw facade in `japgolly.scalajs.react.test.raw.ReactAddonsTestUtils` if you're interested).
-
-The other half are new functions added specifically in scalajs-react.
-
-- Rendering into DOM with auto-removal
-  - `withRendered[M, A](u: Unmounted[M], intoBody: Boolean)(f: M => A): A`
-  - `withRenderedIntoDocument[M, A](u: Unmounted[M])(f: M => A): A`
-  - `withRenderedIntoBody[M, A](u: Unmounted[M])(f: M => A): A`
-  - `withNewBodyElement[A](use: Element => A): A`
-  - `newBodyElement(): Element`
-  - `removeNewBodyElement(e: Element): Unit`
-  - `renderIntoBody[M, A](u: Unmounted[M]): M`
-- Asynchronously rendering into DOM with auto-removal
-  - `withRenderedAsync[M, A](u: Unmounted[M], intoBody: Boolean)(f: M => Future[A]): Future[A]`
-  - `withRenderedIntoDocumentAsync[M, A](u: Unmounted[M])(f: M => Future[A]): Future[A]`
-  - `withRenderedIntoBodyAsync[M, A](u: Unmounted[M])(f: M => Future[A]): Future[A]`
-  - `withNewBodyElementAsync[A](use: Element => Future[A]): Future[A]`
-- Mounted props modification
-  - `replaceProps(component, mounted)(newProps: P): mounted'`
-  - `modifyProps(component, mounted)(f: P => P): mounted'`
-- Other
-  - `removeReactInternals(html: String): String` - Removes internal annotations from HTML that React inserts.
-
-There's only one magic implicit method this time around:
-Mounted components get `.outerHtmlScrubbed()` which is shorthand for
-`LegacyReactTestUtils.removeReactInternals(m.getDOMNode.outerHTML)`.
-
-# `Simulate` and `Simulation`
-
-To make event simulation easier, certain event types have dedicated, strongly-typed case classes to wrap event data. For example, JS like
-
-```js
-// JavaScript
-ReactAddons.TestUtils.Simulate.change(t, { target: { value: "Hi" } });
-```
-
-becomes
-
-```scala
-// Scala
-Simulate.change(t, SimEvent.Change(value = "Hi"))
-
-// Or shorter
-SimEvent.Change("Hi") simulate t
-```
-
-`Simulate` is from React and imperative.
-If you'd like more composability and/or purity there's also `Simulation` which
-represents action (without a target). It does nothing until `.run` is called and a target is provided.
-
-Example:
-
-```scala
-val a = Simulation.focus
-val b = Simulation.change(SimEvent.Change(value = "hi"))
-val c = Simulation.blur
-val s = a andThen b andThen c
-
-// Or shorter
-val s = Simulation.focus >> SimEvent.Change("hi").simulation >> Simulation.blur
-
-// Or even shorter again, using a convenience method
-val s = Simulation.focusChangeBlur("hi")
-
-// Then run it when you're ready
-s run component
-```
-
 # Testing props changes
 
-If you're using scalajs-react v3 and React v18, simply call `.render` from your React root. Example:
+Simply call `.render` from your React root. Example:
 
 ```scala
 ReactTestUtils.withRendered(Carrot.Props("1").render) { t =>
@@ -175,38 +104,6 @@ ReactTestUtils.withRendered(Carrot.Props("1").render) { t =>
     _ <- t.root.render(Carrot.Props("1").render)
     _ <- t.root.render(Carrot.Props("2").render)
   } yield ()
-}
-```
-
-If you're not using scalajs-react v3 and React v18, then
-when you want to simulate a parent component re-rendering a child component with different props,
-you can test the child directly using `LegacyReactTestUtils.{modify,replace}Props`.
-
-Example of code to test:
-
-```scala
-class CP {
-  var prev = "none"
-  def render(p: String) = <.div(s"$prev → $p")
-}
-val CP = ScalaComponent.builder[String]("asd")
-  .backend(_ => new CP)
-  .renderP(_.backend.render(_))
-  .componentWillReceiveProps(i => Callback(i.backend.prev = i.currentProps))
-  .build
-```
-
-Example test case:
-
-```scala
-LegacyReactTestUtils.withRenderedIntoDocument(CP("start")) { m =>
-  assert(m.outerHtmlScrubbed(), "<div>none → start</div>")
-
-  LegacyReactTestUtils.modifyProps(CP, m)(_ + "ed")
-  assert(m.outerHtmlScrubbed(), "<div>start → started</div>")
-
-  LegacyReactTestUtils.replaceProps(CP, m)("done!")
-  assert(m.outerHtmlScrubbed(), "<div>started → done!</div>")
 }
 ```
 
@@ -288,40 +185,3 @@ In case you missed the notice at the top of the file, that functionality is prov
 
 See [this example](https://github.com/japgolly/test-state/tree/master/example-react)
 for how to write tests for real-world scalajs-react applications.
-
-# Fatal React warnings
-
-To turn React warnings into runtime exceptions, do any of the following...
-
-- Wrapping a test
-
-  ```scala
-  import japgolly.scalajs.react.test.ReactTestUtilsConfig
-  ReactTestUtilsConfig.AroundReact.fatalReactWarnings {
-    // test code here
-  }
-  ```
-
-- Installing for all `ReactTestUtils` usage
-
-  ```scala
-  import japgolly.scalajs.react.test.ReactTestUtilsConfig
-  ReactTestUtilsConfig.aroundReact.set(
-    ReactTestUtilsConfig.AroundReact.fatalReactWarnings)
-  ```
-
-- Installing outside of test code
-
-  ```scala
-  import japgolly.scalajs.react.util.ConsoleHijack
-  ConsoleHijack.fatalReactWarnings.install()
-  ```
-
-- Wrapping non-test code
-
-  ```scala
-  import japgolly.scalajs.react.util.ConsoleHijack
-  ConsoleHijack.fatalReactWarnings {
-    // code here
-  }
-  ```

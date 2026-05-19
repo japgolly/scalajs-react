@@ -95,7 +95,8 @@ object React extends React {
   type ComponentType[Props <: js.Object] =
     (js.Function1[Props, React.Component[Props, _ <: js.Object]] with HasDisplayName) | // TODO: ComponentClass[Props, _ <: js.Object] |
     ForwardRefComponent[Props, _] |
-    StatelessFunctionalComponent[Props]
+    StatelessFunctionalComponent[Props] |
+    Context[_]
 
   type Constructor[P <: js.Object] = js.Function1[P, js.Any] with HasDisplayName
 
@@ -125,12 +126,14 @@ object React extends React {
     String |
     (js.Function1[_ <: js.Object, React.Component[_ <: js.Object, _ <: js.Object]] with HasDisplayName) |
     ForwardRefComponent[_ <: js.Object, _] |
-    StatelessFunctionalComponent[_ <: js.Object]
+    StatelessFunctionalComponent[_ <: js.Object] |
+    Context[_]
 
   @js.native
   trait ErrorInfo extends js.Object {
     val componentStack: js.UndefOr[String] = js.native
     val digest        : js.UndefOr[String] = js.native
+    val errorBoundary : js.UndefOr[React.Component[_ <: js.Object, _ <: js.Object]] = js.native
   }
 
   type Key = String | JsNumber
@@ -139,7 +142,7 @@ object React extends React {
 
   type Ref = RefFn[ElementRef] | RefHandle[Any]
 
-  type RefFn[A] = js.Function1[A | Null, Unit]
+  type RefFn[A] = js.Function1[A | Null, Unit | js.Function0[Unit]]
 
   @js.native
   trait RefHandle[A] extends js.Object {
@@ -178,6 +181,15 @@ object React extends React {
   }
 
   type LazyResultValue[P <: js.Object] = ComponentType[P]
+
+  // TypeScript (basically) defines this for use in Usable but I think it works with any Thenable
+  // @js.native
+  // trait ReactPromise[+A] extends js.Thenable[A] {
+  //   val status: js.UndefOr[String] = js.native
+  //   val value: js.UndefOr[A] = js.native
+  // }
+
+  type Usable[T] = js.Thenable[T] | Context[T]
 }
 
 @js.native
@@ -220,9 +232,15 @@ trait React extends Hooks with Testing {
   /** @since 16.6.0 */
   final def memo[P <: js.Object, A](f: js.Function1[P, A], areEqual: js.Function2[P, P, Boolean] = js.native): js.Object = js.native
 
-  final def startTransition(callback: js.Function0[Unit]): Unit = js.native
+  final def startTransition(callback: js.Function0[Unit | js.Thenable[Any]]): Unit = js.native
+
+  /** @since 4.0.0 / React 19 */
+  final def use[A](resource: Usable[A]): A = js.native
 
   final val version: String = js.native
+
+  /** @since 4.0.0 / React 19 */
+  final val Activity: js.Symbol = js.native
 
   /** React.Children provides utilities for dealing with the this.props.children opaque data structure. */
   final val Children: React.Children = js.native
@@ -232,7 +250,4 @@ trait React extends Hooks with Testing {
   final val Profiler: js.Symbol = js.native
 
   final val StrictMode: js.Symbol = js.native
-
-  @JSName("__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED")
-  final val SecretInternals: SecretInternals = js.native
 }

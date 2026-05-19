@@ -35,6 +35,15 @@ object ContextTest extends TestSuite {
       "provided" - assertRender(provider(88), "<pre><h4>i = 88</h4></pre>")
     }
 
+    "usageApply" - {
+      val ctx = React.createContext(123)
+      val consumer = ScalaFnComponent[Unit](_ => <.h4(ctx.consume("i = " + _)))
+      val provider = ScalaFnComponent[Int](i => <.pre(ctx(i)(consumer())))
+
+      "default"  - assertRender(consumer(), "<h4>i = 123</h4>")
+      "provided" - assertRender(provider(456), "<pre><h4>i = 456</h4></pre>")
+    }
+
     "refEq" - {
       def test[A](a: React.Context.Provided[A])(b: React.Context.Provided[A], expect: Boolean = true): Unit = {
         val actual = ObjectIs(a.value, b.value)

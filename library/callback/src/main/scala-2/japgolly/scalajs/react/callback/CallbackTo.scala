@@ -41,14 +41,6 @@ object CallbackTo {
   def suspend[A](f: => CallbackTo[A]): CallbackTo[A] =
     new CallbackTo(Trampoline.suspend(() => f.trampoline))
 
-  /** Callback that is recreated each time it is used.
-    *
-    * https://en.wikipedia.org/wiki/Evaluation_strategy#Call_by_name
-    */
-  @deprecated("Use CallbackTo.suspend", "2.0.0")
-  def byName[A](f: => CallbackTo[A]): CallbackTo[A] =
-    suspend(f)
-
   /** Tail-recursive callback. Uses constant stack space.
     *
     * Based on Phil Freeman's work on stack safety in PureScript, described in
@@ -737,11 +729,6 @@ final class CallbackTo[+A] private[react] (private[CallbackTo] val trampoline: T
    */
   def ||(b: CallbackTo[Boolean])(implicit ev: CallbackTo[A] <:< CallbackTo[Boolean]): CallbackTo[Boolean] =
     bool2(b)(_() || _())
-
-  /** Negates the callback result (so long as it's boolean). */
-  @deprecated("Use !cb instead of cb.!", "2.0.0")
-  def !(implicit ev: CallbackTo[A] <:< CallbackTo[Boolean]): CallbackTo[Boolean] =
-    ev(this).map(!_)
 
   /** Negates the callback result (so long as it's boolean). */
   def unary_!(implicit ev: CallbackTo[A] <:< CallbackTo[Boolean]): CallbackTo[Boolean] =

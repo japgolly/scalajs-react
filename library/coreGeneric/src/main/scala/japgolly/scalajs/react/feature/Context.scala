@@ -18,6 +18,10 @@ sealed trait Context[A] { ctx =>
   final def displayName: String =
     raw.displayName.getOrElse("")
 
+  /** @since 4.0.0 / React 19 */
+  @inline final def apply(value: A): Context.Provided[A] =
+    provide(value)
+
   /** Allows Consumers to subscribe to context changes.
     * Accepts a value prop to be passed to Consumers that are descendants of this Provider.
     * One Provider can be connected to many Consumers. Providers can be nested to override values deeper within the
@@ -69,7 +73,7 @@ sealed trait Context[A] { ctx =>
       }
 
       override def apply(children: VdomNode*): VdomElement = {
-        val e = facade.React.createElement[Props](raw.Provider, props, children.map(_.rawNode): _*)
+        val e = facade.React.createElement[Props](raw, props, children.map(_.rawNode): _*)
         VdomElement(e)
       }
     }

@@ -222,6 +222,7 @@ object ViaReactComponent {
 
   private final class StaticProps(val methods: js.Array[Method] = js.Array()) extends AnyVal {
     def add[O](k: String, v: js.Any): Unit = methods.push(Method(k, v))
+    def add1[A, O](k: String, f: A => O): Unit = add(k, f: js.Function1[A, O])
     def add2[A, B, O](k: String, f: (A, B) => O): Unit = add(k, f: js.Function2[A, B, O])
   }
 
@@ -321,6 +322,10 @@ object ViaReactComponent {
     for (f <- builder.lifecycle.componentWillUpdate)
       protoProps.add2("componentWillUpdate",
         (_this: This, p: Box[P], s: Box[S]) => Sync.runSync(f(new ComponentWillUpdate(_this, p.unbox, s.unbox))))
+
+    for (f <- builder.lifecycle.getDerivedStateFromError)
+      staticProps.add1("getDerivedStateFromError",
+        (e: js.Any) => boxStateOrNull(f(e)))
 
     for (f <- builder.lifecycle.getDerivedStateFromProps)
       staticProps.add2("getDerivedStateFromProps",

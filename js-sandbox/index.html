@@ -1,22 +1,29 @@
 <!DOCTYPE html>
-<html>
-<head lang="en">
+<html lang="en">
+<head>
     <meta charset="UTF-8">
-    <title></title>
-    <script crossorigin src="https://unpkg.com/react@16.13.1/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@16.13.1/umd/react-dom.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@16.13.1/umd/react-dom-server.browser.development.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React 19 ESM Import</title>
 </head>
 <body>
-  <div id="root">I AM ROOT.</div>
 
-  <!-- <script src="./lifecycle-1.js"></script> -->
-  <!-- <script src="./events.js"></script> -->
-  <!-- <script src="./simevent-kb-gen.js"></script> -->
-  <script src="./hooks.js"></script>
+    <div id="root"></div>
 
-  <!-- <script src="../test/target/scala-2.13/test-fastopt.js"></script>
-  <script>main()</script> -->
+    <script type="module">
+        // Importing React 19 from a CDN
+        import React from 'https://esm.sh/react@19.2.5';
+        import ReactDOM from 'https://esm.sh/react-dom@19.2.5/client';
 
+        // Storing them in the window object
+        window.React = React;
+        window.ReactDOM = ReactDOM;
+
+        // Verification
+        console.log("React version:", window.React.version);
+
+        // Example Usage: Rendering a simple element
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(React.createElement('h1', null, 'React ' + React.version + ' is loaded!'));
+    </script>
 </body>
 </html>

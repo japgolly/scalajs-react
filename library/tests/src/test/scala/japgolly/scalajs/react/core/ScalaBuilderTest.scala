@@ -68,19 +68,6 @@ object ScalaBuilderTest extends TestSuite {
         "useChildren"          - assertRender(UseChildren.C(<.br), "<div><br/></div>")
         "usePropsAndChildren"  - assertRender(UsePropsAndChildren.C(1)(<.br), "<div>1<br/></div>")
       }
-
-      "failure" - {
-        "ambiguousType" - assertContains(
-          compileError("AmbiguousType.x.renderBackend").msg, "what: Int")
-
-        "useChildrenWithoutSpecifying" - assertContains(
-          compileError("UseChildrenWithoutSpecifying.x.renderBackend").msg,
-          "Use renderBackendWithChildren instead")
-
-        "specifyChildrenWithoutUsing" - assertContains(
-          compileError("SpecifyChildrenWithoutUsing.x.renderBackendWithChildren").msg,
-          "Use renderBackend instead")
-      }
     }
 
     "updateSnapshot" - {

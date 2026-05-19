@@ -8,6 +8,7 @@ import japgolly.scalajs.react.util.Effect._
 import japgolly.scalajs.react.util.Semigroup
 import japgolly.scalajs.react.vdom.VdomNode
 import japgolly.scalajs.react.{Children, CtorType, PropsChildren, UpdateSnapshot, facade}
+import scala.scalajs.js
 
 object ComponentBuilder {
   import Lifecycle._
@@ -40,32 +41,6 @@ object ComponentBuilder {
     * If your component is to be stateless, you can skip this step or explicitly use `.stateless`.
     */
   final class Step1[P](private val name: String) extends AnyVal {
-
-    /** getDerivedStateFromProps is invoked right before calling the render method, both on the initial mount and on
-      * subsequent updates.
-      *
-      * This method exists for rare use cases where the state depends on changes in props over time.
-      * For example, it might be handy for implementing a Transition component that compares its previous and next
-      * children to decide which of them to animate in and out.
-      *
-      * Deriving state leads to verbose code and makes your components difficult to think about.
-      * Make sure you're familiar with simpler alternatives:
-      *
-      *   - If you need to perform a side effect (for example, data fetching or an animation) in response to a change in
-      *     props, use componentDidUpdate lifecycle instead.
-      *
-      *   - If you want to re-compute some data only when a prop changes, use a memoization helper instead.
-      *
-      *   - If you want to "reset" some state when a prop changes, consider either making a component fully controlled
-      *     or fully uncontrolled with a key instead.
-      *
-      * Note that this method is fired on every render, regardless of the cause.
-      * This is in contrast to componentWillReceiveProps, which only fires when the parent causes a re-render and
-      * not as a result of a local setState.
-      */
-    @deprecated("Use getDerivedStateFromPropsAndState instead. This doesn't just get called when props change, it gets called when state changes too; meaning it gets reset every time you call setState (!)", "1.7.1")
-    def getDerivedStateFromProps[S](f: P => S): Step2[P, S] =
-      new Step2(name, InitState.DerivedFromProps(f))
 
     /** This is called twice when a component is first rendered. Once with state set to `None` and then again by React
       * with state set to `Some`.
@@ -127,28 +102,6 @@ object ComponentBuilder {
 
     def noBackend: Step3[P, S, Unit] =
       backend(_ => ())
-
-    /** Shortcut for:
-      *
-      * {{{
-      *   .backend[B](new B(_))
-      *   .renderBackend
-      * }}}
-      */
-    @deprecated("Call .backend(new B(_)) and then .render or one of its variants", "3.0.0")
-    def renderBackend[B]: LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
-      macro ComponentBuilderMacros.backendAndRender[P, S, B]
-
-    /** Shortcut for:
-      *
-      * {{{
-      *   .backend[B](new B(_))
-      *   .renderBackendWithChildren
-      * }}}
-      */
-    @deprecated("Call .backend(new B(_)) and then .render or one of its variants", "3.0.0")
-    def renderBackendWithChildren[B]: LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
-      macro ComponentBuilderMacros.backendAndRenderWithChildren[P, S, B]
   }
 
   // ===================================================================================================================
@@ -232,22 +185,6 @@ object ComponentBuilder {
 
     def render_C(r: PropsChildren => VdomNode): LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
       renderWith($ => r($.propsChildren))
-
-    /**
-     * Use a method named `render` in the backend, automatically populating its arguments with props and state
-     * where needed.
-     */
-    @deprecated("Call .render or one of its variants", "3.0.0")
-    def renderBackend: LastStep[P, Children.None, S, B, UpdateSnapshot.None] =
-      macro ComponentBuilderMacros.renderBackend[P, S, B]
-
-    /**
-     * Use a method named `render` in the backend, automatically populating its arguments with props, state, and
-     * propsChildren where needed.
-     */
-    @deprecated("Call .render or one of its variants", "3.0.0")
-    def renderBackendWithChildren: LastStep[P, Children.Varargs, S, B, UpdateSnapshot.None] =
-      macro ComponentBuilderMacros.renderBackendWithChildren[P, S, B]
   }
 
   // ===================================================================================================================
@@ -324,34 +261,6 @@ object ComponentBuilder {
       setLC[UpdateSnapshot.Some[SnapshotValue]](lcAppendDispatch(LifecycleF.componentDidUpdate)(f).lifecycle)
 
     /**
-     * Invoked once, both on the client and server, immediately before the initial rendering occurs.
-     * If you call `setState` within this method, `render()` will see the updated state and will be executed only once
-     * despite the state change.
-     */
-    @deprecated(
-      "Use either .initialState* on the component builder, or .componentDidMount. See https://reactjs.org/docs/react-component.html#unsafe_componentwillmount / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
-      "scalajs-react 1.7.0 / React 16.9.0")
-    def componentWillMount[G[_]](f: ComponentWillMount[P, S, B] => G[Unit])(implicit G: Dispatch[G]): This =
-      lcAppendDispatch(LifecycleF.componentWillMount)(f)
-
-    /**
-     * Invoked when a component is receiving new props. This method is not called for the initial render.
-     *
-     * Use this as an opportunity to react to a prop transition before `render()` is called by updating the state using
-     * `this.setState()`. The old props can be accessed via `this.props`. Calling `this.setState()` within this function
-     * will not trigger an additional render.
-     *
-     * Note: There is no analogous method `componentWillReceiveState`. An incoming prop transition may cause a state
-     * change, but the opposite is not true. If you need to perform operations in response to a state change, use
-     * `componentWillUpdate`.
-     */
-    @deprecated(
-      "See https://reactjs.org/docs/react-component.html#unsafe_componentwillreceiveprops / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
-      "scalajs-react 1.7.0 / React 16.9.0")
-    def componentWillReceiveProps[G[_]](f: ComponentWillReceiveProps[P, S, B] => G[Unit])(implicit G: Dispatch[G]): This =
-      lcAppendDispatch(LifecycleF.componentWillReceiveProps)(f)
-
-    /**
      * Invoked immediately before a component is unmounted from the DOM.
      *
      * Perform any necessary cleanup in this method, such as invalidating timers or cleaning up any DOM elements that were
@@ -360,20 +269,33 @@ object ComponentBuilder {
     def componentWillUnmount[G[_]](f: ComponentWillUnmount[P, S, B] => G[Unit])(implicit G: Dispatch[G]): This =
       lcAppendDispatch(LifecycleF.componentWillUnmount)(f)
 
-    /**
-     * Invoked immediately before rendering when new props or state are being received. This method is not called for the
-     * initial render.
-     *
-     * Use this as an opportunity to perform preparation before an update occurs.
-     *
-     * Note: You *cannot* use `this.setState()` in this method. If you need to update state in response to a prop change,
-     * use `componentWillReceiveProps` instead.
-     */
-    @deprecated(
-      "Use .componentDidUpdate or .getSnapshotBeforeUpdate. See https://reactjs.org/docs/react-component.html#unsafe_componentwillupdate / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
-      "scalajs-react 1.7.0 / React 16.9.0")
-    def componentWillUpdate[G[_]](f: ComponentWillUpdate[P, S, B] => G[Unit])(implicit G: Dispatch[G]): This =
-      lcAppendDispatch(LifecycleF.componentWillUpdate)(f)
+    /** getDerivedStateFromError is invoked after an error has been thrown by a descendant component.
+      * It receives the error that was thrown as a parameter and should return a value to update state.
+      *
+      * Note: getDerivedStateFromError is called during the “render” phase, so side-effects are not permitted.
+      * For those use cases, use componentDidCatch instead.
+      */
+    def getDerivedStateFromError(f: js.Any => S): This =
+      getDerivedStateFromErrorOption(e => Some(f(e)))
+
+    /** getDerivedStateFromError is invoked after an error has been thrown by a descendant component.
+      * It receives the error that was thrown as a parameter and should return a value to update state,
+      * or None to update nothing.
+      *
+      * Note: getDerivedStateFromError is called during the “render” phase, so side-effects are not permitted.
+      * For those use cases, use componentDidCatch instead.
+      */
+    def getDerivedStateFromErrorOption(f: js.Any => Option[S]): This = {
+      val update: Lifecycle_ => Lifecycle_ =
+        LifecycleF.getDerivedStateFromError.mod {
+          case None => Some(f)
+          case Some(prev) =>
+            Some { e =>
+              f(e).orElse(prev(e))
+            }
+        }
+      copy(lifecycle = update(lifecycle))
+    }
 
     /** getDerivedStateFromProps is invoked right before calling the render method, both on the initial mount and on
       * subsequent updates.
@@ -556,21 +478,6 @@ object ComponentBuilder {
     def componentWillUnmountConst [G[_]](f: G[Unit]   )(implicit G: Dispatch[G]): This = {val x = DS.transDispatch(f); componentWillUnmount (_ => x)}
     def shouldComponentUpdateConst[G[_]](f: G[Boolean])(implicit G: Sync    [G]): This = {val x = DS.transSync    (f); shouldComponentUpdate(_ => x)}
     def shouldComponentUpdateConst      (b : Boolean  )                         : This = shouldComponentUpdateConst(DS.pure(b))
-
-    @deprecated(
-      "Use either .initialState* on the component builder, or .componentDidMount. See https://reactjs.org/docs/react-component.html#unsafe_componentwillmount / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
-      "scalajs-react 1.7.0 / React 16.9.0")
-    def componentWillMountConst[G[_]](cb: G[Unit])(implicit G: Dispatch[G]): This = componentWillMount(_ => cb)
-
-    @deprecated(
-      "See https://reactjs.org/docs/react-component.html#unsafe_componentwillreceiveprops / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
-      "scalajs-react 1.7.0 / React 16.9.0")
-    def componentWillReceivePropsConst[G[_]](cb: G[Unit])(implicit G: Dispatch[G]): This = componentWillReceiveProps(_ => cb)
-
-    @deprecated(
-      "Use .componentDidUpdate or .getSnapshotBeforeUpdate. See https://reactjs.org/docs/react-component.html#unsafe_componentwillupdate / https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html",
-      "scalajs-react 1.7.0 / React 16.9.0")
-    def componentWillUpdateConst[G[_]](cb: G[Unit])(implicit G: Dispatch[G]): This = componentWillUpdate(_ => cb)
 
     /** This is the end of the road for this component builder.
       *

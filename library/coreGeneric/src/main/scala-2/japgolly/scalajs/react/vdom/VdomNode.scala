@@ -2,21 +2,12 @@ package japgolly.scalajs.react.vdom
 
 import japgolly.scalajs.react.facade
 import japgolly.scalajs.react.internal.ScalaJsReactConfigMacros
-import japgolly.scalajs.react.util.Effect.Dispatch
 
 trait VdomNode extends TagMod {
   def rawNode: facade.React.Node
 
   override def applyTo(b: VdomBuilder): Unit =
     b.appendChild(rawNode)
-
-  @deprecated("Use ReactDOMClient.createRoot and root.render instead", "3.0.0 / React v18")
-  @inline final def renderIntoDOM(container: facade.ReactDOM.Container): facade.React.ComponentUntyped =
-    facade.ReactDOM.render(rawNode, container)
-
-  @deprecated("Use ReactDOMClient.createRoot and root.render instead", "3.0.0 / React v18")
-  @inline final def renderIntoDOM[G[_]](container: facade.ReactDOM.Container, callback: => G[Unit])(implicit G: Dispatch[G]): facade.React.ComponentUntyped =
-    facade.ReactDOM.render(rawNode, container, G.dispatchFn(callback))
 }
 
 object VdomNode {

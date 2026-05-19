@@ -33,6 +33,9 @@ object React {
   def createContext[A](displayName: String, defaultValue: A): Context[A] =
     Context(displayName, defaultValue)
 
+  /** @since 4.0.0 / React 19 */
+  val Activity = feature.Activity
+
   type Context[A] = feature.Context[A]
   val  Context    = feature.Context
 
@@ -68,6 +71,15 @@ object React {
     */
   def startTransition[F[_]](callback: => F[Unit])(implicit F: Sync[F]) =
     F.delay(facade.React.startTransition(F.toJsFn(callback)))
+
+  /** @since 4.0.0 / React 19 */
+  def use[A](resource: Context[A]): A =
+    facade.React.use[A](resource.raw)
+
+  // I doubt this would ever be used from idiomatic scalajs-react code.
+  /** @since 4.0.0 / React 19 */
+  def use[F[_], A](async: F[A])(implicit F: Async[F]): A =
+    facade.React.use[A](F.toJsPromise(async)())
 
   val Profiler = feature.Profiler
 

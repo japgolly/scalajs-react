@@ -4,6 +4,7 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.core.JsComponentEs6PTest
 import japgolly.scalajs.react.test.TestUtil._
 import japgolly.scalajs.react.vdom.html_<^._
+import org.scalajs.dom.FormData
 import scala.annotation.nowarn
 import scala.scalajs.js
 import sourcecode.Line
@@ -36,7 +37,7 @@ object PrefixedTest extends TestSuite {
 
     "inner" - {
       "undefined" - test(<.div(js.undefined),        """<div></div>""")
-      // "jsDefined" - test(<.div(1: js.UndefOr[Int]),  """<div>1</div>""") // issue #1123
+      "jsDefined" - test(<.div(1: js.UndefOr[Int]),  """<div>1</div>""")
       "byte"      - test(<.div(50: Byte),            """<div>50</div>""")
       "short"     - test(<.div(45: Short),           """<div>45</div>""")
       "int"       - test(<.div(666),                 """<div>666</div>""")
@@ -53,12 +54,12 @@ object PrefixedTest extends TestSuite {
       "compJS"    - test(<.div(jsComp),              """<div><div>Hello yo</div></div>""")
     }
 
-    "checkboxT"  - test(checkbox(true),  """<input type="checkbox" readonly="" checked=""/>""")
-    "checkboxF"  - test(checkbox(false), """<input type="checkbox" readonly=""/>""")
+    "checkboxT"  - test(checkbox(true),  """<input type="checkbox" readOnly="" checked=""/>""")
+    "checkboxF"  - test(checkbox(false), """<input type="checkbox" readOnly=""/>""")
 
      "attr" - {
       "aria"       - test(<.div(^.aria.label := "ow", "a"),            """<div aria-label="ow">a</div>""")
-      "attrs"      - test(<.div(^.rowSpan := 1, ^.colSpan := 3),       """<div rowspan="1" colSpan="3"></div>""")
+      "attrs"      - test(<.div(^.rowSpan := 1, ^.colSpan := 3),       """<div rowSpan="1" colSpan="3"></div>""")
       "styleObj"   - test(<.div(^.style := jsObject),                  """<div style="a:b"></div>""")
       "styleDict"  - test(<.div(^.style := js.Dictionary("x" -> "y")), """<div style="x:y"></div>""")
       "styleAttrs" - test(<.div(^.color := "red", ^.cursor.auto),      """<div style="color:red;cursor:auto"></div>""")
@@ -320,6 +321,17 @@ object PrefixedTest extends TestSuite {
 
     "anchorToNewWindow" - {
       test(<.a.toNewWindow("/ok")("OK!"), """<a target="_blank" href="/ok" rel="noopener">OK!</a>""")
+    }
+
+    "action" - {
+      // Successful compilation is all we test for
+      def t(m: TagMod) = ()
+      "string" - t(^.action := "/ok")
+      "sync0" - t(^.action --> Callback.empty)
+      "sync1" - t(^.action ==> ((_: FormData) => Callback.empty))
+      "async0" - t(^.action --> AsyncCallback.unit)
+      "async1" - t(^.action ==> ((_: FormData) => AsyncCallback.unit))
+      "boolean" - compileError(" ^.action := false ")
     }
   }
 }

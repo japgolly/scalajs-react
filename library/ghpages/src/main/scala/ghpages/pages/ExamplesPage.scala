@@ -50,7 +50,6 @@ object ExamplesScala extends ExampleCollection {
   case object Touch          extends Example("Touch events",       "touch-events",      TouchExample           .content)
   case object StateSnapshot1 extends Example("StateSnapshot (1)",  "state-snapshot-1",  StateSnapshotExample1  .content)
   case object StateSnapshot2 extends Example("StateSnapshot (2)",  "state-snapshot-2",  StateSnapshotExample2  .content)
-  case object Reuse          extends Example("Reusability",        "reusability",       ReuseExample           .content)
   case object CallbackOpt    extends Example("CallbackOption",     "callback-option",   CallbackOptionExample  .content)
   case object WebSockets     extends Example("WebSockets",         "websockets",        WebSocketsExample      .content)
   case object Checkbox3      extends Example("Tri-state Checkbox", "tristate-checkbox", TriStateCheckboxExample.content)
@@ -63,7 +62,6 @@ object ExamplesScala extends ExampleCollection {
     CallbackOpt,
     StateSnapshot1,
     StateSnapshot2,
-    Reuse,
     Touch,
     WebSockets,
     Checkbox3,
