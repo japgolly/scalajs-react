@@ -27,8 +27,8 @@ object Lib {
   )
 
   def scalac2Flags = Seq(
-    "-opt:l:inline",
-    "-opt-inline-from:japgolly.scalajs.react.**",
+    // "-opt:l:inline",
+    // "-opt-inline-from:japgolly.scalajs.react.**",
     "-Wconf:cat=lint-infer-any&msg=kind-polymorphic:s", // https://github.com/scala/bug/issues/13128
     "-Wunused:explicits",                            // Warn if an explicit parameter is unused.
     "-Wunused:implicits",                            // Warn if an implicit parameter is unused.
@@ -69,7 +69,7 @@ object Lib {
   def commonSettingsWithoutPlugins: PE = _
     .configure(sourceMapsToGithub(ghProject))
     .settings(
-      scalaVersion                  := Ver.scala2,
+      scalaVersion                  := Ver.scala3,
       crossScalaVersions            := Seq(Ver.scala2, Ver.scala3),
       scalacOptions                ++= scalacCommonFlags,
       scalacOptions                ++= byScalaVersion {

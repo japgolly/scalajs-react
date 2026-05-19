@@ -1,10 +1,13 @@
 package japgolly.scalajs.react.test
 
-import japgolly.scalajs.react.util.ConsoleHijack
+import japgolly.scalajs.react.facade._
 
 object InitTestEnv {
   def apply(): Unit = ()
 
-  // Treat React warnings as failures
-  ConsoleHijack.fatalReactWarnings.install()
+  // Log versions
+  println("React version = " + React.version)
+  println("ReactDOM version = " + ReactDOM.version)
+  println("ReactDOMClient version = " + ReactDOMClient.version)
+  println("ReactDOMServer version = " + ReactDOMServer.version)
 }

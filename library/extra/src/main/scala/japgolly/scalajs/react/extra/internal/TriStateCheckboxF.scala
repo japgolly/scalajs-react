@@ -6,7 +6,7 @@ import japgolly.scalajs.react.internal.EffectUtil
 import japgolly.scalajs.react.util.DefaultEffects
 import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.vdom.html_<^._
-import org.scalajs.dom.ext.KeyCode
+import org.scalajs.dom.KeyCode
 import org.scalajs.dom.html.Input
 
 /**

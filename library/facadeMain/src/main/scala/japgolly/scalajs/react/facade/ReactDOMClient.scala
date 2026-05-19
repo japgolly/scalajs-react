@@ -11,6 +11,8 @@ object ReactDOMClient extends ReactDOMClient
 
 @js.native
 trait ReactDOMClient extends js.Object {
+  val version: String = js.native
+
   final type HydrationContainer = dom.Element | dom.Document
   final type RootContainer      = dom.Element | dom.DocumentFragment
 
@@ -31,12 +33,16 @@ trait RootType extends js.Object {
 trait CreateRootOptions extends js.Object {
   var identifierPrefix  : js.UndefOr[String]
   var onRecoverableError: js.UndefOr[js.Function2[js.Any, React.ErrorInfo, Unit]]
+  var onCaughtError     : js.UndefOr[js.Function2[js.Any, React.ErrorInfo, Unit]]
+  var onUncaughtError   : js.UndefOr[js.Function2[js.Any, React.ErrorInfo, Unit]]
 }
 
 @js.native
 trait HydrateRootOptions extends js.Object {
   var identifierPrefix  : js.UndefOr[String]
   var onRecoverableError: js.UndefOr[js.Function2[js.Any, React.ErrorInfo, Unit]]
+  var onCaughtError     : js.UndefOr[js.Function2[js.Any, React.ErrorInfo, Unit]]
+  var onUncaughtError   : js.UndefOr[js.Function2[js.Any, React.ErrorInfo, Unit]]
 }
 
 // @js.native

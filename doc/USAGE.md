@@ -16,70 +16,8 @@ It is expected that you know how React itself works.
 
 # Setup
 
-1. Add [Scala.js](http://www.scala-js.org) to your project.
-
-2. Add _scalajs-react_ to SBT:
-
-   There are a number of different modules available.
-   On this page we'll just use the `core` module but refer to the [Modules doc](./MODULES.md) to
-   see other module options.
-
-```scala
-// "core" = essentials only. No bells or whistles.
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "3.0.0"
-```
-
-3. Add React to your build.
-
-   How to do this depends on your Scala.JS config and build setup.
-
-   If you're using [scalajs-bundler](https://scalacenter.github.io/scalajs-bundler/),
-   add the following SBT settings to get started:
-
-   ```scala
-     enablePlugins(ScalaJSPlugin)
-
-     enablePlugins(ScalaJSBundlerPlugin)
-
-     libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "3.0.0"
-
-     Compile / npmDependencies ++= Seq(
-       "react" -> "18.3.1",
-       "react-dom" -> "18.3.1")
-   ```
-
-   If you're using `jsDependencies`, add the following:
-
-   ```scala
-   // Required for React 18.3.1
-   dependencyOverrides += "org.webjars.npm" % "scheduler" % "0.22.0",
-
-   jsDependencies ++= Seq(
-
-     // Polyfill required for React 18.3.1
-     "org.webjars.npm" % "fast-text-encoding" % "1.0.3" / "text.js" minified "text.min.js"
-
-     "org.webjars.npm" % "react" % "18.3.1"
-       /         "umd/react.development.js"
-       minified  "umd/react.production.min.js"
-       dependsOn "text.js" // <-- Load the fast-text-encoding polyfill before loading React itself
-       commonJSName "React",
-
-     "org.webjars.npm" % "react-dom" % "18.3.1"
-       /         "umd/react-dom.development.js"
-       minified  "umd/react-dom.production.min.js"
-       dependsOn "umd/react.development.js"
-       commonJSName "ReactDOM",
-
-     "org.webjars.npm" % "react-dom" % "18.3.1"
-       /         "umd/react-dom-server.browser.development.js"
-       minified  "umd/react-dom-server.browser.production.min.js"
-       dependsOn "umd/react-dom.development.js"
-       commonJSName "ReactDOMServer",
-   ),
-   ```
-
-[See here](IDE.md) for tips on configuring your IDE.
+See this [prototype repo](https://github.com/japgolly/scalajs-react-19-prototype)
+for how to have scalajs-react with React v19 installed for both dev and test scopes.
 
 # Creating Virtual-DOM
 

@@ -69,7 +69,6 @@ object StateSnapshotExample2 {
           s"Current value is ${stateSnapshot.value}. Click to increment",
           ^.onClick --> stateSnapshot.modState(_ + 1)))
     }
-    .configure(ReusabilityOverlay.install)
     .build
 
   // -----------------------------------------------------------------------------------------------------------------
@@ -82,7 +81,6 @@ object StateSnapshotExample2 {
           ^.value     := stateSnapshot.value,
           ^.onChange ==> ((e: ReactEventFromInput) => stateSnapshot.setState(e.target.value))))
     }
-    .configure(ReusabilityOverlay.install)
     .build
 
   // -----------------------------------------------------------------------------------------------------------------

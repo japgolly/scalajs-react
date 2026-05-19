@@ -3,17 +3,9 @@ package japgolly.scalajs.react.facade
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSGlobal
 
-@js.native
-trait Interaction extends js.Object {
-  val __count  : Int    = js.native
-  val id       : Int    = js.native
-  val name     : String = js.native
-  val timestamp: Double = js.native
-}
-
 object Profiler {
 
-  type OnRender = js.Function7[
+  type OnRender = js.Function6[
 
     // id: the "id" prop of the Profiler tree that has just committed
     String,
@@ -32,10 +24,6 @@ object Profiler {
 
     // commitTime: when React committed this update
     Double,
-
-    // [React < 18] interactions: Set of interactions belonging to this update
-    // [React >= 18] This has been removed
-    js.UndefOr[js.Set[Interaction]],
 
     Unit
   ]

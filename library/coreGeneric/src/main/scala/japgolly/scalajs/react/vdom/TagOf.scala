@@ -62,8 +62,5 @@ object TagOf {
   final case class RefArg[N <: TopNode](value: Option[Ref.Set[N]]) extends AnyVal
   object RefArg {
     implicit def set[N <: TopNode](r: Ref.Set[N]): RefArg[N] = apply(Some(r))
-
-    @deprecated("Use .withOptionalRef", "1.7.0")
-    implicit def option[N <: TopNode](o: Option[Ref.Set[N]]): RefArg[N] = apply(o)
   }
 }

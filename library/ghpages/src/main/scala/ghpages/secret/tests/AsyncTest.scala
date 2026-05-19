@@ -46,7 +46,7 @@ object AsyncTest {
   }
 
   private def getUser(userId: Int) =
-    Ajax("GET", s"https://reqres.in/api/users/$userId")
+    Ajax("GET", s"https://jsonplaceholder.typicode.com/users/$userId")
       .setRequestContentTypeJsonUtf8
       .send
       .validateStatusIsSuccessful(Callback.throwException(_))
@@ -57,10 +57,10 @@ object AsyncTest {
   private val get2 = getUser(2)
 
   private def xhrToText(xhr: XMLHttpRequest): String = {
-    val idRegex = "(\"id\":\\d+)".r
+    val idRegex = "(\"id\" *: *\\d+)".r
     idRegex.findFirstIn(xhr.responseText) match {
       case Some(m) =>
-        val id = m.replace("\"", "")
+        val id = m.replace("\"", "").replace(" ", "")
         s"[${xhr.status}] $id"
       case None =>
         console.info("Ajax response: ", xhr)

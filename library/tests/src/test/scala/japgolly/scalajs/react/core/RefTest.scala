@@ -164,7 +164,7 @@ object RefTest extends TestSuite {
       }
 
       def narrowRef() = {
-        @nowarn def X = React.forwardRef[String, html.Element]((s, r) => <.div(<.button.withRef(r)(s)))
+        @nowarn def X = React.forwardRef[String, html.Element]((s, r) => <.div(<.button.withOptionalRef(r)(s)))
         compileError(""" X.withRef(Ref[html.Button])("ok") """)
         ()
       }

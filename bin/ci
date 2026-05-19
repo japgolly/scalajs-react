@@ -60,8 +60,6 @@ cmd=(
     -J-Xmx3G
     -J-XX:+UseG1GC
     ++$SCALA_VER
-    'set ThisBuild / parallelExecution := false'
-    'set Global / concurrentRestrictions += Tags.limit(ScalaJSTags.Link, 1)'
     clean
     test                                                # Test development-mode
     'set ThisBuild / scalaJSStage := FullOptStage' test # Test production-mode

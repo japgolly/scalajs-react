@@ -15,7 +15,7 @@ trait Hooks extends js.Object {
   final type UseStateSetter[S] = js.Function1[S | js.Function1[S, S], Unit]
   final type UseState[S] = js.Tuple2[S, UseStateSetter[S]]
 
-  final type UseTransition = js.Tuple2[Boolean, js.Function1[js.Function0[Unit], Unit]]
+  final type UseTransition = js.Tuple2[Boolean, js.Function1[js.Function0[Unit | js.Thenable[Any]], Unit]]
 
   final def useState[S](initial: S | js.Function0[S]): UseState[S] = js.native
 
@@ -61,7 +61,32 @@ trait Hooks extends js.Object {
     getServerSnapshot: js.UndefOr[js.Function0[A]] = js.undefined
   ): A = js.native
 
-  // initialValue was added in React 19 - Replace when we upgrade to React 19
-  // final def useDeferredValue[A](value: A, initialValue: js.UndefOr[A] = js.undefined): A = js.native
-  final def useDeferredValue[A](value: A): A = js.native
+  final def useDeferredValue[A](value: A, initialValue: js.UndefOr[A] = js.undefined): A = js.native
+
+  /** @since 4.0.0 / React 19 */
+  final type UseActionState[S, P] = js.Tuple3[S, js.Function1[P, Unit], Boolean]
+
+  /** @since 4.0.0 / React 19 */
+  final def useActionState[S, P](
+    action: js.Function2[S, P, S | js.Thenable[S]],
+    initialState: S,
+    permalink: js.UndefOr[String] = js.undefined
+  ): UseActionState[S, P] = js.native
+
+  /** @since 4.0.0 / React 19 */
+  final def useOptimistic[S](
+    passthrough: S,
+  ): UseOptimistic[S] = js.native
+
+  /** @since 4.0.0 / React 19 */
+  final def useOptimistic[S, A](
+    passthrough: S,
+    reducer: js.Function2[S, A, S],
+  ): UseOptimisticWithAction[S, A] = js.native
+
+  final type UseOptimistic          [S]    = js.Tuple2[S, js.Function1[S | js.Function1[S, S], Unit]]
+  final type UseOptimisticWithAction[S, A] = js.Tuple2[S, js.Function1[A                     , Unit]]
+
+  /** @since 4.0.0 / React 19.2 */
+  final def useEffectEvent[F <: js.Function](callback: F): F = js.native
 }
