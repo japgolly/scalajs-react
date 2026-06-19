@@ -208,12 +208,15 @@ object VdomTest extends AsyncTestSuite {
           )
         }
 
-        ReactTestUtils.withRendered_(comp()) { t =>
-          val form = t.asHtml()
-          form.querySelector("input").asInstanceOf[html.Input].value = "scalajs-react"
-          val button = form.querySelector("button").asInstanceOf[html.Button]
-          Simulate.click(button)
-        }.delayMs(50).map { _ =>
+        ReactTestUtils.withRendered(comp()) { t =>
+          ReactTestUtils.act {
+            val form = t.asHtml()
+            form.querySelector("input").asInstanceOf[html.Input].value = "scalajs-react"
+            val button = form.querySelector("button").asInstanceOf[html.Button]
+            Simulate.click(button)
+            AsyncCallback.unit.delayMs(50)
+          }
+        }.map { _ =>
           assertEq(query, "scalajs-react")
         }
       }
