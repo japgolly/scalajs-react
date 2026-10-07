@@ -124,4 +124,14 @@ object React {
 
     VdomElement(suspenseE)
   }
+
+  /** Lets you animate a component tree with Transitions and Suspense.
+    *
+    * This uses a builder pattern for specifying props.
+    *
+    * See https://react.dev/reference/react/ViewTransition
+    *
+    * @since 4.1.0 / React 19.3
+    */
+  def ViewTransition = feature.ViewTransition.newBuilder()
 }

@@ -204,6 +204,9 @@ trait React extends Hooks with Testing {
   final def createElement(s: Suspense.type, props: SuspenseProps, children: Node*): Element = js.native
   final def createElement[P <: js.Object](l: Lazy[P], props: P, children: Node*): Element = js.native
 
+  @JSName("createElement")
+  final def createElementViewTransition(s: ViewTransition.type, props: ViewTransitionProps | Null, children: Node*): Element = js.native
+
   final def createElement(`type`: js.Symbol, props: js.Object, children: Node*): Element = js.native
 
   final def createElement(`type`: String                                   ): DomElement = js.native
@@ -241,6 +244,9 @@ trait React extends Hooks with Testing {
 
   /** @since 4.0.0 / React 19 */
   final val Activity: js.Symbol = js.native
+
+  /** @since 4.1.0 / React 19.3 */
+  final val ViewTransition: js.Symbol = js.native
 
   /** React.Children provides utilities for dealing with the this.props.children opaque data structure. */
   final val Children: React.Children = js.native

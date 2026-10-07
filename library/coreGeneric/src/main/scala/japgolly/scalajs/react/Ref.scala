@@ -278,4 +278,11 @@ object Ref {
   /** For use with the `untypedRef` vdom attribute. */
   def toVdom[N <: TopNode : ClassTag]: ToVdom[N] =
     toAnyVdom().narrowOption[N]
+
+  // ===================================================================================================================
+
+  type ToViewTransition = Simple[facade.ViewTransition.Instance]
+
+  def toViewTransition(): ToViewTransition =
+    apply
 }
