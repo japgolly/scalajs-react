@@ -680,6 +680,9 @@ trait HtmlAttrs {
 
   final def coords = VdomAttr("coords")
 
+  /** @since 4.1.0 / React 19.3.0 */
+  final def credentialless = VdomAttr[Boolean]("credentialless")
+
   final def crossOrigin = VdomAttr("crossOrigin")
 
   final def dangerouslySetInnerHtml = VdomAttr[InnerHtmlAttr]("dangerouslySetInnerHTML")
