@@ -6,7 +6,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 ver="$1"
-verpat='(?:2(?:\.\d+)+(?:-[a-zA-Z0-9.-]+)?)'
+verpat='(?:[2-4](?:\.\d+)+(?:-[a-zA-Z0-9.-]+)?)'
 
 find . -name '*.md' -exec perl -pi -e 's/(japgolly.scalajs-react.+|[Vv]er *= *)"'"$verpat"'"/\1"'"$ver"'"/' {} +
 
