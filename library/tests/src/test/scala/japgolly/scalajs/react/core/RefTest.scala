@@ -60,6 +60,20 @@ object RefTest extends TestSuite {
     }
   }
 
+  def testFragment(): Unit = {
+    class Backend {
+      val ref = Ref.toFragment()
+      def onMount = ref.foreach(_.focus())
+      def render = <.div(React.Fragment.withRef(ref)(<.input.text()))
+    }
+    val C = ScalaComponent.builder[Unit]("X").backend(_ => new Backend()).render(_.backend.render).componentDidMount(_.backend.onMount).build
+    ReactTestUtils.withRenderedSync(C()) { t =>
+      val input = t.asElement().querySelector("input")
+      assert(input != null)
+      // assert(t.asElement().ownerDocument.activeElement == input)
+    }
+  }
+
   object TestScala {
     object InnerScala {
       class B { def secret = 666 }
@@ -247,8 +261,9 @@ object RefTest extends TestSuite {
     "empty" - {
       assertEq[Option[Unit]](Ref[Unit].get.runNow(), None)
     }
-    "htmlTag" - testHtmlTag()
-    "svgTag"  - testSvgTag()
+    "htmlTag"  - testHtmlTag()
+    "svgTag"   - testSvgTag()
+    "fragment" - testFragment()
     "scalaComponent" - {
       import TestScala._
       "refViaComp" - refViaComp()

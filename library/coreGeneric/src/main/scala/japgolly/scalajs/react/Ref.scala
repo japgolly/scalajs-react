@@ -281,8 +281,17 @@ object Ref {
 
   // ===================================================================================================================
 
+  /** @since 4.1.0 / React 19.3 */
+  type ToFragment = Simple[facade.FragmentInstance]
+
+  /** @since 4.1.0 / React 19.3 */
+  def toFragment(): ToFragment =
+    apply
+
+  /** @since 4.1.0 / React 19.3 */
   type ToViewTransition = Simple[facade.ViewTransition.Instance]
 
+  /** @since 4.1.0 / React 19.3 */
   def toViewTransition(): ToViewTransition =
     apply
 }
