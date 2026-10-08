@@ -32,4 +32,7 @@ package object facade {
     @js.annotation.JSName("displayName")
     var setDisplayName: js.UndefOr[String] = js.native
   }
+
+  type ViewTransitionClass    = ViewTransition.Class
+  type ViewTransitionCallback = ViewTransition.Callback
 }

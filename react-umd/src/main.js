@@ -1,4 +1,4 @@
-import { TextDecoder, TextEncoder } from 'fast-text-encoding'; // polyfill
+import 'fast-text-encoding'; // polyfill
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as ReactDOMClient from 'react-dom/client';
@@ -10,8 +10,8 @@ const CombinedReactDOM = {
   ...ReactDOMClient,
 };
 
-window.TextDecoder = TextDecoder;
-window.TextEncoder = TextEncoder;
+window.TextDecoder = window.TextDecoder || TextDecoder;
+window.TextEncoder = window.TextEncoder || TextEncoder;
 window.React = React;
 window.ReactDOM = CombinedReactDOM;
 window.ReactDOMServer = ReactDOMServer;

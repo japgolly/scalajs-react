@@ -680,6 +680,9 @@ trait HtmlAttrs {
 
   final def coords = VdomAttr("coords")
 
+  /** @since 4.1.0 / React 19.3.0 */
+  final def credentialless = VdomAttr[Boolean]("credentialless")
+
   final def crossOrigin = VdomAttr("crossOrigin")
 
   final def dangerouslySetInnerHtml = VdomAttr[InnerHtmlAttr]("dangerouslySetInnerHTML")
@@ -1066,6 +1069,12 @@ trait HtmlAttrs {
   final def onFocus = Attr.Event.focus("onFocus")
 
   final def onFocusCapture = Attr.Event.focus("onFocusCapture")
+
+  /** @since 4.1.0 / React 19.3.0 */
+  final def onFullscreenChange = Attr.Event.base("onFullscreenChange")
+
+  /** @since 4.1.0 / React 19.3.0 */
+  final def onFullscreenError = Attr.Event.base("onFullscreenError")
 
   final def onInput = Attr.Event.form("onInput")
 
