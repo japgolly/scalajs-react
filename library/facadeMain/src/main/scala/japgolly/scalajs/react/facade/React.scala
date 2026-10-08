@@ -245,9 +245,6 @@ trait React extends Hooks with Testing {
   /** @since 4.0.0 / React 19 */
   final val Activity: js.Symbol = js.native
 
-  /** @since 4.1.0 / React 19.3 */
-  final val ViewTransition: js.Symbol = js.native
-
   /** React.Children provides utilities for dealing with the this.props.children opaque data structure. */
   final val Children: React.Children = js.native
 
@@ -256,4 +253,10 @@ trait React extends Hooks with Testing {
   final val Profiler: js.Symbol = js.native
 
   final val StrictMode: js.Symbol = js.native
+
+  /** @since 4.1.0 / React 19.3 */
+  final val ViewTransition: js.Symbol = js.native
+
+  /** @since 4.1.0 / React 19.3 */
+  final def addTransitionType(`type`: String): Unit = js.native
 }
