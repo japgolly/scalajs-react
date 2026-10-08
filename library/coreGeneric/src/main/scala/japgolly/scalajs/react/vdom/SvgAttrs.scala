@@ -446,6 +446,9 @@ trait SvgAttrs {
 
   final def mask = VdomAttr("mask")
 
+  /** @since 4.1.0 / React 19.3.0 */
+  final def maskType = VdomAttr("maskType")
+
   final def max = VdomAttr("max")
 
   final def min = VdomAttr("min")
