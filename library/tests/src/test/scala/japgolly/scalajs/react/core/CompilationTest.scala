@@ -35,6 +35,9 @@ sealed trait CompilationTest {
   // Misc
 
   PropsChildren(())
+
+  val addTransitionType = React.addTransitionType("f")
+  val _ = addTransitionType: Callback
 }
 
 @nowarn

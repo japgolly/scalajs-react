@@ -2,7 +2,6 @@ package japgolly.scalajs.react
 
 import japgolly.scalajs.react.internal.Box
 import japgolly.scalajs.react.internal.CoreGeneral._
-import japgolly.scalajs.react.util.DefaultEffects.{Sync => DefaultSync}
 import japgolly.scalajs.react.util.Effect.{Async, Sync}
 import japgolly.scalajs.react.vdom.{VdomElement, VdomNode}
 import scala.scalajs.js
@@ -142,6 +141,6 @@ object React {
     *
     * @since 4.1.0 / React 19.3
     */
-  def addTransitionType(`type`: String): DefaultSync[Unit] =
-    DefaultSync.delay(facade.React.addTransitionType(`type`))
+  def addTransitionType[F[_]](`type`: String)(implicit F: Sync[F]): F[Unit] =
+    F.delay(facade.React.addTransitionType(`type`))
 }
