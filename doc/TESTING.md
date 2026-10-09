@@ -38,8 +38,8 @@ Now add the following to your sbt settings:
 enablePlugins(JSDependenciesPlugin)
 
 libraryDependencies ++= Seq(
-  "com.github.japgolly.scalajs-react" %%% "test" % "3.0.0" % Test,
-  "com.github.japgolly.scalajs-react" %%% "testing_library-dom" % "3.0.0" % Test,
+  "com.github.japgolly.scalajs-react" %%% "test" % "4.1.0" % Test,
+  "com.github.japgolly.scalajs-react" %%% "testing_library-dom" % "4.1.0" % Test,
 )
 
 jsDependencies ++= Seq(

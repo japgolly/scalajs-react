@@ -5,7 +5,7 @@ This describes the smaller utilities in the `extra` module.
 Find links to the larger utilities from the [main README](../README.md).
 
 ```scala
-libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "3.0.0"
+libraryDependencies += "com.github.japgolly.scalajs-react" %%% "extra" % "4.1.0"
 ```
 
 #### Contents

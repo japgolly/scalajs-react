@@ -70,7 +70,7 @@ No additional imports required.
 Add to sbt:
 
 ```scala
-val ScalaJsReactVer = "3.0.0"
+val ScalaJsReactVer = "4.1.0"
 
 libraryDependencies ++= Seq(
 
