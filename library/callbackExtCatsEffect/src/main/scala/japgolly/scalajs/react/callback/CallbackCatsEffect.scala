@@ -65,7 +65,10 @@ object CallbackCatsEffect {
         Callback.empty
 
       override def onCancel[A](fa: CallbackTo[A], fin: CallbackTo[Unit]): CallbackTo[A] =
-        fin.async.toCallback >> fa
+        // `CallbackTo` is uncancelable (`rootCancelScope = CancelScope.Uncancelable`). In Cats Effect's `MonadCancel` /
+        // `Sync` (like `SyncIO`), `onCancel(fa, fin)` must only run `fin` when `fa` is canceled, so for an uncancelable
+        // effect `onCancel(fa, fin)` should simply be `fa`.
+        fa
 
       override def monotonic: CallbackTo[FiniteDuration] =
         CallbackTo(System.nanoTime().nanos)
