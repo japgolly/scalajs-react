@@ -895,7 +895,7 @@ final class AsyncCallback[+A] private[AsyncCallback] (val underlyingRepr: AsyncC
     */
   def logAround(message: Any, optionalParams: Any*): AsyncCallback[A] = {
     def log(prefix: String) = Callback.log(prefix + message, optionalParams: _*).asAsyncCallback
-    log("→  Starting: ") *> this <* log(" ← Finished: ")
+    log("→  Starting: ") >> this << log(" ← Finished: ")
   }
 
   /** Logs the result of this callback as it completes. */
