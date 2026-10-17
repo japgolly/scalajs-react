@@ -369,5 +369,14 @@ object AsyncCallbackTest extends TestSuite {
       assertEq(ran, false)
     }
 
+    "handleError" - {
+      val err1 = new RuntimeException("err1")
+      val err2 = new RuntimeException("err2")
+      val a = AsyncCallback.throwException[Int](err1).handleError(_ => throw err2)
+      val b = AsyncCallback.throwException[Int](err1).maybeHandleError { case _ => throw err2 }
+      a.attempt.unsafeRunNowSync() ==> Left(err2)
+      b.attempt.unsafeRunNowSync() ==> Left(err2)
+    }
+
   }
 }

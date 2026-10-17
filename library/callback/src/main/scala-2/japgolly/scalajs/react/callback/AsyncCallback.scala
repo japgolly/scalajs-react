@@ -749,19 +749,37 @@ final class AsyncCallback[+A] private[AsyncCallback] (val underlyingRepr: AsyncC
     }))))
 
   def handleError[AA >: A](f: Throwable => AsyncCallback[AA]): AsyncCallback[AA] =
-    new AsyncCallback(s => g => underlyingRepr(s) {
-      case r@ Success(_) => g(r)
-      case Failure(t)    => f(t).underlyingRepr(s)(g)
-    })
+    new AsyncCallback(s => g =>
+      s.cancelably {
+        underlyingRepr(s) {
+          case r@ Success(_) => s.cancelably(g(r))
+          case Failure(t)    =>
+            s.cancelably {
+              catchAll(f(t)) match {
+                case Success(next) => next.underlyingRepr(s)(g)
+                case Failure(e)    => g(Failure(e))
+              }
+            }
+        }
+      }
+    )
 
   def maybeHandleError[AA >: A](f: PartialFunction[Throwable, AsyncCallback[AA]]): AsyncCallback[AA] =
-    new AsyncCallback(s => g => underlyingRepr(s) {
-      case r@ Success(_) => g(r)
-      case l@ Failure(t) => f.lift(t) match {
-        case Some(n) => n.underlyingRepr(s)(g)
-        case None    => g(l)
+    new AsyncCallback(s => g =>
+      s.cancelably {
+        underlyingRepr(s) {
+          case r@ Success(_) => s.cancelably(g(r))
+          case l@ Failure(t) =>
+            s.cancelably {
+              catchAll(f.lift(t)) match {
+                case Success(Some(n)) => n.underlyingRepr(s)(g)
+                case Success(None)    => g(l)
+                case Failure(e)       => g(Failure(e))
+              }
+            }
+        }
       }
-    })
+    )
 
   /** Return a version of this callback that will only execute once, and reuse the result for all
     * other invocations.
