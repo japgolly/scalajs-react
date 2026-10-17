@@ -108,8 +108,10 @@ object EffectCallback {
     @inline override def finallyRun[A, B](fa: => CallbackOption[A], runFinally: => CallbackOption[B]) =
       fa.finallyRun(runFinally)
 
-    override def dispatch[A](fa: CallbackOption[A]): Unit =
-      fa.asCallback.void
+    override def dispatch[A](fa: CallbackOption[A]): Unit = {
+      fa.underlyingRepr()
+      ()
+    }
 
     override def dispatchFn[A](fa: => CallbackOption[A]): js.Function0[Unit] =
       () => {fa.underlyingRepr(); ()}
