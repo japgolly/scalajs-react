@@ -61,15 +61,15 @@ object EffectCatsEffect {
       fa.flatMap(f)
 
     override def finallyRun[A, B](fa: => IO[A], fb: => IO[B]) =
-      fa.attempt.flatMap(ta =>
-      fb.attempt.flatMap(tb =>
+      suspend(fa).attempt.flatMap(ta =>
+      suspend(fb).attempt.flatMap(tb =>
       IO.fromEither(if (ta.isRight && tb.isLeft) Left(tb.left.getOrElse(null)) else ta)))
 
     override def tailrec[A, B](a: A)(f: A => IO[Either[A, B]]) =
       M.tailRecM(a)(f)
 
     override def handleError[A, AA >: A](fa: => IO[A])(f: Throwable => IO[AA]) =
-      fa.handleErrorWith(f)
+      suspend(fa).handleErrorWith(f)
 
     override def suspend[A](fa: => IO[A]) =
       IO(fa).flatMap(identityFn)
