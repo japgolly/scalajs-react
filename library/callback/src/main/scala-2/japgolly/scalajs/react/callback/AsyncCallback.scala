@@ -324,7 +324,7 @@ object AsyncCallback {
     private var _complete = false
 
     def complete: Callback =
-      completePromise.finallyRun(Callback { _complete = true })
+      Callback { _complete = true } >> completePromise
 
     def isComplete: CallbackTo[Boolean] =
       CallbackTo(_complete)

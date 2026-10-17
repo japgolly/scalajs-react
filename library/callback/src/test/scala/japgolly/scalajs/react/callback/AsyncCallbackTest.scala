@@ -175,9 +175,13 @@ object AsyncCallbackTest extends TestSuite {
 
     "barrier" - {
       val b = AsyncCallback.barrier.runNow()
+      var completeAfterAwait = Option.empty[Boolean]
+      (b.await >> b.isComplete.asAsyncCallback).tap(c => completeAfterAwait = Some(c)).runNow()
       assertEq(b.isComplete.runNow(), false)
+      assertEq(completeAfterAwait, None)
       b.complete.runNow()
       assertEq(b.isComplete.runNow(), true)
+      assertEq(completeAfterAwait, Some(true))
     }
 
     "debounce" - {
