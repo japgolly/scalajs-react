@@ -100,4 +100,22 @@ final class AsyncTest extends CatsSuite with TestInstances {
     assert(cancelled)
     assert(!afterCancel)
   }
+
+  test("CallbackCats.callbackCatsMonadAsyncCallback ap/ap2/map2 consistency with flatMap") {
+    val M = CallbackCats.callbackCatsMonadAsyncCallback
+    val err = new RuntimeException("boom")
+    var ran = 0
+    val fa = AsyncCallback.delay { ran += 1; 1 }
+
+    val ff1 = AsyncCallback.throwException[Int => Int](err)
+    M.ap(ff1)(fa).attempt.unsafeRunNowSync()
+    assert(ran == 0)
+
+    M.map2(ff1, fa)(_(_)).attempt.unsafeRunNowSync()
+    assert(ran == 0)
+
+    val ff2 = AsyncCallback.delay[(Int, Int) => Int] { ran += 1; _ + _ }
+    M.ap2(ff2)(AsyncCallback.throwException[Int](err), fa).attempt.unsafeRunNowSync()
+    assert(ran == 0)
+  }
 }
