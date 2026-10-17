@@ -143,6 +143,36 @@ object AsyncCallbackTest extends TestSuite {
       }
     }
 
+    "memo" - {
+      "syncOk" - {
+        var runs = 0
+        val m = AsyncCallback.delay { runs += 1; runs * 10 }.memo()
+        m.unsafeRunNowSync() ==> 10
+        m.unsafeRunNowSync() ==> 10
+        assertEq(runs, 1)
+      }
+      "syncError" - {
+        var runs = 0
+        val err = new RuntimeException("boom")
+        val m = AsyncCallback.delay[Int] { runs += 1; throw err }.memo()
+        m.attempt.unsafeRunNowSync() ==> Left(err)
+        m.attempt.unsafeRunNowSync() ==> Left(err)
+        assertEq(runs, 1)
+      }
+      "async" - asyncTest {
+        var runs = 0
+        val m = AsyncCallback.delay { runs += 1; runs * 10 }.delayMs(5).memo()
+        for {
+          ab <- m.zip(m)
+          c  <- m
+        } yield {
+          assertEq(ab, (10, 10))
+          assertEq(c, 10)
+          assertEq(runs, 1)
+        }
+      }
+    }
+
     "barrier" - {
       val b = AsyncCallback.barrier.runNow()
       assertEq(b.isComplete.runNow(), false)

@@ -775,13 +775,14 @@ final class AsyncCallback[+A] private[AsyncCallback] (val underlyingRepr: AsyncC
     * other invocations.
     */
   def memo(): AsyncCallback[A] = {
-    var result: Option[AsyncCallback[A]] = None
-    def set(r: AsyncCallback[A]) = {result = Some(r); r}
+    var result = Option.empty[AsyncCallback[A]]
     AsyncCallback.suspend {
       result.getOrElse {
-        val first = attemptTry.flatMap(t => AsyncCallback.suspend(set(AsyncCallback.const(t))))
-        val promise = first.unsafeToJsPromise()
-        result getOrElse set(AsyncCallback.fromJsPromise(promise))
+        val p = new SyncPromise[A]
+        val ac = AsyncCallback(p.onComplete)
+        result = Some(ac)
+        completeWith(p.complete).handleError(e => p.complete(Failure(e))).runNow()
+        ac
       }
     }
   }
