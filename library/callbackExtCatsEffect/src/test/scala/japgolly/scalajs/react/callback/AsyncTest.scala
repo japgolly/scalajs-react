@@ -74,4 +74,30 @@ final class AsyncTest extends CatsSuite with TestInstances {
     implicit val instance = new AsyncAsyncCallback(asyncCallbackToIO, ioToAsyncCallback)
     checkAll("Async[AsyncCallback]", AsyncTests[AsyncCallback].async[Int, Int, Int](10.millis))
   }
+
+  test("AsyncCallbackToIO cancellation") {
+    implicit val ticker = Ticker()
+    var cancelled = false
+    var afterCancel = false
+    val b = AsyncCallback.barrier.runNow()
+    val (p, complete) = AsyncCallback.promise[Unit].runNow()
+    val ac =
+      for {
+        _ <- b.complete.asAsyncCallback
+        _ <- p.onCancel(AsyncCallback.delay { cancelled = true })
+        _ <- AsyncCallback.delay { afterCancel = true }
+      } yield ()
+
+    val io =
+      for {
+        fiber <- asyncCallbackToIO(ac).start
+        _     <- asyncCallbackToIO(b.await)
+        _     <- fiber.cancel
+        _     <- IO(complete(scala.util.Success(())).runNow())
+      } yield ()
+
+    unsafeRun2(io)
+    assert(cancelled)
+    assert(!afterCancel)
+  }
 }

@@ -102,7 +102,12 @@ object CallbackCatsEffect {
         val g = f.underlyingRepr(s)
         val d = g(t => Callback(k(t.toEither)))
         dispatch(d)
-        s.cancelCallback.map(x => IO.delay(x.runNow()))
+        Some(IO {
+          if (!s.cancelled) {
+            s.cancelled = true
+            s.cancelCallback.foreach(_.runNow())
+          }
+        })
       })
   }
 
