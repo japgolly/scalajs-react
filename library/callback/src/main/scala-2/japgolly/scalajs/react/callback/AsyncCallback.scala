@@ -626,11 +626,13 @@ final class AsyncCallback[+A] private[AsyncCallback] (val underlyingRepr: AsyncC
       s.cancelably {
         underlyingRepr(s) {
           case Success(a) =>
-            catchAll(f(a)) match {
-              case Success(next) => s.cancelably(next.underlyingRepr(s)(g))
-              case Failure(e)    => g(Failure(e))
+            s.cancelably {
+              catchAll(f(a)) match {
+                case Success(next) => next.underlyingRepr(s)(g)
+                case Failure(e)    => g(Failure(e))
+              }
             }
-          case Failure(e) => g(Failure(e))
+          case Failure(e) => s.cancelably(g(Failure(e)))
         }
       }
     )

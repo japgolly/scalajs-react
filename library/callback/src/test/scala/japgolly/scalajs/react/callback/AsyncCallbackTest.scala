@@ -363,5 +363,11 @@ object AsyncCallbackTest extends TestSuite {
       assertEq(cancelled2, true)
     }
 
+    "cancel" - {
+      var ran = false
+      AsyncCallback.cancel.map { _ => ran = true }.runNow()
+      assertEq(ran, false)
+    }
+
   }
 }
