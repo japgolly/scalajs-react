@@ -131,6 +131,12 @@ object AsyncCallbackTest extends TestSuite {
         r ==> Right(123)
         a.unsafeRunNowSync() ==> 123
       }
+      "syncError" - {
+        val err = new RuntimeException("boom")
+        val a = AsyncCallback.throwException[Int](err)
+        a.sync.attempt.runNow() ==> Left(err)
+        scala.util.Try(a.unsafeRunNowSync()) ==> scala.util.Failure(err)
+      }
       "async" - {
         val r = AsyncCallback.pure(123).delayMs(1).sync.runNow()
         r.isLeft ==> true

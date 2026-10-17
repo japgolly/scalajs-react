@@ -1042,11 +1042,15 @@ final class AsyncCallback[+A] private[AsyncCallback] (val underlyingRepr: AsyncC
     */
   def sync: CallbackTo[Either[AsyncCallback[A], A]] =
     CallbackTo {
-      var result = Option.empty[A]
-      val promise = tap(a => result = Some(a)).asCallbackToJsPromise.runNow()
+      var result = Option.empty[Try[A]]
+      val p = new SyncPromise[A]
+      completeWith { t =>
+        p.complete(t) >> Callback { result = Some(t) }
+      }.runNow()
       result match {
-        case Some(a) => Right(a)
-        case None    => Left(AsyncCallback.fromJsPromise(promise))
+        case Some(Success(a)) => Right(a)
+        case Some(Failure(e)) => throw e
+        case None             => Left(AsyncCallback(p.onComplete))
       }
     }
 
