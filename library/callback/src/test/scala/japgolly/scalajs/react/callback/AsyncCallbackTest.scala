@@ -171,6 +171,14 @@ object AsyncCallbackTest extends TestSuite {
 
       t.progressTimeBy(2000)
       assertEq(i, 2)
+
+      var result = Option.empty[scala.util.Try[Int]]
+      val err = new RuntimeException("boom")
+      val failing = AsyncCallback.debounce(100, AsyncCallback.throwException[Int](err))(t)
+      failing.completeWith(r => Callback { result = Some(r) }).runNow()
+      result ==> None
+      t.progressTimeBy(100)
+      result ==> Some(scala.util.Failure(err))
     }
 
     "fork" - {

@@ -274,10 +274,9 @@ object AsyncCallback {
       def run(): Unit = {
         prev = None
         val curInvocationNum = invocationNum
-        f(a).tap { b =>
-          if (invocationNum == curInvocationNum)
-            completePromise(Success(b)).runNow()
-        }.toCallback.runNow()
+        f(a).completeWith { b =>
+          Callback.when(invocationNum == curInvocationNum)(completePromise(b))
+        }.runNow()
       }
 
       prev.foreach(timer.cancel)
