@@ -185,24 +185,27 @@ object AsyncCallback {
         case 0 => AsyncCallback.unit
         case 1 => AsyncCallback.suspend(f(as(0))).void
         case n =>
-          var error = Option.empty[Throwable]
-          val latch = countDownLatch(n).runNow()
+          new AsyncCallback(s => g => s.cancelably(Callback {
+            var error = Option.empty[Throwable]
+            val latch = countDownLatch(n).runNow()
 
-          def onTaskComplete(r: Try[B]): Callback =
-            Callback {
-              r match {
-                case Success(_) =>
-                case Failure(e) => error = Some(e)
-              }
-            } >> latch.countDown
+            val onTaskComplete: Try[B] => Callback =
+              r => Callback {
+                r match {
+                  case Success(_) =>
+                  case Failure(e) => if (error.isEmpty) error = Some(e)
+                }
+              } >> latch.countDown
 
-          for (a <- as)
-            AsyncCallback.suspend(f(a))
-              .attemptTry
-              .flatMapSync(onTaskComplete)
+            for (a <- as)
+              AsyncCallback.suspend(f(a))
+                .underlyingRepr(s)(onTaskComplete)
+                .runNow()
+
+            (latch.await >> throwExceptionWhenDefined(error))
+              .underlyingRepr(s)(g)
               .runNow()
-
-          latch.await >> throwExceptionWhenDefined(error)
+          }))
       }
     }
 
