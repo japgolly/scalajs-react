@@ -39,10 +39,14 @@ object AsyncCallback {
   }
 
   def cancel: AsyncCallback[Unit] =
-    new AsyncCallback[Unit](s => {
-      s.cancelled = true
-      unit.underlyingRepr(s)
-    })
+    new AsyncCallback[Unit](s => _ =>
+      Callback {
+        if (!s.cancelled) {
+          s.cancelled = true
+          s.cancelCallback.foreach(_.runNow())
+        }
+      }
+    )
 
   private[AsyncCallback] val newState: CallbackTo[State] =
     CallbackTo(new State)

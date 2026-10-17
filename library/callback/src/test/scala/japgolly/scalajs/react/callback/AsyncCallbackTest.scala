@@ -365,8 +365,21 @@ object AsyncCallbackTest extends TestSuite {
 
     "cancel" - {
       var ran = false
-      AsyncCallback.cancel.map { _ => ran = true }.runNow()
+      var cancelled = false
+      var completed = false
+      var lhsRan = false
+      AsyncCallback.cancel
+        .onCancel(AsyncCallback.delay { cancelled = true })
+        .map { _ => ran = true }
+        .runNow()
+      AsyncCallback.cancel
+        .completeWith(_ => Callback { completed = true })
+        .runNow()
+      (AsyncCallback.unit.map(_ => lhsRan = true) *> AsyncCallback.cancel).runNow()
       assertEq(ran, false)
+      assertEq(cancelled, true)
+      assertEq(completed, false)
+      assertEq(lhsRan, true)
     }
 
     "handleError" - {
