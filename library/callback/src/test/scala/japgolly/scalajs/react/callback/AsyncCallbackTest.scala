@@ -348,5 +348,20 @@ object AsyncCallbackTest extends TestSuite {
       } yield ()
     }
 
+    "onCancel" - {
+      var cancelled1 = false
+      var cancelled2 = false
+      val err = new RuntimeException("boom")
+      val ac =
+        AsyncCallback.throwException[Unit](err)
+          .onCancel(AsyncCallback.delay { cancelled1 = true })
+          .handleError(_ => AsyncCallback.cancel.onCancel(AsyncCallback.delay { cancelled2 = true }))
+      val s = new AsyncCallback.State
+      ac.underlyingRepr(s)(_ => Callback.empty).runNow()
+      s.cancelCallback.foreach(_.runNow())
+      assertEq(cancelled1, false)
+      assertEq(cancelled2, true)
+    }
+
   }
 }

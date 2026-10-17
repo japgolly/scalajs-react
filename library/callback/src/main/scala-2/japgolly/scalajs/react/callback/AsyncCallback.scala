@@ -1154,8 +1154,7 @@ final class AsyncCallback[+A] private[AsyncCallback] (val underlyingRepr: AsyncC
   def onCancel(f: AsyncCallback[Unit]): AsyncCallback[A] =
     new AsyncCallback(s => {
       val i = s.onCancel(f)
-      self
-        .map { a => s.unCancel(i); a }
-        .underlyingRepr(s)
+      val u = self.underlyingRepr(s)
+      g => u(t => Callback(if (!s.cancelled) s.unCancel(i)).flatMap(_ => g(t)))
     })
 }
