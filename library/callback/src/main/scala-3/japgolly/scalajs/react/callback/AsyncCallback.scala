@@ -874,7 +874,7 @@ final class AsyncCallback[+A] private[AsyncCallback] (val underlyingRepr: AsyncC
         Callback {
           limited(ta => f(ta.map(Some(_)))) match {
             case Some(cb) => cb.runNow()
-            case None     => f(miss)
+            case None     => f(miss).runNow()
           }
         }
       }
