@@ -14,6 +14,9 @@ object Misc3Test extends TestSuite {
 
   val rs = Reusability.derive[S](logNonReuse = true, logCode = false, compareRefs = true, excludeFields = "")
 
+  case class CC(a: Int, b: String)
+  val rcc = Reusability.derive[CC](logNonReuse = true, logCode = false, compareRefs = true, excludeFields = "")
+
   override def tests = Tests {
 
     "cssUnits" - {
@@ -34,6 +37,12 @@ object Misc3Test extends TestSuite {
         assert(rs.test(S1(1), S1(1)))
         assert(!rs.test(S1(1), S1(2)))
         assert(!rs.test(S1(1), S2("a")))
+      }
+
+      "caseClassLogNonReuse" - {
+        assert(rcc.test(CC(1, "a"), CC(1, "a")))
+        assert(!rcc.test(CC(1, "a"), CC(2, "a")))
+        assert(!rcc.test(CC(1, "a"), CC(1, "b")))
       }
     }
   }

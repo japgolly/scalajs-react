@@ -468,7 +468,7 @@ object ReusabilityMacros {
             if logNonReuse then
               testsLoggingNonReuse :+= '{ (a: A, b: A) =>
                 if !${test('a, 'b)} then
-                  ${failures.modify(fs => '{ $fs :+ ${nonReuseDesc(s".${f.name} values not reusable", 'a, 'b)}})}
+                  ${failures.modify(fs => '{ $fs :+ ${nonReuseDesc[F](s".${f.name} values not reusable", f.onProduct('a), f.onProduct('b))}})}
               }
           }
 
