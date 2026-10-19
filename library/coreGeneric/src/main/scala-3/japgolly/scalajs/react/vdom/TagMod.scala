@@ -70,7 +70,7 @@ object TagMod {
     else
       empty
 
-  def when(cond: Boolean)(t: TagMod): TagMod =
+  def when(cond: Boolean)(t: => TagMod): TagMod =
     if (cond) t else empty
 
   inline def unless(inline cond: Boolean)(inline t: TagMod): TagMod =
