@@ -135,6 +135,7 @@ object CallbackTo {
     *
     * @param noopener See https://developers.google.com/web/tools/lighthouse/audits/noopener
     * @param focus    Whether or not to focus the new window.
+    * @return the result of `window.open` which can be null
     */
   def windowOpen(url     : String,
                  noopener: Boolean = true,
