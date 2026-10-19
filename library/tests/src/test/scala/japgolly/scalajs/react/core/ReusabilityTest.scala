@@ -490,6 +490,32 @@ object ReusabilityTest extends TestSuite {
       assert(7.seconds ~/~ 9.seconds)
     }
 
+    "scalaDurationWithTolerance" - {
+      import scala.concurrent.duration.{Duration => SDuration, _}
+      implicit val r: Reusability[SDuration] = Reusability.scalaDuration(1.second)
+
+      "infinite" - {
+        assert((SDuration.Inf: SDuration) ~=~ SDuration.Inf)
+        assert((SDuration.MinusInf: SDuration) ~=~ SDuration.MinusInf)
+
+        assert((SDuration.Inf: SDuration) ~/~ SDuration.MinusInf)
+        assert((SDuration.MinusInf: SDuration) ~/~ SDuration.Inf)
+        assert((SDuration.Inf: SDuration) ~/~ 1.second)
+        assert((1.second: SDuration) ~/~ SDuration.Inf)
+        assert((SDuration.MinusInf: SDuration) ~/~ 1.second)
+        assert((1.second: SDuration) ~/~ SDuration.MinusInf)
+        assert((SDuration.Undefined: SDuration) ~/~ 1.second)
+        assert((1.second: SDuration) ~/~ SDuration.Undefined)
+      }
+
+      "overflow" - {
+        assert((Long.MaxValue.nanos: SDuration) ~/~ (-1).nanos)
+        assert(((-1).nanos: SDuration) ~/~ Long.MaxValue.nanos)
+        assert(((-Long.MaxValue).nanos: SDuration) ~/~ 1.nano)
+        assert((1.nano: SDuration) ~/~ (-Long.MaxValue).nanos)
+      }
+    }
+
     "finiteDurationWithoutTolerance" - {
       import scala.concurrent.duration._
       import Reusability.TemporalImplicitsWithoutTolerance._
