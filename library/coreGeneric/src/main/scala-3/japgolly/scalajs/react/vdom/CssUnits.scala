@@ -12,7 +12,7 @@ object CssUnits {
   private def combine(n: Expr[Any], suffix: Expr[String])(using Quotes): Expr[String] = {
     import quotes.reflect.*
     n.asTerm match {
-      case Inlined(_, _, Literal(c)) =>
+      case Inlined(_, Nil, Literal(c)) =>
         val v = c.value
         val s = if v == 0 then "0" else v.toString + suffix.valueOrAbort
         Expr.inlineConst(s)
