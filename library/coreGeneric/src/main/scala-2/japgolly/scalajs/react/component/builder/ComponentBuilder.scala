@@ -291,7 +291,7 @@ object ComponentBuilder {
           case None => Some(f)
           case Some(prev) =>
             Some { e =>
-              f(e).orElse(prev(e))
+              prev(e).orElse(f(e))
             }
         }
       copy(lifecycle = update(lifecycle))
