@@ -8,6 +8,12 @@ import japgolly.scalajs.react.Reusability
 object Misc3Test extends TestSuite {
   japgolly.scalajs.react.test.InitTestEnv()
 
+  sealed trait S
+  case class S1(x: Int) extends S
+  case class S2(y: String) extends S
+
+  val rs = Reusability.derive[S](logNonReuse = true, logCode = false, compareRefs = true, excludeFields = "")
+
   override def tests = Tests {
 
     "cssUnits" - {
@@ -23,11 +29,12 @@ object Misc3Test extends TestSuite {
       }
     }
 
-    // "reusability" - {
-    //   "boxing" - {
-    //     case class P(i: Int, j: Int)
-    //     showCode(Reusability.derive[P])
-    //   }
-    // }
+    "reusability" - {
+      "sumTypeLogNonReuse" - {
+        assert(rs.test(S1(1), S1(1)))
+        assert(!rs.test(S1(1), S1(2)))
+        assert(!rs.test(S1(1), S2("a")))
+      }
+    }
   }
 }
