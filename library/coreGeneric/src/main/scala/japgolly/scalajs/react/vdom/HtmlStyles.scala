@@ -969,13 +969,18 @@ trait HtmlStyles {
   final def overflow = new Overflow("overflow")
 
   /**
-   * If the value is a URI value, the element pointed to by the URI is used as
+   * If the value is a URL value, the element pointed to by the URL is used as
    * an SVG mask.
+   *
+   * https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/mask
    */
   object mask extends Style[String]("mask") {
     final def none = this := "none"
 
+    @deprecated("Use .url", "4.1.1")
     def uri(s: String) = this := s"uri($s)"
+
+    def url(s: String) = this := s"url($s)"
   }
 
 
