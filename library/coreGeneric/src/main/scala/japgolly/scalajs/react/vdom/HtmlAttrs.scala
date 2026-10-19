@@ -944,7 +944,7 @@ trait HtmlAttrs {
 
   final def onAuxClick = Attr.Event.mouse("onAuxClick")
 
-  final def onAuxClickCapture = Attr.Event("onAuxClickCapture")
+  final def onAuxClickCapture = Attr.Event.mouse("onAuxClickCapture")
 
   final def onBeforeInput = Attr.Event.base("onBeforeInput")
 
