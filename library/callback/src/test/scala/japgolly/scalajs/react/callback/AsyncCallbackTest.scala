@@ -421,6 +421,17 @@ object AsyncCallbackTest extends TestSuite {
         )).attempt.unsafeRunNowSync()
         res ==> Left(err1)
       }
+
+      "rawThrow" - {
+        val err = new RuntimeException("raw boom")
+        var ran2 = false
+        val res = AsyncCallback.sequence_(List(
+          AsyncCallback[Unit](_ => Callback.throwException(err)),
+          AsyncCallback.delay { ran2 = true },
+        )).attempt.unsafeRunNowSync()
+        assertEq(ran2, true)
+        res ==> Left(err)
+      }
     }
 
   }

@@ -205,6 +205,7 @@ object AsyncCallback {
             for (a <- as)
               AsyncCallback.suspend(f(a))
                 .underlyingRepr(s)(onTaskComplete)
+                .handleError(e => onTaskComplete(Failure(e)))
                 .runNow()
 
             (latch.await >> throwExceptionWhenDefined(error))
