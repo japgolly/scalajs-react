@@ -133,13 +133,6 @@ object VdomBuilder {
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  class ToVdomElement extends ToJs {
-    def render(tag: String): VdomElement = {
-      val r = (new ToRawReactElement).render(tag)
-      VdomElement(r)
-    }
-  }
-
   class ToRawReactElement extends ToJs {
     def render(tag: String): facade.React.Element = {
       addClassNameToProps()
