@@ -164,7 +164,7 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
     byRef || byJavaDuration[LocalDateTime](Duration.between, tolerance)
 
   def localDate(tolerance: Duration): Reusability[LocalDate] =
-    byRef || byJavaDuration[LocalDate](Duration.between, tolerance)
+    byRef || byJavaDuration[LocalDate]((a, b) => Duration.ofDays(a.toEpochDay - b.toEpochDay), tolerance)
 
   def offsetDateTime(tolerance: Duration): Reusability[OffsetDateTime] =
     byRef || byJavaDuration[OffsetDateTime](Duration.between, tolerance)

@@ -469,6 +469,17 @@ object ReusabilityTest extends TestSuite {
       assert(now.plusSeconds(2) ~/~ now)
     }
 
+    "localDateWithTolerance" - {
+      implicit val r = Reusability.localDate(Duration.ofDays(1))
+      val today = LocalDate.now()
+      assert(today ~=~ today)
+      assert(today ~=~ LocalDate.of(today.getYear, today.getMonth, today.getDayOfMonth))
+      assert(today ~=~ today.plusDays(1))
+      assert(today.plusDays(1) ~=~ today)
+      assert(today ~/~ today.plusDays(2))
+      assert(today.plusDays(2) ~/~ today)
+    }
+
     "finiteDurationWithTolerance" - {
       import scala.concurrent.duration._
       implicit val r: Reusability[FiniteDuration] = Reusability.finiteDuration(1.second)
