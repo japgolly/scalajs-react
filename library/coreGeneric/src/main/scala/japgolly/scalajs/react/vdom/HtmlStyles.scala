@@ -2223,7 +2223,7 @@ trait HtmlStyles {
     final def wrap = this := "wrap"
 
     /** Behaves the same as wrap but cross-start and cross-end are permuted. */
-    final def wrapReverse = this := "wrapReverse"
+    final def wrapReverse = this := "wrap-reverse"
 
   }
 
