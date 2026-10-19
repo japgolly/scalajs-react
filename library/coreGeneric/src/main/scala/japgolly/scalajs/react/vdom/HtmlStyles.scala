@@ -242,7 +242,7 @@ trait HtmlStyles {
      * No background is drawn below the border (background extends to the
      * outside edge of the padding).
      */
-    final def paddingBox = this := "border-box"
+    final def paddingBox = this := "padding-box"
     /** The background is painted within (clipped to) the content box. */
     final def contentBox = this := "content-box"
   }
