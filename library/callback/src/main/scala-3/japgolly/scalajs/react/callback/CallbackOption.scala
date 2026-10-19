@@ -94,11 +94,11 @@ object CallbackOption {
     traverse(tca)(identityFn)
 
   def traverse_[T[X] <: Iterable[X], A, B](ta: => T[A])(f: A => CallbackOption[B])
-                                          (implicit cbf: BuildFrom[T[A], B, T[B]]): CallbackOption[Unit] =
+                                          (using cbf: BuildFrom[T[A], B, T[B]]): CallbackOption[Unit] =
     traverse(ta)(f).void
 
   def sequence_[T[X] <: Iterable[X], A](tca: => T[CallbackOption[A]])
-                                       (implicit cbf: BuildFrom[T[CallbackOption[A]], A, T[A]]): CallbackOption[Unit] =
+                                       (using cbf: BuildFrom[T[CallbackOption[A]], A, T[A]]): CallbackOption[Unit] =
     traverse_(tca)(identityFn)
 
   /**
