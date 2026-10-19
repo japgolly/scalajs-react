@@ -100,7 +100,7 @@ object ReactForwardRefInternals extends DerivedDisplayName {
   }
 }
 
-object ReactForwardRef { outer =>
+object ReactForwardRef extends DerivedDisplayName { outer =>
   import ReactForwardRefInternals._
 
   private[component] def create[P, R, C <: Children, CT[-p, +u] <: CtorType[p, u]]
@@ -120,12 +120,8 @@ object ReactForwardRef { outer =>
       .mapUnmounted(_.mapUnmountedProps(_.unbox))
   }
 
-  private def derivedDisplayName(implicit name: FullName): String =
-    name.value
-
   @inline def withDisplayName(name: String): DisplayNameApplied =
     new DisplayNameApplied(name)
-
 
   def apply[R](render: Option[Ref.Simple[R]] => Delayed[VdomNode])(implicit name: FullName): Component[Unit, R, CtorType.Nullary] =
     create(derivedDisplayName)((_, r) => render(r))
