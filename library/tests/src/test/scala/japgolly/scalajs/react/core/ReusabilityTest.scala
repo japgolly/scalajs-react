@@ -400,6 +400,10 @@ object ReusabilityTest extends TestSuite {
 
       assert(!(0.7.toDouble ~=~ 1.0.toDouble))
       assert(!(1.3.toDouble ~=~ 1.0.toDouble))
+
+      assert(Double.PositiveInfinity ~=~ Double.PositiveInfinity)
+      assert(Double.NegativeInfinity ~=~ Double.NegativeInfinity)
+      assert(Double.PositiveInfinity ~/~ Double.NegativeInfinity)
     }
 
     "floatWithTolerance" - {
@@ -410,6 +414,10 @@ object ReusabilityTest extends TestSuite {
 
       assert(!(0.7f ~=~ 1.0f))
       assert(!(1.3f ~=~ 1.0f))
+
+      assert(Float.PositiveInfinity ~=~ Float.PositiveInfinity)
+      assert(Float.NegativeInfinity ~=~ Float.NegativeInfinity)
+      assert(Float.PositiveInfinity ~/~ Float.NegativeInfinity)
     }
 
     "option" - {

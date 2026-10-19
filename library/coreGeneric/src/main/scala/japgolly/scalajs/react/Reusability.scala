@@ -134,10 +134,10 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
       (x.length == y.length) && x.indices.forall(i => x(i) ~=~ y(i)))
 
   def double(tolerance: Double): Reusability[Double] =
-    apply((x, y) => (x - y).abs <= tolerance)
+    apply((x, y) => (x == y) || (x - y).abs <= tolerance)
 
   def float(tolerance: Float): Reusability[Float] =
-    apply((x, y) => (x - y).abs <= tolerance)
+    apply((x, y) => (x == y) || (x - y).abs <= tolerance)
 
   def javaBigDecimal(tolerance: Double): Reusability[jm.BigDecimal] =
     javaBigDecimal(new jm.BigDecimal(tolerance))
