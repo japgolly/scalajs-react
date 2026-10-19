@@ -21,10 +21,6 @@ object HtmlStylesStatic {
 
   final class MultiImageStyle(name: String) extends Style[String](name)
 
-  sealed class CurrentColor(name: String) extends Style[String](name) {
-    final def currentColor = this -> "currentColor"
-  }
-
   sealed class OutlineStyle(name: String) extends Style[String](name) {
     /**
      * Displays a series of rounded dots. The spacing of the dots are not
