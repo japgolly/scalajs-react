@@ -524,7 +524,7 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
       F.delay(
         console.log(
           s"""
-             |s"$name.shouldComponentUpdate = $update
+             |$name.shouldComponentUpdate = $update
              |  Props: $updateProps. [$currentProps] ⇒ [$nextProps]
              |  State: $updateState. [$currentState] ⇒ [$nextState]
            """.stripMargin
