@@ -38,6 +38,12 @@ object AsyncCallback {
       Callback.suspend(Callback.unless(cancelled)(c))
   }
 
+  /** Cancels the current [[AsyncCallback]] computation, running any registered `onCancel` callbacks.
+    *
+    * Once cancelled, the computation halts and will never invoke its completion continuation
+    * (meaning downstream `map`/`flatMap`/`finallyRun` callbacks will not run, and conversions via
+    * `asCallbackToFuture` / `asCallbackToJsPromise` will never resolve).
+    */
   def cancel: AsyncCallback[Unit] =
     new AsyncCallback[Unit](s => _ =>
       Callback {

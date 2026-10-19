@@ -97,18 +97,25 @@ object CallbackCatsEffect {
 
   class AsyncCallbackToIO(dispatch: Callback => Unit) extends (AsyncCallback ~> IO) {
     override def apply[A](f: AsyncCallback[A]): IO[A] =
-      IO.async[A](k => IO {
+      IO.async[Option[A]](k => IO {
         val s = new AsyncCallback.State
+        val i = s.onCancel(AsyncCallback.delay(k(Right(None))))
         val g = f.underlyingRepr(s)
-        val d = g(t => Callback(k(t.toEither)))
+        val d = g(t => Callback(k(t.toEither.map(Some(_)))))
         dispatch(d)
+        if (s.cancelled)
+          k(Right(None))
         Some(IO {
           if (!s.cancelled) {
             s.cancelled = true
+            s.unCancel(i)
             s.cancelCallback.foreach(_.runNow())
           }
         })
-      })
+      }).flatMap {
+        case Some(a) => IO.pure(a)
+        case None    => IO.canceled.as(().asInstanceOf[A])
+      }
   }
 
   class IOToAsyncCallback(runtime: () => IORuntime) extends (IO ~> AsyncCallback) { self =>
