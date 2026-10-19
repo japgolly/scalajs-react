@@ -1,9 +1,9 @@
 package japgolly.scalajs.react.core
 
 import japgolly.microlibs.testutil.TestUtil._
+import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import utest._
-import japgolly.scalajs.react.Reusability
 
 object Misc3Test extends TestSuite {
   japgolly.scalajs.react.test.InitTestEnv()
@@ -16,6 +16,10 @@ object Misc3Test extends TestSuite {
 
   case class CC(a: Int, b: String)
   val rcc = Reusability.derive[CC](logNonReuse = true, logCode = false, compareRefs = true, excludeFields = "")
+
+  object StaticComp {
+    val comp = ScalaComponent.builder.static(<.div).build
+  }
 
   override def tests = Tests {
 
@@ -43,6 +47,16 @@ object Misc3Test extends TestSuite {
         assert(rcc.test(CC(1, "a"), CC(1, "a")))
         assert(!rcc.test(CC(1, "a"), CC(2, "a")))
         assert(!rcc.test(CC(1, "a"), CC(1, "b")))
+      }
+    }
+
+    "componentBuilder" - {
+      "staticAutoName" - {
+        assertEq(StaticComp.comp.displayName, "japgolly.scalajs.react.core.Misc3Test.Static")
+      }
+      "componentBuilderStatic" - {
+        val b = japgolly.scalajs.react.component.builder.ComponentBuilder.static("CustomStatic", <.div).build
+        assertEq(b.displayName, "CustomStatic")
       }
     }
   }

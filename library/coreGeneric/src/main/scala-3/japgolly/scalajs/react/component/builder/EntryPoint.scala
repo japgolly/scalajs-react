@@ -30,7 +30,7 @@ object EntryPoint {
     * The builder is returned and can be customised futher before finally being built.
     */
   inline def static(content: VdomNode): LastStep[Unit, Children.None, Unit, Unit, UpdateSnapshot.None] =
-    static(autoNameFull)(content)
+    static(ScalaJsReactConfig.Instance.automaticComponentName(autoNameFull))(content)
 }
 
 // =====================================================================================================================

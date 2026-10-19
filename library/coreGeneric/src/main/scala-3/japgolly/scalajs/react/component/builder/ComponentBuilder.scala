@@ -21,6 +21,11 @@ object ComponentBuilder {
   type Config[P, C <: Children, S, B, US <: UpdateSnapshot, US2 <: UpdateSnapshot] =
     LastStep[P, C, S, B, US] => LastStep[P, C, S, B, US2]
 
+  def static(transformedName: String, vdom: VdomNode) =
+    new Step1[Unit](transformedName)
+      .renderStatic(vdom)
+      .shouldComponentUpdateConst(false)
+
   // ===================================================================================================================
 
   inline given defaultToNoState[P]: Conversion[Step1[P], Step2[P, Unit]] =
