@@ -2141,7 +2141,15 @@ trait HtmlStyles {
      * adjacent items is the same. Cross-start edge and cross-end edge of the flex container are flushed with
      * respectively first and last line edges.
      */
+    @deprecated("Use spaceBetween", "4.1.1")
     final def spaceBeteween = this := "space-between"
+
+    /**
+     * Lines are evenly distributed in the flex container. The spacing is done such as the space between two
+     * adjacent items is the same. Cross-start edge and cross-end edge of the flex container are flushed with
+     * respectively first and last line edges.
+     */
+    final def spaceBetween = this := "space-between"
 
     /**
      * Lines are evenly distributed so that the space between two adjacent lines is the same. The empty space before
