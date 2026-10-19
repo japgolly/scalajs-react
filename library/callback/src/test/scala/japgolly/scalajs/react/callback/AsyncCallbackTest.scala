@@ -171,6 +171,17 @@ object AsyncCallbackTest extends TestSuite {
           assertEq(runs, 1)
         }
       }
+      "waiterIsolation" - {
+        val (p, complete) = AsyncCallback.promise[Int].runNow()
+        val m = p.memo()
+        val err1 = new RuntimeException("waiter 1 boom")
+        var r2 = 0
+        m.completeWith(_ => Callback.throwException(err1)).runNow()
+        m.tap(r2 = _).runNow()
+        val res = scala.util.Try(complete(Success(42)).runNow())
+        assertEq(r2, 42)
+        res ==> scala.util.Failure(err1)
+      }
     }
 
     "barrier" - {
