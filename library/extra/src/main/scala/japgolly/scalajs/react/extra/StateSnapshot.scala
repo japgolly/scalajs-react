@@ -59,7 +59,7 @@ object StateSnapshot {
           if (cbs.isEmpty)
             DS.empty
           else
-            DS.chain(DS.runAll(cbs: _*), delayedCallbacks.set(Nil))
+            DS.chain(delayedCallbacks.set(Nil), DS.runAll(cbs.reverse: _*))
         }
       } yield {
           val setFn: SetFn[S] = (os, cb) =>

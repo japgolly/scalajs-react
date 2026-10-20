@@ -2375,6 +2375,28 @@ object HooksTest extends AsyncTestSuite {
     }
   }
 
+  private def testUseStateSnapshotCallbackOrder(): Unit = {
+    var log = List.empty[String]
+    val comp = ScalaFnComponent.withHooks[Unit]
+      .useStateSnapshot(0)
+      .useStateSnapshotWithReuse(0)
+      .render { (_, s1, s2) =>
+        <.div(
+          <.button(^.onClick --> (s1.modState(_ + 1, Callback(log :+= "s1-1")) >> s1.modState(_ + 1, Callback(log :+= "s1-2")))),
+          <.button(^.onClick --> (s2.modState(_ + 1, Callback(log :+= "s2-1")) >> s2.modState(_ + 1, Callback(log :+= "s2-2")))),
+        )
+      }
+
+    test(comp()) { t =>
+      for {
+        _ <- t.clickButton(1)
+        _  = assertEq(log, List("s1-1", "s1-2"))
+        _ <- t.clickButton(2)
+        _  = assertEq(log, List("s1-1", "s1-2", "s2-1", "s2-2"))
+      } yield ()
+    }
+  }
+
   private def testRenderWithReuse(): Unit = {
     implicit val reusability: Reusability[PI] = Reusability.by[PI, Int](_.pi >> 1)
     var renders = 0
@@ -3241,6 +3263,7 @@ object HooksTest extends AsyncTestSuite {
     "useStateSnapshot (monadic)" - testMonadicUseStateSnapshot()
     "useStateSnapshotWithReuse" - testUseStateSnapshotWithReuse()
     "useStateSnapshotWithReuse (monadic)" - testMonadicUseStateSnapshotWithReuse()
+    "useStateSnapshotCallbackOrder" - testUseStateSnapshotCallbackOrder()
 
     "useId" - testUseId()
     "useId (monadic)" - testMonadicUseId()
