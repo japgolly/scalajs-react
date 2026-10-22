@@ -195,19 +195,25 @@ object AsyncCallback {
             var error = Option.empty[Throwable]
             val latch = countDownLatch(n).runNow()
 
-            val onTaskComplete: Try[B] => Callback =
-              r => Callback {
-                r match {
-                  case Success(_) =>
-                  case Failure(e) => if (error.isEmpty) error = Some(e)
+            for (a <- as) {
+              var completed = false
+              val onTaskComplete: Try[B] => Callback =
+                r => Callback {
+                  r match {
+                    case Success(_) =>
+                    case Failure(e) => if (error.isEmpty) error = Some(e)
+                  }
+                  if (!completed) {
+                    completed = true
+                    latch.countDown.runNow()
+                  }
                 }
-              } >> latch.countDown
 
-            for (a <- as)
               AsyncCallback.suspend(f(a))
                 .underlyingRepr(s)(onTaskComplete)
                 .handleError(e => onTaskComplete(Failure(e)))
                 .runNow()
+            }
 
             (latch.await >> throwExceptionWhenDefined(error))
               .underlyingRepr(s)(g)

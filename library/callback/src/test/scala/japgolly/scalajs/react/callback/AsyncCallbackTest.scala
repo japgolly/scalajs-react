@@ -432,6 +432,22 @@ object AsyncCallbackTest extends TestSuite {
         assertEq(ran2, true)
         res ==> Left(err)
       }
+
+      "taskCompleteThenThrow" - {
+        val err = new RuntimeException("boom")
+        val (task3, completeTask3) = AsyncCallback.promise[Unit].runNow()
+        var result = Option.empty[Either[Throwable, Unit]]
+
+        val task1 = AsyncCallback[Unit](cb => cb(Success(())) >> Callback.throwException(err))
+        val task2 = AsyncCallback.unit
+
+        val test = AsyncCallback.sequence_(List(task1, task2, task3)).attempt.tap(r => result = Some(r))
+        test.runNow()
+
+        assertEq("must not finish early", result.isDefined, false)
+        completeTask3(Success(())).runNow()
+        result ==> Some(Left(err))
+      }
     }
 
   }
