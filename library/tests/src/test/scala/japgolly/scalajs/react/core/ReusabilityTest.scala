@@ -395,29 +395,39 @@ object ReusabilityTest extends TestSuite {
 
     "doubleWithTolerance" - {
       implicit val r = Reusability.double(0.2)
-      assert(1.2.toDouble ~=~ 1.0.toDouble)
-      assert(0.8.toDouble ~=~ 1.0.toDouble)
-
-      assert(!(0.7.toDouble ~=~ 1.0.toDouble))
-      assert(!(1.3.toDouble ~=~ 1.0.toDouble))
-
-      assert(Double.PositiveInfinity ~=~ Double.PositiveInfinity)
-      assert(Double.NegativeInfinity ~=~ Double.NegativeInfinity)
-      assert(Double.PositiveInfinity ~/~ Double.NegativeInfinity)
+      "numbers" - {
+        assert(1.2.toDouble ~=~ 1.0.toDouble)
+        assert(0.8.toDouble ~=~ 1.0.toDouble)
+        assert(0.7.toDouble ~/~ 1.0.toDouble)
+        assert(1.3.toDouble ~/~ 1.0.toDouble)
+      }
+      "infinities" - {
+        assert(Double.PositiveInfinity ~=~ Double.PositiveInfinity)
+        assert(Double.NegativeInfinity ~=~ Double.NegativeInfinity)
+        assert(Double.PositiveInfinity ~/~ Double.NegativeInfinity)
+      }
+      "NaN" - {
+        assert(Double.NaN ~=~ Double.NaN)
+      }
     }
 
     "floatWithTolerance" - {
       implicit val r = Reusability.float(0.2f)
-      assert(0.9f ~=~ 1.0f)
-      assert(1.0f ~=~ 1.0f)
-      assert(1.1f ~=~ 1.0f)
-
-      assert(!(0.7f ~=~ 1.0f))
-      assert(!(1.3f ~=~ 1.0f))
-
-      assert(Float.PositiveInfinity ~=~ Float.PositiveInfinity)
-      assert(Float.NegativeInfinity ~=~ Float.NegativeInfinity)
-      assert(Float.PositiveInfinity ~/~ Float.NegativeInfinity)
+      "numbers" - {
+        assert(0.9f ~=~ 1.0f)
+        assert(1.0f ~=~ 1.0f)
+        assert(1.1f ~=~ 1.0f)
+        assert(0.7f ~/~ 1.0f)
+        assert(1.3f ~/~ 1.0f)
+      }
+      "infinities" - {
+        assert(Float.PositiveInfinity ~=~ Float.PositiveInfinity)
+        assert(Float.NegativeInfinity ~=~ Float.NegativeInfinity)
+        assert(Float.PositiveInfinity ~/~ Float.NegativeInfinity)
+      }
+      "NaN" - {
+        assert(Float.NaN ~=~ Float.NaN)
+      }
     }
 
     "option" - {
