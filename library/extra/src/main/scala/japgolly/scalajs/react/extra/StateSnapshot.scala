@@ -50,16 +50,17 @@ object StateSnapshot {
       new FromValue(value)
 
     /** @since 3.0.0 */
-    def useStateSnapshotWithReuse[S](initialValue: => S)(implicit rs: Reusability[S]): HookResult[StateSnapshot[S]] = 
+    def useStateSnapshotWithReuse[S](initialValue: => S)(implicit rs: Reusability[S]): HookResult[StateSnapshot[S]] =
       for {
-        state <- useState(initialValue)
+        state            <- useState(initialValue)
+        tick             <- useState(0)
         delayedCallbacks <- useRef(List.empty[DS[Unit]])
-        _ <- useEffect { 
+        _                <- useEffect {
           val cbs = delayedCallbacks.value
           if (cbs.isEmpty)
             DS.empty
           else
-            DS.chain(DS.runAll(cbs: _*), delayedCallbacks.set(Nil))
+            DS.chain(delayedCallbacks.set(Nil), DS.runAll(cbs.reverse: _*))
         }
       } yield {
           val setFn: SetFn[S] = (os, cb) =>
@@ -69,10 +70,19 @@ object StateSnapshot {
                 if (DS.isEmpty(cb))
                   updateState
                 else
-                  DS.chain(delayedCallbacks.mod(cb :: _), updateState)
+                  DS.chain(
+                    delayedCallbacks.mod(cb :: _),
+                    // This is required because React might decide not to update the component when state.setState is
+                    // called (eg. if identical state is set), which would leave the delayed callback (installed above)
+                    // in the queue but not run. By incrementing tick here we force an update and ensure that the
+                    // callback is always run when expected.
+                    tick.modState(_ + 1),
+                    updateState,
+                  )
               case None =>
                 cb
             }
+
           new StateSnapshot[S](state.value, state.originalSetState.withValue(setFn), rs)
         }
 

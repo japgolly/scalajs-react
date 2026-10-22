@@ -113,7 +113,7 @@ object CallbackTo {
    * WARNING: Futures are scheduled to run as soon as they're created. Ensure that the argument you provide creates a
    * new [[Future]]; don't reference an existing one.
    */
-  inline def future[A](f: Future[CallbackTo[A]])(implicit ec: ExecutionContext): CallbackTo[Future[A]] =
+  def future[A](f: => Future[CallbackTo[A]])(implicit ec: ExecutionContext): CallbackTo[Future[A]] =
     CallbackTo(f.map(_.runNow()))
 
   def newJsPromise[A]: CallbackTo[(js.Promise[A], Try[A] => Callback)] =
@@ -135,14 +135,17 @@ object CallbackTo {
     *
     * @param noopener See https://developers.google.com/web/tools/lighthouse/audits/noopener
     * @param focus    Whether or not to focus the new window.
+    * @return the result of `window.open` which can be null
     */
   def windowOpen(url     : String,
                  noopener: Boolean = true,
                  focus   : Boolean = true): CallbackTo[Window] =
     CallbackTo {
       val w = window.open(url, target = "_blank")
-      if (noopener) w.opener = null
-      if (focus) w.focus()
+      if (w != null) {
+        if (noopener) w.opener = null
+        if (focus) w.focus()
+      }
       w
     }
 

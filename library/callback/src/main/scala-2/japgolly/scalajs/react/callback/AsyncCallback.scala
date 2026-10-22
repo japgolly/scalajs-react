@@ -37,11 +37,21 @@ object AsyncCallback {
       Callback.suspend(Callback.unless(cancelled)(c))
   }
 
+  /** Cancels the current [[AsyncCallback]] computation, running any registered `onCancel` callbacks.
+    *
+    * Once cancelled, the computation halts and will never invoke its completion continuation
+    * (meaning downstream `map`/`flatMap`/`finallyRun` callbacks will not run, and conversions via
+    * `asCallbackToFuture` / `asCallbackToJsPromise` will never resolve).
+    */
   def cancel: AsyncCallback[Unit] =
-    new AsyncCallback[Unit](s => {
-      s.cancelled = true
-      unit.underlyingRepr(s)
-    })
+    new AsyncCallback[Unit](s => _ =>
+      Callback {
+        if (!s.cancelled) {
+          s.cancelled = true
+          s.cancelCallback.foreach(_.runNow())
+        }
+      }
+    )
 
   private[AsyncCallback] val newState: CallbackTo[State] =
     CallbackTo(new State)
@@ -180,24 +190,34 @@ object AsyncCallback {
         case 0 => AsyncCallback.unit
         case 1 => AsyncCallback.suspend(f(as(0))).void
         case n =>
-          var error = Option.empty[Throwable]
-          val latch = countDownLatch(n).runNow()
+          new AsyncCallback(s => g => s.cancelably(Callback {
+            var error = Option.empty[Throwable]
+            val latch = countDownLatch(n).runNow()
 
-          def onTaskComplete(r: Try[B]): Callback =
-            Callback {
-              r match {
-                case Success(_) =>
-                case Failure(e) => error = Some(e)
-              }
-            } >> latch.countDown
+            for (a <- as) {
+              var completed = false
+              val onTaskComplete: Try[B] => Callback =
+                r => Callback {
+                  r match {
+                    case Success(_) =>
+                    case Failure(e) => if (error.isEmpty) error = Some(e)
+                  }
+                  if (!completed) {
+                    completed = true
+                    latch.countDown.runNow()
+                  }
+                }
 
-          for (a <- as)
-            AsyncCallback.suspend(f(a))
-              .attemptTry
-              .flatMapSync(onTaskComplete)
+              AsyncCallback.suspend(f(a))
+                .underlyingRepr(s)(onTaskComplete)
+                .handleError(e => onTaskComplete(Failure(e)))
+                .runNow()
+            }
+
+            (latch.await >> throwExceptionWhenDefined(error))
+              .underlyingRepr(s)(g)
               .runNow()
-
-          latch.await >> throwExceptionWhenDefined(error)
+          }))
       }
     }
 
@@ -274,10 +294,9 @@ object AsyncCallback {
       def run(): Unit = {
         prev = None
         val curInvocationNum = invocationNum
-        f(a).tap { b =>
-          if (invocationNum == curInvocationNum)
-            completePromise(Success(b)).runNow()
-        }.toCallback.runNow()
+        f(a).completeWith { b =>
+          Callback.when(invocationNum == curInvocationNum)(completePromise(b))
+        }.runNow()
       }
 
       prev.foreach(timer.cancel)
@@ -325,7 +344,7 @@ object AsyncCallback {
     private var _complete = false
 
     def complete: Callback =
-      completePromise.finallyRun(Callback { _complete = true })
+      Callback { _complete = true } >> completePromise
 
     def isComplete: CallbackTo[Boolean] =
       CallbackTo(_complete)
@@ -627,11 +646,13 @@ final class AsyncCallback[+A] private[AsyncCallback] (val underlyingRepr: AsyncC
       s.cancelably {
         underlyingRepr(s) {
           case Success(a) =>
-            catchAll(f(a)) match {
-              case Success(next) => s.cancelably(next.underlyingRepr(s)(g))
-              case Failure(e)    => g(Failure(e))
+            s.cancelably {
+              catchAll(f(a)) match {
+                case Success(next) => next.underlyingRepr(s)(g)
+                case Failure(e)    => g(Failure(e))
+              }
             }
-          case Failure(e) => g(Failure(e))
+          case Failure(e) => s.cancelably(g(Failure(e)))
         }
       }
     )
@@ -748,31 +769,50 @@ final class AsyncCallback[+A] private[AsyncCallback] (val underlyingRepr: AsyncC
     }))))
 
   def handleError[AA >: A](f: Throwable => AsyncCallback[AA]): AsyncCallback[AA] =
-    new AsyncCallback(s => g => underlyingRepr(s) {
-      case r@ Success(_) => g(r)
-      case Failure(t)    => f(t).underlyingRepr(s)(g)
-    })
+    new AsyncCallback(s => g =>
+      s.cancelably {
+        underlyingRepr(s) {
+          case r@ Success(_) => s.cancelably(g(r))
+          case Failure(t)    =>
+            s.cancelably {
+              catchAll(f(t)) match {
+                case Success(next) => next.underlyingRepr(s)(g)
+                case Failure(e)    => g(Failure(e))
+              }
+            }
+        }
+      }
+    )
 
   def maybeHandleError[AA >: A](f: PartialFunction[Throwable, AsyncCallback[AA]]): AsyncCallback[AA] =
-    new AsyncCallback(s => g => underlyingRepr(s) {
-      case r@ Success(_) => g(r)
-      case l@ Failure(t) => f.lift(t) match {
-        case Some(n) => n.underlyingRepr(s)(g)
-        case None    => g(l)
+    new AsyncCallback(s => g =>
+      s.cancelably {
+        underlyingRepr(s) {
+          case r@ Success(_) => s.cancelably(g(r))
+          case l@ Failure(t) =>
+            s.cancelably {
+              catchAll(f.lift(t)) match {
+                case Success(Some(n)) => n.underlyingRepr(s)(g)
+                case Success(None)    => g(l)
+                case Failure(e)       => g(Failure(e))
+              }
+            }
+        }
       }
-    })
+    )
 
   /** Return a version of this callback that will only execute once, and reuse the result for all
     * other invocations.
     */
   def memo(): AsyncCallback[A] = {
-    var result: Option[AsyncCallback[A]] = None
-    def set(r: AsyncCallback[A]) = {result = Some(r); r}
+    var result = Option.empty[AsyncCallback[A]]
     AsyncCallback.suspend {
       result.getOrElse {
-        val first = attemptTry.flatMap(t => AsyncCallback.suspend(set(AsyncCallback.const(t))))
-        val promise = first.unsafeToJsPromise()
-        result getOrElse set(AsyncCallback.fromJsPromise(promise))
+        val p = new SyncPromise[A]
+        val ac = AsyncCallback(p.onComplete)
+        result = Some(ac)
+        completeWith(p.complete).handleError(e => p.complete(Failure(e))).runNow()
+        ac
       }
     }
   }
@@ -862,7 +902,7 @@ final class AsyncCallback[+A] private[AsyncCallback] (val underlyingRepr: AsyncC
         Callback {
           limited(ta => f(ta.map(Some(_)))) match {
             case Some(cb) => cb.runNow()
-            case None     => f(miss)
+            case None     => f(miss).runNow()
           }
         }
       }
@@ -895,7 +935,11 @@ final class AsyncCallback[+A] private[AsyncCallback] (val underlyingRepr: AsyncC
     */
   def logAround(message: Any, optionalParams: Any*): AsyncCallback[A] = {
     def log(prefix: String) = Callback.log(prefix + message, optionalParams: _*).asAsyncCallback
-    log("→  Starting: ") *> this <* log(" ← Finished: ")
+    for {
+      _ <- log("→  Starting: ")
+      a <- this
+      _ <- log(" ← Finished: ")
+    } yield a
   }
 
   /** Logs the result of this callback as it completes. */
@@ -1043,11 +1087,15 @@ final class AsyncCallback[+A] private[AsyncCallback] (val underlyingRepr: AsyncC
     */
   def sync: CallbackTo[Either[AsyncCallback[A], A]] =
     CallbackTo {
-      var result = Option.empty[A]
-      val promise = tap(a => result = Some(a)).asCallbackToJsPromise.runNow()
+      var result = Option.empty[Try[A]]
+      val p = new SyncPromise[A]
+      completeWith { t =>
+        p.complete(t) >> Callback { result = Some(t) }
+      }.runNow()
       result match {
-        case Some(a) => Right(a)
-        case None    => Left(AsyncCallback.fromJsPromise(promise))
+        case Some(Success(a)) => Right(a)
+        case Some(Failure(e)) => throw e
+        case None             => Left(AsyncCallback(p.onComplete))
       }
     }
 
@@ -1150,8 +1198,7 @@ final class AsyncCallback[+A] private[AsyncCallback] (val underlyingRepr: AsyncC
   def onCancel(f: AsyncCallback[Unit]): AsyncCallback[A] =
     new AsyncCallback(s => {
       val i = s.onCancel(f)
-      self
-        .map { a => s.unCancel(i); a }
-        .underlyingRepr(s)
+      val u = self.underlyingRepr(s)
+      g => u(t => Callback(if (!s.cancelled) s.unCancel(i)).flatMap(_ => g(t)))
     })
 }

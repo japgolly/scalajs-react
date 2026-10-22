@@ -28,8 +28,8 @@ object Callback {
     object Proof {
       inline given legal[A](using
           inline ev1: NotGiven[A <:< CallbackTo[?]],
-          inline ev2: NotGiven[js.Function0[A]],
-          inline ev3: NotGiven[() => A],
+          inline ev2: NotGiven[A <:< js.Function0[?]],
+          inline ev3: NotGiven[A <:< (() => ?)]
         ): Proof[A] = null
     }
     inline given apply[A](using inline ev: Proof[A]): ResultGuard[A] = null

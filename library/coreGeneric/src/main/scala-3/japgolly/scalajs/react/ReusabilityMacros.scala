@@ -404,14 +404,30 @@ object ReusabilityMacros {
 
       val testArray = MacroUtils.mkArrayExpr(tests.toIndexedSeq)
 
-      '{
-        val m = $mirror
-        val tests = $testArray
-        Reusability[A] { (a, b) =>
-          val o = m.ordinal(a)
-          (o == m.ordinal(b)) && tests(o)(a, b)
+      if logNonReuse then {
+        val header = nonReuseHeader[A]
+        '{
+          val m = $mirror
+          val tests = $testArray
+          Reusability[A] { (a, b) =>
+            val o = m.ordinal(a)
+            if o == m.ordinal(b) then
+              tests(o)(a, b)
+            else {
+              println($header + ${ nonReuseDesc[A]("values have different types", 'a, 'b) })
+              false
+            }
+          }
         }
-      }
+      } else
+        '{
+          val m = $mirror
+          val tests = $testArray
+          Reusability[A] { (a, b) =>
+            val o = m.ordinal(a)
+            (o == m.ordinal(b)) && tests(o)(a, b)
+          }
+        }
     }
   }
 
@@ -452,7 +468,7 @@ object ReusabilityMacros {
             if logNonReuse then
               testsLoggingNonReuse :+= '{ (a: A, b: A) =>
                 if !${test('a, 'b)} then
-                  ${failures.modify(fs => '{ $fs :+ ${nonReuseDesc(s".${f.name} values not reusable", 'a, 'b)}})}
+                  ${failures.modify(fs => '{ $fs :+ ${nonReuseDesc[F](s".${f.name} values not reusable", f.onProduct('a), f.onProduct('b))}})}
               }
           }
 

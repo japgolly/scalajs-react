@@ -451,7 +451,7 @@ trait HtmlAttrs {
       *
       * Authors MUST set the value of aria-rowcount to an integer equal to the number of rows in the full table. If the total number of rows is unknown, authors MUST set the value of aria-rowcount to -1 to indicate that the value should not be calculated by the user agent.
       */
-    def rowCount = VdomAttr[String]("aria-rowcount")
+    def rowCount = VdomAttr[Int]("aria-rowcount")
 
     /** Defines an element's row index or position with respect to the total number of rows within a table, grid, or treegrid. See related aria-rowcount and aria-rowspan.
       *
@@ -944,7 +944,7 @@ trait HtmlAttrs {
 
   final def onAuxClick = Attr.Event.mouse("onAuxClick")
 
-  final def onAuxClickCapture = Attr.Event("onAuxClickCapture")
+  final def onAuxClickCapture = Attr.Event.mouse("onAuxClickCapture")
 
   final def onBeforeInput = Attr.Event.base("onBeforeInput")
 

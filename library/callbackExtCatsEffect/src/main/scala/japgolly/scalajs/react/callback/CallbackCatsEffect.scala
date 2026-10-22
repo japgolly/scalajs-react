@@ -65,7 +65,10 @@ object CallbackCatsEffect {
         Callback.empty
 
       override def onCancel[A](fa: CallbackTo[A], fin: CallbackTo[Unit]): CallbackTo[A] =
-        fin.async.toCallback >> fa
+        // `CallbackTo` is uncancelable (`rootCancelScope = CancelScope.Uncancelable`). In Cats Effect's `MonadCancel` /
+        // `Sync` (like `SyncIO`), `onCancel(fa, fin)` must only run `fin` when `fa` is canceled, so for an uncancelable
+        // effect `onCancel(fa, fin)` should simply be `fa`.
+        fa
 
       override def monotonic: CallbackTo[FiniteDuration] =
         CallbackTo(System.nanoTime().nanos)
@@ -94,13 +97,25 @@ object CallbackCatsEffect {
 
   class AsyncCallbackToIO(dispatch: Callback => Unit) extends (AsyncCallback ~> IO) {
     override def apply[A](f: AsyncCallback[A]): IO[A] =
-      IO.async[A](k => IO {
+      IO.async[Option[A]](k => IO {
         val s = new AsyncCallback.State
+        val i = s.onCancel(AsyncCallback.delay(k(Right(None))))
         val g = f.underlyingRepr(s)
-        val d = g(t => Callback(k(t.toEither)))
+        val d = g(t => Callback(k(t.toEither.map(Some(_)))))
         dispatch(d)
-        s.cancelCallback.map(x => IO.delay(x.runNow()))
-      })
+        if (s.cancelled)
+          k(Right(None))
+        Some(IO {
+          if (!s.cancelled) {
+            s.cancelled = true
+            s.unCancel(i)
+            s.cancelCallback.foreach(_.runNow())
+          }
+        })
+      }).flatMap {
+        case Some(a) => IO.pure(a)
+        case None    => IO.canceled *> IO.never
+      }
   }
 
   class IOToAsyncCallback(runtime: () => IORuntime) extends (IO ~> AsyncCallback) { self =>

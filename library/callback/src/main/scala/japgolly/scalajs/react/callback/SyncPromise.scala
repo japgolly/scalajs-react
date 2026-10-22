@@ -12,10 +12,21 @@ final class SyncPromise[A] {
       Callback {
         if (result.isEmpty) {
           result = Some(t)
-          try
-            callbacks.foreach(_(t).runNow())
-          finally
+          var firstErr: Throwable = null
+          try {
+            for (cb <- callbacks)
+              try cb(t).runNow()
+              catch {
+                case e: Throwable =>
+                  if (firstErr eq null)
+                    firstErr = e
+                  else
+                    firstErr.addSuppressed(e)
+              }
+          } finally
             callbacks = Nil
+          if (firstErr ne null)
+            throw firstErr
         }
       }
 

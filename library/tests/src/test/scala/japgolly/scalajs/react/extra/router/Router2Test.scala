@@ -373,5 +373,34 @@ object Router2Test extends TestSuite {
       }
     }
 
+    "autoCorrectWithCondition" - {
+      var allow = false
+      val cfg = RouterConfigDsl[MyPage2].buildConfig { dsl =>
+        import dsl._
+        ( emptyRule
+        | staticRoute(dsl.root, PublicHome) ~> render(<.div("home"))
+        | (dynamicRouteCT("sec" / remainingPath.pmapL(code2Prism)) ~> dynRender(c => <.div(c.code)))
+            .addConditionWithFallback(CallbackTo(allow), render(<.div("denied")))
+            .autoCorrect
+        ).notFound(redirectToPage(PublicHome)(SetRouteVia.HistoryReplace))
+      }
+
+      val (_, lgc) = Router.componentAndLogic(base, cfg)
+      val sim = SimHistory(base.abs)
+
+      allow = false
+      sim.reset(Path("sec/yay").abs)
+      val r1 = sim.run(lgc.syncToPath(Path("sec/yay")).runNow())
+      assertEq("should not redirect to sec/YAY when condition fails", sim.currentUrl, Path("sec/yay").abs)
+      assertContains(htmlFor(r1), "denied")
+
+      allow = true
+      sim.reset(Path("sec/yay").abs)
+      val r2 = sim.run(lgc.syncToPath(Path("sec/yay")).runNow())
+      assertEq("autoCorrect redirect when condition passes", sim.currentUrl, Path("sec/YAY").abs)
+      assertEq(r2.page, Code2("YAY"))
+      assertContains(htmlFor(r2), "YAY")
+    }
+
   }
 }

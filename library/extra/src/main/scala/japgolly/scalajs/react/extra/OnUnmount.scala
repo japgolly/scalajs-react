@@ -19,6 +19,9 @@ trait OnUnmountF[F[_]] { self =>
 
   final def onUnmount[G[_]](f: => G[Unit])(implicit G: Dispatch[G]): F[Unit] =
     F.delay(unmountProcs ::= F.transDispatch(f))
+
+  private[react] final def unmountProcCount(): Int =
+    unmountProcs.length
 }
 
 object OnUnmountF {

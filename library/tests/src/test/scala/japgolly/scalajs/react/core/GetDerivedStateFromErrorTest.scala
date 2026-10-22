@@ -60,8 +60,34 @@ object GetDerivedStateFromErrorTest extends TestSuite {
 
       ReactTestUtils.withReactRootSync { root =>
         root.renderSync(Parent())
+        root.innerHTML.assert("<div>Caught: first</div>")
+      }
+    }
+
+    "fallback" - {
+      val Child = ScalaComponent.builder[Unit]("")
+        .render { _ =>
+          throw new RuntimeException("error")
+        }
+        .build
+
+      val Parent = ScalaComponent.builder[Unit]("")
+        .initialState(Option.empty[String])
+        .render { $ =>
+          $.state match {
+            case Some(err) => <.div(s"Caught: $err")
+            case None      => Child()
+          }
+        }
+        .getDerivedStateFromErrorOption(_ => None)
+        .getDerivedStateFromError(_ => Some("second"))
+        .build
+
+      ReactTestUtils.withReactRootSync { root =>
+        root.renderSync(Parent())
         root.innerHTML.assert("<div>Caught: second</div>")
       }
     }
   }
 }
+

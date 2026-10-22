@@ -21,6 +21,11 @@ object ComponentBuilder {
   type Config[P, C <: Children, S, B, US <: UpdateSnapshot, US2 <: UpdateSnapshot] =
     LastStep[P, C, S, B, US] => LastStep[P, C, S, B, US2]
 
+  def static(transformedName: String, vdom: VdomNode) =
+    new Step1[Unit](transformedName)
+      .renderStatic(vdom)
+      .shouldComponentUpdateConst(false)
+
   // ===================================================================================================================
 
   inline given defaultToNoState[P]: Conversion[Step1[P], Step2[P, Unit]] =
@@ -122,7 +127,6 @@ object ComponentBuilder {
     def renderWith[C <: Children](r: RenderFn[P, S, B]): LastStep[P, C, S, B, UpdateSnapshot.None] = {
       var lc = Lifecycle.empty[P, S, B]
       initState match {
-        case InitState.DerivedFromProps        (f) => lc = lc.copy(getDerivedStateFromProps = Some((p, _) => Some(f(p))))
         case InitState.DerivedFromPropsAndState(f) => lc = lc.copy(getDerivedStateFromProps = Some((p, s) => Some(f(p, Some(s)))))
         case _                                     => ()
       }
@@ -291,7 +295,7 @@ object ComponentBuilder {
           case None => Some(f)
           case Some(prev) =>
             Some { e =>
-              f(e).orElse(prev(e))
+              prev(e).orElse(f(e))
             }
         }
       copy(lifecycle = update(lifecycle))

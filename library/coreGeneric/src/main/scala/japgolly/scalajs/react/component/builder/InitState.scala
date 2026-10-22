@@ -13,7 +13,5 @@ private[builder] object InitState {
 
   final case class InitialState[-P, S](fn: Box[P] => Box[S]) extends InitState[P, S]
 
-  final case class DerivedFromProps[-P, S](fn: P => S) extends InitState[P, S]
-
   final case class DerivedFromPropsAndState[-P, S](fn: (P, Option[S]) => S) extends InitState[P, S]
 }

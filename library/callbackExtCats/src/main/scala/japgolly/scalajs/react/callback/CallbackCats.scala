@@ -32,15 +32,6 @@ object CallbackCats {
       override def pure[A](x: A): AsyncCallback[A] =
         AsyncCallback.pure(x)
 
-      override def ap[A, B](ff: AsyncCallback[A => B])(fa: AsyncCallback[A]) =
-        ff.zipWith(fa)(_(_))
-
-      override def ap2[A, B, Z](ff: AsyncCallback[(A, B) => Z])(fa: AsyncCallback[A], fb: AsyncCallback[B]) =
-        ff.zipWith(fa.zip(fb))(_.tupled(_))
-
-      override def map2[A, B, Z](fa: AsyncCallback[A], fb: AsyncCallback[B])(f: (A, B) => Z) =
-        fa.zipWith(fb)(f)
-
       override def map[A, B](fa: AsyncCallback[A])(f: A => B): AsyncCallback[B] =
         fa.map(f)
 

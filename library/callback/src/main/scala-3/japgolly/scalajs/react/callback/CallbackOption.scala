@@ -93,6 +93,14 @@ object CallbackOption {
                                           (using cbf: BuildFrom[T[CallbackOption[A]], A, T[A]]): CallbackOption[T[A]] =
     traverse(tca)(identityFn)
 
+  def traverse_[T[X] <: Iterable[X], A, B](ta: => T[A])(f: A => CallbackOption[B])
+                                          (using cbf: BuildFrom[T[A], B, T[B]]): CallbackOption[Unit] =
+    traverse(ta)(f).void
+
+  def sequence_[T[X] <: Iterable[X], A](tca: => T[CallbackOption[A]])
+                                       (using cbf: BuildFrom[T[CallbackOption[A]], A, T[A]]): CallbackOption[Unit] =
+    traverse_(tca)(identityFn)
+
   /**
    * NOTE: Technically a proper, lawful traversal should return `CallbackOption[Option[B]]`.
    */
@@ -252,7 +260,7 @@ final class CallbackOption[+A](val underlyingRepr: CallbackOption.UnderlyingRepr
    *
    * @param cond The condition required to be `true` for this callback to execute.
    */
-  def when(cond: Boolean): CallbackOption[A] =
+  def when(cond: => Boolean): CallbackOption[A] =
     new CallbackOption[A](() => if (cond) cbfn() else None)
 
   /**
@@ -270,7 +278,7 @@ final class CallbackOption[+A](val underlyingRepr: CallbackOption.UnderlyingRepr
    * @param cond The condition required to be `false` for this callback to execute.
    * @return `Some` result of the callback executed, else `None`.
    */
-  def unless(cond: Boolean): CallbackOption[A] =
+  def unless(cond: => Boolean): CallbackOption[A] =
     when(!cond)
 
   /**

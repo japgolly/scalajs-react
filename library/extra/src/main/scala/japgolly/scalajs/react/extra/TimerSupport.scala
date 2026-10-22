@@ -4,6 +4,7 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.util.DefaultEffects
 import japgolly.scalajs.react.util.Effect.Dispatch
 import scala.concurrent.duration.FiniteDuration
+import scala.scalajs.js
 import scala.scalajs.js.timers.{RawTimers, SetTimeoutHandle}
 import scala.scalajs.js.{UndefOr, undefined}
 
@@ -40,8 +41,26 @@ trait TimerSupportF[F[_]] extends OnUnmountF[F] { self =>
 
   /** Provides `setInterval`-like behavior insuring that the time between calls of `f` is *at least* the `timeout`. */
   final def setGuaranteedIntervalMs[G[_]](f: G[Unit], intervalInMilliseconds: Double)(implicit G: Dispatch[G]): F[Unit] = {
-    val reschedule = F.suspend(setGuaranteedIntervalMs(f, intervalInMilliseconds))
-    setTimeoutMs(F.finallyRun(F.transDispatch(f), reschedule), intervalInMilliseconds)(F)
+    val first: F[F[Unit]] = F.delay {
+      var handle: UndefOr[SetTimeoutHandle] = undefined
+      var live = true
+      lazy val jsProc: js.Function0[Unit] = F.toJsFn(proc)
+      lazy val step: F[Unit] = F.delay {
+        if (live)
+          handle = RawTimers.setTimeout(jsProc, intervalInMilliseconds)
+      }
+      lazy val proc: F[Unit] = {
+        val runF = F.chain(F.delay { handle = undefined }, F.transDispatch(f))
+        F.finallyRun(runF, step)
+      }
+      handle = RawTimers.setTimeout(jsProc, intervalInMilliseconds)
+      F.delay {
+        live = false
+        handle.foreach(RawTimers.clearTimeout)
+        handle = undefined
+      }
+    }
+    F.flatMap(first)(onUnmount(_)(F))
   }
 
   /** Invokes the callback `f` repeatedly every `period`. */

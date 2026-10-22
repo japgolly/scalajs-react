@@ -21,10 +21,6 @@ object HtmlStylesStatic {
 
   final class MultiImageStyle(name: String) extends Style[String](name)
 
-  sealed class CurrentColor(name: String) extends Style[String](name) {
-    final def currentColor = this -> "currentColor"
-  }
-
   sealed class OutlineStyle(name: String) extends Style[String](name) {
     /**
      * Displays a series of rounded dots. The spacing of the dots are not
@@ -246,7 +242,7 @@ trait HtmlStyles {
      * No background is drawn below the border (background extends to the
      * outside edge of the padding).
      */
-    final def paddingBox = this := "border-box"
+    final def paddingBox = this := "padding-box"
     /** The background is painted within (clipped to) the content box. */
     final def contentBox = this := "content-box"
   }
@@ -529,7 +525,8 @@ trait HtmlStyles {
     def maroon  = this := "maroon"
     def red     = this := "red"
     def purple  = this := "purple"
-    def fuschia = this := "fuschia"
+    @deprecated("Use fuchsia", "4.1.1") def fuschia = this := "fuchsia"
+    def fuchsia = this := "fuchsia"
     def green   = this := "green"
     def lime    = this := "lime"
     def olive   = this := "olive"
@@ -972,13 +969,18 @@ trait HtmlStyles {
   final def overflow = new Overflow("overflow")
 
   /**
-   * If the value is a URI value, the element pointed to by the URI is used as
+   * If the value is a URL value, the element pointed to by the URL is used as
    * an SVG mask.
+   *
+   * https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/mask
    */
   object mask extends Style[String]("mask") {
     final def none = this := "none"
 
+    @deprecated("Use .url", "4.1.1")
     def uri(s: String) = this := s"uri($s)"
+
+    def url(s: String) = this := s"url($s)"
   }
 
 
@@ -2144,7 +2146,15 @@ trait HtmlStyles {
      * adjacent items is the same. Cross-start edge and cross-end edge of the flex container are flushed with
      * respectively first and last line edges.
      */
+    @deprecated("Use spaceBetween", "4.1.1")
     final def spaceBeteween = this := "space-between"
+
+    /**
+     * Lines are evenly distributed in the flex container. The spacing is done such as the space between two
+     * adjacent items is the same. Cross-start edge and cross-end edge of the flex container are flushed with
+     * respectively first and last line edges.
+     */
+    final def spaceBetween = this := "space-between"
 
     /**
      * Lines are evenly distributed so that the space between two adjacent lines is the same. The empty space before
@@ -2227,7 +2237,7 @@ trait HtmlStyles {
     final def wrap = this := "wrap"
 
     /** Behaves the same as wrap but cross-start and cross-end are permuted. */
-    final def wrapReverse = this := "wrapReverse"
+    final def wrapReverse = this := "wrap-reverse"
 
   }
 

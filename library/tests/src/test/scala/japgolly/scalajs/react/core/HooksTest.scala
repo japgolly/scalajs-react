@@ -2375,6 +2375,112 @@ object HooksTest extends AsyncTestSuite {
     }
   }
 
+  private def testUseStateSnapshotCallbackOrder(): Unit = {
+    var log = List.empty[String]
+    val comp = ScalaFnComponent.withHooks[Unit]
+      .useStateSnapshot(0)
+      .useStateSnapshotWithReuse(0)
+      .render { (_, s1, s2) =>
+        <.div(
+          <.button(^.onClick --> (s1.modState(_ + 1, Callback(log :+= "s1-1")) >> s1.modState(_ + 1, Callback(log :+= "s1-2")))),
+          <.button(^.onClick --> (s2.modState(_ + 1, Callback(log :+= "s2-1")) >> s2.modState(_ + 1, Callback(log :+= "s2-2")))),
+        )
+      }
+
+    test(comp()) { t =>
+      for {
+        _ <- t.clickButton(1)
+        _  = assertEq(log, List("s1-1", "s1-2"))
+        _ <- t.clickButton(2)
+        _  = assertEq(log, List("s1-1", "s1-2", "s2-1", "s2-2"))
+      } yield ()
+    }
+  }
+
+  private def testUseStateSnapshotChainedUpdates() = {
+    var log = List.empty[String]
+    var staleSnapshot: StateSnapshot[Int] = null
+    val comp = ScalaFnComponent.withHooks[Unit]
+      .useStateSnapshot(0)
+      .useStateSnapshotWithReuse(0)
+      .render { (_, s1, s2) =>
+        if (staleSnapshot eq null) staleSnapshot = s2
+        <.div(
+          <.span(s"${s1.value},${s2.value}"),
+          <.button(^.onClick --> (s1.setState(1, Callback(log :+= "s1-1")) >> s1.setState(0, Callback(log :+= "s1-0")))),
+          <.button(^.onClick --> (s2.setState(1, Callback(log :+= "s2-1")) >> s2.setState(0, Callback(log :+= "s2-0")))),
+          <.button(^.onClick --> s2.setState(5, Callback(log :+= "s2-5"))),
+          <.button(^.onClick --> staleSnapshot.setState(0, Callback(log :+= "stale-0"))),
+        )
+      }
+
+    test(comp()) { t =>
+      for {
+        _ <- t.clickButton(1)
+        _  = assertEq(log, List("s1-1", "s1-0"))
+        _  = t.assertText("0,0")
+        _ <- t.clickButton(2)
+        _  = assertEq(log, List("s1-1", "s1-0", "s2-1", "s2-0"))
+        _  = t.assertText("0,0")
+        _ <- t.clickButton(3)
+        _  = assertEq(log, List("s1-1", "s1-0", "s2-1", "s2-0", "s2-5"))
+        _  = t.assertText("0,5")
+        _ <- t.clickButton(4)
+        _  = assertEq(log, List("s1-1", "s1-0", "s2-1", "s2-0", "s2-5", "stale-0"))
+        _  = t.assertText("0,0")
+      } yield ()
+    }
+  }
+
+  private def testUseStateSnapshotUnchangedStateCallback(): Unit = {
+    case class Box(v: Int)
+    val b0 = Box(0)
+    var log = List.empty[String]
+    val comp = ScalaFnComponent.withHooks[Unit]
+      .useStateSnapshot(100)
+      .useStateSnapshotWithReuse(200)
+      .useStateSnapshot(b0)
+      .render { (_, s1, s2, s3) =>
+        <.div(
+          <.button(^.onClick --> s1.setState(100, Callback(log :+= "s1-set-same"))),
+          <.button(^.onClick --> s1.setStateOption(Some(100), Callback(log :+= "s1-setOpt-same"))),
+          <.button(^.onClick --> s1.modState(identity, Callback(log :+= "s1-mod-same"))),
+          <.button(^.onClick --> s1.modState(_ + 1, Callback(log :+= "s1-mod-changed"))),
+          <.button(^.onClick --> s2.setState(200, Callback(log :+= "s2-set-same"))),
+          <.button(^.onClick --> s2.setStateOption(Some(200), Callback(log :+= "s2-setOpt-same"))),
+          <.button(^.onClick --> s2.modState(identity, Callback(log :+= "s2-mod-same"))),
+          <.button(^.onClick --> s2.modState(_ + 1, Callback(log :+= "s2-mod-changed"))),
+          <.button(^.onClick --> s3.setState(s3.value, Callback(log :+= "s3-set-same-ref"))),
+          <.button(^.onClick --> s3.setState(Box(1), Callback(log :+= "s3-set-diff-ref"))),
+        )
+      }
+
+    test(comp()) { t =>
+      for {
+        _ <- t.clickButton(1)
+        _  = assertEq(log, List("s1-set-same"))
+        _ <- t.clickButton(2)
+        _  = assertEq(log, List("s1-set-same", "s1-setOpt-same"))
+        _ <- t.clickButton(3)
+        _  = assertEq(log, List("s1-set-same", "s1-setOpt-same", "s1-mod-same"))
+        _ <- t.clickButton(4)
+        _  = assertEq(log, List("s1-set-same", "s1-setOpt-same", "s1-mod-same", "s1-mod-changed"))
+        _ <- t.clickButton(5)
+        _  = assertEq(log, List("s1-set-same", "s1-setOpt-same", "s1-mod-same", "s1-mod-changed", "s2-set-same"))
+        _ <- t.clickButton(6)
+        _  = assertEq(log, List("s1-set-same", "s1-setOpt-same", "s1-mod-same", "s1-mod-changed", "s2-set-same", "s2-setOpt-same"))
+        _ <- t.clickButton(7)
+        _  = assertEq(log, List("s1-set-same", "s1-setOpt-same", "s1-mod-same", "s1-mod-changed", "s2-set-same", "s2-setOpt-same", "s2-mod-same"))
+        _ <- t.clickButton(8)
+        _  = assertEq(log, List("s1-set-same", "s1-setOpt-same", "s1-mod-same", "s1-mod-changed", "s2-set-same", "s2-setOpt-same", "s2-mod-same", "s2-mod-changed"))
+        _ <- t.clickButton(9)
+        _  = assertEq(log, List("s1-set-same", "s1-setOpt-same", "s1-mod-same", "s1-mod-changed", "s2-set-same", "s2-setOpt-same", "s2-mod-same", "s2-mod-changed", "s3-set-same-ref"))
+        _ <- t.clickButton(10)
+        _  = assertEq(log, List("s1-set-same", "s1-setOpt-same", "s1-mod-same", "s1-mod-changed", "s2-set-same", "s2-setOpt-same", "s2-mod-same", "s2-mod-changed", "s3-set-same-ref", "s3-set-diff-ref"))
+      } yield ()
+    }
+  }
+
   private def testRenderWithReuse(): Unit = {
     implicit val reusability: Reusability[PI] = Reusability.by[PI, Int](_.pi >> 1)
     var renders = 0
@@ -3241,6 +3347,9 @@ object HooksTest extends AsyncTestSuite {
     "useStateSnapshot (monadic)" - testMonadicUseStateSnapshot()
     "useStateSnapshotWithReuse" - testUseStateSnapshotWithReuse()
     "useStateSnapshotWithReuse (monadic)" - testMonadicUseStateSnapshotWithReuse()
+    "useStateSnapshotCallbackOrder" - testUseStateSnapshotCallbackOrder()
+    "useStateSnapshotChainedUpdates" - testUseStateSnapshotChainedUpdates()
+    "useStateSnapshotUnchangedStateCallback" - testUseStateSnapshotUnchangedStateCallback()
 
     "useId" - testUseId()
     "useId (monadic)" - testMonadicUseId()

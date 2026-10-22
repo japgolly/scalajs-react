@@ -134,10 +134,10 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
       (x.length == y.length) && x.indices.forall(i => x(i) ~=~ y(i)))
 
   def double(tolerance: Double): Reusability[Double] =
-    apply((x, y) => (x - y).abs <= tolerance)
+    apply((x, y) => (x == y) || (x.isNaN && y.isNaN) || (x - y).abs <= tolerance)
 
   def float(tolerance: Float): Reusability[Float] =
-    apply((x, y) => (x - y).abs <= tolerance)
+    apply((x, y) => (x == y) || (x.isNaN && y.isNaN) || (x - y).abs <= tolerance)
 
   def javaBigDecimal(tolerance: Double): Reusability[jm.BigDecimal] =
     javaBigDecimal(new jm.BigDecimal(tolerance))
@@ -164,7 +164,7 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
     byRef || byJavaDuration[LocalDateTime](Duration.between, tolerance)
 
   def localDate(tolerance: Duration): Reusability[LocalDate] =
-    byRef || byJavaDuration[LocalDate](Duration.between, tolerance)
+    byRef || byJavaDuration[LocalDate]((a, b) => Duration.ofDays(a.toEpochDay - b.toEpochDay), tolerance)
 
   def offsetDateTime(tolerance: Duration): Reusability[OffsetDateTime] =
     byRef || byJavaDuration[OffsetDateTime](Duration.between, tolerance)
@@ -176,15 +176,25 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
     byRef || byJavaDuration[ZonedDateTime](Duration.between, tolerance)
 
   def byScalaDuration[A](dur: (A, A) => scd.Duration, tolerance: scd.Duration): Reusability[A] =
-    apply { (x, y) =>
-      var d = dur(x, y)
-      if (d.length < 0)
-        d = scd.FiniteDuration(d.length.abs, d.unit)
-      d <= tolerance
-    }
+    if ((tolerance eq scd.Duration.Undefined) || tolerance < scd.Duration.Zero)
+      never
+    else
+      apply { (x, y) =>
+        dur(x, y) match {
+          case scd.Duration.Inf | scd.Duration.MinusInf => tolerance == scd.Duration.Inf
+          case _: scd.Duration.Infinite => false
+          case d: scd.FiniteDuration =>
+            val abs = if (d.length < 0) -d else d
+            abs <= tolerance
+        }
+      }
 
   def scalaDuration(tolerance: scd.Duration): Reusability[scd.Duration] =
-    byRef || byScalaDuration[scd.Duration](_ - _, tolerance)
+    byRef || byScalaDuration[scd.Duration](
+      (x, y) =>
+        try x - y
+        catch { case _: IllegalArgumentException => scd.Duration.Inf },
+      tolerance)
 
   def finiteDuration(tolerance: scd.Duration): Reusability[scd.FiniteDuration] =
     scalaDuration(tolerance).narrow
@@ -514,7 +524,7 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
       F.delay(
         console.log(
           s"""
-             |s"$name.shouldComponentUpdate = $update
+             |$name.shouldComponentUpdate = $update
              |  Props: $updateProps. [$currentProps] ⇒ [$nextProps]
              |  State: $updateState. [$currentState] ⇒ [$nextState]
            """.stripMargin

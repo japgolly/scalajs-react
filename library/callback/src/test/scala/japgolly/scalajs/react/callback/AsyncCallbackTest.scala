@@ -131,17 +131,68 @@ object AsyncCallbackTest extends TestSuite {
         r ==> Right(123)
         a.unsafeRunNowSync() ==> 123
       }
+      "syncError" - {
+        val err = new RuntimeException("boom")
+        val a = AsyncCallback.throwException[Int](err)
+        a.sync.attempt.runNow() ==> Left(err)
+        scala.util.Try(a.unsafeRunNowSync()) ==> scala.util.Failure(err)
+      }
       "async" - {
         val r = AsyncCallback.pure(123).delayMs(1).sync.runNow()
         r.isLeft ==> true
       }
     }
 
+    "memo" - {
+      "syncOk" - {
+        var runs = 0
+        val m = AsyncCallback.delay { runs += 1; runs * 10 }.memo()
+        m.unsafeRunNowSync() ==> 10
+        m.unsafeRunNowSync() ==> 10
+        assertEq(runs, 1)
+      }
+      "syncError" - {
+        var runs = 0
+        val err = new RuntimeException("boom")
+        val m = AsyncCallback.delay[Int] { runs += 1; throw err }.memo()
+        m.attempt.unsafeRunNowSync() ==> Left(err)
+        m.attempt.unsafeRunNowSync() ==> Left(err)
+        assertEq(runs, 1)
+      }
+      "async" - asyncTest {
+        var runs = 0
+        val m = AsyncCallback.delay { runs += 1; runs * 10 }.delayMs(5).memo()
+        for {
+          ab <- m.zip(m)
+          c  <- m
+        } yield {
+          assertEq(ab, (10, 10))
+          assertEq(c, 10)
+          assertEq(runs, 1)
+        }
+      }
+      "waiterIsolation" - {
+        val (p, complete) = AsyncCallback.promise[Int].runNow()
+        val m = p.memo()
+        val err1 = new RuntimeException("waiter 1 boom")
+        var r2 = 0
+        m.completeWith(_ => Callback.throwException(err1)).runNow()
+        m.tap(r2 = _).runNow()
+        val res = scala.util.Try(complete(Success(42)).runNow())
+        assertEq(r2, 42)
+        res ==> scala.util.Failure(err1)
+      }
+    }
+
     "barrier" - {
       val b = AsyncCallback.barrier.runNow()
+      var completeAfterAwait = Option.empty[Boolean]
+      (b.await >> b.isComplete.asAsyncCallback).tap(c => completeAfterAwait = Some(c)).runNow()
       assertEq(b.isComplete.runNow(), false)
+      assertEq(completeAfterAwait, None)
       b.complete.runNow()
       assertEq(b.isComplete.runNow(), true)
+      assertEq(completeAfterAwait, Some(true))
     }
 
     "debounce" - {
@@ -171,6 +222,14 @@ object AsyncCallbackTest extends TestSuite {
 
       t.progressTimeBy(2000)
       assertEq(i, 2)
+
+      var result = Option.empty[scala.util.Try[Int]]
+      val err = new RuntimeException("boom")
+      val failing = AsyncCallback.debounce(100, AsyncCallback.throwException[Int](err))(t)
+      failing.completeWith(r => Callback { result = Some(r) }).runNow()
+      result ==> None
+      t.progressTimeBy(100)
+      result ==> Some(scala.util.Failure(err))
     }
 
     "fork" - {
@@ -298,6 +357,97 @@ object AsyncCallbackTest extends TestSuite {
         _   <- ref.getIfAvailable.asAsyncCallback.tap(assertEq(_, Some(987)))
         _   <- ref.get.tap(assertEq(_, 987))
       } yield ()
+    }
+
+    "onCancel" - {
+      var cancelled1 = false
+      var cancelled2 = false
+      val err = new RuntimeException("boom")
+      val ac =
+        AsyncCallback.throwException[Unit](err)
+          .onCancel(AsyncCallback.delay { cancelled1 = true })
+          .handleError(_ => AsyncCallback.cancel.onCancel(AsyncCallback.delay { cancelled2 = true }))
+      val s = new AsyncCallback.State
+      ac.underlyingRepr(s)(_ => Callback.empty).runNow()
+      s.cancelCallback.foreach(_.runNow())
+      assertEq(cancelled1, false)
+      assertEq(cancelled2, true)
+    }
+
+    "cancel" - {
+      var ran = false
+      var cancelled = false
+      var completed = false
+      var lhsRan = false
+      AsyncCallback.cancel
+        .onCancel(AsyncCallback.delay { cancelled = true })
+        .map { _ => ran = true }
+        .runNow()
+      AsyncCallback.cancel
+        .completeWith(_ => Callback { completed = true })
+        .runNow()
+      (AsyncCallback.unit.map(_ => lhsRan = true) *> AsyncCallback.cancel).runNow()
+      assertEq(ran, false)
+      assertEq(cancelled, true)
+      assertEq(completed, false)
+      assertEq(lhsRan, true)
+    }
+
+    "handleError" - {
+      val err1 = new RuntimeException("err1")
+      val err2 = new RuntimeException("err2")
+      val a = AsyncCallback.throwException[Int](err1).handleError(_ => throw err2)
+      val b = AsyncCallback.throwException[Int](err1).maybeHandleError { case _ => throw err2 }
+      a.attempt.unsafeRunNowSync() ==> Left(err2)
+      b.attempt.unsafeRunNowSync() ==> Left(err2)
+    }
+
+    "traverse_" - {
+      "cancel" - {
+        var cancelled = false
+        AsyncCallback.sequence_(List(
+          AsyncCallback.never[Unit].onCancel(AsyncCallback.delay { cancelled = true }),
+          AsyncCallback.cancel,
+        )).runNow()
+        assertEq(cancelled, true)
+      }
+
+      "errors" - {
+        val err1 = new RuntimeException("err1")
+        val err2 = new RuntimeException("err2")
+        val res = AsyncCallback.sequence_(List(
+          AsyncCallback.throwException(err1),
+          AsyncCallback.throwException(err2),
+        )).attempt.unsafeRunNowSync()
+        res ==> Left(err1)
+      }
+
+      "rawThrow" - {
+        val err = new RuntimeException("raw boom")
+        var ran2 = false
+        val res = AsyncCallback.sequence_(List(
+          AsyncCallback[Unit](_ => Callback.throwException(err)),
+          AsyncCallback.delay { ran2 = true },
+        )).attempt.unsafeRunNowSync()
+        assertEq(ran2, true)
+        res ==> Left(err)
+      }
+
+      "taskCompleteThenThrow" - {
+        val err = new RuntimeException("boom")
+        val (task3, completeTask3) = AsyncCallback.promise[Unit].runNow()
+        var result = Option.empty[Either[Throwable, Unit]]
+
+        val task1 = AsyncCallback[Unit](cb => cb(Success(())) >> Callback.throwException(err))
+        val task2 = AsyncCallback.unit
+
+        val test = AsyncCallback.sequence_(List(task1, task2, task3)).attempt.tap(r => result = Some(r))
+        test.runNow()
+
+        assertEq("must not finish early", result.isDefined, false)
+        completeTask3(Success(())).runNow()
+        result ==> Some(Left(err))
+      }
     }
 
   }

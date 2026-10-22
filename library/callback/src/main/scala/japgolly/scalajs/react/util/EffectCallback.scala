@@ -50,10 +50,10 @@ object EffectCallback {
       f.runNow()
 
     @inline override def finallyRun[A, B](fa: => CallbackTo[A], runFinally: => CallbackTo[B]) =
-      fa.finallyRun(runFinally)
+      suspend(fa).finallyRun(suspend(runFinally))
 
     @inline override def toJsFn[A](f: => CallbackTo[A]): js.Function0[A] =
-      f.toJsFn
+      () => f.runNow()
 
     @inline override def suspend[A](fa: => CallbackTo[A]): CallbackTo[A] =
       CallbackTo.suspend(fa)
@@ -71,13 +71,13 @@ object EffectCallback {
       CallbackTo.sequence(fas)
 
     @inline override def handleError[A, AA >: A](fa: => CallbackTo[A])(f: Throwable => CallbackTo[AA]) =
-      fa.handleError(f)
+      suspend(fa).handleError(f)
 
     @inline override def sequence_[A](fas: => Iterable[CallbackTo[A]]) =
       Callback.sequence(fas)
 
     @inline override def when_[A](cond: => Boolean)(fa: => CallbackTo[A]) =
-      fa.when_(cond)
+      Callback(if (cond) fa.runNow())
 
     @inline override def tailrec[A, B](a: A)(f: A => CallbackTo[Either[A,B]]): CallbackTo[B] =
       CallbackTo.tailrec(a)(f)
@@ -103,13 +103,15 @@ object EffectCallback {
       CallbackOption.tailrec(a)(f)
 
     override def handleError[A, AA >: A](fa: => CallbackOption[A])(f: Throwable => CallbackOption[AA]) =
-      fa.handleError(f)
+      suspend(fa).handleError(f)
 
     @inline override def finallyRun[A, B](fa: => CallbackOption[A], runFinally: => CallbackOption[B]) =
-      fa.finallyRun(runFinally)
+      suspend(fa).finallyRun(suspend(runFinally))
 
-    override def dispatch[A](fa: CallbackOption[A]): Unit =
-      fa.asCallback.void
+    override def dispatch[A](fa: CallbackOption[A]): Unit = {
+      fa.underlyingRepr()
+      ()
+    }
 
     override def dispatchFn[A](fa: => CallbackOption[A]): js.Function0[Unit] =
       () => {fa.underlyingRepr(); ()}
@@ -135,7 +137,7 @@ object EffectCallback {
       fa.flatMap(f)
 
     @inline override def finallyRun[A, B](fa: => AsyncCallback[A], runFinally: => AsyncCallback[B]) =
-      fa.finallyRun(runFinally)
+      suspend(fa).finallyRun(suspend(runFinally))
 
     override def tailrec[A, B](a: A)(f: A => AsyncCallback[Either[A,B]]): AsyncCallback[B] =
       AsyncCallback.tailrec(a)(f)
@@ -147,7 +149,7 @@ object EffectCallback {
       AsyncCallback.viaCallback(f => Callback.fromJsFn(onCompletion(f.toJsFn)))
 
     override def runAsync[A](fa: => AsyncCallback[A]): Async.Untyped[A] =
-      f => fa.completeWith(t => CallbackTo.fromJsFn(f(t))).toJsFn
+      f => () => fa.completeWith(t => CallbackTo.fromJsFn(f(t))).runNow()
 
     override def first[A](f: Async.Untyped[A]) =
       AsyncCallback.first[A](g => Callback.fromJsFn(f(g.andThen(_.toJsFn))))
@@ -162,7 +164,7 @@ object EffectCallback {
       fa.runNow()
 
     @inline override def handleError[A, AA >: A](fa: => AsyncCallback[A])(f: Throwable => AsyncCallback[AA]) =
-      fa.handleError(f)
+      suspend(fa).handleError(f)
 
     @inline override def suspend[A](fa: => AsyncCallback[A]) =
       AsyncCallback.suspend(fa)

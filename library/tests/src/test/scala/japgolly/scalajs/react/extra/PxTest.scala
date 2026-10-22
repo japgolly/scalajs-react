@@ -167,5 +167,149 @@ object PxTest extends TestSuite {
         assertEq(fn(3), 11)
       }
     }
+
+    "flatMap" - {
+      "revCollision" - {
+        val inner1 = Px("init").withReuse.manualUpdate
+        inner1.set("v1")
+
+        val outer = Px(1).withReuse.manualUpdate
+
+        val flat = outer.flatMap {
+          case 1 => inner1
+          case 2 => Px.constByValue("v2")
+        }
+
+        val downstream = flat.map("hello " + _)
+
+        assertEq(downstream.value(), "hello v1")
+
+        outer.set(2)
+        assertEq(downstream.value(), "hello v2")
+      }
+
+      "innerUpdates" - {
+        val inner = Px("a").withReuse.manualUpdate
+        val outer = Px(1).withReuse.manualUpdate
+        val flat = outer.flatMap(_ => inner)
+        val downstream = flat.map(_ + "!")
+
+        assertEq(downstream.value(), "a!")
+        val r0 = flat.rev
+
+        inner.set("b")
+        assertEq(downstream.value(), "b!")
+        assert(flat.rev > r0)
+        val r1 = flat.rev
+
+        inner.set("c")
+        assertEq(downstream.value(), "c!")
+        assert(flat.rev > r1)
+      }
+
+      "bothUpdateInterleaved" - {
+        val in1 = Px(10).withReuse.manualUpdate
+        val in2 = Px(20).withReuse.manualUpdate
+        val outer = Px(1).withReuse.manualUpdate
+        val flat = outer.flatMap {
+          case 1 => in1
+          case 2 => in2
+        }
+        val downstream = flat.map(_ * 2)
+
+        assertEq(downstream.value(), 20)
+        val r0 = flat.rev
+
+        in1.set(11)
+        assertEq(downstream.value(), 22)
+        assert(flat.rev > r0)
+        val r1 = flat.rev
+
+        outer.set(2)
+        assertEq(downstream.value(), 40)
+        assert(flat.rev > r1)
+        val r2 = flat.rev
+
+        in2.set(25)
+        assertEq(downstream.value(), 50)
+        assert(flat.rev > r2)
+        val r3 = flat.rev
+
+        outer.set(1)
+        assertEq(downstream.value(), 22)
+        assert(flat.rev > r3)
+      }
+
+      "sameInnerInstance" - {
+        val inner = Px("hello").withReuse.manualUpdate
+        val outer = Px(1).withReuse.manualUpdate
+        val flat = outer.flatMap(_ => inner)
+        val downstream = flat.map(_.toUpperCase)
+
+        assertEq(downstream.value(), "HELLO")
+        val r0 = flat.rev
+
+        outer.set(2)
+        assert(flat.rev > r0)
+        assertEq(downstream.value(), "HELLO")
+      }
+
+      "autoRefreshInner" - {
+        var x = 1
+        val inner = Px(x).withReuse.autoRefresh
+        val outer = Px("k").withReuse.manualUpdate
+        val flat = outer.flatMap(_ => inner)
+        val downstream = flat.map(_ + 10)
+
+        assertEq(downstream.value(), 11)
+        val r0 = flat.rev
+
+        x = 5
+        assertEq(downstream.value(), 15)
+        assert(flat.rev > r0)
+      }
+
+      "nestedFlatMap" - {
+        val p1 = Px("A").withReuse.manualUpdate
+        val p2 = Px("B").withReuse.manualUpdate
+        val p3 = Px("C").withReuse.manualUpdate
+
+        val flat = for {
+          a <- p1
+          b <- p2
+          c <- p3
+        } yield s"$a-$b-$c"
+
+        val downstream = flat.map("[" + _ + "]")
+        assertEq(downstream.value(), "[A-B-C]")
+
+        p2.set("X")
+        assertEq(downstream.value(), "[A-X-C]")
+
+        p1.set("Z")
+        assertEq(downstream.value(), "[Z-X-C]")
+
+        p3.set("W")
+        assertEq(downstream.value(), "[Z-X-W]")
+      }
+
+      "peekAndLazy" - {
+        var derived = 0
+        val outer = Px(1).withReuse.manualUpdate
+        val flat = outer.flatMap { x =>
+          derived += 1
+          Px(s"v$x").withReuse.manualUpdate
+        }
+
+        assertEq(derived, 0)
+        assertEq(flat.peek, "v1")
+        assertEq(derived, 1)
+
+        outer.set(2)
+        assertEq(flat.peek, "v1")
+        assertEq(flat.value(), "v2")
+        assertEq(derived, 2)
+      }
+    }
   }
 }

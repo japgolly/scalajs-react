@@ -195,6 +195,14 @@ object RefTest extends TestSuite {
         assertEq(Forwarder.withRef(ref)().ref.map(_.raw), Some(ref.raw))
       }
 
+      def displayNameDerived() =
+        assertEq(Forwarder.displayName, "ForwardRef(RefTest.TestRefForwarding.ScalaToVdom.Forwarder (japgolly.scalajs.react.core))")
+
+      def displayNameExplicit() = {
+        val c = React.forwardRef.withDisplayName("CustomName")[html.Button](_ => <.div())
+        assertEq(c.displayName, "ForwardRef(CustomName)")
+      }
+
       private val Forwarder2 = React.forwardRef[Int, html.Span]((i, r) =>
         <.div(<.span.withOptionalRef(r)(s"${i}² = ${i * i}")))
 
@@ -291,6 +299,10 @@ object RefTest extends TestSuite {
         "narrowRef" - narrowRef()
         "scalaRef"  - scalaRef()
         "unmounted" - unmounted()
+        "displayName" - {
+          "derived"  - displayNameDerived()
+          "explicit" - displayNameExplicit()
+        }
       }
       "scalaToScala" - {
         import TestRefForwarding.ScalaToScala._

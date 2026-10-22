@@ -131,14 +131,17 @@ object CallbackTo {
     *
     * @param noopener See https://developers.google.com/web/tools/lighthouse/audits/noopener
     * @param focus    Whether or not to focus the new window.
+    * @return the result of `window.open` which can be null
     */
   def windowOpen(url     : String,
                  noopener: Boolean = true,
                  focus   : Boolean = true): CallbackTo[Window] =
     CallbackTo {
       val w = window.open(url, target = "_blank")
-      if (noopener) w.opener = null
-      if (focus) w.focus()
+      if (w != null) {
+        if (noopener) w.opener = null
+        if (focus) w.focus()
+      }
       w
     }
 

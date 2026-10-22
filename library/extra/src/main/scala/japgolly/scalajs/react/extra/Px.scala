@@ -184,18 +184,53 @@ object Px {
   /**
    * A `Px[B]` dependent on the value of some `Px[A]`.
    */
-  final class FlatMap[A, B](xa: Px[A], f: A => Px[B]) extends DerivativeBase[A, Px[B], B](xa, f) {
+  final class FlatMap[A, B](xa: Px[A], f: A => Px[B]) extends Derivative[B] {
     override def toString = s"Px.FlatMap(rev: $rev, value: $peek)"
 
-    override def peek = _value().peek
-    override def rev  = {
-      val vr = _init()
-      vr._1.rev + vr._2
+    private[this] var _initialized = false
+    private[this] var _inner: Px[B] = _
+    private[this] var _innerBaseRev = 0
+    private[this] var _lastOuterRev = 0
+    private[this] var _baseRev = 0
+
+    private def _init(): Unit =
+      if (!_initialized) {
+        val a = xa.value()
+        val inner = f(a)
+        _inner = inner
+        _innerBaseRev = inner.rev
+        _lastOuterRev = xa.rev
+        _baseRev = xa.rev + inner.rev
+        _initialized = true
+      }
+
+    private def _updateValueIfChanged(): Unit = {
+      _init()
+      xa.valueSince(_lastOuterRev).foreach { a =>
+        val innerDelta = Math.max(0, _inner.rev - _innerBaseRev)
+        val outerDelta = Math.max(0, xa.rev - _lastOuterRev)
+        _baseRev += innerDelta + outerDelta
+        _lastOuterRev = xa.rev
+        _inner = f(a)
+        _innerBaseRev = _inner.rev
+      }
+    }
+
+    override def peek: B = {
+      _init()
+      _inner.peek
+    }
+
+    override def rev: Int = {
+      _init()
+      val innerDelta = Math.max(0, _inner.rev - _innerBaseRev)
+      val outerDelta = Math.max(0, xa.rev - _lastOuterRev)
+      _baseRev + innerDelta + outerDelta
     }
 
     override def value(): B = {
       _updateValueIfChanged()
-      _value().value()
+      _inner.value()
     }
   }
 

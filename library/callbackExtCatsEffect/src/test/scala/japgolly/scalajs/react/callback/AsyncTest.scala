@@ -74,4 +74,50 @@ final class AsyncTest extends CatsSuite with TestInstances {
     implicit val instance = new AsyncAsyncCallback(asyncCallbackToIO, ioToAsyncCallback)
     checkAll("Async[AsyncCallback]", AsyncTests[AsyncCallback].async[Int, Int, Int](10.millis))
   }
+
+  test("AsyncCallbackToIO cancellation") {
+    implicit val ticker = Ticker()
+    var cancelled = false
+    var afterCancel = false
+    val b = AsyncCallback.barrier.runNow()
+    val (p, complete) = AsyncCallback.promise[Unit].runNow()
+    val ac =
+      for {
+        _ <- b.complete.asAsyncCallback
+        _ <- p.onCancel(AsyncCallback.delay { cancelled = true })
+        _ <- AsyncCallback.delay { afterCancel = true }
+      } yield ()
+
+    val io =
+      for {
+        fiber <- asyncCallbackToIO(ac).start
+        _     <- asyncCallbackToIO(b.await)
+        _     <- fiber.cancel
+        _     <- IO(complete(scala.util.Success(())).runNow())
+      } yield ()
+
+    unsafeRun2(io)
+    assert(cancelled)
+    assert(!afterCancel)
+
+    assert(unsafeRun2(asyncCallbackToIO(AsyncCallback.cancel)) == Outcome.Canceled())
+  }
+
+  test("CallbackCats.callbackCatsMonadAsyncCallback ap/ap2/map2 consistency with flatMap") {
+    val M = CallbackCats.callbackCatsMonadAsyncCallback
+    val err = new RuntimeException("boom")
+    var ran = 0
+    val fa = AsyncCallback.delay { ran += 1; 1 }
+
+    val ff1 = AsyncCallback.throwException[Int => Int](err)
+    M.ap(ff1)(fa).attempt.unsafeRunNowSync()
+    assert(ran == 0)
+
+    M.map2(ff1, fa)(_(_)).attempt.unsafeRunNowSync()
+    assert(ran == 0)
+
+    val ff2 = AsyncCallback.delay[(Int, Int) => Int] { ran += 1; _ + _ }
+    M.ap2(ff2)(AsyncCallback.throwException[Int](err), fa).attempt.unsafeRunNowSync()
+    assert(ran == 0)
+  }
 }

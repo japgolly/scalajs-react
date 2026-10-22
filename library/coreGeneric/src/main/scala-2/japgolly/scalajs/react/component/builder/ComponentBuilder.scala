@@ -122,7 +122,6 @@ object ComponentBuilder {
     def renderWith[C <: Children](r: RenderFn[P, S, B]): LastStep[P, C, S, B, UpdateSnapshot.None] = {
       var lc = Lifecycle.empty[P, S, B]
       initState match {
-        case InitState.DerivedFromProps        (f) => lc = lc.copy(getDerivedStateFromProps = Some((p, _) => Some(f(p))))
         case InitState.DerivedFromPropsAndState(f) => lc = lc.copy(getDerivedStateFromProps = Some((p, s) => Some(f(p, Some(s)))))
         case _                                     => ()
       }
@@ -291,7 +290,7 @@ object ComponentBuilder {
           case None => Some(f)
           case Some(prev) =>
             Some { e =>
-              f(e).orElse(prev(e))
+              prev(e).orElse(f(e))
             }
         }
       copy(lifecycle = update(lifecycle))

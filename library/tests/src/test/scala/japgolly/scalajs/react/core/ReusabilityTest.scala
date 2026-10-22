@@ -395,21 +395,39 @@ object ReusabilityTest extends TestSuite {
 
     "doubleWithTolerance" - {
       implicit val r = Reusability.double(0.2)
-      assert(1.2.toDouble ~=~ 1.0.toDouble)
-      assert(0.8.toDouble ~=~ 1.0.toDouble)
-
-      assert(!(0.7.toDouble ~=~ 1.0.toDouble))
-      assert(!(1.3.toDouble ~=~ 1.0.toDouble))
+      "numbers" - {
+        assert(1.2.toDouble ~=~ 1.0.toDouble)
+        assert(0.8.toDouble ~=~ 1.0.toDouble)
+        assert(0.7.toDouble ~/~ 1.0.toDouble)
+        assert(1.3.toDouble ~/~ 1.0.toDouble)
+      }
+      "infinities" - {
+        assert(Double.PositiveInfinity ~=~ Double.PositiveInfinity)
+        assert(Double.NegativeInfinity ~=~ Double.NegativeInfinity)
+        assert(Double.PositiveInfinity ~/~ Double.NegativeInfinity)
+      }
+      "NaN" - {
+        assert(Double.NaN ~=~ Double.NaN)
+      }
     }
 
     "floatWithTolerance" - {
       implicit val r = Reusability.float(0.2f)
-      assert(0.9f ~=~ 1.0f)
-      assert(1.0f ~=~ 1.0f)
-      assert(1.1f ~=~ 1.0f)
-
-      assert(!(0.7f ~=~ 1.0f))
-      assert(!(1.3f ~=~ 1.0f))
+      "numbers" - {
+        assert(0.9f ~=~ 1.0f)
+        assert(1.0f ~=~ 1.0f)
+        assert(1.1f ~=~ 1.0f)
+        assert(0.7f ~/~ 1.0f)
+        assert(1.3f ~/~ 1.0f)
+      }
+      "infinities" - {
+        assert(Float.PositiveInfinity ~=~ Float.PositiveInfinity)
+        assert(Float.NegativeInfinity ~=~ Float.NegativeInfinity)
+        assert(Float.PositiveInfinity ~/~ Float.NegativeInfinity)
+      }
+      "NaN" - {
+        assert(Float.NaN ~=~ Float.NaN)
+      }
     }
 
     "option" - {
@@ -469,6 +487,17 @@ object ReusabilityTest extends TestSuite {
       assert(now.plusSeconds(2) ~/~ now)
     }
 
+    "localDateWithTolerance" - {
+      implicit val r = Reusability.localDate(Duration.ofDays(1))
+      val today = LocalDate.now()
+      assert(today ~=~ today)
+      assert(today ~=~ LocalDate.of(today.getYear, today.getMonth, today.getDayOfMonth))
+      assert(today ~=~ today.plusDays(1))
+      assert(today.plusDays(1) ~=~ today)
+      assert(today ~/~ today.plusDays(2))
+      assert(today.plusDays(2) ~/~ today)
+    }
+
     "finiteDurationWithTolerance" - {
       import scala.concurrent.duration._
       implicit val r: Reusability[FiniteDuration] = Reusability.finiteDuration(1.second)
@@ -477,6 +506,32 @@ object ReusabilityTest extends TestSuite {
       assert(8.seconds ~=~ 9.seconds)
       assert(9.seconds ~/~ 7.seconds)
       assert(7.seconds ~/~ 9.seconds)
+    }
+
+    "scalaDurationWithTolerance" - {
+      import scala.concurrent.duration.{Duration => SDuration, _}
+      implicit val r: Reusability[SDuration] = Reusability.scalaDuration(1.second)
+
+      "infinite" - {
+        assert((SDuration.Inf: SDuration) ~=~ SDuration.Inf)
+        assert((SDuration.MinusInf: SDuration) ~=~ SDuration.MinusInf)
+
+        assert((SDuration.Inf: SDuration) ~/~ SDuration.MinusInf)
+        assert((SDuration.MinusInf: SDuration) ~/~ SDuration.Inf)
+        assert((SDuration.Inf: SDuration) ~/~ 1.second)
+        assert((1.second: SDuration) ~/~ SDuration.Inf)
+        assert((SDuration.MinusInf: SDuration) ~/~ 1.second)
+        assert((1.second: SDuration) ~/~ SDuration.MinusInf)
+        assert((SDuration.Undefined: SDuration) ~/~ 1.second)
+        assert((1.second: SDuration) ~/~ SDuration.Undefined)
+      }
+
+      "overflow" - {
+        assert((Long.MaxValue.nanos: SDuration) ~/~ (-1).nanos)
+        assert(((-1).nanos: SDuration) ~/~ Long.MaxValue.nanos)
+        assert(((-Long.MaxValue).nanos: SDuration) ~/~ 1.nano)
+        assert((1.nano: SDuration) ~/~ (-Long.MaxValue).nanos)
+      }
     }
 
     "finiteDurationWithoutTolerance" - {

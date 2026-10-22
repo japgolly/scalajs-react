@@ -140,18 +140,33 @@ object RoutingRulesF {
           (path, page) => y(path, page).reverse_:::(x(path, page))
 
         case r: RoutingRule.AutoCorrect[Page, Props] =>
-          val path = preparePathFn(r.underlying)
-          val action = prepareActionFn(r.underlying)
-          (actualPath, page) =>
-            path(page) match {
-              case Some(expectedPath) =>
-                if (expectedPath == actualPath)
-                  action(actualPath, page)
-                else
-                  static[Option[ActionF[F, Page, Props]]](Some(RedirectToPath(expectedPath, r.redirectVia))) :: Nil
-              case None =>
-                Nil
-            }
+          r.underlying match {
+            case c: RoutingRule.Conditional[Page, Props] =>
+              prepareActionFn(RoutingRule.ConditionalP(_ => c.condition, RoutingRule.AutoCorrect(c.underlying, r.redirectVia), c.otherwise))
+
+            case c: RoutingRule.ConditionalP[Page, Props] =>
+              prepareActionFn(RoutingRule.ConditionalP(c.condition, RoutingRule.AutoCorrect(c.underlying, r.redirectVia), c.otherwise))
+
+            case o: RoutingRule.Or[Page, Props] =>
+              prepareActionFn(RoutingRule.Or(RoutingRule.AutoCorrect(o.lhs, r.redirectVia), RoutingRule.AutoCorrect(o.rhs, r.redirectVia)))
+
+            case a: RoutingRule.AutoCorrect[Page, Props] =>
+              prepareActionFn(RoutingRule.AutoCorrect(a.underlying, r.redirectVia))
+
+            case _ =>
+              val path = preparePathFn(r.underlying)
+              val action = prepareActionFn(r.underlying)
+              (actualPath, page) =>
+                path(page) match {
+                  case Some(expectedPath) =>
+                    if (expectedPath == actualPath)
+                      action(actualPath, page)
+                    else
+                      static[Option[ActionF[F, Page, Props]]](Some(RedirectToPath(expectedPath, r.redirectVia))) :: Nil
+                  case None =>
+                    Nil
+                }
+          }
 
         case r: RoutingRule.Conditional[Page, Props] =>
           prepareActionFn(RoutingRule.ConditionalP(_ => r.condition, r.underlying, r.otherwise))
