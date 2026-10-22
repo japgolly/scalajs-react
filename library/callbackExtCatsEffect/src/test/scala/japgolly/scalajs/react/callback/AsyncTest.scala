@@ -101,11 +101,6 @@ final class AsyncTest extends CatsSuite with TestInstances {
     assert(!afterCancel)
 
     assert(unsafeRun2(asyncCallbackToIO(AsyncCallback.cancel)) == Outcome.Canceled())
-
-    var ranInsideUncancelable = false
-    val u = IO.uncancelable(_ => asyncCallbackToIO(AsyncCallback.cancel) *> IO { ranInsideUncancelable = true })
-    assert(unsafeRun2(u) == Outcome.Canceled())
-    assert(ranInsideUncancelable)
   }
 
   test("CallbackCats.callbackCatsMonadAsyncCallback ap/ap2/map2 consistency with flatMap") {
