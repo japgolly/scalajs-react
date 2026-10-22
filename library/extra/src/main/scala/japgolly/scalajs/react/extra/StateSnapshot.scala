@@ -10,7 +10,6 @@ import japgolly.scalajs.react.internal.{Iso, Lens}
 import japgolly.scalajs.react.util.DefaultEffects.{Async => DA, Sync => DS}
 import japgolly.scalajs.react.util.Effect.Sync
 import japgolly.scalajs.react.{Reusability, Reusable, StateAccess, StateAccessor}
-import scala.scalajs.js
 
 object StateSnapshot {
   type SetFn      [-S] = StateSnapshotF.SetFn      [DS, S]
@@ -53,9 +52,10 @@ object StateSnapshot {
     /** @since 3.0.0 */
     def useStateSnapshotWithReuse[S](initialValue: => S)(implicit rs: Reusability[S]): HookResult[StateSnapshot[S]] =
       for {
-        state <- useState(initialValue)
+        state            <- useState(initialValue)
+        tick             <- useState(0)
         delayedCallbacks <- useRef(List.empty[DS[Unit]])
-        _ <- useEffect {
+        _                <- useEffect {
           val cbs = delayedCallbacks.value
           if (cbs.isEmpty)
             DS.empty
@@ -65,20 +65,24 @@ object StateSnapshot {
       } yield {
           val setFn: SetFn[S] = (os, cb) =>
             os match {
-              // Object.is() here is used by React's setState to avoid re-renders when the state hasn't changed.
-              // If Object.is() returns true, then the hook doesn't re-render and the above useEffect isn't called,
-              // meaning the callback we delay here would get queued for later but not called until a subsequent update.
-              case Some(s) if !js.Object.is(s, state.value) =>
+              case Some(s) =>
                 val updateState = state.setState(s)
                 if (DS.isEmpty(cb))
                   updateState
                 else
-                  DS.chain(delayedCallbacks.mod(cb :: _), updateState)
-              case _ =>
-                // Run callback immediately to satisfy the contract that callbacks execute regardless of whether state
-                // changes.
+                  DS.chain(
+                    delayedCallbacks.mod(cb :: _),
+                    // This is required because React might decide not to update the component when state.setState is
+                    // called (eg. if identical state is set), which would leave the delayed callback (installed above)
+                    // in the queue but not run. By incrementing tick here we force an update and ensure that the
+                    // callback is always run when expected.
+                    tick.modState(_ + 1),
+                    updateState,
+                  )
+              case None =>
                 cb
             }
+
           new StateSnapshot[S](state.value, state.originalSetState.withValue(setFn), rs)
         }
 

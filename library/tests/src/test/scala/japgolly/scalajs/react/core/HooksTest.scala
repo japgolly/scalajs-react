@@ -2397,6 +2397,41 @@ object HooksTest extends AsyncTestSuite {
     }
   }
 
+  private def testUseStateSnapshotChainedUpdates() = {
+    var log = List.empty[String]
+    var staleSnapshot: StateSnapshot[Int] = null
+    val comp = ScalaFnComponent.withHooks[Unit]
+      .useStateSnapshot(0)
+      .useStateSnapshotWithReuse(0)
+      .render { (_, s1, s2) =>
+        if (staleSnapshot eq null) staleSnapshot = s2
+        <.div(
+          <.span(s"${s1.value},${s2.value}"),
+          <.button(^.onClick --> (s1.setState(1, Callback(log :+= "s1-1")) >> s1.setState(0, Callback(log :+= "s1-0")))),
+          <.button(^.onClick --> (s2.setState(1, Callback(log :+= "s2-1")) >> s2.setState(0, Callback(log :+= "s2-0")))),
+          <.button(^.onClick --> s2.setState(5, Callback(log :+= "s2-5"))),
+          <.button(^.onClick --> staleSnapshot.setState(0, Callback(log :+= "stale-0"))),
+        )
+      }
+
+    test(comp()) { t =>
+      for {
+        _ <- t.clickButton(1)
+        _  = assertEq(log, List("s1-1", "s1-0"))
+        _  = t.assertText("0,0")
+        _ <- t.clickButton(2)
+        _  = assertEq(log, List("s1-1", "s1-0", "s2-1", "s2-0"))
+        _  = t.assertText("0,0")
+        _ <- t.clickButton(3)
+        _  = assertEq(log, List("s1-1", "s1-0", "s2-1", "s2-0", "s2-5"))
+        _  = t.assertText("0,5")
+        _ <- t.clickButton(4)
+        _  = assertEq(log, List("s1-1", "s1-0", "s2-1", "s2-0", "s2-5", "stale-0"))
+        _  = t.assertText("0,0")
+      } yield ()
+    }
+  }
+
   private def testUseStateSnapshotUnchangedStateCallback(): Unit = {
     case class Box(v: Int)
     val b0 = Box(0)
@@ -3313,6 +3348,7 @@ object HooksTest extends AsyncTestSuite {
     "useStateSnapshotWithReuse" - testUseStateSnapshotWithReuse()
     "useStateSnapshotWithReuse (monadic)" - testMonadicUseStateSnapshotWithReuse()
     "useStateSnapshotCallbackOrder" - testUseStateSnapshotCallbackOrder()
+    "useStateSnapshotChainedUpdates" - testUseStateSnapshotChainedUpdates()
     "useStateSnapshotUnchangedStateCallback" - testUseStateSnapshotUnchangedStateCallback()
 
     "useId" - testUseId()
