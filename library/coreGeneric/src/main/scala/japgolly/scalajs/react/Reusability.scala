@@ -176,7 +176,7 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
     byRef || byJavaDuration[ZonedDateTime](Duration.between, tolerance)
 
   def byScalaDuration[A](dur: (A, A) => scd.Duration, tolerance: scd.Duration): Reusability[A] =
-    if (tolerance == scd.Duration.Undefined || tolerance < scd.Duration.Zero)
+    if ((tolerance eq scd.Duration.Undefined) || tolerance < scd.Duration.Zero)
       never
     else
       apply { (x, y) =>
