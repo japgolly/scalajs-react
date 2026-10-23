@@ -148,9 +148,8 @@ object JsUtil {
     _global
 
   private lazy val _global =
-    Try(js.Dynamic.global.globalThis)
+              Try(js.Dynamic.global.globalThis)
       .orElse(Try(js.Dynamic.global.global))
-      .orElse(Try(js.Dynamic.global.globalThis))
       .orElse(Try(js.Dynamic.global.self))
       .orElse(Try(js.Dynamic.global.window))
       .get
