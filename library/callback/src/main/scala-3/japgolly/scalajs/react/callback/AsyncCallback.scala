@@ -16,8 +16,19 @@ object AsyncCallback {
   type UnderlyingRepr[+A] = State => (Try[A] => Callback) => Callback
 
   final class State {
-    var cancelled       = false
-    val cancelCallbacks = new js.Array[js.UndefOr[UnderlyingRepr[Unit]]]
+    var cancelled                   = false
+    private[callback] var masks     = 0
+    private[callback] var finalized = false
+    val cancelCallbacks             = new js.Array[js.UndefOr[UnderlyingRepr[Unit]]]
+
+    private[callback] def shouldFinalize: Boolean =
+      cancelled && (masks == 0)
+
+    private[callback] def performCancel(): Unit =
+      if !finalized then
+        cancelled = true
+        finalized = true
+        cancelCallback.foreach(_.runNow())
 
     def onCancel(f: AsyncCallback[Unit]): Int = {
       cancelCallbacks.addOne(f.underlyingRepr)
@@ -30,12 +41,20 @@ object AsyncCallback {
     def cancelCallback: Option[Callback] = {
       val it = cancelCallbacks.iterator.filter(_.isDefined)
       Option.when(it.nonEmpty) {
-        it.map(u => new AsyncCallback(u.get).toCallback.reset).reduce(_ << _)
+        val ac = it.map(u => AsyncCallback.suspend(new AsyncCallback(u.get)).attempt.void).reduce(_ << _)
+        val s = new State
+        s.masks = 1
+        ac.underlyingRepr(s)(defaultCompleteWith)
       }
     }
 
     def cancelably(c: => Callback): Callback =
-      Callback.suspend(Callback.unless(cancelled)(c))
+      Callback.suspend {
+        if shouldFinalize then
+          Callback(performCancel())
+        else
+          c
+      }
   }
 
   /** Cancels the current [[AsyncCallback]] computation, running any registered `onCancel` callbacks.
@@ -45,12 +64,13 @@ object AsyncCallback {
     * `asCallbackToFuture` / `asCallbackToJsPromise` will never resolve).
     */
   def cancel: AsyncCallback[Unit] =
-    new AsyncCallback[Unit](s => _ =>
-      Callback {
-        if (!s.cancelled) {
-          s.cancelled = true
-          s.cancelCallback.foreach(_.runNow())
-        }
+    new AsyncCallback[Unit](s => g =>
+      Callback.suspend {
+        s.cancelled = true
+        if s.masks == 0 then
+          Callback(s.performCancel())
+        else
+          g(tryUnit)
       }
     )
 
@@ -639,7 +659,7 @@ object AsyncCallback {
   *
   * @tparam A The type of data asynchronously produced on success.
   */
-final class AsyncCallback[+A] private[AsyncCallback] (val underlyingRepr: AsyncCallback.UnderlyingRepr[A]) extends AnyVal { self =>
+final class AsyncCallback[+A] private[callback] (val underlyingRepr: AsyncCallback.UnderlyingRepr[A]) extends AnyVal { self =>
 
   def completeWith(f: Try[A] => Callback): Callback =
     AsyncCallback.newState.flatMap(underlyingRepr(_)(f))
@@ -1205,6 +1225,6 @@ final class AsyncCallback[+A] private[AsyncCallback] (val underlyingRepr: AsyncC
     new AsyncCallback(s => {
       val i = s.onCancel(f)
       val u = self.underlyingRepr(s)
-      g => u(t => Callback(if (!s.cancelled) s.unCancel(i)).flatMap(_ => g(t)))
+      g => u(t => Callback.unless(s.finalized)(Callback(s.unCancel(i)) >> g(t)))
     })
 }
