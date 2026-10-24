@@ -7,7 +7,7 @@ import cats.~>
 import japgolly.scalajs.react.ReactCatsEffect
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
-import scala.util.Either
+import scala.util.{Either, Failure, Success}
 
 object CallbackCatsEffect {
 
@@ -99,34 +99,86 @@ object CallbackCatsEffect {
     override def apply[A](f: AsyncCallback[A]): IO[A] =
       IO.async[Option[A]](k => IO {
         val s = new AsyncCallback.State
-        val i = s.onCancel(AsyncCallback.delay(k(Right(None))))
-        val g = f.underlyingRepr(s)
-        val d = g(t => Callback(k(t.toEither.map(Some(_)))))
-        dispatch(d)
-        if (s.cancelled)
+        var finDone = false
+        var finCb: Either[Throwable, Unit] => Unit = null
+        s.onCancel(AsyncCallback.delay {
+          finDone = true
+          if (finCb ne null) finCb(Right(()))
           k(Right(None))
-        Some(IO {
-          if (!s.cancelled) {
-            s.cancelled = true
-            s.unCancel(i)
-            s.cancelCallback.foreach(_.runNow())
+        })
+        val g = f.underlyingRepr(s)
+        val d = g(t =>
+          Callback {
+            if (s.shouldFinalize)
+              s.performCancel()
+            else
+              k(t.toEither.map(Some(_)))
           }
+        )
+        dispatch(d)
+        Some(IO.async_[Unit] { cb =>
+          finCb = cb
+          s.cancelled = true
+          if (s.shouldFinalize)
+            s.performCancel()
+          if (finDone)
+            cb(Right(()))
         })
       }).flatMap {
         case Some(a) => IO.pure(a)
-        case None    => IO.canceled *> IO.never
+        case None    => IO.canceled.as(null.asInstanceOf[A])
       }
   }
 
   class IOToAsyncCallback(runtime: () => IORuntime) extends (IO ~> AsyncCallback) { self =>
     override def apply[A](f: IO[A]): AsyncCallback[A] =
-      AsyncCallback[A] { k =>
-        Callback {
-          f.unsafeRunAsync { t =>
-            k(t.toTry).runNow()
-          }(runtime())
+      new AsyncCallback[A](s => k => s.cancelably(Callback {
+        implicit val rt: IORuntime = runtime()
+        implicit val ec: ExecutionContext = rt.compute
+        val f0 = if (s.ec ne null) f.evalOn(s.ec) else f
+        if (s.masks == 0) {
+          var done = false
+          var cancelToken = -1
+          val cancel = f0
+            .attempt
+            .flatMap(IO.pure)
+            .onCancel(IO {
+              done = true
+              if (!s.finalized && cancelToken >= 0) s.unCancel(cancelToken)
+              s.performCancel()
+            })
+            .flatMap {
+              case Right(a) =>
+                IO {
+                  done = true
+                  if (!s.finalized && cancelToken >= 0) s.unCancel(cancelToken)
+                  s.cancelably(k(Success(a))).runNow()
+                }
+              case Left(e) =>
+                IO {
+                  done = true
+                  if (!s.finalized && cancelToken >= 0) s.unCancel(cancelToken)
+                  s.cancelably(k(Failure(e))).runNow()
+                }
+            }
+            .unsafeRunCancelable()
+          if (!done && !s.finalized)
+            cancelToken = s.onCancel(AsyncCallback.fromFuture(cancel()))
+        } else {
+          var res: Either[Throwable, A] = null
+          val maskedIO = IO.uncancelable(_ => f0.attempt.map { r => res = r }).flatMap(_ => IO.unit)
+          maskedIO.unsafeRunAsyncOutcome {
+            case Outcome.Canceled() =>
+              s.cancelled = true
+              if (res ne null)
+                s.cancelably(k(res.toTry)).runNow()
+            case Outcome.Errored(e) =>
+              s.cancelably(k(Failure(e))).runNow()
+            case Outcome.Succeeded(_) =>
+              s.cancelably(k(res.toTry)).runNow()
+          }
         }
-      }
+      }))
 
     def transFiber[E, A](f: Fiber[IO, E, A]): Fiber[AsyncCallback, E, A] =
       new Fiber[AsyncCallback, E, A] {
@@ -162,16 +214,46 @@ object CallbackCatsEffect {
       AsyncCallback.tailrec(a)(f)
 
     override def forceR[A, B](fa: AsyncCallback[A])(fb: AsyncCallback[B]): AsyncCallback[B] =
-      Async[IO].forceR(io(fa))(io(fb))
+      fa.attempt >> fb
 
     override def uncancelable[A](body: Poll[AsyncCallback] => AsyncCallback[A]): AsyncCallback[A] =
-      Async[IO].uncancelable { pollIO =>
+      new AsyncCallback[A](s => k => s.cancelably(Callback.suspend {
+        s.masks += 1
+        val id = s.masks
+
         val poll = new Poll[AsyncCallback] {
-          override def apply[A](fa: AsyncCallback[A]): AsyncCallback[A] =
-            pollIO(io(fa))
+          override def apply[B](fb: AsyncCallback[B]): AsyncCallback[B] =
+            new AsyncCallback[B](s2 => k2 => s2.cancelably(Callback.suspend {
+              if ((s2 eq s) && (s2.masks == id)) {
+                s2.masks -= 1
+                s2.cancelably {
+                  fb.underlyingRepr(s2) { t =>
+                    s2.cancelably {
+                      s2.masks += 1
+                      k2(t)
+                    }
+                  }
+                }
+              } else
+                fb.underlyingRepr(s2)(k2)
+            }))
         }
-        io(body(poll))
-      }
+
+        val next =
+          try body(poll)
+          catch {
+            case t: Throwable => AsyncCallback.throwException(t)
+          }
+
+        next.underlyingRepr(s) { t =>
+          Callback.suspend {
+            Callback.unless(s.finalized) {
+              s.masks -= 1
+              k(t)
+            }
+          }
+        }
+      }))
 
     override def canceled: AsyncCallback[Unit] =
       AsyncCallback.cancel
@@ -203,11 +285,52 @@ object CallbackCatsEffect {
     override def sleep(time: FiniteDuration): AsyncCallback[Unit] =
       AsyncCallback.unit.delay(time)
 
-    override def evalOn[A](fa: AsyncCallback[A], ec: ExecutionContext): AsyncCallback[A] =
-      io(fa).evalOn(ec)
+    override def evalOn[A](fa: AsyncCallback[A], ec: ExecutionContext): AsyncCallback[A] = {
+      val faWithEc = new AsyncCallback[A](s => k => s.cancelably(Callback.suspend {
+        val prev = s.ec
+        s.ec = ec
+        fa.underlyingRepr(s) { t =>
+          Callback.suspend {
+            Callback.unless(s.finalized) {
+              s.ec = prev
+              k(t)
+            }
+          }
+        }
+      }))
+      io(faWithEc).evalOn(ec)
+    }
 
     override def executionContext: AsyncCallback[ExecutionContext] =
-      IO.executionContext
+      new AsyncCallback[ExecutionContext](s => k => s.cancelably(Callback.suspend {
+        if (s.ec ne null)
+          k(Success(s.ec))
+        else
+          ac(IO.executionContext).underlyingRepr(s)(k)
+      }))
+
+    override def asyncCheckAttempt[A](
+        k: (Either[Throwable, A] => Unit) => AsyncCallback[Either[Option[AsyncCallback[Unit]], A]]): AsyncCallback[A] =
+      uncancelable { poll =>
+        AsyncCallback.promise[A].asAsyncCallback.flatMap { case (p, complete) =>
+          var done = false
+          val resume: Either[Throwable, A] => Unit =
+            ea =>
+              if (!done) {
+                done = true
+                complete(ea.toTry).runNow()
+              }
+          k(resume).flatMap {
+            case Right(a) =>
+              done = true
+              AsyncCallback.pure(a)
+            case Left(Some(fin)) =>
+              onCancel(poll(p), fin)
+            case Left(None) =>
+              p
+          }
+        }
+      }
 
     override def cont[K, R](body: Cont[AsyncCallback,K,R]): AsyncCallback[R] =
       Async.defaultCont(body)(this)

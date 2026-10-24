@@ -6,6 +6,7 @@ import cats.effect.testkit.TestInstances
 import cats.kernel.Eq
 import cats.tests.CatsSuite
 import cats.{Id, Order, ~>}
+import japgolly.scalajs.react.ReactCatsEffect
 import org.scalacheck._
 import scala.concurrent.duration._
 import scala.scalajs.js
@@ -33,23 +34,27 @@ final class AsyncTest extends CatsSuite with TestInstances {
   override def unsafeRun[A](ioa: IO[A])(implicit ticker: Ticker): Outcome[Option, Throwable, A] =
     try {
       var results: Outcome[Option, Throwable, A] = Outcome.Succeeded(None)
+      val rt = materializeRuntime
 
-      ioa
-        .flatMap(IO.pure(_))
-        .handleErrorWith(IO.raiseError(_))
-        .unsafeRunAsyncOutcome { oc => results = oc.mapK(someK) }(materializeRuntime)
+      ReactCatsEffect.withRuntime(rt) {
+        ioa
+          .flatMap(IO.pure(_))
+          .handleErrorWith(IO.raiseError(_))
+          .unsafeRunAsyncOutcome { oc => results = oc.mapK(someK) }(rt)
 
-      def go(i: Int): Unit = {
-        ticker.ctx.tickAll()
-        if (backlog.length > 0) {
-          for (f <- backlog)
-            f.reset.runNow()
-          backlog.clear()
-          if (i < 100)
-            go(i + 1)
+        def go(i: Int): Unit = {
+          ticker.ctx.tickAll()
+          if (backlog.length > 0) {
+            val tasks = backlog.jsSlice()
+            backlog.clear()
+            for (f <- tasks)
+              f.reset.runNow()
+            if (i < 100)
+              go(i + 1)
+          }
         }
+        go(0)
       }
-      go(0)
 
       results
     } catch {
