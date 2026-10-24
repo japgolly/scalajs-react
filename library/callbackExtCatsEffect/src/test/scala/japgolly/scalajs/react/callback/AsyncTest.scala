@@ -30,15 +30,14 @@ final class AsyncTest extends CatsSuite with TestInstances {
   private val someK: Id ~> Option =
     new ~>[Id, Option] { def apply[A](a: A) = a.some }
 
-  private def unsafeRun2[A](ioa: IO[A])(implicit ticker: Ticker): Outcome[Option, Throwable, A] =
+  override def unsafeRun[A](ioa: IO[A])(implicit ticker: Ticker): Outcome[Option, Throwable, A] =
     try {
       var results: Outcome[Option, Throwable, A] = Outcome.Succeeded(None)
 
       ioa
         .flatMap(IO.pure(_))
         .handleErrorWith(IO.raiseError(_))
-        .unsafeRunAsyncOutcome { oc => results = oc.mapK(someK) }(unsafe
-          .IORuntime(ticker.ctx, ticker.ctx, scheduler, () => (), unsafe.IORuntimeConfig()))
+        .unsafeRunAsyncOutcome { oc => results = oc.mapK(someK) }(materializeRuntime)
 
       def go(i: Int): Unit = {
         ticker.ctx.tickAll()
@@ -62,12 +61,12 @@ final class AsyncTest extends CatsSuite with TestInstances {
   implicit def asyncCallbackToProp(implicit t: Ticker): AsyncCallback[Boolean] => Prop =
     a => {
       val io = asyncCallbackToIO(a)
-      val x = unsafeRun2(io)
+      val x = unsafeRun(io)
       Prop(x.fold(false, _ => false, _.getOrElse(false)))
     }
 
   implicit def cogenAsyncCallback[A: Cogen](implicit t: Ticker): Cogen[AsyncCallback[A]] =
-    Cogen[Outcome[Option, Throwable, A]].contramap(acb => unsafeRun2(asyncCallbackToIO(acb)))
+    Cogen[Outcome[Option, Throwable, A]].contramap(acb => unsafeRun(asyncCallbackToIO(acb)))
 
   locally {
     implicit val ticker = Ticker()
@@ -96,11 +95,11 @@ final class AsyncTest extends CatsSuite with TestInstances {
         _     <- IO(complete(scala.util.Success(())).runNow())
       } yield ()
 
-    unsafeRun2(io)
+    unsafeRun(io)
     assert(cancelled)
     assert(!afterCancel)
 
-    assert(unsafeRun2(asyncCallbackToIO(AsyncCallback.cancel)) == Outcome.Canceled())
+    assert(unsafeRun(asyncCallbackToIO(AsyncCallback.cancel)) == Outcome.Canceled())
   }
 
   test("CallbackCats.callbackCatsMonadAsyncCallback ap/ap2/map2 consistency with flatMap") {
