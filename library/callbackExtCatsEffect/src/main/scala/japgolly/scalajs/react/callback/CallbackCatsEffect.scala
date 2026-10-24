@@ -178,6 +178,7 @@ object CallbackCatsEffect {
 
     override def onCancel[A](fa: AsyncCallback[A], fu: AsyncCallback[Unit]): AsyncCallback[A] =
       fa.onCancel(fu)
+
     override def monotonic: AsyncCallback[FiniteDuration] =
       AsyncCallback.delay(System.nanoTime().nanos)
 
