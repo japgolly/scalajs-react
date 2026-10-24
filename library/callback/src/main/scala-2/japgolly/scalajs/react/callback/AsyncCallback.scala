@@ -1221,6 +1221,6 @@ final class AsyncCallback[+A] private[callback] (val underlyingRepr: AsyncCallba
     new AsyncCallback(s => {
       val i = s.onCancel(f)
       val u = self.underlyingRepr(s)
-      g => u(t => Callback.unless(s.finalized)(Callback(s.unCancel(i)) >> g(t)))
+      g => u(t => Callback.suspend(Callback.unless(s.finalized)(Callback(s.unCancel(i)) >> g(t))))
     })
 }

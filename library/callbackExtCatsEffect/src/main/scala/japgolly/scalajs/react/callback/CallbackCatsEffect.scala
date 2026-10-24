@@ -246,9 +246,11 @@ object CallbackCatsEffect {
           }
 
         next.underlyingRepr(s) { t =>
-          Callback.unless(s.finalized) {
-            s.masks -= 1
-            k(t)
+          Callback.suspend {
+            Callback.unless(s.finalized) {
+              s.masks -= 1
+              k(t)
+            }
           }
         }
       }))
@@ -288,9 +290,11 @@ object CallbackCatsEffect {
         val prev = s.ec
         s.ec = ec
         fa.underlyingRepr(s) { t =>
-          Callback.unless(s.finalized) {
-            s.ec = prev
-            k(t)
+          Callback.suspend {
+            Callback.unless(s.finalized) {
+              s.ec = prev
+              k(t)
+            }
           }
         }
       }))
