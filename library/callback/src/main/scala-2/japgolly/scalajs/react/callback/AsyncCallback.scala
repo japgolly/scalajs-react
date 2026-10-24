@@ -15,10 +15,11 @@ object AsyncCallback {
   type UnderlyingRepr[+A] = State => (Try[A] => Callback) => Callback
 
   final class State {
-    var cancelled                 = false
-    private[callback] var masks     = 0
-    private[callback] var finalized = false
-    val cancelCallbacks           = new js.Array[js.UndefOr[UnderlyingRepr[Unit]]]
+    var cancelled                              = false
+    private[callback] var masks                = 0
+    private[callback] var finalized            = false
+    private[callback] var ec: ExecutionContext = null
+    val cancelCallbacks                        = new js.Array[js.UndefOr[UnderlyingRepr[Unit]]]
 
     private[callback] def shouldFinalize: Boolean =
       cancelled && (masks == 0)

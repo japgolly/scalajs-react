@@ -135,10 +135,11 @@ object CallbackCatsEffect {
       new AsyncCallback[A](s => k => s.cancelably(Callback {
         implicit val rt: IORuntime = runtime()
         implicit val ec: ExecutionContext = rt.compute
+        val f0 = if (s.ec ne null) f.evalOn(s.ec) else f
         if (s.masks == 0) {
           var done = false
           var cancelToken = -1
-          val cancel = f
+          val cancel = f0
             .attempt
             .flatMap(IO.pure)
             .onCancel(IO {
@@ -165,7 +166,7 @@ object CallbackCatsEffect {
             cancelToken = s.onCancel(AsyncCallback.fromFuture(cancel()))
         } else {
           var res: Either[Throwable, A] = null
-          val maskedIO = IO.uncancelable(_ => f.attempt.map { r => res = r }).flatMap(_ => IO.unit)
+          val maskedIO = IO.uncancelable(_ => f0.attempt.map { r => res = r }).flatMap(_ => IO.unit)
           maskedIO.unsafeRunAsyncOutcome {
             case Outcome.Canceled() =>
               s.cancelled = true
@@ -282,11 +283,27 @@ object CallbackCatsEffect {
     override def sleep(time: FiniteDuration): AsyncCallback[Unit] =
       AsyncCallback.unit.delay(time)
 
-    override def evalOn[A](fa: AsyncCallback[A], ec: ExecutionContext): AsyncCallback[A] =
-      io(fa).evalOn(ec)
+    override def evalOn[A](fa: AsyncCallback[A], ec: ExecutionContext): AsyncCallback[A] = {
+      val faWithEc = new AsyncCallback[A](s => k => s.cancelably(Callback.suspend {
+        val prev = s.ec
+        s.ec = ec
+        fa.underlyingRepr(s) { t =>
+          Callback.unless(s.finalized) {
+            s.ec = prev
+            k(t)
+          }
+        }
+      }))
+      io(faWithEc).evalOn(ec)
+    }
 
     override def executionContext: AsyncCallback[ExecutionContext] =
-      IO.executionContext
+      new AsyncCallback[ExecutionContext](s => k => s.cancelably(Callback.suspend {
+        if (s.ec ne null)
+          k(Success(s.ec))
+        else
+          ac(IO.executionContext).underlyingRepr(s)(k)
+      }))
 
     override def asyncCheckAttempt[A](
         k: (Either[Throwable, A] => Unit) => AsyncCallback[Either[Option[AsyncCallback[Unit]], A]]): AsyncCallback[A] =
