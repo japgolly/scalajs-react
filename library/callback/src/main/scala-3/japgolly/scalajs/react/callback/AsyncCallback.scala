@@ -20,20 +20,20 @@ object AsyncCallback {
     var ec              = null: ExecutionContext
     val cancelCallbacks = new js.Array[js.UndefOr[UnderlyingRepr[Unit]]]
 
-    /** Whether cancellation has actually taken effect and `onCancel` finalizers have been triggered.
+    /** Whether cancellation has actually taken effect and `onCancel` finalisers have been triggered.
       *
       * Whereas [[cancelled]] indicates that cancellation was requested (which may be deferred while `masks > 0`),
-      * `finalized` only becomes `true` once `performCancel()` runs at an unmasked boundary (`masks == 0`), halting
-      * normal continuation execution and ensuring `onCancel` finalizers are executed at most once.
+      * `finalised` only becomes `true` once `performCancel()` runs at an unmasked boundary (`masks == 0`), halting
+      * normal continuation execution and ensuring `onCancel` finalisers are executed at most once.
       */
-    var finalized = false
+    var finalised = false
 
     /** Nesting depth of `uncancelable` regions.
       *
-      * Incremented on entering `uncancelable` (or when running `onCancel` finalizers) and decremented on exit
+      * Incremented on entering `uncancelable` (or when running `onCancel` finalisers) and decremented on exit
       * or inside a matching `Poll` block.
       *
-      * While `masks > 0`, cancellation is suppressed (`shouldFinalize` is `false`): if `cancelled` becomes `true`,
+      * While `masks > 0`, cancellation is suppressed (`shouldFinalise` is `false`): if `cancelled` becomes `true`,
       * execution continues until the outermost `uncancelable` region exits and `masks` returns to `0`, at which point
       * `performCancel()` is invoked.
       *
@@ -42,13 +42,13 @@ object AsyncCallback {
       */
     var masks = 0
 
-    def shouldFinalize: Boolean =
+    def shouldFinalise: Boolean =
       cancelled && (masks == 0)
 
     def performCancel(): Unit =
-      if (!finalized) {
+      if (!finalised) {
         cancelled = true
-        finalized = true
+        finalised = true
         cancelCallback.foreach(_.runNow())
       }
 
@@ -72,7 +72,7 @@ object AsyncCallback {
 
     def cancelably(c: => Callback): Callback =
       Callback.suspend {
-        if shouldFinalize then
+        if shouldFinalise then
           Callback(performCancel())
         else
           c
@@ -1248,6 +1248,6 @@ final class AsyncCallback[+A](val underlyingRepr: AsyncCallback.UnderlyingRepr[A
       val i = s.onCancel(f)
       val u = self.underlyingRepr(s)
       val uncancel = Callback(s.unCancel(i))
-      g => u(t => Callback.suspend(Callback.unless(s.finalized)(uncancel >> g(t))))
+      g => u(t => Callback.suspend(Callback.unless(s.finalised)(uncancel >> g(t))))
     })
 }

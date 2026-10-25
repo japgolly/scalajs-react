@@ -109,7 +109,7 @@ object CallbackCatsEffect {
         val g = f.underlyingRepr(s)
         val d = g(t =>
           Callback {
-            if (s.shouldFinalize)
+            if (s.shouldFinalise)
               s.performCancel()
             else
               k(t.toEither.map(Some(_)))
@@ -119,7 +119,7 @@ object CallbackCatsEffect {
         Some(IO.async_[Unit] { cb =>
           finCb = cb
           s.cancelled = true
-          if (s.shouldFinalize)
+          if (s.shouldFinalise)
             s.performCancel()
           if (finDone)
             cb(Right(()))
@@ -144,25 +144,25 @@ object CallbackCatsEffect {
             .flatMap(IO.pure)
             .onCancel(IO {
               done = true
-              if (!s.finalized && cancelToken >= 0) s.unCancel(cancelToken)
+              if (!s.finalised && cancelToken >= 0) s.unCancel(cancelToken)
               s.performCancel()
             })
             .flatMap {
               case Right(a) =>
                 IO {
                   done = true
-                  if (!s.finalized && cancelToken >= 0) s.unCancel(cancelToken)
+                  if (!s.finalised && cancelToken >= 0) s.unCancel(cancelToken)
                   s.cancelably(k(Success(a))).runNow()
                 }
               case Left(e) =>
                 IO {
                   done = true
-                  if (!s.finalized && cancelToken >= 0) s.unCancel(cancelToken)
+                  if (!s.finalised && cancelToken >= 0) s.unCancel(cancelToken)
                   s.cancelably(k(Failure(e))).runNow()
                 }
             }
             .unsafeRunCancelable()
-          if (!done && !s.finalized)
+          if (!done && !s.finalised)
             cancelToken = s.onCancel(AsyncCallback.fromFuture(cancel()))
         } else {
           var res: Either[Throwable, A] = null
@@ -247,7 +247,7 @@ object CallbackCatsEffect {
 
         next.underlyingRepr(s) { t =>
           Callback.suspend {
-            Callback.unless(s.finalized) {
+            Callback.unless(s.finalised) {
               s.masks -= 1
               k(t)
             }
@@ -291,7 +291,7 @@ object CallbackCatsEffect {
         s.ec = ec
         fa.underlyingRepr(s) { t =>
           Callback.suspend {
-            Callback.unless(s.finalized) {
+            Callback.unless(s.finalised) {
               s.ec = prev
               k(t)
             }
