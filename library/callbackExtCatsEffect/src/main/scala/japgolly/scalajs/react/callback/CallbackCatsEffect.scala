@@ -126,7 +126,7 @@ object CallbackCatsEffect {
         })
       }).flatMap {
         case Some(a) => IO.pure(a)
-        case None    => IO.canceled.as(null.asInstanceOf[A])
+        case None    => IO.canceled *> IO.never
       }
   }
 

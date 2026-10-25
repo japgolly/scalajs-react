@@ -15,17 +15,37 @@ object AsyncCallback {
 
   type UnderlyingRepr[+A] = State => (Try[A] => Callback) => Callback
 
-  final class State {
-    var cancelled                              = false
-    private[callback] var masks                = 0
-    private[callback] var finalized            = false
-    private[callback] var ec: ExecutionContext = null
-    val cancelCallbacks                        = new js.Array[js.UndefOr[UnderlyingRepr[Unit]]]
+  class State {
+    var cancelled       = false
+    var ec              = null: ExecutionContext
+    val cancelCallbacks = new js.Array[js.UndefOr[UnderlyingRepr[Unit]]]
 
-    private[callback] def shouldFinalize: Boolean =
+    /** Whether cancellation has actually taken effect and `onCancel` finalizers have been triggered.
+      *
+      * Whereas [[cancelled]] indicates that cancellation was requested (which may be deferred while `masks > 0`),
+      * `finalized` only becomes `true` once `performCancel()` runs at an unmasked boundary (`masks == 0`), halting
+      * normal continuation execution and ensuring `onCancel` finalizers are executed at most once.
+      */
+    var finalized = false
+
+    /** Nesting depth of `uncancelable` regions.
+      *
+      * Incremented on entering `uncancelable` (or when running `onCancel` finalizers) and decremented on exit
+      * or inside a matching `Poll` block.
+      *
+      * While `masks > 0`, cancellation is suppressed (`shouldFinalize` is `false`): if `cancelled` becomes `true`,
+      * execution continues until the outermost `uncancelable` region exits and `masks` returns to `0`, at which point
+      * `performCancel()` is invoked.
+      *
+      * The current depth is also captured by `uncancelable` to identify lexical `Poll` scopes (`s.masks == id`) so
+      * that `poll` only unmasks when invoked at the exact nesting level that created it.
+      */
+    var masks = 0
+
+    def shouldFinalize: Boolean =
       cancelled && (masks == 0)
 
-    private[callback] def performCancel(): Unit =
+    def performCancel(): Unit =
       if (!finalized) {
         cancelled = true
         finalized = true
@@ -661,7 +681,7 @@ object AsyncCallback {
   *
   * @tparam A The type of data asynchronously produced on success.
   */
-final class AsyncCallback[+A] private[callback] (val underlyingRepr: AsyncCallback.UnderlyingRepr[A]) extends AnyVal { self =>
+final class AsyncCallback[+A](val underlyingRepr: AsyncCallback.UnderlyingRepr[A]) extends AnyVal { self =>
 
   def completeWith(f: Try[A] => Callback): Callback =
     AsyncCallback.newState.flatMap(underlyingRepr(_)(f))
@@ -1227,6 +1247,7 @@ final class AsyncCallback[+A] private[callback] (val underlyingRepr: AsyncCallba
     new AsyncCallback(s => {
       val i = s.onCancel(f)
       val u = self.underlyingRepr(s)
-      g => u(t => Callback.suspend(Callback.unless(s.finalized)(Callback(s.unCancel(i)) >> g(t))))
+      val uncancel = Callback(s.unCancel(i))
+      g => u(t => Callback.suspend(Callback.unless(s.finalized)(uncancel >> g(t))))
     })
 }
