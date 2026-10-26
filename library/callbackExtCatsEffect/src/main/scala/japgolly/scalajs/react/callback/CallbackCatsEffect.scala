@@ -103,7 +103,11 @@ object CallbackCatsEffect {
         var finCb: Either[Throwable, Unit] => Unit = null
         s.onCancel(AsyncCallback.delay {
           finDone = true
-          if (finCb ne null) finCb(Right(()))
+          if (finCb ne null) {
+            val cb = finCb
+            finCb = null
+            cb(Right(()))
+          }
           k(Right(None))
         })
         val g = f.underlyingRepr(s)
@@ -121,8 +125,10 @@ object CallbackCatsEffect {
           s.cancelled = true
           if (s.shouldFinalise)
             s.performCancel()
-          if (finDone)
+          if (finDone && (finCb ne null)) {
+            finCb = null
             cb(Right(()))
+          }
         })
       }).flatMap {
         case Some(a) => IO.pure(a)
