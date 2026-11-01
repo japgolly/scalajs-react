@@ -15,9 +15,42 @@ object AsyncCallback {
 
   type UnderlyingRepr[+A] = State => (Try[A] => Callback) => Callback
 
-  final class State {
+  class State {
     var cancelled       = false
+    var ec              = null: ExecutionContext
     val cancelCallbacks = new js.Array[js.UndefOr[UnderlyingRepr[Unit]]]
+
+    /** Whether cancellation has actually taken effect and `onCancel` finalisers have been triggered.
+      *
+      * Whereas [[cancelled]] indicates that cancellation was requested (which may be deferred while `masks > 0`),
+      * `finalised` only becomes `true` once `performCancel()` runs at an unmasked boundary (`masks == 0`), halting
+      * normal continuation execution and ensuring `onCancel` finalisers are executed at most once.
+      */
+    var finalised = false
+
+    /** Nesting depth of `uncancelable` regions.
+      *
+      * Incremented on entering `uncancelable` (or when running `onCancel` finalisers) and decremented on exit
+      * or inside a matching `Poll` block.
+      *
+      * While `masks > 0`, cancellation is suppressed (`shouldFinalise` is `false`): if `cancelled` becomes `true`,
+      * execution continues until the outermost `uncancelable` region exits and `masks` returns to `0`, at which point
+      * `performCancel()` is invoked.
+      *
+      * The current depth is also captured by `uncancelable` to identify lexical `Poll` scopes (`s.masks == id`) so
+      * that `poll` only unmasks when invoked at the exact nesting level that created it.
+      */
+    var masks = 0
+
+    def shouldFinalise: Boolean =
+      cancelled && (masks == 0)
+
+    def performCancel(): Unit =
+      if (!finalised) {
+        cancelled = true
+        finalised = true
+        cancelCallback.foreach(_.runNow())
+      }
 
     def onCancel(f: AsyncCallback[Unit]): Int = {
       cancelCallbacks.addOne(f.underlyingRepr)
@@ -30,12 +63,20 @@ object AsyncCallback {
     def cancelCallback: Option[Callback] = {
       val it = cancelCallbacks.iterator.filter(_.isDefined)
       Option.when(it.nonEmpty) {
-        it.map(u => new AsyncCallback(u.get).toCallback.reset).reduce(_ << _)
+        val ac = it.map(u => AsyncCallback.suspend(new AsyncCallback(u.get)).attempt.void).reduce(_ << _)
+        val s = new State
+        s.masks = 1
+        ac.underlyingRepr(s)(defaultCompleteWith)
       }
     }
 
     def cancelably(c: => Callback): Callback =
-      Callback.suspend(Callback.unless(cancelled)(c))
+      Callback.suspend {
+        if shouldFinalise then
+          Callback(performCancel())
+        else
+          c
+      }
   }
 
   /** Cancels the current [[AsyncCallback]] computation, running any registered `onCancel` callbacks.
@@ -45,12 +86,13 @@ object AsyncCallback {
     * `asCallbackToFuture` / `asCallbackToJsPromise` will never resolve).
     */
   def cancel: AsyncCallback[Unit] =
-    new AsyncCallback[Unit](s => _ =>
-      Callback {
-        if (!s.cancelled) {
-          s.cancelled = true
-          s.cancelCallback.foreach(_.runNow())
-        }
+    new AsyncCallback[Unit](s => g =>
+      Callback.suspend {
+        s.cancelled = true
+        if s.masks == 0 then
+          Callback(s.performCancel())
+        else
+          g(tryUnit)
       }
     )
 
@@ -639,7 +681,7 @@ object AsyncCallback {
   *
   * @tparam A The type of data asynchronously produced on success.
   */
-final class AsyncCallback[+A] private[AsyncCallback] (val underlyingRepr: AsyncCallback.UnderlyingRepr[A]) extends AnyVal { self =>
+final class AsyncCallback[+A](val underlyingRepr: AsyncCallback.UnderlyingRepr[A]) extends AnyVal { self =>
 
   def completeWith(f: Try[A] => Callback): Callback =
     AsyncCallback.newState.flatMap(underlyingRepr(_)(f))
@@ -1205,6 +1247,7 @@ final class AsyncCallback[+A] private[AsyncCallback] (val underlyingRepr: AsyncC
     new AsyncCallback(s => {
       val i = s.onCancel(f)
       val u = self.underlyingRepr(s)
-      g => u(t => Callback(if (!s.cancelled) s.unCancel(i)).flatMap(_ => g(t)))
+      val uncancel = Callback(s.unCancel(i))
+      g => u(t => Callback.suspend(Callback.unless(s.finalised)(uncancel >> g(t))))
     })
 }
