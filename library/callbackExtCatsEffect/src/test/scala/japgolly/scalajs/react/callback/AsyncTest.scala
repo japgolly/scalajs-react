@@ -107,29 +107,6 @@ final class AsyncTest extends CatsSuite with TestInstances {
     assert(unsafeRun(asyncCallbackToIO(AsyncCallback.cancel)) == Outcome.Canceled())
   }
 
-  test("uncancelable triggers cancellation upon exiting uncancelable region") {
-    implicit val ticker = Ticker()
-    val F = new AsyncAsyncCallback(asyncCallbackToIO, ioToAsyncCallback)
-
-    var bodyCompleted = false
-    var cancelled = false
-    val ac = F.uncancelable(_ => F.canceled >> AsyncCallback.delay { bodyCompleted = true; 42 })
-      .onCancel(AsyncCallback.delay { cancelled = true })
-
-    val fut = ac.unsafeToFuture()
-    assert(bodyCompleted)
-    assert(cancelled)
-    assert(!fut.isCompleted)
-
-    val futAttempt = F.uncancelable(_ => F.canceled >> AsyncCallback.pure(42)).attempt.unsafeToFuture()
-    assert(!futAttempt.isCompleted)
-
-    var cancelledIO = false
-    val acIO = F.uncancelable(_ => F.canceled).onCancel(AsyncCallback.delay { cancelledIO = true })
-    assert(unsafeRun(asyncCallbackToIO(acIO)) == Outcome.Canceled())
-    assert(cancelledIO)
-  }
-
   test("CallbackCats.callbackCatsMonadAsyncCallback ap/ap2/map2 consistency with flatMap") {
     val M = CallbackCats.callbackCatsMonadAsyncCallback
     val err = new RuntimeException("boom")

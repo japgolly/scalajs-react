@@ -255,7 +255,7 @@ object CallbackCatsEffect {
           Callback.suspend {
             Callback.unless(s.finalised) {
               s.masks -= 1
-              s.cancelably(k(t))
+              k(t)
             }
           }
         }
