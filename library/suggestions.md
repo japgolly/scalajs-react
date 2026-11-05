@@ -9,36 +9,6 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
 
 ## Section A: Bugs, Race Conditions, Resource Leaks & Edge Cases
 
-### 1. `CallbackCatsEffect.AsyncAsyncCallback.uncancelable` fails to trigger cancellation upon exiting an uncancelable region
-- **File**: `callbackExtCatsEffect/src/main/scala/japgolly/scalajs/react/callback/CallbackCatsEffect.scala` (lines 254–260)
-- **Issue**:
-  When a cancellation occurs while `s.masks > 0` (e.g., `AsyncCallback.cancel` on lines 88–96 of `AsyncCallback.scala`), `s.cancelled` is set to `true` and execution continues through the masked region by invoking `g(tryUnit)`. When the outer `uncancelable` block completes, its continuation runs:
-  ```scala
-  next.underlyingRepr(s) { t =>
-    Callback.suspend {
-      Callback.unless(s.finalised) {
-        s.masks -= 1
-        k(t)
-      }
-    }
-  }
-  ```
-  Because `k(t)` is called directly instead of `s.cancelably(k(t))`, when `s.masks` drops back from `1` to `0`, `s.cancelably` is not checked! If `k` is a terminal continuation (such as `toCallback`, `asCallbackToFuture`, `attempt`, or `AsyncCallbackToIO`), `s.performCancel()` is never executed, registered `onCancel` finalisers are never run, and the computation completes normally with `Success` instead of cancelling.
-- **Suggestion**:
-  Wrap `k(t)` in `s.cancelably(k(t))` after decrementing `s.masks`:
-  ```scala
-  next.underlyingRepr(s) { t =>
-    Callback.suspend {
-      Callback.unless(s.finalised) {
-        s.masks -= 1
-        s.cancelably(k(t))
-      }
-    }
-  }
-  ```
-
----
-
 ### 2. `AsyncCallback.Mutex` and `ReadWriteMutex` permanently deadlock if the inner `AsyncCallback` is cancelled
 - **Files**:
   - `callback/src/main/scala-2/japgolly/scalajs/react/callback/AsyncCallback.scala` (lines 436–549, 1081–1085)
