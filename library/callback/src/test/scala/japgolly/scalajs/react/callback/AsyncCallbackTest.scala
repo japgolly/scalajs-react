@@ -548,6 +548,46 @@ object AsyncCallbackTest extends TestSuite {
       }
     }
 
+    "race" - {
+      "winnerLeft" - asyncTest {
+        val a = AsyncCallback.pure("fast")
+        val b = AsyncCallback.pure("slow").delayMs(50)
+        a.race(b).map { res =>
+          assertEq(res, Left("fast"))
+        }
+      }
+
+      "winnerRight" - asyncTest {
+        val a = AsyncCallback.pure("slow").delayMs(50)
+        val b = AsyncCallback.pure("fast")
+        a.race(b).map { res =>
+          assertEq(res, Right("fast"))
+        }
+      }
+
+      "alreadyCancelled" - {
+        var ran = false
+        val ac = AsyncCallback.cancel >> AsyncCallback.pure(1).race(AsyncCallback.pure(2)).map(_ => ran = true)
+        ac.runNow()
+        assertEq(ran, false)
+      }
+
+      "cancelledBeforeWinner" - {
+        var continuationRan = false
+        var cancelled = false
+        val (p, complete) = AsyncCallback.promise[Int].runNow()
+        val s = new AsyncCallback.State
+        val ac = p.race(AsyncCallback.never[Int])
+          .map(_ => continuationRan = true)
+          .onCancel(AsyncCallback.delay { cancelled = true })
+        ac.underlyingRepr(s)(_ => Callback.empty).runNow()
+        s.performCancel()
+        assertEq(cancelled, true)
+        complete(Success(42)).runNow()
+        assertEq(continuationRan, false)
+      }
+    }
+
     "cancel" - {
       var ran = false
       var cancelled = false

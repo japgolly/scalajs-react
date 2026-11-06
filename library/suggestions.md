@@ -9,17 +9,6 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
 
 ## Section A: Bugs, Race Conditions, Resource Leaks & Edge Cases
 
-### 7. `AsyncCallback.firstS` does not check `s.cancelably`
-- **Files**:
-  - `callback/src/main/scala-2/japgolly/scalajs/react/callback/AsyncCallback.scala` (lines 126–135)
-  - `callback/src/main/scala-3/japgolly/scalajs/react/callback/AsyncCallback.scala` (lines 127–136)
-- **Issue**:
-  `firstS` (used by `first` and `race`) does not wrap its start or completion callback in `s.cancelably(...)`. If `s` is cancelled before the winner completes, `g(ea)` is still invoked.
-- **Suggestion**:
-  Wrap both the outer `Callback` and `g(ea)` in `s.cancelably(...)`.
-
----
-
 ### 8. `CallbackCatsEffect.IOToAsyncCallback` hangs outer `uncancelable` block if an `IO` self-cancels via `poll(IO.canceled)` while `s.masks > 0`
 - **File**: `callbackExtCatsEffect/src/main/scala/japgolly/scalajs/react/callback/CallbackCatsEffect.scala` (lines 173–186)
 - **Issue**:

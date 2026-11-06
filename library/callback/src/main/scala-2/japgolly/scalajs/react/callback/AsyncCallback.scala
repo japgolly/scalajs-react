@@ -126,10 +126,10 @@ object AsyncCallback {
     firstS(_ => f)
 
   private[react] def firstS[A](f: State => (Try[A] => Callback) => Callback): AsyncCallback[A] =
-    new AsyncCallback(s => g => CallbackTo {
+    new AsyncCallback(s => g => s.cancelably(CallbackTo {
       var first = true
-      f(s)(ea => Callback.when(first)(Callback{first = false} >> g(ea)))
-    }.flatten)
+      f(s)(ea => s.cancelably(Callback.when(first)(Callback { first = false } >> s.cancelably(g(ea)))))
+    }.flatten))
 
   /** AsyncCallback that never completes. */
   def never[A]: AsyncCallback[A] =
