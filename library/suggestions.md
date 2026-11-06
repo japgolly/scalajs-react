@@ -9,23 +9,6 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
 
 ## Section A: Bugs, Race Conditions, Resource Leaks & Edge Cases
 
-### 8. `CallbackCatsEffect.IOToAsyncCallback` hangs outer `uncancelable` block if an `IO` self-cancels via `poll(IO.canceled)` while `s.masks > 0`
-- **File**: `callbackExtCatsEffect/src/main/scala/japgolly/scalajs/react/callback/CallbackCatsEffect.scala` (lines 173–186)
-- **Issue**:
-  In the `s.masks > 0` branch of `IOToAsyncCallback`:
-  ```scala
-  var res: Either[Throwable, A] = null
-  val maskedIO = IO.uncancelable(_ => f0.attempt.map { r => res = r }).flatMap(_ => IO.unit)
-  maskedIO.unsafeRunAsyncOutcome {
-    case Outcome.Canceled() =>
-      s.cancelled = true
-      if (res ne null)
-        s.cancelably(k(res.toTry)).runNow()
-  ```
-  If `f0` internally uses `IO.uncancelable(poll => poll(IO.canceled))` (self-cancelling at an inner `poll`), `f0` cancels before `res = r` is reached, so `res` remains `null`. Because `s.masks > 0` in the outer `AsyncCallback`, the outer `AsyncCallback` is in an uncancelable region and expects `k` to be called so it can finish its uncancelable block and decrement `s.masks`, yet `if (res ne null)` prevents `k` from ever being called, hanging the outer `AsyncCallback` forever.
-
----
-
 ### 9. `EffectCatsEffect.EffectIO.finallyRun` discards suppressed exceptions when both `fa` and `fb` fail
 - **File**: `coreExtCatsEffect/src/main/scala/japgolly/scalajs/react/util/EffectCatsEffect.scala` (lines 63–66)
 - **Issue**:
