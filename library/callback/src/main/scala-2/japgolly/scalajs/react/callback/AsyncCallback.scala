@@ -32,7 +32,7 @@ object AsyncCallback {
       * Incremented on entering `uncancelable` (or when running `onCancel` finalisers) and decremented on exit
       * or inside a matching `Poll` block.
       *
-      * While `masks > 0`, cancellation is suppressed (`shouldFinalise` is `false`): if `cancelled` becomes `true`,
+      * While `masks > 0`, cancellation is suppressed (`shouldFinalise()` is `false`): if `cancelled` becomes `true`,
       * execution continues until the outermost `uncancelable` region exits and `masks` returns to `0`, at which point
       * `performCancel()` is invoked.
       *
@@ -41,25 +41,27 @@ object AsyncCallback {
       */
     var masks = 0
 
-    def shouldFinalise: Boolean =
+    def shouldFinalise(): Boolean =
       cancelled && (masks == 0)
 
     def performCancel(): Unit =
       if (!finalised) {
         cancelled = true
         finalised = true
-        cancelCallback.foreach(_.runNow())
+        cancelCallback().foreach(_.runNow())
       }
 
-    def onCancel(f: AsyncCallback[Unit]): Int = {
+    // "unsafe" here just means this is impure
+    def unsafeOnCancel(f: AsyncCallback[Unit]): Int = {
       cancelCallbacks.addOne(f.underlyingRepr)
       cancelCallbacks.length - 1
     }
 
-    def unCancel(i: Int): Unit =
+    // "unsafe" here just means this is impure
+    def unsafeUnCancel(i: Int): Unit =
       cancelCallbacks(i) = ()
 
-    def cancelCallback: Option[Callback] = {
+    def cancelCallback(): Option[Callback] = {
       val it = cancelCallbacks.iterator.filter(_.isDefined)
       Option.when(it.nonEmpty) {
         val ac = it.map(u => AsyncCallback.suspend(new AsyncCallback(u.get)).attempt.void).reduce(_ << _)
@@ -71,7 +73,7 @@ object AsyncCallback {
 
     def cancelably(c: => Callback): Callback =
       Callback.suspend {
-        if (shouldFinalise)
+        if (shouldFinalise())
           Callback(performCancel())
         else
           c
@@ -1024,12 +1026,12 @@ final class AsyncCallback[+A](val underlyingRepr: AsyncCallback.UnderlyingRepr[A
     else
       new AsyncCallback(s => f => s.cancelably(Callback {
         var handle: timers.SetTimeoutHandle = null
-        val token = s.onCancel(AsyncCallback.delay {
+        val token = s.unsafeOnCancel(AsyncCallback.delay {
           if (handle != null) timers.clearTimeout(handle)
         })
         handle = timers.setTimeout(milliseconds) {
           handle = null
-          if (!s.finalised) s.unCancel(token)
+          if (!s.finalised) s.unsafeUnCancel(token)
           s.cancelably(underlyingRepr(s)(f)).runNow()
         }
       }))
@@ -1258,9 +1260,9 @@ final class AsyncCallback[+A](val underlyingRepr: AsyncCallback.UnderlyingRepr[A
 
   def onCancel(f: AsyncCallback[Unit]): AsyncCallback[A] =
     new AsyncCallback(s => {
-      val i = s.onCancel(f)
+      val i = s.unsafeOnCancel(f)
       val u = self.underlyingRepr(s)
-      val uncancel = Callback(s.unCancel(i))
+      val uncancel = Callback(s.unsafeUnCancel(i))
       g => u(t => Callback.suspend(Callback.unless(s.finalised)(uncancel >> g(t))))
     })
 }

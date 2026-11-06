@@ -101,7 +101,7 @@ object CallbackCatsEffect {
         val s = new AsyncCallback.State
         var finDone = false
         var finCb: Either[Throwable, Unit] => Unit = null
-        s.onCancel(AsyncCallback.delay {
+        s.unsafeOnCancel(AsyncCallback.delay {
           finDone = true
           if (finCb ne null) {
             val cb = finCb
@@ -113,7 +113,7 @@ object CallbackCatsEffect {
         val g = f.underlyingRepr(s)
         val d = g(t =>
           Callback {
-            if (s.shouldFinalise)
+            if (s.shouldFinalise())
               s.performCancel()
             else
               k(t.toEither.map(Some(_)))
@@ -123,7 +123,7 @@ object CallbackCatsEffect {
         Some(IO.async_[Unit] { cb =>
           finCb = cb
           s.cancelled = true
-          if (s.shouldFinalise)
+          if (s.shouldFinalise())
             s.performCancel()
           if (finDone && (finCb ne null)) {
             finCb = null
@@ -150,26 +150,26 @@ object CallbackCatsEffect {
             .flatMap(IO.pure)
             .onCancel(IO {
               done = true
-              if (!s.finalised && cancelToken >= 0) s.unCancel(cancelToken)
+              if (!s.finalised && cancelToken >= 0) s.unsafeUnCancel(cancelToken)
               s.performCancel()
             })
             .flatMap {
               case Right(a) =>
                 IO {
                   done = true
-                  if (!s.finalised && cancelToken >= 0) s.unCancel(cancelToken)
+                  if (!s.finalised && cancelToken >= 0) s.unsafeUnCancel(cancelToken)
                   s.cancelably(k(Success(a))).runNow()
                 }
               case Left(e) =>
                 IO {
                   done = true
-                  if (!s.finalised && cancelToken >= 0) s.unCancel(cancelToken)
+                  if (!s.finalised && cancelToken >= 0) s.unsafeUnCancel(cancelToken)
                   s.cancelably(k(Failure(e))).runNow()
                 }
             }
             .unsafeRunCancelable()
           if (!done && !s.finalised)
-            cancelToken = s.onCancel(AsyncCallback.fromFuture(cancel()))
+            cancelToken = s.unsafeOnCancel(AsyncCallback.fromFuture(cancel()))
         } else {
           var res: Either[Throwable, A] = null
           val maskedIO = IO.uncancelable(_ => f0.attempt.map { r => res = r }).flatMap(_ => IO.unit)

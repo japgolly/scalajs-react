@@ -477,7 +477,7 @@ object AsyncCallbackTest extends TestSuite {
           .handleError(_ => AsyncCallback.cancel.onCancel(AsyncCallback.delay { cancelled2 = true }))
       val s = new AsyncCallback.State
       ac.underlyingRepr(s)(_ => Callback.empty).runNow()
-      s.cancelCallback.foreach(_.runNow())
+      s.cancelCallback().foreach(_.runNow())
       assertEq(cancelled1, false)
       assertEq(cancelled2, true)
     }
