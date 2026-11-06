@@ -1034,11 +1034,17 @@ final class AsyncCallback[+A](val underlyingRepr: AsyncCallback.UnderlyingRepr[A
     if (milliseconds <= 0)
       this
     else
-      new AsyncCallback(s => f => Callback {
-        timers.setTimeout(milliseconds) {
-          underlyingRepr(s)(f).runNow()
+      new AsyncCallback(s => f => s.cancelably(Callback {
+        var handle: timers.SetTimeoutHandle = null
+        val token = s.onCancel(AsyncCallback.delay {
+          if (handle != null) timers.clearTimeout(handle)
+        })
+        handle = timers.setTimeout(milliseconds) {
+          handle = null
+          if (!s.finalised) s.unCancel(token)
+          s.cancelably(underlyingRepr(s)(f)).runNow()
         }
-      })
+      }))
 
   /** Limit the amount of time you're prepared to wait for a computation.
     *

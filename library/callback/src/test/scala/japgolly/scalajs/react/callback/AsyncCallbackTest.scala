@@ -435,6 +435,38 @@ object AsyncCallbackTest extends TestSuite {
       } yield ()
     }
 
+    "delayMs" - {
+      "normal" - asyncTest {
+        for {
+          x <- AsyncCallback.pure(42).delayMs(10)
+        } yield assertEq(x, 42)
+      }
+
+      "alreadyCancelled" - {
+        var ran = false
+        val s = new AsyncCallback.State
+        s.cancelled = true
+        val ac = AsyncCallback.delay { ran = true }.delayMs(10)
+        ac.underlyingRepr(s)(_ => Callback.empty).runNow()
+        assertEq(ran, false)
+      }
+
+      "cancelDuringDelay" - asyncTest {
+        var ran = false
+        var cancelled = false
+        val s = new AsyncCallback.State
+        val ac = AsyncCallback.delay { ran = true }
+          .delayMs(20)
+          .onCancel(AsyncCallback.delay { cancelled = true })
+        ac.underlyingRepr(s)(_ => Callback.empty).runNow()
+        s.performCancel()
+        assertEq(cancelled, true)
+        AsyncCallback.unit.delayMs(40).map { _ =>
+          assertEq(ran, false)
+        }
+      }
+    }
+
     "onCancel" - {
       var cancelled1 = false
       var cancelled2 = false

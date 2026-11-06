@@ -9,46 +9,6 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
 
 ## Section A: Bugs, Race Conditions, Resource Leaks & Edge Cases
 
-### 3. `AsyncCallback.delayMs` leaks JS `setTimeout` timers on cancellation and does not check `s.cancelably` on wake-up
-- **Files**:
-  - `callback/src/main/scala-2/japgolly/scalajs/react/callback/AsyncCallback.scala` (lines 1008–1016)
-  - `callback/src/main/scala-3/japgolly/scalajs/react/callback/AsyncCallback.scala` (lines 1020–1028)
-- **Issue**:
-  ```scala
-  def delayMs(milliseconds: Double): AsyncCallback[A] =
-    if (milliseconds <= 0)
-      this
-    else
-      new AsyncCallback(s => f => Callback {
-        timers.setTimeout(milliseconds) {
-          underlyingRepr(s)(f).runNow()
-        }
-      })
-  ```
-  1. When `s` is cancelled while the timer is pending (for example, `Async[AsyncCallback].sleep(1.hour)` in a Cats Effect `race` or `timeout`), `timers.clearTimeout` is never registered with `s.onCancel`, keeping the JS timer and its captured closures alive in memory until the full timeout expires.
-  2. When the timer fires, if `this` does not check `s.cancelably` (e.g. `AsyncCallback.pure(x).delayMs(100)`), `underlyingRepr(s)(f).runNow()` still invokes `f(Success(x))` even after `s` has been cancelled and finalised.
-- **Suggestion**:
-  Guard scheduling and wake-up with `s.cancelably`, register a `clearTimeout` handler via `s.onCancel`, and call `s.unCancel(token)` when the timer fires:
-  ```scala
-  def delayMs(milliseconds: Double): AsyncCallback[A] =
-    if (milliseconds <= 0)
-      this
-    else
-      new AsyncCallback(s => f => s.cancelably(Callback {
-        var handle: timers.SetTimeoutHandle = null
-        val token = s.onCancel(AsyncCallback.delay {
-          if (handle != null) timers.clearTimeout(handle)
-        })
-        handle = timers.setTimeout(milliseconds) {
-          handle = null
-          if (!s.finalised) s.unCancel(token)
-          s.cancelably(underlyingRepr(s)(f)).runNow()
-        }
-      }))
-  ```
-
----
-
 ### 4. `AsyncCallback.onCancel` mutates `State` eagerly during `Callback` construction rather than execution
 - **Files**:
   - `callback/src/main/scala-2/japgolly/scalajs/react/callback/AsyncCallback.scala` (lines 1240–1246)
