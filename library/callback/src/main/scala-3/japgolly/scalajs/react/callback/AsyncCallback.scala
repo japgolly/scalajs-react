@@ -890,7 +890,13 @@ final class AsyncCallback[+A](val underlyingRepr: AsyncCallback.UnderlyingRepr[A
     * @return `Some` result of the callback executed, else `None`.
     */
   def when(cond: => Boolean): AsyncCallback[Option[A]] =
-    new AsyncCallback(s => f => if (cond) underlyingRepr(s)(ea => f(ea.map(Some(_)))) else f(Success(None)))
+    new AsyncCallback(s => f => s.cancelably(
+      CallbackTo(catchAll(cond)).flatMap {
+        case Success(true)  => underlyingRepr(s)(ea => f(ea.map(Some(_))))
+        case Success(false) => f(Success(None))
+        case Failure(t)     => f(Failure(t))
+      }
+    ))
 
   /** Conditional execution of this callback.
     * Reverse of [[when()]].

@@ -9,31 +9,6 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
 
 ## Section A: Bugs, Race Conditions, Resource Leaks & Edge Cases
 
-### 5. `AsyncCallback.when` evaluates `cond` eagerly during `Callback` construction and bypasses `s.cancelably`
-- **Files**:
-  - `callback/src/main/scala-2/japgolly/scalajs/react/callback/AsyncCallback.scala` (lines 867–868)
-  - `callback/src/main/scala-3/japgolly/scalajs/react/callback/AsyncCallback.scala` (lines 877–878)
-- **Issue**:
-  ```scala
-  def when(cond: => Boolean): AsyncCallback[Option[A]] =
-    new AsyncCallback(s => f => if (cond) underlyingRepr(s)(ea => f(ea.map(Some(_)))) else f(Success(None)))
-  ```
-  Because `if (cond)` is outside the returned `Callback`, in `zipWith` (`this.underlyingRepr(s)(...) >> that.underlyingRepr(s)(...)`), `that.when(cond)` evaluates `cond` *before* `this` executes. Additionally, if `cond` throws an exception, it escapes `underlyingRepr` synchronously instead of failing the `AsyncCallback`, and does not check `s.cancelably`.
-- **Suggestion**:
-  Evaluate `cond` inside `s.cancelably`:
-  ```scala
-  def when(cond: => Boolean): AsyncCallback[Option[A]] =
-    new AsyncCallback(s => f => s.cancelably(
-      CallbackTo(catchAll(cond)).flatMap {
-        case Success(true)  => underlyingRepr(s)(ea => f(ea.map(Some(_))))
-        case Success(false) => f(Success(None))
-        case Failure(t)     => f(Failure(t))
-      }
-    ))
-  ```
-
----
-
 ### 6. `AsyncCallback.traverse` evaluates `f(a)` eagerly without `suspend` and builds $O(N)$ nested `zipWith` state objects
 - **Files**:
   - `callback/src/main/scala-2/japgolly/scalajs/react/callback/AsyncCallback.scala` (lines 185–201)

@@ -502,6 +502,52 @@ object AsyncCallbackTest extends TestSuite {
       }
     }
 
+    "when" - {
+      "trueCond" - asyncTest {
+        var ran = false
+        val ac = AsyncCallback.delay { ran = true; 42 }.when(true)
+        ac.map { res =>
+          assertEq(res, Some(42))
+          assertEq(ran, true)
+        }
+      }
+
+      "falseCond" - asyncTest {
+        var ran = false
+        val ac = AsyncCallback.delay { ran = true; 42 }.when(false)
+        ac.map { res =>
+          assertEq(res, None)
+          assertEq(ran, false)
+        }
+      }
+
+      "throwInCond" - {
+        val err = new RuntimeException("cond boom")
+        val ac = AsyncCallback.pure(42).when(throw err)
+        val res = ac.attempt.unsafeRunNowSync()
+        res ==> Left(err)
+      }
+
+      "evaluatesLazily" - {
+        var condEvaluated = false
+        val ac = AsyncCallback.pure(42).when { condEvaluated = true; true }
+        val s = new AsyncCallback.State
+        val cb = ac.underlyingRepr(s)(_ => Callback.empty)
+        assertEq("cond must not be evaluated during callback construction", condEvaluated, false)
+        cb.runNow()
+        assertEq("cond must be evaluated when callback is executed", condEvaluated, true)
+      }
+
+      "cancelled" - {
+        var condEvaluated = false
+        var ran = false
+        val ac = AsyncCallback.cancel >> AsyncCallback.delay { ran = true; 42 }.when { condEvaluated = true; true }
+        ac.runNow()
+        assertEq("cond must not be evaluated if cancelled", condEvaluated, false)
+        assertEq("body must not run if cancelled", ran, false)
+      }
+    }
+
     "cancel" - {
       var ran = false
       var cancelled = false
