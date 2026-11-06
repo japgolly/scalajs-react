@@ -433,6 +433,19 @@ object AsyncCallback {
 
   // ===================================================================================================================
 
+  private def withRelease[A](ac: AsyncCallback[A], release: Callback): AsyncCallback[A] = {
+    var released = false
+    val rel = Callback.suspend {
+      if (released)
+        Callback.empty
+      else {
+        released = true
+        release
+      }
+    }
+    ac.onCancel(rel.asAsyncCallback).finallyRunSync(rel)
+  }
+
   final class Mutex private[AsyncCallback]() {
 
     private var mutex: Option[Barrier] =
@@ -457,7 +470,7 @@ object AsyncCallback {
             // Mutex empty
             val b = barrier.runNow()
             mutex = Some(b)
-            ac.finallyRunSync(release)
+            withRelease(ac, release)
 
           case Some(b) =>
             // Mutex in use
@@ -509,7 +522,7 @@ object AsyncCallback {
             // Mutex empty
             val b = AsyncCallback.barrier.runNow()
             mutex = Some(b)
-            ac.finallyRunSync(releaseMutex)
+            withRelease(ac, releaseMutex)
 
           case Some(b) =>
             // Mutex in use
@@ -532,13 +545,13 @@ object AsyncCallback {
             mutex = Some(b)
             assert(readers == 0)
             readers = 1
-            ac.finallyRunSync(releaseReader)
+            withRelease(ac, releaseReader)
 
           case Some(b) =>
             if (readers > 0) {
               // Read-mutex in use
               readers += 1
-              ac.finallyRunSync(releaseReader)
+              withRelease(ac, releaseReader)
 
             } else {
               // Write-mutex in use

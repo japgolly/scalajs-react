@@ -315,32 +315,108 @@ object AsyncCallbackTest extends TestSuite {
       }
     }
 
-    "mutex" - asyncTest {
-      for {
-        mutex <- AsyncCallback.mutex.asAsyncCallback
-        _     <- testWriteMutex(mutex(_))
-      } yield ()
+    "mutex" - {
+      "basic" - asyncTest {
+        for {
+          mutex <- AsyncCallback.mutex.asAsyncCallback
+          _     <- testWriteMutex(mutex(_))
+        } yield ()
+      }
+
+      "cancel" - asyncTest {
+        for {
+          mutex <- AsyncCallback.mutex.asAsyncCallback
+          b     <- AsyncCallback.barrier.asAsyncCallback
+          l     <- AsyncCallback.countDownLatch(1).asAsyncCallback
+          _     <- mutex(l.countDown.asAsyncCallback >> b.await >> AsyncCallback.cancel).fork_.asAsyncCallback
+          _     <- l.await
+          _     <- assertMutexRejection(mutex(_))
+          _     <- b.complete.asAsyncCallback
+          _     <- mutex(AsyncCallback.unit)
+        } yield ()
+      }
     }
 
-    "readWriteMutex" - asyncTest {
-      for {
-        mutex <- AsyncCallback.readWriteMutex.asAsyncCallback
+    "readWriteMutex" - {
+      "basic" - asyncTest {
+        for {
+          mutex <- AsyncCallback.readWriteMutex.asAsyncCallback
 
-        _     <- testWriteMutex(mutex.write) // confirm write blocks writes
+          _     <- testWriteMutex(mutex.write) // confirm write blocks writes
 
-        b1    <- AsyncCallback.barrier.asAsyncCallback
-        b2    <- AsyncCallback.barrier.asAsyncCallback
-        l     <- AsyncCallback.countDownLatch(2).asAsyncCallback
-        _     <- mutex.read(l.countDown.asAsyncCallback >> b1.await).fork_.asAsyncCallback // read mutex enter
-        _     <- mutex.read(l.countDown.asAsyncCallback >> b2.await).fork_.asAsyncCallback // read mutex enter
-        _     <- l.await // confirm we've got two readers in the mutex at the same time
-        _     <- assertMutexRejection(mutex.write) // confirm we can't use the write mutex
-        _     <- b1.complete.asAsyncCallback // read mutex exit
-        _     <- b2.complete.asAsyncCallback // read mutex exit
+          b1    <- AsyncCallback.barrier.asAsyncCallback
+          b2    <- AsyncCallback.barrier.asAsyncCallback
+          l     <- AsyncCallback.countDownLatch(2).asAsyncCallback
+          _     <- mutex.read(l.countDown.asAsyncCallback >> b1.await).fork_.asAsyncCallback // read mutex enter
+          _     <- mutex.read(l.countDown.asAsyncCallback >> b2.await).fork_.asAsyncCallback // read mutex enter
+          _     <- l.await // confirm we've got two readers in the mutex at the same time
+          _     <- assertMutexRejection(mutex.write) // confirm we can't use the write mutex
+          _     <- b1.complete.asAsyncCallback // read mutex exit
+          _     <- b2.complete.asAsyncCallback // read mutex exit
 
-        _     <- testInMutex(mutex.write)(assertMutexRejection(mutex.read)) // confirm write blocks reads
+          _     <- testInMutex(mutex.write)(assertMutexRejection(mutex.read)) // confirm write blocks reads
+        } yield ()
+      }
 
-      } yield ()
+      "cancelWrite" - asyncTest {
+        for {
+          mutex <- AsyncCallback.readWriteMutex.asAsyncCallback
+          bW    <- AsyncCallback.barrier.asAsyncCallback
+          lW    <- AsyncCallback.countDownLatch(1).asAsyncCallback
+          _     <- mutex.write(lW.countDown.asAsyncCallback >> bW.await >> AsyncCallback.cancel).fork_.asAsyncCallback
+          _     <- lW.await
+          _     <- assertMutexRejection(mutex.write)
+          _     <- bW.complete.asAsyncCallback
+          _     <- mutex.write(AsyncCallback.unit)
+        } yield ()
+      }
+
+      "cancelReadSingle" - asyncTest {
+        for {
+          mutex <- AsyncCallback.readWriteMutex.asAsyncCallback
+          bR    <- AsyncCallback.barrier.asAsyncCallback
+          lR    <- AsyncCallback.countDownLatch(1).asAsyncCallback
+          _     <- mutex.read(lR.countDown.asAsyncCallback >> bR.await >> AsyncCallback.cancel).fork_.asAsyncCallback
+          _     <- lR.await
+          _     <- assertMutexRejection(mutex.write)
+          _     <- bR.complete.asAsyncCallback
+          _     <- mutex.write(AsyncCallback.unit)
+        } yield ()
+      }
+
+      "cancelReadOneOfMany" - asyncTest {
+        for {
+          mutex <- AsyncCallback.readWriteMutex.asAsyncCallback
+          b1    <- AsyncCallback.barrier.asAsyncCallback
+          b2    <- AsyncCallback.barrier.asAsyncCallback
+          l     <- AsyncCallback.countDownLatch(2).asAsyncCallback
+          _     <- mutex.read(l.countDown.asAsyncCallback >> b1.await >> AsyncCallback.cancel).fork_.asAsyncCallback
+          _     <- mutex.read(l.countDown.asAsyncCallback >> b2.await).fork_.asAsyncCallback
+          _     <- l.await
+          _     <- assertMutexRejection(mutex.write)
+          _     <- b1.complete.asAsyncCallback // cancels reader 1
+          _     <- assertMutexRejection(mutex.write) // still locked by reader 2
+          _     <- b2.complete.asAsyncCallback // reader 2 completes
+          _     <- mutex.write(AsyncCallback.unit)
+        } yield ()
+      }
+
+      "cancelReadAll" - asyncTest {
+        for {
+          mutex <- AsyncCallback.readWriteMutex.asAsyncCallback
+          b1    <- AsyncCallback.barrier.asAsyncCallback
+          b2    <- AsyncCallback.barrier.asAsyncCallback
+          l     <- AsyncCallback.countDownLatch(2).asAsyncCallback
+          _     <- mutex.read(l.countDown.asAsyncCallback >> b1.await >> AsyncCallback.cancel).fork_.asAsyncCallback
+          _     <- mutex.read(l.countDown.asAsyncCallback >> b2.await >> AsyncCallback.cancel).fork_.asAsyncCallback
+          _     <- l.await
+          _     <- assertMutexRejection(mutex.write)
+          _     <- b1.complete.asAsyncCallback // cancels reader 1
+          _     <- assertMutexRejection(mutex.write) // still locked by reader 2
+          _     <- b2.complete.asAsyncCallback // reader 2 cancels
+          _     <- mutex.write(AsyncCallback.unit)
+        } yield ()
+      }
     }
 
     "ref" - asyncTest {

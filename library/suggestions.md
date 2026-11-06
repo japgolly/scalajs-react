@@ -9,17 +9,6 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
 
 ## Section A: Bugs, Race Conditions, Resource Leaks & Edge Cases
 
-### 2. `AsyncCallback.Mutex` and `ReadWriteMutex` permanently deadlock if the inner `AsyncCallback` is cancelled
-- **Files**:
-  - `callback/src/main/scala-2/japgolly/scalajs/react/callback/AsyncCallback.scala` (lines 436–549, 1081–1085)
-  - `callback/src/main/scala-3/japgolly/scalajs/react/callback/AsyncCallback.scala` (lines 438–551, 1087–1091)
-- **Issue**:
-  Both `Mutex` and `ReadWriteMutex.{read, write}` release their lock using `ac.finallyRunSync(release)`. However, `finallyRun` is implemented via `attempt.flatMap(...)`, and as documented on `AsyncCallback.cancel` (line 83), a cancelled `AsyncCallback` halts and never invokes its completion continuation (`map`/`flatMap`/`finallyRun`). Consequently, if `ac` is cancelled while holding the lock (via `AsyncCallback.cancel` or Cats Effect fiber cancellation), `release` is never called and the mutex remains locked (`Some(b)`) forever.
-- **Suggestion**:
-  Attach `.onCancel(release.asAsyncCallback)` in addition to `.finallyRunSync(release)` (using an idempotent per-acquisition release flag so `release` runs at most once whether completed or cancelled).
-
----
-
 ### 3. `AsyncCallback.delayMs` leaks JS `setTimeout` timers on cancellation and does not check `s.cancelably` on wake-up
 - **Files**:
   - `callback/src/main/scala-2/japgolly/scalajs/react/callback/AsyncCallback.scala` (lines 1008–1016)
