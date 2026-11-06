@@ -9,35 +9,6 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
 
 ## Section A: Bugs, Race Conditions, Resource Leaks & Edge Cases
 
-### 4. `AsyncCallback.onCancel` mutates `State` eagerly during `Callback` construction rather than execution
-- **Files**:
-  - `callback/src/main/scala-2/japgolly/scalajs/react/callback/AsyncCallback.scala` (lines 1240–1246)
-  - `callback/src/main/scala-3/japgolly/scalajs/react/callback/AsyncCallback.scala` (lines 1246–1252)
-- **Issue**:
-  ```scala
-  def onCancel(f: AsyncCallback[Unit]): AsyncCallback[A] =
-    new AsyncCallback(s => {
-      val i = s.onCancel(f)
-      val u = self.underlyingRepr(s)
-      val uncancel = Callback(s.unCancel(i))
-      g => u(t => Callback.suspend(Callback.unless(s.finalised)(uncancel >> g(t))))
-    })
-  ```
-  `val i = s.onCancel(f)` runs as soon as `underlyingRepr(s)` is applied, before the continuation `g` is supplied and before the returned `Callback` is executed. In combinators like `zipWith` (`this.underlyingRepr(s)(...) >> that.underlyingRepr(s)(...)`), `that`'s `onCancel` handler is registered into `s` before `this` even starts running (and even if `this` synchronously cancels `s` before `that` is reached).
-- **Suggestion**:
-  Defer `s.onCancel(f)` until the returned `Callback` is actually executed inside `s.cancelably`:
-  ```scala
-  def onCancel(f: AsyncCallback[Unit]): AsyncCallback[A] =
-    new AsyncCallback(s => g => s.cancelably(Callback.suspend {
-      val i = s.onCancel(f)
-      self.underlyingRepr(s)(t =>
-        Callback.suspend(Callback.unless(s.finalised)(Callback(s.unCancel(i)) >> g(t)))
-      )
-    }))
-  ```
-
----
-
 ### 5. `AsyncCallback.when` evaluates `cond` eagerly during `Callback` construction and bypasses `s.cancelably`
 - **Files**:
   - `callback/src/main/scala-2/japgolly/scalajs/react/callback/AsyncCallback.scala` (lines 867–868)

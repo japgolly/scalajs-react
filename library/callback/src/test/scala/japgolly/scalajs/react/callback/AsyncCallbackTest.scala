@@ -468,18 +468,38 @@ object AsyncCallbackTest extends TestSuite {
     }
 
     "onCancel" - {
-      var cancelled1 = false
-      var cancelled2 = false
-      val err = new RuntimeException("boom")
-      val ac =
-        AsyncCallback.throwException[Unit](err)
-          .onCancel(AsyncCallback.delay { cancelled1 = true })
-          .handleError(_ => AsyncCallback.cancel.onCancel(AsyncCallback.delay { cancelled2 = true }))
-      val s = new AsyncCallback.State
-      ac.underlyingRepr(s)(_ => Callback.empty).runNow()
-      s.cancelCallback().foreach(_.runNow())
-      assertEq(cancelled1, false)
-      assertEq(cancelled2, true)
+      "errorRecovery" - {
+        var cancelled1 = false
+        var cancelled2 = false
+        val err = new RuntimeException("boom")
+        val ac =
+          AsyncCallback.throwException[Unit](err)
+            .onCancel(AsyncCallback.delay { cancelled1 = true })
+            .handleError(_ => AsyncCallback.cancel.onCancel(AsyncCallback.delay { cancelled2 = true }))
+        val s = new AsyncCallback.State
+        ac.underlyingRepr(s)(_ => Callback.empty).runNow()
+        s.cancelCallback().foreach(_.runNow())
+        assertEq(cancelled1, false)
+        assertEq(cancelled2, true)
+      }
+
+      "lazyRegistration" - {
+        var cancelled = false
+        val ac = AsyncCallback.delay(123).onCancel(AsyncCallback.delay { cancelled = true })
+        val s = new AsyncCallback.State
+        val cb = ac.underlyingRepr(s)(_ => Callback.empty)
+        s.cancelCallback().foreach(_.runNow())
+        assertEq(cancelled, false)
+        cb.runNow()
+      }
+
+      "notRegisteredIfEarlierCancelled" - {
+        var cancelled = false
+        val ac = AsyncCallback.cancel >> AsyncCallback.never[Unit].onCancel(AsyncCallback.delay { cancelled = true })
+        val s = new AsyncCallback.State
+        ac.underlyingRepr(s)(_ => Callback.empty).runNow()
+        assertEq(cancelled, false)
+      }
     }
 
     "cancel" - {

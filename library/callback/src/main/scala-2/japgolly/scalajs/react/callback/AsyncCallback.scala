@@ -1259,10 +1259,10 @@ final class AsyncCallback[+A](val underlyingRepr: AsyncCallback.UnderlyingRepr[A
       throw new NoSuchElementException("AsyncCallback.withFilter predicate is not satisfied"))
 
   def onCancel(f: AsyncCallback[Unit]): AsyncCallback[A] =
-    new AsyncCallback(s => {
+    new AsyncCallback(s => g => s.cancelably(Callback.suspend {
       val i = s.unsafeOnCancel(f)
-      val u = self.underlyingRepr(s)
-      val uncancel = Callback(s.unsafeUnCancel(i))
-      g => u(t => Callback.suspend(Callback.unless(s.finalised)(uncancel >> g(t))))
-    })
+      self.underlyingRepr(s)(t =>
+        Callback.suspend(Callback.unless(s.finalised)(Callback(s.unsafeUnCancel(i)) >> g(t)))
+      )
+    }))
 }
