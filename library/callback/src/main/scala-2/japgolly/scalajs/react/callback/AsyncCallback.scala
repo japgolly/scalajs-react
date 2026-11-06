@@ -187,18 +187,45 @@ object AsyncCallback {
   def traverse[T[X] <: Iterable[X], A, B](ta: => T[A])(f: A => AsyncCallback[B])(implicit cbf: BuildFrom[T[A], B, T[B]]): AsyncCallback[T[B]] =
     AsyncCallback.suspend {
       val _ta = ta
-      val as = _ta.iterator.to(Vector)
-      if (as.isEmpty)
-        AsyncCallback.pure(cbf.newBuilder(_ta).result())
-      else {
-        val discard = (_: Any, _: Any) => ()
-        val bs = new js.Array[B](as.length)
-        as
-          .indices
-          .iterator
-          .map(i => f(as(i)).map(b => bs(i) = b))
-          .reduce(_.zipWith(_)(discard))
-          .map(_ => cbf.fromSpecific(_ta)(bs))
+      val as = new js.Array[A]
+      for (a <- _ta.iterator)
+        as.push(a)
+
+      as.length match {
+        case 0 => AsyncCallback.pure(cbf.newBuilder(_ta).result())
+        case 1 => AsyncCallback.suspend(f(as(0))).map(b => cbf.fromSpecific(_ta)(js.Array(b)))
+        case n =>
+          new AsyncCallback(s => g => s.cancelably(Callback {
+            val bs = new js.Array[B](n)
+            var error = Option.empty[Throwable]
+            val latch = countDownLatch(n).runNow()
+
+            for (i <- 0 until n) {
+              val a = as(i)
+              var completed = false
+              val onTaskComplete: Try[B] => Callback =
+                r => Callback {
+                  r match {
+                    case Success(b) => bs(i) = b
+                    case Failure(e) => if (error.isEmpty) error = Some(e)
+                  }
+                  if (!completed) {
+                    completed = true
+                    latch.countDown.runNow()
+                  }
+                }
+
+              AsyncCallback.suspend(f(a))
+                .underlyingRepr(s)(onTaskComplete)
+                .handleError(e => onTaskComplete(Failure(e)))
+                .runNow()
+            }
+
+            (latch.await >> throwExceptionWhenDefined(error))
+              .map(_ => cbf.fromSpecific(_ta)(bs))
+              .underlyingRepr(s)(g)
+              .runNow()
+          }))
       }
     }
 

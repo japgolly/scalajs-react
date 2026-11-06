@@ -576,6 +576,62 @@ object AsyncCallbackTest extends TestSuite {
       b.attempt.unsafeRunNowSync() ==> Left(err2)
     }
 
+    "traverse" - {
+      "empty" - {
+        val res = AsyncCallback.traverse(List.empty[Int])(i => AsyncCallback.pure(i * 2)).unsafeRunNowSync()
+        res ==> Nil
+      }
+
+      "single" - {
+        val res = AsyncCallback.traverse(List(5))(i => AsyncCallback.pure(i * 2)).unsafeRunNowSync()
+        res ==> List(10)
+      }
+
+      "multiple" - {
+        val res = AsyncCallback.traverse(List(1, 2, 3))(i => AsyncCallback.pure(i * 2)).unsafeRunNowSync()
+        res ==> List(2, 4, 6)
+      }
+
+      "orderPreservedWithAsync" - asyncTest {
+        val delays = List(30, 5, 15)
+        AsyncCallback.traverse(delays.zipWithIndex) { case (d, i) =>
+          AsyncCallback.pure(i).delayMs(d)
+        }.map { res =>
+          assertEq(res, List(0, 1, 2))
+        }
+      }
+
+      "rawThrowInF" - {
+        val err = new RuntimeException("raw boom")
+        var ran = false
+        val res = AsyncCallback.traverse(List(1, 2)) {
+          case 1 => throw err
+          case 2 => AsyncCallback.delay { ran = true; 42 }
+        }.attempt.unsafeRunNowSync()
+        assertEq(ran, true)
+        res ==> Left(err)
+      }
+
+      "cancel" - {
+        var cancelled = false
+        AsyncCallback.sequence(List(
+          AsyncCallback.never[Int].onCancel(AsyncCallback.delay { cancelled = true }),
+          AsyncCallback.cancel.ret(1),
+        )).runNow()
+        assertEq(cancelled, true)
+      }
+
+      "errors" - {
+        val err1 = new RuntimeException("err1")
+        val err2 = new RuntimeException("err2")
+        val res = AsyncCallback.sequence(List(
+          AsyncCallback.throwException[Int](err1),
+          AsyncCallback.throwException[Int](err2),
+        )).attempt.unsafeRunNowSync()
+        res ==> Left(err1)
+      }
+    }
+
     "traverse_" - {
       "cancel" - {
         var cancelled = false

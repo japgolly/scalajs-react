@@ -9,18 +9,6 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
 
 ## Section A: Bugs, Race Conditions, Resource Leaks & Edge Cases
 
-### 6. `AsyncCallback.traverse` evaluates `f(a)` eagerly without `suspend` and builds $O(N)$ nested `zipWith` state objects
-- **Files**:
-  - `callback/src/main/scala-2/japgolly/scalajs/react/callback/AsyncCallback.scala` (lines 185–201)
-  - `callback/src/main/scala-3/japgolly/scalajs/react/callback/AsyncCallback.scala` (lines 186–202)
-- **Issue**:
-  1. `as.indices.iterator.map(i => f(as(i)).map(b => bs(i) = b)).reduce(_.zipWith(_)(discard))` evaluates `f(as(i))` outside `AsyncCallback.suspend`. If `f` throws a synchronous exception on element `k`, it aborts before any of the `0 .. k-1` `AsyncCallback`s are run, unlike `traverse_` (line 253) which wraps `AsyncCallback.suspend(f(a))`.
-  2. `.reduce(_.zipWith(_)(discard))` constructs a left-leaning binary tree of $N - 1$ nested `zipWith` combinators, allocating $3(N - 1)$ mutable `Option` variables and $3(N - 1)$ `Callback` closures, and creating an $O(N)$ call stack depth when synchronous tasks complete.
-- **Suggestion**:
-  Implement `traverse` using the same flat array + latch/counter strategy as `traverse_` with `AsyncCallback.suspend(f(a))`.
-
----
-
 ### 7. `AsyncCallback.firstS` does not check `s.cancelably`
 - **Files**:
   - `callback/src/main/scala-2/japgolly/scalajs/react/callback/AsyncCallback.scala` (lines 126–135)
