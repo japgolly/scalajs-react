@@ -96,32 +96,27 @@ object React {
 
   /** Displays a fallback view until an asynchronous view becomes available.
     *
-    * See https://reactjs.org/docs/code-splitting.html#suspense
+    * See https://react.dev/reference/react/Suspense
     *
     * @since 1.4.0 / React 16.6.0
     */
+  @deprecated("Use React.`lazy` and React.Suspense(fallback)(children*) instead, otherwise the async block will be re-executed on every render", "4.1.1")
   def Suspense[F[_], A](fallback: VdomNode, asyncBody: => F[A])(implicit ev: A => VdomElement, F: Async[F]): VdomElement = {
-    type P          = Box[Unit]
-    type LazyResult = facade.React.LazyResult[P]
+    val lazyComp = `lazy`(asyncBody)
+    Suspense(fallback)(lazyComp)
+  }
 
-    val lazyFn: () => js.Promise[LazyResult] =
-      () => {
-        val post: js.Function1[A, LazyResult] = { a =>
-          val comp       = ScalaFnComponent[Unit](_ => ev(a))
-          val lazyValue  = comp.raw.asInstanceOf[facade.React.LazyResultValue[P]]
-          val lazyResult = js.Dynamic.literal(default = lazyValue.asInstanceOf[js.Any]).asInstanceOf[facade.React.LazyResult[P]]
-          lazyResult
-        }
-        val p1 = F.toJsPromise(asyncBody)
-        p1().`then`[LazyResult](post)
-      }
-
-    val lazyC  = facade.React.`lazy`(lazyFn)
-    val lazyE  = facade.React.createElement(lazyC, Box.Unit)
-
+  /** Displays a fallback view until an asynchronous view becomes available.
+    *
+    * Use in conjunction with `React.lazy`.
+    *
+    * See https://react.dev/reference/react/Suspense
+    *
+    * @since 4.1.1
+    */
+  def Suspense(fallback: VdomNode)(children: VdomNode*): VdomElement = {
     val suspenseP = js.Dynamic.literal(fallback = fallback.rawNode.asInstanceOf[js.Any]).asInstanceOf[facade.SuspenseProps]
-    val suspenseE = facade.React.createElement(facade.Suspense, suspenseP, lazyE)
-
+    val suspenseE = facade.React.createElement(facade.Suspense, suspenseP, children.map(_.rawNode): _*)
     VdomElement(suspenseE)
   }
 
@@ -143,4 +138,31 @@ object React {
     */
   def addTransitionType[F[_]](`type`: String)(implicit F: Sync[F]): F[Unit] =
     F.delay(facade.React.addTransitionType(`type`))
+
+  /** `lazy` lets you defer loading component’s code until it is rendered for the first time.
+    *
+    * See https://react.dev/reference/react/lazy
+    *
+    * @since 4.1.1
+    */
+  def `lazy`[F[_], A](asyncBody: => F[A])(implicit ev: A => VdomNode, F: Async[F]): VdomElement = {
+    type P          = Box[Unit]
+    type LazyResult = facade.React.LazyResult[P]
+
+    val lazyFn: () => js.Promise[LazyResult] =
+      () => {
+        val post: js.Function1[A, LazyResult] = { a =>
+          val comp       = ScalaFnComponent[Unit](_ => ev(a))
+          val lazyValue  = comp.raw.asInstanceOf[facade.React.LazyResultValue[P]]
+          val lazyResult = js.Dynamic.literal(default = lazyValue.asInstanceOf[js.Any]).asInstanceOf[facade.React.LazyResult[P]]
+          lazyResult
+        }
+        val p1 = F.toJsPromise(asyncBody)
+        p1().`then`[LazyResult](post)
+      }
+
+    val lazyC = facade.React.`lazy`(lazyFn)
+    val lazyE = facade.React.createElement(lazyC, Box.Unit)
+    VdomElement(lazyE)
+  }
 }

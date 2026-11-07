@@ -87,9 +87,13 @@ object AjaxExample2 {
         <.div(error.toString))
     }
 
-  val Main = React.Suspense(
-    fallback  = <.div(^.color := "#33c", ^.fontSize := "150%", "AJAX in progress. Loading..."),
-    asyncBody = loadAndRenderUsers.handleError(onError))
+  val asyncBody = React.`lazy`(loadAndRenderUsers.handleError(onError))
+
+  val fallback = <.div(^.color := "#33c", ^.fontSize := "150%", "AJAX in progress. Loading...")
+
+  val Main = React.Suspense(fallback)(
+    asyncBody
+  )
 
   // EXAMPLE:END
 }

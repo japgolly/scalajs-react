@@ -9,15 +9,6 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
 
 ## Section A: Bugs, Race Conditions, Resource Leaks & Edge Cases
 
-### 10. `React.Suspense` calls `React.lazy` inside render, unmounting and resetting child state on every parent re-render
-- **File**: `coreGeneric/src/main/scala/japgolly/scalajs/react/React.scala` (lines 103–126)
-- **Issue**:
-  `React.Suspense(fallback, asyncBody)` calls `facade.React.lazy(lazyFn)` every time the `VdomElement` is constructed. In React, `React.lazy` creates a new component type identity (`LazyComponent`) and must be declared outside of render. Calling it during render causes React to see a brand-new component type on every parent re-render, unmounting the previously rendered subtree, destroying its state, and re-running `asyncBody` from scratch.
-- **Suggestion**:
-  Add a `React.Suspense(fallback: VdomNode, children: VdomNode*): VdomElement` overload that wraps existing children (such as a pre-created `React.lazy` component or React 19 `use()`-suspending component) without creating a new `React.lazy` wrapper on every render.
-
----
-
 ### 11. `Reusability.TemporalImplicitsWithoutTolerance` causes an ambiguous implicit error for `LocalDate`
 - **File**: `coreGeneric/src/main/scala/japgolly/scalajs/react/Reusability.scala` (lines 318, 474)
 - **Issue**:
