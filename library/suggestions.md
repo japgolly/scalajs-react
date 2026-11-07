@@ -284,23 +284,6 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
 
 ---
 
-### 32. `Trampoline.map` allocates two closures (`f.andThen(new Pure(_))`) per call
-- **File**: `util/src/main/scala/japgolly/scalajs/react/util/Trampoline.scala` (lines 15–16)
-- **Issue**:
-  ```scala
-  final def map[B](f: A => B): Trampoline[B] =
-    new FlatMap(this, f.andThen(new Pure(_)))
-  ```
-  `f.andThen(new Pure(_))` allocates both a `Function1` for `new Pure(_)` and a `Function1$$Lambda` inside `andThen` on every `CallbackTo#map` call.
-- **Suggestion**:
-  Use a single lambda `a => new Pure(f(a))`:
-  ```scala
-  final def map[B](f: A => B): Trampoline[B] =
-    new FlatMap(this, a => new Pure(f(a)))
-  ```
-
----
-
 ### 33. `AsyncCallback.map`, `void`, and `ret` allocate unnecessary `flatMap` and `AsyncCallback.pure` layers
 - **Files**:
   - `callback/src/main/scala-2/japgolly/scalajs/react/callback/AsyncCallback.scala` (lines 162–163, 679–680, 778–783)
