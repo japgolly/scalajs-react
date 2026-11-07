@@ -238,23 +238,6 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
 
 ## Section B: Performance & Memory Optimisations
 
-### 29. `Attr.ValueType.apply` allocates an extra `b.addAttr(name, _)` closure on every attribute assignment
-- **Files**:
-  - `coreGeneric/src/main/scala-2/japgolly/scalajs/react/vdom/Attr.scala` (lines 243–268)
-  - `coreGeneric/src/main/scala-3/japgolly/scalajs/react/vdom/Attr.scala` (lines 259–284)
-- **Issue**:
-  ```scala
-  final class ValueType[-A, +U](val fn: ValueType.Fn[A]) extends AnyVal {
-    def apply(name: String, value: A): TagMod =
-      TagMod.fn(b => fn(b.addAttr(name, _), value))
-  }
-  ```
-  When `applyTo(b)` runs for any attribute (`^.id := "foo"`, `^.tabIndex := 1`, etc.), `b.addAttr(name, _)` allocates a temporary `Function1[js.Any, Unit]` closure capturing `b` and `name`, passes it to `fn`, which immediately invokes it once.
-- **Suggestion**:
-  Specialize `ValueType.direct` and `ValueType.string` (or provide a fast-path in `ValueType.apply` when `fn eq ValueType.direct.fn`) to return `TagMod.fn(_.addAttr(name, value.asInstanceOf[js.Any]))` directly without allocating the inner `b.addAttr(name, _)` closure.
-
----
-
 ### 30. `RoutingRulesF.fromRule` has $O(N^2)$ list allocation per URL parse/action lookup and allocates `StaticOrDynamic` objects for every non-matching route
 - **File**: `extra/src/main/scala/japgolly/scalajs/react/extra/router/RoutingRulesF.scala` (lines 130–170)
 - **Issue**:
