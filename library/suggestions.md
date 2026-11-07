@@ -9,32 +9,6 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
 
 ## Section A: Bugs, Race Conditions, Resource Leaks & Edge Cases
 
-### 9. `EffectCatsEffect.EffectIO.finallyRun` discards suppressed exceptions when both `fa` and `fb` fail
-- **File**: `coreExtCatsEffect/src/main/scala/japgolly/scalajs/react/util/EffectCatsEffect.scala` (lines 63–66)
-- **Issue**:
-  ```scala
-  override def finallyRun[A, B](fa: => IO[A], fb: => IO[B]) =
-    suspend(fa).attempt.flatMap(ta =>
-    suspend(fb).attempt.flatMap(tb =>
-    IO.fromEither(if (ta.isRight && tb.isLeft) Left(tb.left.getOrElse(null)) else ta)))
-  ```
-  1. When both `fa` and `fb` fail, `tb`'s exception is silently dropped without `e1.addSuppressed(e2)`.
-  2. When `fa` succeeds (`Right`), `suspend(fb)` is still wrapped in `.attempt` and `ta.isRight && tb.isLeft` is checked, allocating unnecessary `Either` wrappers on the happy path.
-- **Suggestion**:
-  ```scala
-  override def finallyRun[A, B](fa: => IO[A], fb: => IO[B]): IO[A] =
-    suspend(fa).attempt.flatMap {
-      case r @ Right(_) => suspend(fb) *> IO.fromEither(r)
-      case Left(e1) =>
-        suspend(fb).attempt.flatMap {
-          case Right(_) => IO.raiseError(e1)
-          case Left(e2) => if (e1 ne e2) e1.addSuppressed(e2); IO.raiseError(e1)
-        }
-    }
-  ```
-
----
-
 ### 10. `React.Suspense` calls `React.lazy` inside render, unmounting and resetting child state on every parent re-render
 - **File**: `coreGeneric/src/main/scala/japgolly/scalajs/react/React.scala` (lines 103–126)
 - **Issue**:
