@@ -315,32 +315,108 @@ object AsyncCallbackTest extends TestSuite {
       }
     }
 
-    "mutex" - asyncTest {
-      for {
-        mutex <- AsyncCallback.mutex.asAsyncCallback
-        _     <- testWriteMutex(mutex(_))
-      } yield ()
+    "mutex" - {
+      "basic" - asyncTest {
+        for {
+          mutex <- AsyncCallback.mutex.asAsyncCallback
+          _     <- testWriteMutex(mutex(_))
+        } yield ()
+      }
+
+      "cancel" - asyncTest {
+        for {
+          mutex <- AsyncCallback.mutex.asAsyncCallback
+          b     <- AsyncCallback.barrier.asAsyncCallback
+          l     <- AsyncCallback.countDownLatch(1).asAsyncCallback
+          _     <- mutex(l.countDown.asAsyncCallback >> b.await >> AsyncCallback.cancel).fork_.asAsyncCallback
+          _     <- l.await
+          _     <- assertMutexRejection(mutex(_))
+          _     <- b.complete.asAsyncCallback
+          _     <- mutex(AsyncCallback.unit)
+        } yield ()
+      }
     }
 
-    "readWriteMutex" - asyncTest {
-      for {
-        mutex <- AsyncCallback.readWriteMutex.asAsyncCallback
+    "readWriteMutex" - {
+      "basic" - asyncTest {
+        for {
+          mutex <- AsyncCallback.readWriteMutex.asAsyncCallback
 
-        _     <- testWriteMutex(mutex.write) // confirm write blocks writes
+          _     <- testWriteMutex(mutex.write) // confirm write blocks writes
 
-        b1    <- AsyncCallback.barrier.asAsyncCallback
-        b2    <- AsyncCallback.barrier.asAsyncCallback
-        l     <- AsyncCallback.countDownLatch(2).asAsyncCallback
-        _     <- mutex.read(l.countDown.asAsyncCallback >> b1.await).fork_.asAsyncCallback // read mutex enter
-        _     <- mutex.read(l.countDown.asAsyncCallback >> b2.await).fork_.asAsyncCallback // read mutex enter
-        _     <- l.await // confirm we've got two readers in the mutex at the same time
-        _     <- assertMutexRejection(mutex.write) // confirm we can't use the write mutex
-        _     <- b1.complete.asAsyncCallback // read mutex exit
-        _     <- b2.complete.asAsyncCallback // read mutex exit
+          b1    <- AsyncCallback.barrier.asAsyncCallback
+          b2    <- AsyncCallback.barrier.asAsyncCallback
+          l     <- AsyncCallback.countDownLatch(2).asAsyncCallback
+          _     <- mutex.read(l.countDown.asAsyncCallback >> b1.await).fork_.asAsyncCallback // read mutex enter
+          _     <- mutex.read(l.countDown.asAsyncCallback >> b2.await).fork_.asAsyncCallback // read mutex enter
+          _     <- l.await // confirm we've got two readers in the mutex at the same time
+          _     <- assertMutexRejection(mutex.write) // confirm we can't use the write mutex
+          _     <- b1.complete.asAsyncCallback // read mutex exit
+          _     <- b2.complete.asAsyncCallback // read mutex exit
 
-        _     <- testInMutex(mutex.write)(assertMutexRejection(mutex.read)) // confirm write blocks reads
+          _     <- testInMutex(mutex.write)(assertMutexRejection(mutex.read)) // confirm write blocks reads
+        } yield ()
+      }
 
-      } yield ()
+      "cancelWrite" - asyncTest {
+        for {
+          mutex <- AsyncCallback.readWriteMutex.asAsyncCallback
+          bW    <- AsyncCallback.barrier.asAsyncCallback
+          lW    <- AsyncCallback.countDownLatch(1).asAsyncCallback
+          _     <- mutex.write(lW.countDown.asAsyncCallback >> bW.await >> AsyncCallback.cancel).fork_.asAsyncCallback
+          _     <- lW.await
+          _     <- assertMutexRejection(mutex.write)
+          _     <- bW.complete.asAsyncCallback
+          _     <- mutex.write(AsyncCallback.unit)
+        } yield ()
+      }
+
+      "cancelReadSingle" - asyncTest {
+        for {
+          mutex <- AsyncCallback.readWriteMutex.asAsyncCallback
+          bR    <- AsyncCallback.barrier.asAsyncCallback
+          lR    <- AsyncCallback.countDownLatch(1).asAsyncCallback
+          _     <- mutex.read(lR.countDown.asAsyncCallback >> bR.await >> AsyncCallback.cancel).fork_.asAsyncCallback
+          _     <- lR.await
+          _     <- assertMutexRejection(mutex.write)
+          _     <- bR.complete.asAsyncCallback
+          _     <- mutex.write(AsyncCallback.unit)
+        } yield ()
+      }
+
+      "cancelReadOneOfMany" - asyncTest {
+        for {
+          mutex <- AsyncCallback.readWriteMutex.asAsyncCallback
+          b1    <- AsyncCallback.barrier.asAsyncCallback
+          b2    <- AsyncCallback.barrier.asAsyncCallback
+          l     <- AsyncCallback.countDownLatch(2).asAsyncCallback
+          _     <- mutex.read(l.countDown.asAsyncCallback >> b1.await >> AsyncCallback.cancel).fork_.asAsyncCallback
+          _     <- mutex.read(l.countDown.asAsyncCallback >> b2.await).fork_.asAsyncCallback
+          _     <- l.await
+          _     <- assertMutexRejection(mutex.write)
+          _     <- b1.complete.asAsyncCallback // cancels reader 1
+          _     <- assertMutexRejection(mutex.write) // still locked by reader 2
+          _     <- b2.complete.asAsyncCallback // reader 2 completes
+          _     <- mutex.write(AsyncCallback.unit)
+        } yield ()
+      }
+
+      "cancelReadAll" - asyncTest {
+        for {
+          mutex <- AsyncCallback.readWriteMutex.asAsyncCallback
+          b1    <- AsyncCallback.barrier.asAsyncCallback
+          b2    <- AsyncCallback.barrier.asAsyncCallback
+          l     <- AsyncCallback.countDownLatch(2).asAsyncCallback
+          _     <- mutex.read(l.countDown.asAsyncCallback >> b1.await >> AsyncCallback.cancel).fork_.asAsyncCallback
+          _     <- mutex.read(l.countDown.asAsyncCallback >> b2.await >> AsyncCallback.cancel).fork_.asAsyncCallback
+          _     <- l.await
+          _     <- assertMutexRejection(mutex.write)
+          _     <- b1.complete.asAsyncCallback // cancels reader 1
+          _     <- assertMutexRejection(mutex.write) // still locked by reader 2
+          _     <- b2.complete.asAsyncCallback // reader 2 cancels
+          _     <- mutex.write(AsyncCallback.unit)
+        } yield ()
+      }
     }
 
     "ref" - asyncTest {
@@ -359,19 +435,157 @@ object AsyncCallbackTest extends TestSuite {
       } yield ()
     }
 
+    "delayMs" - {
+      "normal" - asyncTest {
+        for {
+          x <- AsyncCallback.pure(42).delayMs(10)
+        } yield assertEq(x, 42)
+      }
+
+      "alreadyCancelled" - {
+        var ran = false
+        val s = new AsyncCallback.State
+        s.cancelled = true
+        val ac = AsyncCallback.delay { ran = true }.delayMs(10)
+        ac.underlyingRepr(s)(_ => Callback.empty).runNow()
+        assertEq(ran, false)
+      }
+
+      "cancelDuringDelay" - asyncTest {
+        var ran = false
+        var cancelled = false
+        val s = new AsyncCallback.State
+        val ac = AsyncCallback.delay { ran = true }
+          .delayMs(20)
+          .onCancel(AsyncCallback.delay { cancelled = true })
+        ac.underlyingRepr(s)(_ => Callback.empty).runNow()
+        s.performCancel()
+        assertEq(cancelled, true)
+        AsyncCallback.unit.delayMs(40).map { _ =>
+          assertEq(ran, false)
+        }
+      }
+    }
+
     "onCancel" - {
-      var cancelled1 = false
-      var cancelled2 = false
-      val err = new RuntimeException("boom")
-      val ac =
-        AsyncCallback.throwException[Unit](err)
-          .onCancel(AsyncCallback.delay { cancelled1 = true })
-          .handleError(_ => AsyncCallback.cancel.onCancel(AsyncCallback.delay { cancelled2 = true }))
-      val s = new AsyncCallback.State
-      ac.underlyingRepr(s)(_ => Callback.empty).runNow()
-      s.cancelCallback.foreach(_.runNow())
-      assertEq(cancelled1, false)
-      assertEq(cancelled2, true)
+      "errorRecovery" - {
+        var cancelled1 = false
+        var cancelled2 = false
+        val err = new RuntimeException("boom")
+        val ac =
+          AsyncCallback.throwException[Unit](err)
+            .onCancel(AsyncCallback.delay { cancelled1 = true })
+            .handleError(_ => AsyncCallback.cancel.onCancel(AsyncCallback.delay { cancelled2 = true }))
+        val s = new AsyncCallback.State
+        ac.underlyingRepr(s)(_ => Callback.empty).runNow()
+        s.cancelCallback().foreach(_.runNow())
+        assertEq(cancelled1, false)
+        assertEq(cancelled2, true)
+      }
+
+      "lazyRegistration" - {
+        var cancelled = false
+        val ac = AsyncCallback.delay(123).onCancel(AsyncCallback.delay { cancelled = true })
+        val s = new AsyncCallback.State
+        val cb = ac.underlyingRepr(s)(_ => Callback.empty)
+        s.cancelCallback().foreach(_.runNow())
+        assertEq(cancelled, false)
+        cb.runNow()
+      }
+
+      "notRegisteredIfEarlierCancelled" - {
+        var cancelled = false
+        val ac = AsyncCallback.cancel >> AsyncCallback.never[Unit].onCancel(AsyncCallback.delay { cancelled = true })
+        val s = new AsyncCallback.State
+        ac.underlyingRepr(s)(_ => Callback.empty).runNow()
+        assertEq(cancelled, false)
+      }
+    }
+
+    "when" - {
+      "trueCond" - asyncTest {
+        var ran = false
+        val ac = AsyncCallback.delay { ran = true; 42 }.when(true)
+        ac.map { res =>
+          assertEq(res, Some(42))
+          assertEq(ran, true)
+        }
+      }
+
+      "falseCond" - asyncTest {
+        var ran = false
+        val ac = AsyncCallback.delay { ran = true; 42 }.when(false)
+        ac.map { res =>
+          assertEq(res, None)
+          assertEq(ran, false)
+        }
+      }
+
+      "throwInCond" - {
+        val err = new RuntimeException("cond boom")
+        val ac = AsyncCallback.pure(42).when(throw err)
+        val res = ac.attempt.unsafeRunNowSync()
+        res ==> Left(err)
+      }
+
+      "evaluatesLazily" - {
+        var condEvaluated = false
+        val ac = AsyncCallback.pure(42).when { condEvaluated = true; true }
+        val s = new AsyncCallback.State
+        val cb = ac.underlyingRepr(s)(_ => Callback.empty)
+        assertEq("cond must not be evaluated during callback construction", condEvaluated, false)
+        cb.runNow()
+        assertEq("cond must be evaluated when callback is executed", condEvaluated, true)
+      }
+
+      "cancelled" - {
+        var condEvaluated = false
+        var ran = false
+        val ac = AsyncCallback.cancel >> AsyncCallback.delay { ran = true; 42 }.when { condEvaluated = true; true }
+        ac.runNow()
+        assertEq("cond must not be evaluated if cancelled", condEvaluated, false)
+        assertEq("body must not run if cancelled", ran, false)
+      }
+    }
+
+    "race" - {
+      "winnerLeft" - asyncTest {
+        val a = AsyncCallback.pure("fast")
+        val b = AsyncCallback.pure("slow").delayMs(50)
+        a.race(b).map { res =>
+          assertEq(res, Left("fast"))
+        }
+      }
+
+      "winnerRight" - asyncTest {
+        val a = AsyncCallback.pure("slow").delayMs(50)
+        val b = AsyncCallback.pure("fast")
+        a.race(b).map { res =>
+          assertEq(res, Right("fast"))
+        }
+      }
+
+      "alreadyCancelled" - {
+        var ran = false
+        val ac = AsyncCallback.cancel >> AsyncCallback.pure(1).race(AsyncCallback.pure(2)).map(_ => ran = true)
+        ac.runNow()
+        assertEq(ran, false)
+      }
+
+      "cancelledBeforeWinner" - {
+        var continuationRan = false
+        var cancelled = false
+        val (p, complete) = AsyncCallback.promise[Int].runNow()
+        val s = new AsyncCallback.State
+        val ac = p.race(AsyncCallback.never[Int])
+          .map(_ => continuationRan = true)
+          .onCancel(AsyncCallback.delay { cancelled = true })
+        ac.underlyingRepr(s)(_ => Callback.empty).runNow()
+        s.performCancel()
+        assertEq(cancelled, true)
+        complete(Success(42)).runNow()
+        assertEq(continuationRan, false)
+      }
     }
 
     "cancel" - {
@@ -400,6 +614,62 @@ object AsyncCallbackTest extends TestSuite {
       val b = AsyncCallback.throwException[Int](err1).maybeHandleError { case _ => throw err2 }
       a.attempt.unsafeRunNowSync() ==> Left(err2)
       b.attempt.unsafeRunNowSync() ==> Left(err2)
+    }
+
+    "traverse" - {
+      "empty" - {
+        val res = AsyncCallback.traverse(List.empty[Int])(i => AsyncCallback.pure(i * 2)).unsafeRunNowSync()
+        res ==> Nil
+      }
+
+      "single" - {
+        val res = AsyncCallback.traverse(List(5))(i => AsyncCallback.pure(i * 2)).unsafeRunNowSync()
+        res ==> List(10)
+      }
+
+      "multiple" - {
+        val res = AsyncCallback.traverse(List(1, 2, 3))(i => AsyncCallback.pure(i * 2)).unsafeRunNowSync()
+        res ==> List(2, 4, 6)
+      }
+
+      "orderPreservedWithAsync" - asyncTest {
+        val delays = List(30, 5, 15)
+        AsyncCallback.traverse(delays.zipWithIndex) { case (d, i) =>
+          AsyncCallback.pure(i).delayMs(d)
+        }.map { res =>
+          assertEq(res, List(0, 1, 2))
+        }
+      }
+
+      "rawThrowInF" - {
+        val err = new RuntimeException("raw boom")
+        var ran = false
+        val res = AsyncCallback.traverse(List(1, 2)) {
+          case 1 => throw err
+          case 2 => AsyncCallback.delay { ran = true; 42 }
+        }.attempt.unsafeRunNowSync()
+        assertEq(ran, true)
+        res ==> Left(err)
+      }
+
+      "cancel" - {
+        var cancelled = false
+        AsyncCallback.sequence(List(
+          AsyncCallback.never[Int].onCancel(AsyncCallback.delay { cancelled = true }),
+          AsyncCallback.cancel.ret(1),
+        )).runNow()
+        assertEq(cancelled, true)
+      }
+
+      "errors" - {
+        val err1 = new RuntimeException("err1")
+        val err2 = new RuntimeException("err2")
+        val res = AsyncCallback.sequence(List(
+          AsyncCallback.throwException[Int](err1),
+          AsyncCallback.throwException[Int](err2),
+        )).attempt.unsafeRunNowSync()
+        res ==> Left(err1)
+      }
     }
 
     "traverse_" - {

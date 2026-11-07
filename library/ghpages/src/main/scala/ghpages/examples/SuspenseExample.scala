@@ -16,13 +16,16 @@ object SuspenseExample {
   def body = {
     // EXAMPLE:START
 
-    val main = AsyncCallback
-      .pure(<.div(^.color := "#070", "Async load complete."))
-      .delayMs(2000)
+    val asyncBody = React.`lazy`(
+      AsyncCallback.pure(<.div(^.color := "#070", "Async load complete."))
+        .delayMs(2000)
+    )
 
-    React.Suspense(
-      fallback  = <.div(^.color.red, "Loading..."),
-      asyncBody = main)
+    val fallback = <.div(^.color.red, "Loading...")
+
+    React.Suspense(fallback)(
+      asyncBody
+    )
 
     // EXAMPLE:END
   }

@@ -33,7 +33,7 @@ object AsyncCallback {
       * Incremented on entering `uncancelable` (or when running `onCancel` finalisers) and decremented on exit
       * or inside a matching `Poll` block.
       *
-      * While `masks > 0`, cancellation is suppressed (`shouldFinalise` is `false`): if `cancelled` becomes `true`,
+      * While `masks > 0`, cancellation is suppressed (`shouldFinalise()` is `false`): if `cancelled` becomes `true`,
       * execution continues until the outermost `uncancelable` region exits and `masks` returns to `0`, at which point
       * `performCancel()` is invoked.
       *
@@ -42,25 +42,27 @@ object AsyncCallback {
       */
     var masks = 0
 
-    def shouldFinalise: Boolean =
+    def shouldFinalise(): Boolean =
       cancelled && (masks == 0)
 
     def performCancel(): Unit =
       if (!finalised) {
         cancelled = true
         finalised = true
-        cancelCallback.foreach(_.runNow())
+        cancelCallback().foreach(_.runNow())
       }
 
-    def onCancel(f: AsyncCallback[Unit]): Int = {
+    // "unsafe" here just means this is impure
+    def unsafeOnCancel(f: AsyncCallback[Unit]): Int = {
       cancelCallbacks.addOne(f.underlyingRepr)
       cancelCallbacks.length - 1
     }
 
-    inline def unCancel(i: Int): Unit =
+    // "unsafe" here just means this is impure
+    inline def unsafeUnCancel(i: Int): Unit =
       cancelCallbacks(i) = ()
 
-    def cancelCallback: Option[Callback] = {
+    def cancelCallback(): Option[Callback] = {
       val it = cancelCallbacks.iterator.filter(_.isDefined)
       Option.when(it.nonEmpty) {
         val ac = it.map(u => AsyncCallback.suspend(new AsyncCallback(u.get)).attempt.void).reduce(_ << _)
@@ -72,7 +74,7 @@ object AsyncCallback {
 
     def cancelably(c: => Callback): Callback =
       Callback.suspend {
-        if shouldFinalise then
+        if shouldFinalise() then
           Callback(performCancel())
         else
           c
@@ -125,10 +127,10 @@ object AsyncCallback {
     firstS(_ => f)
 
   private[react] def firstS[A](f: State => (Try[A] => Callback) => Callback): AsyncCallback[A] =
-    new AsyncCallback(s => g => CallbackTo {
+    new AsyncCallback(s => g => s.cancelably(CallbackTo {
       var first = true
-      f(s)(ea => Callback.when(first)(Callback{first = false} >> g(ea)))
-    }.flatten)
+      f(s)(ea => s.cancelably(Callback.when(first)(Callback { first = false } >> s.cancelably(g(ea)))))
+    }.flatten))
 
   /** AsyncCallback that never completes. */
   def never[A]: AsyncCallback[A] =
@@ -186,18 +188,45 @@ object AsyncCallback {
   def traverse[T[X] <: Iterable[X], A, B](ta: => T[A])(f: A => AsyncCallback[B])(using cbf: BuildFrom[T[A], B, T[B]]): AsyncCallback[T[B]] =
     AsyncCallback.suspend {
       val _ta = ta
-      val as = _ta.iterator.to(Vector)
-      if (as.isEmpty)
-        AsyncCallback.pure(cbf.newBuilder(_ta).result())
-      else {
-        val discard = (_: Any, _: Any) => ()
-        val bs = new js.Array[B](as.length)
-        as
-          .indices
-          .iterator
-          .map(i => f(as(i)).map(b => bs(i) = b))
-          .reduce(_.zipWith(_)(discard))
-          .map(_ => cbf.fromSpecific(_ta)(bs))
+      val as = new js.Array[A]
+      for (a <- _ta.iterator)
+        as.push(a)
+
+      as.length match {
+        case 0 => AsyncCallback.pure(cbf.newBuilder(_ta).result())
+        case 1 => AsyncCallback.suspend(f(as(0))).map(b => cbf.fromSpecific(_ta)(js.Array(b)))
+        case n =>
+          new AsyncCallback(s => g => s.cancelably(Callback {
+            val bs = new js.Array[B](n)
+            var error = Option.empty[Throwable]
+            val latch = countDownLatch(n).runNow()
+
+            for (i <- 0 until n) {
+              val a = as(i)
+              var completed = false
+              val onTaskComplete: Try[B] => Callback =
+                r => Callback {
+                  r match {
+                    case Success(b) => bs(i) = b
+                    case Failure(e) => if (error.isEmpty) error = Some(e)
+                  }
+                  if (!completed) {
+                    completed = true
+                    latch.countDown.runNow()
+                  }
+                }
+
+              AsyncCallback.suspend(f(a))
+                .underlyingRepr(s)(onTaskComplete)
+                .handleError(e => onTaskComplete(Failure(e)))
+                .runNow()
+            }
+
+            (latch.await >> throwExceptionWhenDefined(error))
+              .map(_ => cbf.fromSpecific(_ta)(bs))
+              .underlyingRepr(s)(g)
+              .runNow()
+          }))
       }
     }
 
@@ -435,6 +464,19 @@ object AsyncCallback {
 
   // ===================================================================================================================
 
+  private def withRelease[A](ac: AsyncCallback[A], release: Callback): AsyncCallback[A] = {
+    var released = false
+    val rel = Callback.suspend {
+      if (released)
+        Callback.empty
+      else {
+        released = true
+        release
+      }
+    }
+    ac.onCancel(rel.asAsyncCallback).finallyRunSync(rel)
+  }
+
   final class Mutex private[AsyncCallback]() {
 
     private var mutex: Option[Barrier] =
@@ -459,7 +501,7 @@ object AsyncCallback {
             // Mutex empty
             val b = barrier.runNow()
             mutex = Some(b)
-            ac.finallyRunSync(release)
+            withRelease(ac, release)
 
           case Some(b) =>
             // Mutex in use
@@ -511,7 +553,7 @@ object AsyncCallback {
             // Mutex empty
             val b = AsyncCallback.barrier.runNow()
             mutex = Some(b)
-            ac.finallyRunSync(releaseMutex)
+            withRelease(ac, releaseMutex)
 
           case Some(b) =>
             // Mutex in use
@@ -534,13 +576,13 @@ object AsyncCallback {
             mutex = Some(b)
             assert(readers == 0)
             readers = 1
-            ac.finallyRunSync(releaseReader)
+            withRelease(ac, releaseReader)
 
           case Some(b) =>
             if (readers > 0) {
               // Read-mutex in use
               readers += 1
-              ac.finallyRunSync(releaseReader)
+              withRelease(ac, releaseReader)
 
             } else {
               // Write-mutex in use
@@ -875,7 +917,13 @@ final class AsyncCallback[+A](val underlyingRepr: AsyncCallback.UnderlyingRepr[A
     * @return `Some` result of the callback executed, else `None`.
     */
   def when(cond: => Boolean): AsyncCallback[Option[A]] =
-    new AsyncCallback(s => f => if (cond) underlyingRepr(s)(ea => f(ea.map(Some(_)))) else f(Success(None)))
+    new AsyncCallback(s => f => s.cancelably(
+      CallbackTo(catchAll(cond)).flatMap {
+        case Success(true)  => underlyingRepr(s)(ea => f(ea.map(Some(_))))
+        case Success(false) => f(Success(None))
+        case Failure(t)     => f(Failure(t))
+      }
+    ))
 
   /** Conditional execution of this callback.
     * Reverse of [[when()]].
@@ -1021,11 +1069,17 @@ final class AsyncCallback[+A](val underlyingRepr: AsyncCallback.UnderlyingRepr[A
     if (milliseconds <= 0)
       this
     else
-      new AsyncCallback(s => f => Callback {
-        timers.setTimeout(milliseconds) {
-          underlyingRepr(s)(f).runNow()
+      new AsyncCallback(s => f => s.cancelably(Callback {
+        var handle: timers.SetTimeoutHandle = null
+        val token = s.unsafeOnCancel(AsyncCallback.delay {
+          if (handle != null) timers.clearTimeout(handle)
+        })
+        handle = timers.setTimeout(milliseconds) {
+          handle = null
+          if (!s.finalised) s.unsafeUnCancel(token)
+          s.cancelably(underlyingRepr(s)(f)).runNow()
         }
-      })
+      }))
 
   /** Limit the amount of time you're prepared to wait for a computation.
     *
@@ -1244,10 +1298,10 @@ final class AsyncCallback[+A](val underlyingRepr: AsyncCallback.UnderlyingRepr[A
       throw new NoSuchElementException("AsyncCallback.withFilter predicate is not satisfied"))
 
   def onCancel(f: AsyncCallback[Unit]): AsyncCallback[A] =
-    new AsyncCallback(s => {
-      val i = s.onCancel(f)
-      val u = self.underlyingRepr(s)
-      val uncancel = Callback(s.unCancel(i))
-      g => u(t => Callback.suspend(Callback.unless(s.finalised)(uncancel >> g(t))))
-    })
+    new AsyncCallback(s => g => s.cancelably(Callback.suspend {
+      val i = s.unsafeOnCancel(f)
+      self.underlyingRepr(s)(t =>
+        Callback.suspend(Callback.unless(s.finalised)(Callback(s.unsafeUnCancel(i)) >> g(t)))
+      )
+    }))
 }

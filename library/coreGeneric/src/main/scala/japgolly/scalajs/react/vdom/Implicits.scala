@@ -27,14 +27,14 @@ trait ImplicitsForVdomAttr extends ImplicitsForVdomAttr1 {
   import Attr.ValueType
   import ValueType._
 
-  implicit      val vdomAttrVtBoolean : Simple[Boolean  ] = byImplicit
+  implicit      val vdomAttrVtBoolean : Simple[Boolean  ] = direct.asInstanceOf[Simple[Boolean]]
   implicit      val vdomAttrVtString  : Simple[String   ] = string
-  implicit      val vdomAttrVtInt     : Simple[Int      ] = byImplicit
+  implicit      val vdomAttrVtInt     : Simple[Int      ] = direct.asInstanceOf[Simple[Int]]
   implicit lazy val vdomAttrVtLong    : Simple[Long     ] = byImplicit(_.toDouble)
-  implicit lazy val vdomAttrVtFloat   : Simple[Float    ] = byImplicit
-  implicit lazy val vdomAttrVtDouble  : Simple[Double   ] = byImplicit
-  implicit lazy val vdomAttrVtShort   : Simple[Short    ] = byImplicit
-  implicit lazy val vdomAttrVtByte    : Simple[Byte     ] = byImplicit
+  implicit lazy val vdomAttrVtFloat   : Simple[Float    ] = direct.asInstanceOf[Simple[Float]]
+  implicit lazy val vdomAttrVtDouble  : Simple[Double   ] = direct.asInstanceOf[Simple[Double]]
+  implicit lazy val vdomAttrVtShort   : Simple[Short    ] = direct.asInstanceOf[Simple[Short]]
+  implicit lazy val vdomAttrVtByte    : Simple[Byte     ] = direct.asInstanceOf[Simple[Byte]]
   implicit      val vdomAttrVtJsObject: Simple[js.Object] = direct
 
   @inline implicit def vdomAttrVtJsDictionary[A]: ValueType[js.Dictionary[A], js.Object] = byImplicit

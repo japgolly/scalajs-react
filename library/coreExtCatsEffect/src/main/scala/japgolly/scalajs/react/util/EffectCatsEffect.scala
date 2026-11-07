@@ -60,10 +60,15 @@ object EffectCatsEffect {
     @inline override def flatMap[A, B](fa: IO[A])(f: A => IO[B]) =
       fa.flatMap(f)
 
-    override def finallyRun[A, B](fa: => IO[A], fb: => IO[B]) =
-      suspend(fa).attempt.flatMap(ta =>
-      suspend(fb).attempt.flatMap(tb =>
-      IO.fromEither(if (ta.isRight && tb.isLeft) Left(tb.left.getOrElse(null)) else ta)))
+    override def finallyRun[A, B](fa: => IO[A], fb: => IO[B]): IO[A] =
+      suspend(fa).attempt.flatMap {
+        case r @ Right(_) => suspend(fb) *> IO.fromEither(r)
+        case Left(e1) =>
+          suspend(fb).attempt.flatMap {
+            case Right(_) => IO.raiseError(e1)
+            case Left(e2) => if (e1 ne e2) e1.addSuppressed(e2); IO.raiseError(e1)
+          }
+      }
 
     override def tailrec[A, B](a: A)(f: A => IO[Either[A, B]]) =
       M.tailRecM(a)(f)
