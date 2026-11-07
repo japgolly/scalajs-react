@@ -242,11 +242,9 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
 - **File**: `coreGeneric/src/main/scala/japgolly/scalajs/react/vdom/VdomBuilder.scala` (lines 10–20, 48–49, 68–168)
 - **Issue**:
   Every DOM element created via `<.div(...)`, `<.span(...)`, etc. instantiates `new VdomBuilder.ToRawReactElement()`, which:
-  1. Allocates **7 closure objects** (`addAttr`, `addClassName`, `addEventHandler`, `addStyle`, `addStylesObject`, `appendChild`, `setKey` are declared as `val` functions on `VdomBuilder` and overridden with lambdas in `ToJs`).
   2. Eagerly allocates `var styles = new js.Object` and in `addStyleToProps` calls `js.Object.keys(styles).length != 0` (which allocates a JS key array in the JS engine) even when the element has zero inline styles (>90% of DOM elements).
   3. Calls `facade.React.createElement(tag, props, children.toSeq: _*)` (line 166), wrapping `children: js.Array[RawChild]` in a `js.WrappedArray` and unpacking varargs on every element.
 - **Suggestion**:
-  1. Change the 7 members of `VdomBuilder` from `val` to `def` so `ToJs` implements them as methods with zero closure allocations.
   2. Lazily allocate `styles: js.Object = null` on first `addStyle`/`addStylesObject` call and check `if (styles ne null) setProp("style", styles)` instead of calling `js.Object.keys(styles)`.
   3. Fast-path 0, 1, and 2 children in `ToRawReactElement.build` before falling back to `children.toSeq: _*`.
 
