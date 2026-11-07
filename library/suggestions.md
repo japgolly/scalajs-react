@@ -252,23 +252,6 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
 
 ---
 
-### 28. `TagOf.rawElement` allocates a temporary `js.Array` on every DOM element render
-- **File**: `coreGeneric/src/main/scala/japgolly/scalajs/react/vdom/TagOf.scala` (lines 32–48)
-- **Issue**:
-  `TagOf` stores `modifiers: List[Seq[TagMod]]`. Even when a tag is called once (`<.div(^.cls := "a", "text")`, where `modifiers` is a 1-element list `xs :: Nil`) or zero times (`<.br`, where `modifiers` is `Nil`), `rawElement` allocates `new js.Array[Seq[TagMod]]`, copies `modifiers` into it, and loops over it.
-- **Suggestion**:
-  Pattern-match `modifiers`:
-  ```scala
-  modifiers match {
-    case Nil       => ()
-    case xs :: Nil => xs.foreach(_.applyTo(b))
-    case _         => ...
-  }
-  ```
-  This eliminates the `js.Array` allocation in >99% of DOM tags.
-
----
-
 ### 29. `Attr.ValueType.apply` allocates an extra `b.addAttr(name, _)` closure on every attribute assignment
 - **Files**:
   - `coreGeneric/src/main/scala-2/japgolly/scalajs/react/vdom/Attr.scala` (lines 243–268)
