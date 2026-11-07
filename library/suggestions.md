@@ -238,15 +238,12 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
 
 ## Section B: Performance & Memory Optimisations
 
-### 27. `VdomBuilder.ToJs` / `ToRawReactElement` allocates 7 function closures, an unused `styles` `js.Object`, and calls `Object.keys` on every DOM element
-- **File**: `coreGeneric/src/main/scala/japgolly/scalajs/react/vdom/VdomBuilder.scala` (lines 10–20, 48–49, 68–168)
+### 27. `ToRawReactElement.build` wraps `children: js.Array` in `toSeq: _*` on every DOM element
+- **File**: `coreGeneric/src/main/scala/japgolly/scalajs/react/vdom/VdomBuilder.scala` (lines 144–171)
 - **Issue**:
-  Every DOM element created via `<.div(...)`, `<.span(...)`, etc. instantiates `new VdomBuilder.ToRawReactElement()`, which:
-  2. Eagerly allocates `var styles = new js.Object` and in `addStyleToProps` calls `js.Object.keys(styles).length != 0` (which allocates a JS key array in the JS engine) even when the element has zero inline styles (>90% of DOM elements).
-  3. Calls `facade.React.createElement(tag, props, children.toSeq: _*)` (line 166), wrapping `children: js.Array[RawChild]` in a `js.WrappedArray` and unpacking varargs on every element.
+  Every DOM element created via `<.div(...)`, `<.span(...)`, etc. instantiates `new VdomBuilder.ToRawReactElement()`, which calls `facade.React.createElement(tag, props, children.toSeq: _*)`, wrapping `children: js.Array[RawChild]` in a `js.WrappedArray` and unpacking varargs on every element.
 - **Suggestion**:
-  2. Lazily allocate `styles: js.Object = null` on first `addStyle`/`addStylesObject` call and check `if (styles ne null) setProp("style", styles)` instead of calling `js.Object.keys(styles)`.
-  3. Fast-path 0, 1, and 2 children in `ToRawReactElement.build` before falling back to `children.toSeq: _*`.
+  Fast-path 0, 1, and 2 children in `ToRawReactElement.build` before falling back to `children.toSeq: _*`.
 
 ---
 

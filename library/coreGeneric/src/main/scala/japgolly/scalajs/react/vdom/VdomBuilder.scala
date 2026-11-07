@@ -72,13 +72,13 @@ object VdomBuilder {
     // 3. Target audience is hackers doing hacky things, so more control is preferred
 
     var props    : js.Object          = new js.Object
-    var styles   : js.Object          = new js.Object
+    var styles   : js.Object          = null
     var children : js.Array[RawChild] = new js.Array[RawChild]()
     var key      : js.UndefOr[js.Any] = js.undefined
 
     var nonEmptyClassName: js.UndefOr[js.Any            ] = js.undefined
     def nonEmptyProps    : js.UndefOr[js.Object         ] = nonEmptyObject(props)
-    def nonEmptyStyles   : js.UndefOr[js.Object         ] = nonEmptyObject(styles)
+    def nonEmptyStyles   : js.UndefOr[js.Object         ] = if (styles eq null) js.undefined else styles
     def nonEmptyChildren : js.UndefOr[js.Array[RawChild]] = nonEmptyJsArray(children)
 
     override def addAttr(name: String, value: js.Any): Unit =
@@ -93,8 +93,11 @@ object VdomBuilder {
         k,
         c => if (c.isEmpty) g else {val f = c.get; e => {f(e); g(e)}})
 
-    override def addStyle(name: String, value: js.Any): Unit =
+    override def addStyle(name: String, value: js.Any): Unit = {
+      if (styles eq null)
+        styles = new js.Object
       setObjectKeyValue(styles, name, value)
+    }
 
     override def addStylesObject(styles: js.Object): Unit =
       for ((k, v) <- JsUtil.objectIterator(styles)) addStyle(k, v)
