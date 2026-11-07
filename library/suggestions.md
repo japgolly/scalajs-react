@@ -238,15 +238,6 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
 
 ## Section B: Performance & Memory Optimisations
 
-### 27. `ToRawReactElement.build` wraps `children: js.Array` in `toSeq: _*` on every DOM element
-- **File**: `coreGeneric/src/main/scala/japgolly/scalajs/react/vdom/VdomBuilder.scala` (lines 144–171)
-- **Issue**:
-  Every DOM element created via `<.div(...)`, `<.span(...)`, etc. instantiates `new VdomBuilder.ToRawReactElement()`, which calls `facade.React.createElement(tag, props, children.toSeq: _*)`, wrapping `children: js.Array[RawChild]` in a `js.WrappedArray` and unpacking varargs on every element.
-- **Suggestion**:
-  Fast-path 0, 1, and 2 children in `ToRawReactElement.build` before falling back to `children.toSeq: _*`.
-
----
-
 ### 29. `Attr.ValueType.apply` allocates an extra `b.addAttr(name, _)` closure on every attribute assignment
 - **Files**:
   - `coreGeneric/src/main/scala-2/japgolly/scalajs/react/vdom/Attr.scala` (lines 243–268)

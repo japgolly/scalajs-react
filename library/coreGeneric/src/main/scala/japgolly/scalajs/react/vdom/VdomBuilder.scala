@@ -166,7 +166,13 @@ object VdomBuilder {
 
       (tag, props, key, children) => {
         key.foreach(setObjectKeyValue(props, "key", _))
-        facade.React.createElement(tag, props, children.toSeq: _*)
+        // Hot path: avoid allocating `children.toSeq` (WrappedArray) for elements with <= 2 children
+        children.length match {
+          case 0 => facade.React.createElement(tag, props)
+          case 1 => facade.React.createElement(tag, props, children(0))
+          case 2 => facade.React.createElement(tag, props, children(0), children(1))
+          case _ => facade.React.createElement(tag, props, children.toSeq: _*)
+        }
       }
 
     }
