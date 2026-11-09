@@ -114,13 +114,12 @@ object Lib {
     _.settings(publish / skip := true)
 
   def utestSettings(scope: Configuration): PE =
-    _.configure(InBrowserTesting.js)
-      .settings(
-        jsEnv                := new JSDOMNodeJSEnv(JSDOMNodeJSEnv.Config().withArgs("--experimental-worker" :: Nil)),
-        Test / scalacOptions += "-language:reflectiveCalls",
-        libraryDependencies  += Dep.utest.value % scope,
-        libraryDependencies  += Dep.microlibsTestUtil.value % scope,
-        testFrameworks       += new TestFramework("utest.runner.Framework"))
+    _.settings(
+      jsEnv                := new JSDOMNodeJSEnv(JSDOMNodeJSEnv.Config().withArgs("--experimental-worker" :: Nil)),
+      Test / scalacOptions += "-language:reflectiveCalls",
+      libraryDependencies  += Dep.utest.value % scope,
+      libraryDependencies  += Dep.microlibsTestUtil.value % scope,
+      testFrameworks       += new TestFramework("utest.runner.Framework"))
 
   def utestSettings: PE =
     utestSettings(Test)

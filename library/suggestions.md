@@ -523,12 +523,9 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
 
 ### 64. Unused build configuration, dead `FT` alias, and unused `scalajs-env-selenium` plugin dependency
 - **Files**:
-  - `project/plugins.sbt` (line 3)
-  - `project/InBrowserTesting.scala` (lines 1–92)
   - `project/GenHooks.scala` (lines 35–39, 43)
   - `project/Lib.scala` (lines 143–157)
 - **Issue**:
-  2. `project/InBrowserTesting.scala` is completely commented out (`identity`), yet `project/plugins.sbt` still resolves `"org.scala-js" %% "scalajs-env-selenium" % "1.1.1"` (pulling Selenium and Guava into the sbt build).
   3. `project/GenHooks.scala` has unused variables `i12663_a`, `i12663_c`, `i12663_bc`, and `_s`, and `project/Lib.scala:143-157` has commented-out `useScalaJsBundler` dead code.
 - **Suggestion**:
-  Remove unused `scalajs-env-selenium` dependency, `InBrowserTesting.scala` stub, and unused variables in `GenHooks.scala`.
+  Remove unused variables in `GenHooks.scala`.
