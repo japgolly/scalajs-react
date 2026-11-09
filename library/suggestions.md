@@ -18,15 +18,6 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
 
 ---
 
-### 13. `Hooks.UseStateF.xmap` and `withReusability` reset custom effect types `F[_]` back to `DefaultEffects.Sync`
-- **File**: `coreGeneric/src/main/scala/japgolly/scalajs/react/hooks/Hooks.scala` (lines 297–300, 352–380)
-- **Issue**:
-  On `UseStateF[F[_], S]`, `def xmap[T](f: S => T)(g: T => S): UseState[T]` and `def withReusability: UseState[S]` hardcode the return type to `UseState` (`UseStateF[DefaultEffects.Sync, *]`) instead of `UseStateF[F, *]` (unlike `UseStateWithReuseF.xmap` on line 324, which preserves `F`).
-- **Suggestion**:
-  Parameterize `UseState.xmap` and `UseState.withReusability` over `F[_]` using `self.F` so they return `UseStateF[F, T]` and `UseStateF[F, S]`.
-
----
-
 ### 14. `Api.Primary.useEffectEvent` and `useActionState` accept parameters by-value instead of by-name
 - **File**: `coreGeneric/src/main/scala/japgolly/scalajs/react/hooks/Api.scala` (lines 149–158, 609–640)
 - **Issue**:
@@ -208,34 +199,6 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
 
 ---
 
-### 31. `Urls.PathLike.endWith_/` and `rtrim_/` compile regular expressions on every path operation
-- **File**: `extra/src/main/scala/japgolly/scalajs/react/extra/router/Urls.scala` (lines 16–17)
-- **Issue**:
-  ```scala
-  final def endWith_/ : Self = map(_.replaceFirst("/*$", "/"))
-  final def rtrim_/   : Self = map(_.replaceFirst("/+$", ""))
-  ```
-  `String#replaceFirst` compiles a `java.util.regex.Pattern` on every call. Because `PathLike./` calls `endWith_/`, every `baseUrl / "path"` call compiles a regex at runtime.
-- **Suggestion**:
-  Implement `rtrim_/` and `endWith_/` with a simple character index loop:
-  ```scala
-  final def rtrim_/ : Self = map { s =>
-    var i = s.length
-    while (i > 0 && s.charAt(i - 1) == '/') i -= 1
-    if (i == s.length) s else s.substring(0, i)
-  }
-  final def endWith_/ : Self = map { s =>
-    if (s.endsWith("/") && !s.endsWith("//")) s
-    else {
-      var i = s.length
-      while (i > 0 && s.charAt(i - 1) == '/') i -= 1
-      s.substring(0, i) + "/"
-    }
-  }
-  ```
-
----
-
 ### 33. `AsyncCallback.map`, `void`, and `ret` allocate unnecessary `flatMap` and `AsyncCallback.pure` layers
 - **Files**:
   - `callback/src/main/scala-2/japgolly/scalajs/react/callback/AsyncCallback.scala` (lines 162–163, 679–680, 778–783)
@@ -255,33 +218,6 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
   `callbacks :+= f` appends to the end of an immutable `List`, copying the entire list on each `onComplete` call ($O(N^2)$ when multiple tasks await a `SyncPromise`, `Barrier`, `CountDownLatch`, or `memo()`). Also, `private var result = Option.empty[Try[A]]` allocates an extra `Some` wrapper around `Try[A]`.
 - **Suggestion**:
   Store `private var result: Try[A] = null` and `private var callbacks: js.Array[Try[A] => Callback] = null` (lazily allocated only if `onComplete` is called before `complete`, and cleared to `null` upon completion).
-
----
-
-### 35. `AsyncCallback.State.unCancel` never shrinks `cancelCallbacks`, leaking memory in `tailrec` loops
-- **Files**:
-  - `callback/src/main/scala-2/japgolly/scalajs/react/callback/AsyncCallback.scala` (lines 52–60)
-  - `callback/src/main/scala-3/japgolly/scalajs/react/callback/AsyncCallback.scala` (lines 53–61)
-- **Issue**:
-  ```scala
-  def onCancel(f: AsyncCallback[Unit]): Int = {
-    cancelCallbacks.addOne(f.underlyingRepr)
-    cancelCallbacks.length - 1
-  }
-
-  def unCancel(i: Int): Unit =
-    cancelCallbacks(i) = ()
-  ```
-  `unCancel` sets `cancelCallbacks(i) = ()` (`undefined`) without shrinking the array. In a `tailrec` loop where each step registers and unregisters an `onCancel` token (such as `IOToAsyncCallback` or `delayMs`), `s.cancelCallbacks` grows unboundedly with `undefined` entries.
-- **Suggestion**:
-  Pop trailing `undefined` entries in `unCancel`:
-  ```scala
-  def unCancel(i: Int): Unit = {
-    cancelCallbacks(i) = ()
-    while (cancelCallbacks.nonEmpty && cancelCallbacks(cancelCallbacks.length - 1).isEmpty)
-      cancelCallbacks.pop()
-  }
-  ```
 
 ---
 
@@ -534,17 +470,6 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
 
 ---
 
-### 55. Scala 3 `PropsChildren` opaque type lacks a meaningful `toString`
-- **Files**:
-  - `coreGeneric/src/main/scala-2/japgolly/scalajs/react/PropsChildren.scala` (lines 19–20)
-  - `coreGeneric/src/main/scala-3/japgolly/scalajs/react/PropsChildren.scala` (lines 6–52)
-- **Issue**:
-  In Scala 2, `PropsChildren` overrides `toString` as `iterator.mkString("PropsChildren(", ", ", ")")`, which is used by `HookCtx.PC0..PC20.toString`. In Scala 3, `PropsChildren` is an `opaque type`, so string interpolation calls `Object.toString` on the raw JS value (`[object Object]` or `undefined`).
-- **Suggestion**:
-  Provide an extension or helper method for formatting `PropsChildren` consistently across Scala 2 and Scala 3.
-
----
-
 ### 56. `ViaReactComponent`, `ScalaFn`, and `ReactForwardRef` set `displayName = ""` in production builds, and `DerivedDisplayName` ignores `ScalaJsReactConfig`
 - **Files**:
   - `coreGeneric/src/main/scala/japgolly/scalajs/react/component/builder/ViaReactComponent.scala` (lines 343–344)
@@ -593,34 +518,6 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
   `_listeners ::= record` prepends to a `List`, so `broadcast` invokes listeners in reverse registration order, and `val record = (listener, ())` allocates a tuple just to get a fresh object identity.
 - **Suggestion**:
   Maintain listeners in registration (FIFO) order (e.g. via `Vector` or a small `js.Array` / wrapper node) without allocating a `Tuple2`.
-
----
-
-### 61. `ReactTestUtils.removeReactInternals` runs two regex passes on every HTML assertion even when no React markers exist
-- **File**: `testUtil/src/main/scala/japgolly/scalajs/react/test/ReactTestUtils.scala` (lines 16–19, 108–113)
-- **Issue**:
-  React 18/19 `createRoot` no longer emits `<!-- react-text -->` or `data-reactroot`, yet `removeReactInternals` unconditionally runs two regex `.replaceAllIn` passes on every `assertInnerHTML` / `assertOuterHTML` call.
-- **Suggestion**:
-  Guard the regex calls with `if (html.contains("react-text"))` and `if (html.contains("data-react"))`.
-
----
-
-### 62. `GhPagesMacros` duplicates helper logic between Scala 2 and Scala 3 and reverses the line list twice
-- **Files**:
-  - `ghpagesMacros/src/main/scala-2/ghpages/GhPagesMacros.scala` (lines 11–62)
-  - `ghpagesMacros/src/main/scala-3/ghpages/GhPagesMacros.scala` (lines 12–60)
-- **Issue**:
-  `GhPagesMacroImpls` (`trimRight`, `blankLine`, `trimLeftAll`, `splitOnce`, `betweenMarkers`, line trimming) is duplicated verbatim in `scala-2` and `scala-3` instead of residing in `ghpagesMacros/src/main/scala/`.
-
----
-
-### 63. Broken external URL (`wss://echo.websocket.org`) and $O(N)$ `log.init` in `ghpages` examples
-- **Files**:
-  - `ghpages/src/main/scala/ghpages/examples/WebSocketsExample.scala` (line 25)
-  - `ghpages/src/main/scala/ghpages/examples/TouchExample.scala` (lines 27–31)
-- **Issue**:
-  1. `WebSocketsExample.scala:25` uses `wss://echo.websocket.org`, which was shut down years ago (modern replacements such as `wss://echo.websocket.events` or `wss://ws.postman-echo.com/raw` can be used).
-  2. `TouchExample.scala:30` uses `if (log.size > max) copy(log = log.init) else this` on a `List[String]`, traversing the list twice (`size` and `init`) instead of `copy(log = (name :: log).take(max))`.
 
 ---
 
