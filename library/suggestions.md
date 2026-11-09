@@ -491,12 +491,3 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
   2. Line 64 has a trailing stray `"` at the end of the documentation URL: `|See https://github.com/japgolly/scalajs-react/blob/master/doc/INTEROP.md"`.
 - **Suggestion**:
   Use `js.Object.hasProperty(o, "$$typeof") || js.Object.hasProperty(o, "type")` and remove the stray quote on line 64.
-
----
-
-### 58. `RouterCtlF.reusability` does not handle `ModCB` or `AltEffect` wrappers
-- **File**: `extra/src/main/scala/japgolly/scalajs/react/extra/router/RouterCtlF.scala` (lines 90–98)
-- **Issue**:
-  `RouterCtlF.reuseF` handles `Contramap(ac, af)` vs `Contramap(bc, bf)`, but returns `false` for two `AltEffect` or `ModCB` wrappers over reusable underlying `RouterCtlF`s.
-- **Suggestion**:
-  Add `case (ModCB(ac, af), ModCB(bc, bf)) => (af eq bf) && test(ac, bc)` and `case (AltEffect(ac), AltEffect(bc)) => test(ac, bc)` to `reuseF`.
