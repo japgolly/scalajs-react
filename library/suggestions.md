@@ -500,12 +500,3 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
   `RouterCtlF.reuseF` handles `Contramap(ac, af)` vs `Contramap(bc, bf)`, but returns `false` for two `AltEffect` or `ModCB` wrappers over reusable underlying `RouterCtlF`s.
 - **Suggestion**:
   Add `case (ModCB(ac, af), ModCB(bc, bf)) => (af eq bf) && test(ac, bc)` and `case (AltEffect(ac), AltEffect(bc)) => test(ac, bc)` to `reuseF`.
-
----
-
-### 59. `TimerSupportF.setGuaranteedIntervalMs` allocates 3 local `lazy val` state machines per timer
-- **File**: `extra/src/main/scala/japgolly/scalajs/react/extra/TimerSupport.scala` (lines 43–64)
-- **Issue**:
-  `setGuaranteedIntervalMs` uses 3 mutually recursive local `lazy val`s (`jsProc`, `step`, `proc`), which in Scala.js compile to heap-allocated lazy-val holder objects per call.
-- **Suggestion**:
-  Use a simple `var jsProc: js.Function0[Unit] = null` assigned before `RawTimers.setTimeout`.
