@@ -139,22 +139,6 @@ object Lib {
       Test / testOnly      := { (Test / compile).value; () },
       Test / testQuick     := { (Test / compile).value; () })
 
-  /*
-  lazy val yarnOnPath: Boolean =
-    try {
-      Process("yarn --version").!!
-      true
-    } catch {
-      case t: Throwable => false
-    }
-
-  def useScalaJsBundler: PE =
-    _.enablePlugins(ScalaJSBundlerPlugin)
-      .settings(
-        // useYarn := yarnOnPath,
-        version in webpack := "2.6.1")
-  */
-
   def disableScalaDoc3: PE =
     _.settings(
       Compile / doc / sources := { if (scalaVersion.value startsWith "3") Seq.empty else (Compile / doc / sources).value },

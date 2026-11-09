@@ -524,8 +524,7 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
 ### 64. Unused build configuration, dead `FT` alias, and unused `scalajs-env-selenium` plugin dependency
 - **Files**:
   - `project/GenHooks.scala` (lines 35–39, 43)
-  - `project/Lib.scala` (lines 143–157)
 - **Issue**:
-  3. `project/GenHooks.scala` has unused variables `i12663_a`, `i12663_c`, `i12663_bc`, and `_s`, and `project/Lib.scala:143-157` has commented-out `useScalaJsBundler` dead code.
+  3. `project/GenHooks.scala` has unused variables `i12663_a`, `i12663_c`, `i12663_bc`, and `_s`.
 - **Suggestion**:
   Remove unused variables in `GenHooks.scala`.
