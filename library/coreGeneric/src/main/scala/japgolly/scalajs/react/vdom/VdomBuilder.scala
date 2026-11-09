@@ -8,14 +8,14 @@ import scala.scalajs.js
 /** Mutable target for immutable VDOM constituents to compose.
   */
 trait VdomBuilder {
-  val addAttr        : (String, js.Any)                    => Unit
-  val addClassName   : js.Any                              => Unit
-  val addEventHandler: (String, js.Function1[js.Any, Any]) => Unit
-  val addStyle       : (String, js.Any)                    => Unit
-  val addStylesObject: js.Object                           => Unit
-  val appendChild    : RawChild                            => Unit
-  val setKey         : js.Any                              => Unit
-  def addRefFn[A]    : RawRefFn[A]                         => Unit
+  def addAttr        (name: String, value: js.Any): Unit
+  def addClassName   (className: js.Any): Unit
+  def addEventHandler(name: String, handler: js.Function1[js.Any, Any]): Unit
+  def addStyle       (name: String, value: js.Any): Unit
+  def addStylesObject(styles: js.Object): Unit
+  def appendChild    (child: RawChild): Unit
+  def setKey         (key: js.Any): Unit
+  def addRefFn[A]    (refFn: RawRefFn[A]): Unit
 
   final def addStyles(j: js.Any): Unit = {
     // Hack because Attr.ValueType.Fn takes a js.Any => Unit.
@@ -72,41 +72,44 @@ object VdomBuilder {
     // 3. Target audience is hackers doing hacky things, so more control is preferred
 
     var props    : js.Object          = new js.Object
-    var styles   : js.Object          = new js.Object
+    var styles   : js.Object          = null
     var children : js.Array[RawChild] = new js.Array[RawChild]()
     var key      : js.UndefOr[js.Any] = js.undefined
 
     var nonEmptyClassName: js.UndefOr[js.Any            ] = js.undefined
     def nonEmptyProps    : js.UndefOr[js.Object         ] = nonEmptyObject(props)
-    def nonEmptyStyles   : js.UndefOr[js.Object         ] = nonEmptyObject(styles)
+    def nonEmptyStyles   : js.UndefOr[js.Object         ] = if (styles eq null) js.undefined else styles
     def nonEmptyChildren : js.UndefOr[js.Array[RawChild]] = nonEmptyJsArray(children)
 
-    override val addAttr: (String, js.Any) => Unit =
-      setObjectKeyValue(props, _, _)
+    override def addAttr(name: String, value: js.Any): Unit =
+      setObjectKeyValue(props, name, value)
 
-    override val addClassName: js.Any => Unit =
-      n => nonEmptyClassName = nonEmptyClassName.fold[js.Any](n)(_.toString + " " + n)
+    override def addClassName(className: js.Any): Unit =
+      nonEmptyClassName = nonEmptyClassName.fold[js.Any](className)(_.toString + " " + className)
 
-    override val addEventHandler =
-      (k, g) => modObjectKeyValue[js.Function1[js.Any, Any]](
+    override def addEventHandler(k: String, g: js.Function1[js.Any, Any]): Unit =
+      modObjectKeyValue[js.Function1[js.Any, Any]](
         props,
         k,
         c => if (c.isEmpty) g else {val f = c.get; e => {f(e); g(e)}})
 
-    override val addStyle: (String, js.Any) => Unit =
-      setObjectKeyValue(styles, _, _)
+    override def addStyle(name: String, value: js.Any): Unit = {
+      if (styles eq null)
+        styles = new js.Object
+      setObjectKeyValue(styles, name, value)
+    }
 
-    override val addStylesObject: js.Object => Unit =
-      o => for ((k, v) <- JsUtil.objectIterator(o)) addStyle(k, v)
+    override def addStylesObject(styles: js.Object): Unit =
+      for ((k, v) <- JsUtil.objectIterator(styles)) addStyle(k, v)
 
-    override val appendChild: RawChild => Unit =
-      children.push(_)
+    override def appendChild(child: RawChild): Unit =
+      children.push(child)
 
-    override val setKey: js.Any => Unit =
-      k => key = k
+    override def setKey(key: js.Any): Unit =
+      this.key = key
 
-    override def addRefFn[A]: RawRefFn[A] => Unit =
-      refFn => addAttr("ref", refFn)
+    override def addRefFn[A](refFn: RawRefFn[A]): Unit =
+      addAttr("ref", refFn)
 
     def addKeyToProps(): Unit =
       key.foreach(setObjectKeyValue(props, "key", _))
@@ -163,7 +166,13 @@ object VdomBuilder {
 
       (tag, props, key, children) => {
         key.foreach(setObjectKeyValue(props, "key", _))
-        facade.React.createElement(tag, props, children.toSeq: _*)
+        // Hot path: avoid allocating `children.toSeq` (WrappedArray) for elements with <= 2 children
+        children.length match {
+          case 0 => facade.React.createElement(tag, props)
+          case 1 => facade.React.createElement(tag, props, children(0))
+          case 2 => facade.React.createElement(tag, props, children(0), children(1))
+          case _ => facade.React.createElement(tag, props, children.toSeq: _*)
+        }
       }
 
     }

@@ -29,18 +29,6 @@ abstract class Attr[-U](final val attrName: String) {
     O.fold(oa, TagMod.empty)(:=(_))
 }
 
-// TODO: [3] Make erased class
-@implicitNotFound("You are passing a CallbackTo[${A}] to a DOM event handler which is most likely a mistake."
-  + "\n  If the result is irrelevant, add `.void`."
-  + "\n  If the result is necessary, please raise an issue and use `vdom.DomCallbackResult.force` in the meantime.")
-sealed trait DomCallbackResult[A]
-object DomCallbackResult {
-  inline def force[A]: DomCallbackResult[A] = null
-  inline given unit           : DomCallbackResult[Unit               ] = null
-  inline given boolean        : DomCallbackResult[Boolean            ] = null
-  inline given undefOrBoolean : DomCallbackResult[js.UndefOr[Boolean]] = null
-}
-
 sealed trait InnerHtmlAttr
 
 object Attr {
@@ -258,7 +246,10 @@ object Attr {
   @implicitNotFound("Don't know how to use ${A} with a ${U} attribute.")
   final class ValueType[-A, +U](val fn: ValueType.Fn[A]) extends AnyVal {
     def apply(name: String, value: A): TagMod =
-      TagMod.fn(b => fn(b.addAttr(name, _), value))
+      if (fn eq ValueType.directFn)
+        TagMod.fn(_.addAttr(name, value.asInstanceOf[js.Any]))
+      else
+        TagMod.fn(b => fn(b.addAttr(name, _), value))
   }
 
   object ValueType {
@@ -266,21 +257,24 @@ object Attr {
 
     type Fn[-A] = (js.Any => Unit, A) => Unit
 
+    private[react] val directFn: Fn[Any] =
+      (b, a) => b(a.asInstanceOf[js.Any])
+
     inline def apply[A, U](fn: Fn[A]): ValueType[A, U] =
       new ValueType(fn)
 
     val direct: ValueType[js.Any, Nothing] =
-      apply(_(_))
+      new ValueType(directFn)
 
     val string: ValueType[String, Nothing] =
-      apply(_(_))
+      new ValueType(directFn)
 
     def byImplicit[A, U](implicit f: A => js.Any): ValueType[A, U] =
       apply((b, a) => b(f(a)))
 
     @nowarn("cat=unused")
     implicit def byUnion[A, B, C](implicit f: A => (B | C)): ValueType[A, B | C] =
-      apply((b, a) => b(a.asInstanceOf[js.Any]))
+      new ValueType(directFn)
 
     implicit lazy val untypedRef: ValueType[japgolly.scalajs.react.Ref.Set[_ <: TopNode], facade.React.RefFn[TopNode]] =
       apply((f, a) => f(a.rawSetFn))

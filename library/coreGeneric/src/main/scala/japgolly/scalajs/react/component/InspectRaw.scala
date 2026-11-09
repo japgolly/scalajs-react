@@ -61,7 +61,7 @@ object InspectRaw {
           |  * create a JS facade using @JSImport / @JSGlobal
           |  * grab the JS value using js.Dynamic
           |
-          |See https://github.com/japgolly/scalajs-react/blob/master/doc/INTEROP.md"
+          |See https://github.com/japgolly/scalajs-react/blob/main/doc/INTEROP.md
         """.stripMargin
       case _ =>
         """

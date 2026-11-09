@@ -44,14 +44,17 @@ trait TimerSupportF[F[_]] extends OnUnmountF[F] { self =>
     val first: F[F[Unit]] = F.delay {
       var handle: UndefOr[SetTimeoutHandle] = undefined
       var live = true
-      lazy val jsProc: js.Function0[Unit] = F.toJsFn(proc)
-      lazy val step: F[Unit] = F.delay {
-        if (live)
-          handle = RawTimers.setTimeout(jsProc, intervalInMilliseconds)
-      }
-      lazy val proc: F[Unit] = {
-        val runF = F.chain(F.delay { handle = undefined }, F.transDispatch(f))
-        F.finallyRun(runF, step)
+      var jsProc: js.Function0[Unit] = null
+      jsProc = {
+        val proc: F[Unit] = {
+          val runF = F.chain(F.delay { handle = undefined }, F.transDispatch(f))
+          val step: F[Unit] = F.delay {
+            if (live)
+              handle = RawTimers.setTimeout(jsProc, intervalInMilliseconds)
+          }
+          F.finallyRun(runF, step)
+        }
+        F.toJsFn(proc)
       }
       handle = RawTimers.setTimeout(jsProc, intervalInMilliseconds)
       F.delay {

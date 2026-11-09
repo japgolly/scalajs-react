@@ -37,7 +37,7 @@ sealed trait CompilationTest {
   PropsChildren(())
 
   val addTransitionType = React.addTransitionType("f")
-  val _ = addTransitionType: Callback
+  locally(addTransitionType: Callback)
 }
 
 @nowarn

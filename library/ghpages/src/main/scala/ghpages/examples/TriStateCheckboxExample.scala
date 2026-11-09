@@ -12,7 +12,7 @@ object TriStateCheckboxExample {
   lazy val main = addIntro(App.withKey(_)(sampleData), _(
     s"React doesn't come with support for a tri-state checkbox so scalajs-react includes a ",
     <.a(
-      ^.href := "https://github.com/japgolly/scalajs-react/blob/master/extra/src/main/scala/japgolly/scalajs/react/extra/components/TriStateCheckbox.scala",
+      ^.href := "https://github.com/japgolly/scalajs-react/blob/main/extra/src/main/scala/japgolly/scalajs/react/extra/components/TriStateCheckbox.scala",
       "TriStateCheckbox"),
     " component."))
 

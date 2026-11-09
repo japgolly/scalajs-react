@@ -19,7 +19,8 @@ trait BroadcasterF[F[_], A] extends ListenableF[F, A] { self =>
 
   override def register(listener: A => F[Unit]) = F.delay {
     val record = (listener, ())
-    _listeners ::= record
+    _listeners :+= record // 1. slow in theory but in practice the number of listeners is tiny
+                          // 2. ensures registered listeners are called in the order they were registered
     F.delay { _listeners = _listeners.filter(_ ne record) }
   }
 

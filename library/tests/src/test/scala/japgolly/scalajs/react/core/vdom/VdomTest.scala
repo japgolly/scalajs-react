@@ -222,5 +222,18 @@ object VdomTest extends AsyncTestSuite {
       }
     }
 
+    "tagOfChainedModifiers" - {
+      def test(e: VdomElement, exp: String) = {
+        val comp = ScalaComponent.static("tmp")(e)
+        assertRender(comp(), exp)
+      }
+
+      "0" - test(<.div, "<div></div>")
+      "1" - test(<.div(^.id := "a", "1"), """<div id="a">1</div>""")
+      "2" - test(<.div(^.id := "a")(^.title := "b", "2"), """<div id="a" title="b">2</div>""")
+      "3" - test(<.div(^.id := "a")(^.title := "b")(^.cls := "c", "3"), """<div id="a" title="b" class="c">3</div>""")
+      "override" - test(<.div(^.id := "first")(^.id := "second")(^.id := "third"), """<div id="third"></div>""")
+    }
+
   }
 }

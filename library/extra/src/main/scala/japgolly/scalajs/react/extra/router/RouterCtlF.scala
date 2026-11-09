@@ -88,10 +88,13 @@ abstract class RouterCtlF[F[_], Route] {
 object RouterCtlF {
 
   private def reuseF[F[_]]: Reusability[RouterCtlF[F, Any]] = {
-    def test[A, B](x: RouterCtlF[F, A], y: RouterCtlF[F, B]): Boolean =
+    def test[X[_], Y[_], A, B](x: RouterCtlF[X, A], y: RouterCtlF[Y, B]): Boolean =
       (x eq y) || // Most common case and fastest
       ((x, y) match {
         case (Contramap(ac, af), Contramap(bc, bf)) => (af eq bf) && test(ac, bc)
+        case (ModCB(ac, af), ModCB(bc, bf))         => (af eq bf) && test(ac, bc)
+        case (AltEffect(ac), AltEffect(bc))         => test(ac, bc) // effect translators are expected to be coherent
+                                                                    // so no need to check them
         case _                                      => false
       })
     Reusability[RouterCtlF[F, Any]](test)

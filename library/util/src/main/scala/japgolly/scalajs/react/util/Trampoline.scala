@@ -13,7 +13,7 @@ sealed trait Trampoline[+A] {
     Trampoline.run(this)
 
   final def map[B](f: A => B): Trampoline[B] =
-    new FlatMap(this, f.andThen(new Pure(_)))
+    new FlatMap(this, (a: A) => new Pure(f(a)))
 
   final def flatMap[B](f: A => Trampoline[B]): Trampoline[B] =
     new FlatMap(this, f)

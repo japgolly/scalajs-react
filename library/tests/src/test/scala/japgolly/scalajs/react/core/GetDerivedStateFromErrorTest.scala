@@ -3,9 +3,7 @@ package japgolly.scalajs.react.core
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.test.ReactTestUtils
-import japgolly.scalajs.react.test.TestUtil._
 import utest._
-import scala.scalajs.js
 
 object GetDerivedStateFromErrorTest extends TestSuite {
 
@@ -90,4 +88,3 @@ object GetDerivedStateFromErrorTest extends TestSuite {
     }
   }
 }
-

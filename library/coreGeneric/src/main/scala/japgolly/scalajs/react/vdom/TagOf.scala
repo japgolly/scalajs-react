@@ -1,7 +1,6 @@
 package japgolly.scalajs.react.vdom
 
 import japgolly.scalajs.react.{Ref, facade}
-import scala.scalajs.js
 
 class TagOf[+N <: TopNode] private[vdom](final val tag: String,
                                          final protected val modifiers: List[Seq[TagMod]]) extends VdomElement {
@@ -32,16 +31,14 @@ class TagOf[+N <: TopNode] private[vdom](final val tag: String,
   override lazy val rawElement: facade.React.Element = {
     val b = new VdomBuilder.ToRawReactElement()
 
-    val arr = new js.Array[Seq[TagMod]]
-    var current = modifiers
-    while (current != Nil) {
-      arr.push(current.head)
-      current = current.tail
-    }
-    var j = arr.length
-    while (j > 0) {
-      j -= 1
-      arr(j).foreach(_.applyTo(b))
+    if (modifiers eq Nil) {
+      // 0 calls: e.g. <.br
+    } else if (modifiers.tail eq Nil) {
+      // 1 call: the 99% case, e.g. <.div(...)
+      modifiers.head.foreach(_.applyTo(b))
+    } else {
+      // 2+ chained calls: e.g. <.div(...)(...)
+      modifiers.reverse.foreach(_.foreach(_.applyTo(b)))
     }
 
     b.render(tag)

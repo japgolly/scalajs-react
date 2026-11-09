@@ -114,13 +114,12 @@ object Lib {
     _.settings(publish / skip := true)
 
   def utestSettings(scope: Configuration): PE =
-    _.configure(InBrowserTesting.js)
-      .settings(
-        jsEnv                := new JSDOMNodeJSEnv(JSDOMNodeJSEnv.Config().withArgs("--experimental-worker" :: Nil)),
-        Test / scalacOptions += "-language:reflectiveCalls",
-        libraryDependencies  += Dep.utest.value % scope,
-        libraryDependencies  += Dep.microlibsTestUtil.value % scope,
-        testFrameworks       += new TestFramework("utest.runner.Framework"))
+    _.settings(
+      jsEnv                := new JSDOMNodeJSEnv(JSDOMNodeJSEnv.Config().withArgs("--experimental-worker" :: Nil)),
+      Test / scalacOptions += "-language:reflectiveCalls",
+      libraryDependencies  += Dep.utest.value % scope,
+      libraryDependencies  += Dep.microlibsTestUtil.value % scope,
+      testFrameworks       += new TestFramework("utest.runner.Framework"))
 
   def utestSettings: PE =
     utestSettings(Test)
@@ -139,22 +138,6 @@ object Lib {
       Test / sbt.Keys.test := { (Test / compile).value; () },
       Test / testOnly      := { (Test / compile).value; () },
       Test / testQuick     := { (Test / compile).value; () })
-
-  /*
-  lazy val yarnOnPath: Boolean =
-    try {
-      Process("yarn --version").!!
-      true
-    } catch {
-      case t: Throwable => false
-    }
-
-  def useScalaJsBundler: PE =
-    _.enablePlugins(ScalaJSBundlerPlugin)
-      .settings(
-        // useYarn := yarnOnPath,
-        version in webpack := "2.6.1")
-  */
 
   def disableScalaDoc3: PE =
     _.settings(

@@ -278,8 +278,8 @@ final class RouterConfigDsl[Page, Props] {
   private def uuidRegex = "([A-Fa-f0-9]{8}(?:-[A-Fa-f0-9]{4}){3}-[A-Fa-f0-9]{12})"
 
   def root = Path.root
-  val int  = new RouteB[Int] ("(-?\\d+)", 1, g => Some(g(0).toInt),           _.toString)
-  val long = new RouteB[Long]("(-?\\d+)", 1, g => Some(g(0).toLong),          _.toString)
+  val int  = new RouteB[Int] ("(-?\\d+)", 1, _(0).toIntOption,                _.toString)
+  val long = new RouteB[Long]("(-?\\d+)", 1, _(0).toLongOption,               _.toString)
   val uuid = new RouteB[UUID](uuidRegex,  1, g => Some(UUID fromString g(0)), _.toString)
 
   private def __string1(regex: String): RouteB[String] =
