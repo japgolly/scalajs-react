@@ -9,15 +9,6 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
 
 ## Section A: Bugs, Race Conditions, Resource Leaks & Edge Cases
 
-### 11. `Reusability.TemporalImplicitsWithoutTolerance` causes an ambiguous implicit error for `LocalDate`
-- **File**: `coreGeneric/src/main/scala/japgolly/scalajs/react/Reusability.scala` (lines 318, 474)
-- **Issue**:
-  `object Reusability` already defines `implicit def localDate: Reusability[LocalDate]` (line 318). `TemporalImplicitsWithoutTolerance` also defines `implicit def reusabilityLocalDate: Reusability[LocalDate] = localDate` (line 474). Importing `Reusability.TemporalImplicitsWithoutTolerance._` makes `Reusability[LocalDate]` fail to compile due to ambiguous implicits.
-- **Suggestion**:
-  Remove `reusabilityLocalDate` from `TemporalImplicitsWithoutTolerance` (or make it a non-implicit forwarder if binary/source compatibility requires the method name).
-
----
-
 ### 12. `ViewTransitionBuilder` shares a single mutable JS `props` object across builder calls
 - **File**: `coreGeneric/src/main/scala/japgolly/scalajs/react/feature/ViewTransition.scala` (lines 23–135)
 - **Issue**:

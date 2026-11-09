@@ -471,7 +471,8 @@ object Reusability extends ReusabilityMacros with ScalaVersionSpecificReusabilit
     implicit lazy val reusabilityLocalDateTime: Reusability[LocalDateTime] =
       byRefOr_==
 
-    implicit lazy val reusabilityLocalDate: Reusability[LocalDate] =
+    @deprecated("Use Reusability.localDate instead (which is available implicitly)", "4.1.1")
+    lazy val reusabilityLocalDate: Reusability[LocalDate] =
       byRefOr_==
 
     implicit lazy val reusabilityOffsetDateTime: Reusability[OffsetDateTime] =
