@@ -29,18 +29,6 @@ abstract class Attr[-U](final val attrName: String) {
     O.fold(oa, TagMod.empty)(:=(_))
 }
 
-// TODO: [3] Make erased class
-@implicitNotFound("You are passing a CallbackTo[${A}] to a DOM event handler which is most likely a mistake."
-  + "\n  If the result is irrelevant, add `.void`."
-  + "\n  If the result is necessary, please raise an issue and use `vdom.DomCallbackResult.force` in the meantime.")
-sealed trait DomCallbackResult[A]
-object DomCallbackResult {
-  inline def force[A]: DomCallbackResult[A] = null
-  inline given unit           : DomCallbackResult[Unit               ] = null
-  inline given boolean        : DomCallbackResult[Boolean            ] = null
-  inline given undefOrBoolean : DomCallbackResult[js.UndefOr[Boolean]] = null
-}
-
 sealed trait InnerHtmlAttr
 
 object Attr {

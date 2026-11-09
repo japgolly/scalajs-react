@@ -431,15 +431,6 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
 
 ---
 
-### 52. Dead code in `coreGeneric/src/main/scala-3/japgolly/scalajs/react/vdom/Attr.scala`: `DomCallbackResult`
-- **File**: `coreGeneric/src/main/scala-3/japgolly/scalajs/react/vdom/Attr.scala` (lines 32–42)
-- **Issue**:
-  `sealed trait DomCallbackResult[A]` and `object DomCallbackResult` are completely unused anywhere in the codebase and do not exist in the Scala 2 counterpart.
-- **Suggestion**:
-  Remove `DomCallbackResult`.
-
----
-
 ### 53. Obsolete Scala 3.0 / Dotty bug workarounds in `coreGeneric/src/main/scala-3`
 - **Files**:
   - `coreGeneric/src/main/scala-3/japgolly/scalajs/react/internal/ValueOfCompat.scala` (workaround for `dotty#12510`, fixed in Scala 3.1.0)
