@@ -406,31 +406,6 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
 
 ## Section C: Code Quality, Cross-Version Deduplication, Build & Examples
 
-### 50. Massive duplication (~3,000+ lines of 98% identical code) between `scala-2` and `scala-3` source directories
-- **Files**:
-  - `util/src/main/scala-2/japgolly/scalajs/react/util/NotAllowed.scala` & `scala-3/.../NotAllowed.scala` (100% identical)
-  - `callback/src/main/scala-2/japgolly/scalajs/react/callback/AsyncCallback.scala` (1,248 lines) & `scala-3/.../AsyncCallback.scala` (1,254 lines) (~99% identical)
-  - `callback/src/main/scala-2/japgolly/scalajs/react/callback/CallbackTo.scala` (740 lines) & `scala-3/.../CallbackTo.scala` (737 lines) (~95% identical)
-  - `callback/src/main/scala-2/japgolly/scalajs/react/callback/CallbackOption.scala` (311 lines) & `scala-3/.../CallbackOption.scala` (318 lines) (~95% identical)
-  - `callback/src/main/scala-2/japgolly/scalajs/react/callback/Callback.scala` (212 lines) & `scala-3/.../Callback.scala` (214 lines) (~95% identical)
-  - `coreGeneric/src/main/scala-2/japgolly/scalajs/react/component/builder/ComponentBuilder.scala` (502 lines) & `scala-3/.../ComponentBuilder.scala` (508 lines) (~98% identical)
-  - `coreGeneric/src/main/scala-2/japgolly/scalajs/react/UpdateSnapshot.scala` & `scala-3/.../UpdateSnapshot.scala` (100% unifiable)
-- **Issue**:
-  Maintaining two nearly identical copies of `AsyncCallback`, `CallbackTo`, `CallbackOption`, `Callback`, and `ComponentBuilder` doubles maintenance effort and has already caused small divergences (such as `CallbackTo.when_` in item 41 and missing `inline` on `CallbackOption.unless` in Scala 3 line 281).
-- **Suggestion**:
-  Move `NotAllowed.scala`, `UpdateSnapshot.scala`, `AsyncCallback.scala`, and the shared bodies of `ComponentBuilder.scala`, `CallbackTo.scala`, `CallbackOption.scala`, and `Callback.scala` into `src/main/scala/`, isolating only version-specific macro or inline extensions in small `scala-2` / `scala-3` traits.
-
----
-
-### 51. 100% duplicate files across `coreBundleCallback` / `coreBundleCBIO` and `extraExtMonocle2` / `extraExtMonocle3`
-- **Files**:
-  - `coreBundleCallback/src/main/scala/japgolly/scalajs/react/internal/ReactCallbackExtensions.scala` and `coreBundleCBIO/src/main/scala/japgolly/scalajs/react/internal/ReactCallbackExtensions.scala` (117 lines, 100% identical)
-  - `extraExtMonocle2/src/main/scala/japgolly/scalajs/react/ReactMonocle.scala` and `extraExtMonocle3/src/main/scala/japgolly/scalajs/react/ReactMonocle.scala` (100% identical)
-- **Suggestion**:
-  Move `ReactCallbackExtensions.scala` into `callback` (or a shared `unmanagedSourceDirectories` setting in `Build.scala`) and share `ReactMonocle.scala` across both Monocle modules.
-
----
-
 ### 53. Obsolete Scala 3.0 / Dotty bug workarounds in `coreGeneric/src/main/scala-3`
 - **Files**:
   - `coreGeneric/src/main/scala-3/japgolly/scalajs/react/internal/ValueOfCompat.scala` (workaround for `dotty#12510`, fixed in Scala 3.1.0)
