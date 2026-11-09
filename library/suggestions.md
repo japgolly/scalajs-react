@@ -86,28 +86,6 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
 
 ---
 
-### 18. `Router`: `BaseUrl.fromWindowOrigin` mishandles HTTPS default port and IPv6, and compiles a regex
-- **File**: `extra/src/main/scala/japgolly/scalajs/react/extra/router/Urls.scala` (lines 40–46)
-- **Issue**:
-  ```scala
-  def fromWindowOrigin: BaseUrl = {
-    val l = dom.window.location
-    var url = l.protocol + "//" + l.hostname
-    if (!l.port.matches("^(?:80)?$"))
-      url += ":" + l.port
-    BaseUrl(url)
-  }
-  ```
-  `l.port` in the DOM Location API is already `""` when using the default port for the protocol (`80` for HTTP, `443` for HTTPS). Checking `!l.port.matches("^(?:80)?$")` compiles a regex and wrongly strips `:80` if an HTTPS URL explicitly uses port 80, while `l.hostname` omits IPv6 brackets in legacy environments compared to `l.origin` or `l.host`.
-- **Suggestion**:
-  Use `dom.window.location.origin` (or `if (l.port.isEmpty) l.protocol + "//" + l.hostname else l.protocol + "//" + l.hostname + ":" + l.port`):
-  ```scala
-  def fromWindowOrigin: BaseUrl =
-    BaseUrl(dom.window.location.origin)
-  ```
-
----
-
 ### 19. `Router`: `Dsl.queryToSeq` throws uncaught `URIError` on malformed percent-encoding in the browser URL
 - **File**: `extra/src/main/scala/japgolly/scalajs/react/extra/router/Dsl.scala` (lines 422–436)
 - **Issue**:
