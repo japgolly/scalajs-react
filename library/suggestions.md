@@ -518,13 +518,3 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
   `_listeners ::= record` prepends to a `List`, so `broadcast` invokes listeners in reverse registration order, and `val record = (listener, ())` allocates a tuple just to get a fresh object identity.
 - **Suggestion**:
   Maintain listeners in registration (FIFO) order (e.g. via `Vector` or a small `js.Array` / wrapper node) without allocating a `Tuple2`.
-
----
-
-### 64. Unused build configuration, dead `FT` alias, and unused `scalajs-env-selenium` plugin dependency
-- **Files**:
-  - `project/GenHooks.scala` (lines 35–39, 43)
-- **Issue**:
-  3. `project/GenHooks.scala` has unused variables `i12663_a`, `i12663_c`, `i12663_bc`, and `_s`.
-- **Suggestion**:
-  Remove unused variables in `GenHooks.scala`.

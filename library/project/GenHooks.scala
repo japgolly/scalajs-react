@@ -32,15 +32,9 @@ object GenHooks {
     def hookCtxFnP(n: Int) = hookCtxFn(n, "P")
     def hookCtxFnPC(n: Int) = hookCtxFn(n, "P, PropsChildren")
 
-    // val i12663_pre = s"({ type F[A] = $s[A]})#F" // TODO: https://github.com/lampepfl/dotty/issues/12663
-    val i12663_a = "({ type F[A] = "
-    val i12663_c = "})#F"
-    val i12663_bc = "[A]" + i12663_c
-
     for (n <- 1 to 22) {
       val As           = (1 to n).map('A' + _ - 1).map(_.toChar).mkString(", ")
       val as           = (1 to n).map('a' + _ - 1).map(_.toChar).mkString(", ")
-      val _s           = (1 to n).map(_ => '_').mkString(", ")
       val preHns       = (1 until n).map("H" + _).mkString(", ")
       val Hns          = (1 to n).map("H" + _).mkString(", ")
       val RHns         = (1 to n).map(n => s"H$n: Reusability[H$n]").mkString(", ")
@@ -58,7 +52,7 @@ object GenHooks {
            |      z => ($as) => Z.dispatch(z($as)))(
            |      z => Reusable.byRef(z).withValue(($as) => Z.delay(z($as))))
            |""".stripMargin
-           
+
       useCallbackArgs +=
         s"""  implicit def ci$n[$As, Y, Z[_]](implicit Z: UnsafeSync[Z]): UseCallbackArg[($As) => Z[Y]] =
            |    UseCallbackArg[($As) => Z[Y], js.Function$n[$As, Y]](
