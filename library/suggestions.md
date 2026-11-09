@@ -481,13 +481,3 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
   2. `DerivedDisplayName` (used by `ScalaFn` and `ReactForwardRef`) does not pass the generated name through `ScalaJsReactConfig.Instance.automaticComponentName`, so `ScalaFn` and `ReactForwardRef` retain full class/package display names in `fullOptJS` even when `ScalaJsReactConfig` is configured to strip automatic component names.
 - **Suggestion**:
   Pass `DerivedDisplayName.derivedDisplayName` through `ScalaJsReactConfig.Instance.automaticComponentName`, and only set `displayName` on the raw JS component when `(name ne null) && name.nonEmpty`.
-
----
-
-### 57. `InspectRaw.assertValidJsComponent` allocates a `List` and has a stray quote in its error message
-- **File**: `coreGeneric/src/main/scala/japgolly/scalajs/react/component/InspectRaw.scala` (lines 16, 64)
-- **Issue**:
-  1. Line 16: `List("$$typeof", "type").exists(js.Object.hasProperty(o, _))` allocates a `List` and closure on every `JsComponent` creation in dev mode.
-  2. Line 64 has a trailing stray `"` at the end of the documentation URL: `|See https://github.com/japgolly/scalajs-react/blob/master/doc/INTEROP.md"`.
-- **Suggestion**:
-  Use `js.Object.hasProperty(o, "$$typeof") || js.Object.hasProperty(o, "type")` and remove the stray quote on line 64.

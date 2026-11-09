@@ -104,7 +104,7 @@ object CatsEffectExample {
       <.li("Using the ", <.code("core-bundle-cats_effect"), " module instead of ", <.code("core"), " in your sbt dependencies. This configure scalajs-react to use Cats Effect as the default effect types."),
     ),
     "See the scalajs-react ",
-    <.a(^.href := "https://github.com/japgolly/scalajs-react/blob/master/doc/MODULES.md", "Modules Guide"),
+    <.a(^.href := "https://github.com/japgolly/scalajs-react/blob/main/doc/MODULES.md", "Modules Guide"),
     " for more detail.",
   ))
 
