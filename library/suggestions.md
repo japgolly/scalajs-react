@@ -117,23 +117,6 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
 
 ---
 
-### 20. `Router`: `Dsl.int` and `Dsl.long` throw `NumberFormatException` on integer overflow instead of returning `None`
-- **File**: `extra/src/main/scala/japgolly/scalajs/react/extra/router/Dsl.scala` (lines 281–282)
-- **Issue**:
-  ```scala
-  val int  = new RouteB[Int] ("(-?\\d+)", 1, g => Some(g(0).toInt),  _.toString)
-  val long = new RouteB[Long]("(-?\\d+)", 1, g => Some(g(0).toLong), _.toString)
-  ```
-  Because `(-?\d+)` matches arbitrarily long digit strings (e.g. `/item/99999999999999999999`), `g(0).toInt` and `g(0).toLong` throw an uncaught `NumberFormatException` during route parsing instead of returning `None` (404 / non-match).
-- **Suggestion**:
-  Use `toIntOption` and `toLongOption`:
-  ```scala
-  val int  = new RouteB[Int] ("(-?\\d+)", 1, _(0).toIntOption,  _.toString)
-  val long = new RouteB[Long]("(-?\\d+)", 1, _(0).toLongOption, _.toString)
-  ```
-
----
-
 ### 21. `OnUnmountF.unmount` fails to clear `unmountProcs` if an unmount callback throws an exception
 - **File**: `extra/src/main/scala/japgolly/scalajs/react/extra/OnUnmount.scala` (lines 15–16)
 - **Issue**:
