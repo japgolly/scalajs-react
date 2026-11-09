@@ -509,12 +509,3 @@ This document catalogues numbered findings from a full-codebase audit of `scalaj
   `setGuaranteedIntervalMs` uses 3 mutually recursive local `lazy val`s (`jsProc`, `step`, `proc`), which in Scala.js compile to heap-allocated lazy-val holder objects per call.
 - **Suggestion**:
   Use a simple `var jsProc: js.Function0[Unit] = null` assigned before `RawTimers.setTimeout`.
-
----
-
-### 60. `BroadcasterF` notifies listeners in reverse (LIFO) registration order and allocates a `Tuple2` per listener
-- **File**: `extra/src/main/scala/japgolly/scalajs/react/extra/Broadcaster.scala` (lines 15–28)
-- **Issue**:
-  `_listeners ::= record` prepends to a `List`, so `broadcast` invokes listeners in reverse registration order, and `val record = (listener, ())` allocates a tuple just to get a fresh object identity.
-- **Suggestion**:
-  Maintain listeners in registration (FIFO) order (e.g. via `Vector` or a small `js.Array` / wrapper node) without allocating a `Tuple2`.
