@@ -43,7 +43,7 @@ Includes a router, testing utils, performance utils, more.
 ##### External Resources
 
 * Tutorials / Blogs
-  * [Scala, React, and SSR](https://blog.shipreq.com/post/scala_react_and_ssr_part_1)
+  * [Scala, React, and SSR](https://japgolly.github.io/blog/posts/2020/scala-react-and-ssr-part-1/)
   * [Scala.js and React: Building an Application for the Web](https://scala-bility.blogspot.com/2015/05/scalajs-and-react-building-application.html)
 
 * Templates
